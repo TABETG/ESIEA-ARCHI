@@ -1,193 +1,280 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jour 1 — Fondamentaux de l’architecture logicielle</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script defer src="../assets/js/main.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jour 1 — Fondamentaux de l’architecture logicielle | Architecture & Systèmes Distribués</title>
+
+    <link rel="stylesheet" href="../assets/css/style.css">
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <style>
+        pre[class*="language-"] {
+            background: #0f172a !important;
+            margin: 0 0 1.5rem 0 !important;
+            border: 1px solid #0f172a !important;
+            border-radius: 8px !important;
+            border-top-left-radius: 0 !important;
+            border-top-right-radius: 0 !important;
+            padding: 1.5rem !important;
+            box-shadow: none !important;
+        }
+        code[class*="language-"], pre[class*="language-"] {
+            text-shadow: none !important;
+            font-family: 'Fira Code', Consolas, Monaco, monospace !important;
+            font-size: 0.9rem !important;
+        }
+        /* Coloriser spécifiquement les annotations Java en jaune/orange comme sur ta capture */
+        .token.annotation { color: #e5c07b !important; }
+    </style>
+
+    <script defer src="../assets/js/main.js"></script>
 </head>
 <body>
 <header class="site-header">
-  <div class="nav-wrap">
-    <div class="brand">Architecture logicielle & systèmes distribués</div>
-    <nav class="top-nav">
-      <a href="../index.html">Accueil</a>
-<a href="../pages/introduction.html">Introduction</a>
-<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-<a href="../pages/tp-1.html">TP1</a>
-<a href="../pages/tp-2.html">TP2</a>
-<a href="../pages/tp-3.html">TP3</a>
-<a href="../pages/exercices.html">Exercices</a>
-<a href="../pages/corriges.html">Corrigés</a>
-<a href="../pages/glossary.html">Glossaire</a>
-<a href="../pages/live-coding.html">Live Coding</a>
-<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-<a href="../pages/faq.html">FAQ</a>
-    </nav>
-  </div>
+    <div class="nav-wrap">
+        <div class="brand">Architecture logicielle & systèmes distribués</div>
+        <nav class="top-nav">
+            <a href="../index.html">Accueil</a>
+            <a href="introduction.html">Introduction</a>
+            <a href="jour-1-fondamentaux-architecture.html" class="active">Jour 1</a>
+            <a href="jour-2-patterns-et-couches.html">Jour 2</a>
+            <a href="jour-3-systemes-distribues-et-api.html">Jour 3</a>
+            <a href="jour-4-microservices-et-communication.html">Jour 4</a>
+            <a href="jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+            <a href="jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+            <a href="tp-1.html">TP1</a>
+            <a href="tp-2.html">TP2</a>
+            <a href="tp-3.html">TP3</a>
+            <a href="exercices.html">Exercices</a>
+            <a href="corriges.html">Corrigés</a>
+            <a href="glossary.html">Glossaire</a>
+            <a href="architecture-dossier.html">Dossier Architecture</a>
+        </nav>
+    </div>
 </header>
+
 <main>
-  <div class="hero">
-    <div class="badges">
-      <span class="badge">Support HTML modulaire</span>
-      <span class="badge">Master 2</span>
-      <span class="badge">6 jours</span>
-      <span class="badge">3 TP progressifs</span>
-      <span class="badge">Java / Spring Boot</span>
+    <div class="hero">
+        <div class="badges">
+            <span class="badge">Jour 1 sur 6</span>
+            <span class="badge">Fondamentaux</span>
+            <span class="badge">Théorie & Pratique</span>
+        </div>
+        <h1>Jour 1 — Fondamentaux de l’architecture logicielle</h1>
+        <div class="meta-grid">
+            <div class="meta">
+                <h3>Objectifs pédagogiques</h3>
+                <p>Poser les bases scientifiques et empiriques : architecture, qualités logicielles, couplage, cohésion, couches et premiers arbitrages techniques.</p>
+            </div>
+            <div class="meta">
+                <h3>Temps estimé</h3>
+                <p>≈ 6h incluant concepts théoriques, débats, démos et premier TP.</p>
+            </div>
+            <div class="meta">
+                <h3>Prérequis</h3>
+                <p>Programmation Orientée Objet (POO), base des protocoles web (HTTP), Spring Boot intermédiaire.</p>
+            </div>
+        </div>
     </div>
-    <h1>Jour 1 — Fondamentaux de l’architecture logicielle</h1>
-    <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Poser les bases : architecture, qualités logicielles, couplage, cohésion, couches et premiers arbitrages.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>POO, HTTP basique, Spring Boot de base</p></div>
-    </div>
-  </div>
-  <div class="layout">
-    <aside class="toc">
-      <h2>Table des matières</h2>
-      <ul><li><a href="#definition">Définition</a></li>
-<li><a href="#qualites">Qualités</a></li>
-<li><a href="#couplage">Couplage & cohésion</a></li>
-<li><a href="#couches">Couches</a></li>
-<li><a href="#mono-vs-distribue">Monolithe vs distribué</a></li>
-<li><a href="#spring-exemple">Exemple Spring</a></li>
-<li><a href="#quiz">Quiz</a></li></ul>
-    </aside>
-    <article class="content">
-      
-<section id="definition">
-  <h2>Qu’est-ce que l’architecture logicielle ?</h2>
-  <p>L’architecture logicielle est l’ensemble des décisions qui structurent durablement un système : découpage, interactions, responsabilités, flux de données, contraintes et règles d’évolution.</p>
-  <div class="box definition"><h4>Définition simple</h4><p>Architecture = comment on organise le système. Design = comment on détaille un morceau. Code = comment on implémente.</p></div>
-  <div class="box example"><h4>Exemple concret</h4><p>Dans une plateforme e-commerce, décider qu’il existe un module catalogue, un module commande et un module paiement relève de l’architecture. Décider des méthodes d’une classe <code>OrderService</code> relève du design.</p></div>
-  <div class="box child-mode"><h4>Mode enfant</h4><p>L’architecte dessine le plan de la maison, le designer choisit l’emplacement précis des meubles, le développeur pose réellement les briques.</p></div>
-  <div class="box pro-mode"><h4>Mode pro</h4><p>Une architecture réussie permet des changements métier rapides, des déploiements sûrs, une maintenance prévisible et une maîtrise du coût total de possession.</p></div>
-</section>
-<section id="qualites">
-  <h2>Qualités logicielles essentielles</h2>
-  <table>
-    <thead><tr><th>Qualité</th><th>Question à se poser</th><th>Exemple</th></tr></thead>
-    <tbody>
-      <tr><td>Maintenabilité</td><td>Est-ce facile à modifier ?</td><td>Ajouter un nouveau type d’emprunt sans casser l’existant</td></tr>
-      <tr><td>Scalabilité</td><td>Peut-on absorber plus de charge ?</td><td>Monter de 1 000 à 20 000 étudiants</td></tr>
-      <tr><td>Performance</td><td>Répond-on assez vite ?</td><td>Recherche catalogue &lt; 300 ms</td></tr>
-      <tr><td>Disponibilité</td><td>Le service reste-t-il accessible ?</td><td>Continuer à consulter le catalogue même si notifications HS</td></tr>
-      <tr><td>Sécurité</td><td>Les accès et les données sont-ils protégés ?</td><td>JWT pour API + contrôle de rôles</td></tr>
-    </tbody>
-  </table>
-  <div class="box best-practice"><h4>Bonne pratique</h4><p>Toute décision architecturale doit se relier à une qualité recherchée. Sinon, elle risque d’être gratuite ou décorative.</p></div>
-</section>
-<section id="couplage">
-  <h2>Couplage, cohésion et séparation des responsabilités</h2>
-  <p>Un bon système cherche une <strong>forte cohésion</strong> dans chaque composant et un <strong>faible couplage</strong> entre composants.</p>
-  <div class="columns">
-    <div class="box example">
-      <h4>Bonne cohésion</h4>
-      <p>Le composant <code>LoanService</code> s’occupe uniquement des règles d’emprunt.</p>
-    </div>
-    <div class="box frequent-error">
-      <h4>Couplage excessif</h4>
-      <p>Le contrôleur appelle directement le repository, envoie un mail et calcule les règles métier dans la même méthode.</p>
-    </div>
-  </div>
-  <pre><code>// Mauvais exemple : trop de responsabilités dans le contrôleur
-@PostMapping("/loans")
-public ResponseEntity&lt;?&gt; create(@RequestBody LoanRequest request) {{
-    // validation manuelle
-    // accès BD
-    // règles métier
-    // envoi de notification
-    // mapping de réponse
-    return ResponseEntity.ok().build();
-}}</code></pre>
-  <pre><code>// Meilleur exemple : responsabilités séparées
-@PostMapping("/loans")
-public ResponseEntity&lt;LoanResponse&gt; create(@Valid @RequestBody LoanRequest request) {{
-    LoanResponse response = loanApplicationService.createLoan(request);
-    return ResponseEntity.status(HttpStatus.CREATED).body(response);
-}}</code></pre>
-</section>
-<section id="couches">
-  <h2>Architecture en couches</h2>
-  <p>Une architecture en couches sépare typiquement présentation, application, domaine et infrastructure.</p>
-  <pre><code>web/controller  → reçoit HTTP
-application     → orchestre les cas d’usage
-domain          → porte les règles métier
-infrastructure  → base de données, email, broker, clients externes</code></pre>
-  <div class="box child-mode"><h4>Mode enfant</h4><p>La couche web est le guichet, la couche métier décide, la couche infrastructure va chercher les outils et les données.</p></div>
-  <div class="box pro-mode"><h4>Mode pro</h4><p>La séparation réduit l’effet domino des changements, améliore les tests et prépare une évolution vers des patterns plus stricts comme l’hexagonal.</p></div>
-</section>
-<section id="mono-vs-distribue">
-  <h2>Monolithe vs distribué</h2>
-  <table>
-    <thead><tr><th>Critère</th><th>Monolithe</th><th>Système distribué</th></tr></thead>
-    <tbody>
-      <tr><td>Déploiement</td><td>Simple</td><td>Plus complexe</td></tr>
-      <tr><td>Debug</td><td>Plus direct</td><td>Plus difficile</td></tr>
-      <tr><td>Scalabilité ciblée</td><td>Limitée</td><td>Meilleure</td></tr>
-      <tr><td>Latence</td><td>Faible en interne</td><td>Présente entre services</td></tr>
-      <tr><td>Autonomie d’équipe</td><td>Plus faible</td><td>Plus forte si bien découpé</td></tr>
-    </tbody>
-  </table>
-  <div class="box warning"><h4>Attention</h4><p>Un système distribué n’est pas “plus moderne” par nature. Il déplace des problèmes internes vers le réseau, l’observabilité, la sécurité et l’exploitation.</p></div>
-</section>
-<section id="spring-exemple">
-  <h2>Exemple Spring Boot commenté</h2>
-  <pre><code>// DTO d'entrée : l'API reçoit un objet simple et validé
+
+    <div class="layout">
+        <aside class="toc">
+            <h2>Sommaire</h2>
+            <ul>
+                <li><a href="#definition">Définition & Périmètre</a></li>
+                <li><a href="#qualites">Attributs de Qualité</a></li>
+                <li><a href="#couplage">Couplage & Cohésion</a></li>
+                <li><a href="#couches">L'Architecture en Couches</a></li>
+                <li><a href="#mono-vs-distribue">Monolithe vs Distribué</a></li>
+                <li><a href="#spring-exemple">Implémentation Spring</a></li>
+                <li><a href="#quiz">Auto-évaluation</a></li>
+            </ul>
+        </aside>
+
+        <article class="content">
+
+            <section id="definition">
+                <h2>Qu’est-ce que l’architecture logicielle ?</h2>
+                <p>L’architecture logicielle est l’ensemble des décisions <strong>difficiles et coûteuses à modifier</strong> une fois implémentées. Elle définit la structure du système, la répartition des responsabilités, les flux de données et les règles d’évolution.</p>
+
+                <div class="grid-2">
+                    <div class="box child-mode">
+                        <h4>La métaphore du bâtiment (Mode enfant)</h4>
+                        <p>L’architecte décide où placer les murs porteurs, l'arrivée d'eau et le réseau électrique. Le designer choisit la couleur de la peinture et l'emplacement des meubles. Si la peinture ne plaît pas, c'est facile à changer. Casser un mur porteur est un cauchemar.</p>
+                    </div>
+                    <div class="box pro-mode">
+                        <h4>La Loi de Conway (Mode pro)</h4>
+                        <p><em>"Les organisations qui conçoivent des systèmes sont contraintes de produire des designs qui sont des copies de la structure de communication de leur organisation."</em> L'architecture technique d'une entreprise est souvent le miroir de son organigramme.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="qualites">
+                <h2>Les Attributs de Qualité (Les "-ilities")</h2>
+                <p>Une architecture ne se juge pas à sa beauté, mais à sa capacité à satisfaire des besoins non-fonctionnels. Or, <strong>maximiser une qualité dégrade souvent une autre (Trade-off)</strong>.</p>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Attribut</th>
+                        <th>Question clé</th>
+                        <th>Trade-off courant (Le prix à payer)</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr>
+                        <td><strong>Maintenabilité</strong></td>
+                        <td>Combien de temps pour ajouter une feature sans tout casser ?</td>
+                        <td>Demande plus de temps de conception (abstraction, interfaces).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Scalabilité</strong></td>
+                        <td>Peut-on absorber 10x plus d'utilisateurs sans ralentir ?</td>
+                        <td>Complexifie le système (nécessite du distribué, des caches).</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Performance</strong></td>
+                        <td>Quel est le temps de réponse sous charge (ex: < 200ms) ?</td>
+                        <td>S'oppose souvent à la portabilité ou au code générique.</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Sécurité</strong></td>
+                        <td>Le système résiste-t-il aux attaques (Zero Trust) ?</td>
+                        <td>Dégrade la performance (chiffrement) et l'expérience utilisateur.</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="couplage">
+                <h2>Couplage & Cohésion : Le cœur du métier</h2>
+                <p>Le Saint Graal de l'architecte se résume en une phrase : <strong>Forte Cohésion et Faible Couplage</strong>.</p>
+
+                <div class="grid-2">
+                    <div class="box">
+                        <h4>Forte Cohésion (Ce qu'on veut)</h4>
+                        <p>Les éléments d'un même module sont fortement liés et ont une vocation unique. (Exemple : Un module <code>Billing</code> ne gère que les factures, pas l'envoi de mails promotionnels).</p>
+                    </div>
+                    <div class="box" style="border-left: 4px solid #ef4444;">
+                        <h4>Couplage Fort (Le danger)</h4>
+                        <p>Le changement dans un module A force un changement dans un module B. (Exemple : Si on modifie la table SQL "Users", l'application Mobile crashe car l'API renvoie une erreur).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section id="couches">
+                <h2>L'Architecture en Couches (N-Tiers)</h2>
+                <p>Pour réduire le couplage, le standard de l'industrie est l'architecture en couches. La règle d'or est la <strong>dépendance unidirectionnelle</strong> (une couche supérieure ne peut appeler qu'une couche inférieure).</p>
+
+                <div class="code-header">Flux standard d'une architecture N-Tiers</div>
+                <pre><code class="language-text">[ Controller / API ]  → Reçoit la requête HTTP, valide le JSON (Couche Présentation)
+       ↓
+[ Service Métier ]    → Orchestre la logique, applique les règles (Couche Application)
+       ↓
+[ Repository / DAO ]  → Traduit l'objet en SQL, gère la BDD (Couche Infrastructure)</code></pre>
+            </section>
+
+            <section id="mono-vs-distribue">
+                <h2>Monolithe vs Distribué : Les illusions</h2>
+                <p>Un système distribué (ex: Microservices) n’est pas "mieux" qu'un Monolithe. Il résout des problèmes d'échelle humaine (équipes) au prix d'une immense complexité technique.</p>
+
+                <div class="box pro-mode">
+                    <h4>Les 8 illusions de l'informatique distribuée (L. Peter Deutsch)</h4>
+                    <p>Quand on passe au distribué, les développeurs supposent souvent à tort que :</p>
+                    <ul style="margin-bottom: 0;">
+                        <li>1. Le réseau est fiable.</li>
+                        <li>2. La latence est nulle.</li>
+                        <li>3. La bande passante est infinie.</li>
+                        <li>4. Le réseau est sûr.</li>
+                        <li>5. La topologie ne change pas.</li>
+                        <li>6. Il y a un seul administrateur.</li>
+                        <li>7. Le coût de transport est nul.</li>
+                        <li>8. Le réseau est homogène.</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section id="spring-exemple">
+                <h2>Implémentation "Clean" avec Spring Boot</h2>
+                <p>Voici comment séparer proprement les responsabilités (DTO, Contrôleur, Service) pour garantir une bonne cohésion.</p>
+
+                <div class="code-header">BookRequest.java (Présentation - Validation)</div>
+                <pre><code class="language-java">// DTO d'entrée : l'API reçoit un objet immuable et validé
 public record BookRequest(
-    @NotBlank String title,
-    @NotBlank String author,
-    @Positive int stock
-) {{}}</code></pre>
-  <pre><code>// Contrôleur : rôle = interface HTTP, pas logique métier
-@RestController
+    @NotBlank(message = "Le titre est obligatoire") String title,
+    @NotBlank(message = "L'auteur est obligatoire") String author,
+    @Positive(message = "Le stock doit être > 0") int stock
+) {}</code></pre>
+
+                <div class="code-header">BookController.java (Présentation - Routage HTTP)</div>
+                <pre><code class="language-java">@RestController
 @RequestMapping("/api/books")
 @RequiredArgsConstructor
-public class BookController {{
+public class BookController {
 
     private final BookApplicationService bookApplicationService;
 
     @PostMapping
-    public ResponseEntity&lt;BookResponse&gt; create(@Valid @RequestBody BookRequest request) {{
+    public ResponseEntity<BookResponse> create(@Valid @RequestBody BookRequest request) {
+        // Le contrôleur ne fait aucune règle métier. Il délègue.
         BookResponse created = bookApplicationService.create(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
-    }}
-}}</code></pre>
-  <pre><code>// Service d'application : orchestre le cas d'usage
-@Service
+    }
+}</code></pre>
+
+                <div class="code-header">BookApplicationService.java (Application - Orchestration)</div>
+                <pre><code class="language-java">@Service
 @RequiredArgsConstructor
-public class BookApplicationService {{
+public class BookApplicationService {
 
     private final BookRepository bookRepository;
     private final BookMapper bookMapper;
 
-    public BookResponse create(BookRequest request) {{
+    @Transactional
+    public BookResponse create(BookRequest request) {
+        // 1. Mapping
         Book book = bookMapper.toEntity(request);
+        // 2. Règle métier (déléguée au domaine si complexe)
+        book.generateIsbn();
+        // 3. Persistance
         Book saved = bookRepository.save(book);
+        // 4. Retour
         return bookMapper.toResponse(saved);
-    }}
-}}</code></pre>
-  <div class="box best-practice"><h4>Bonne pratique</h4><p>Le service d’application orchestre ; le domaine décide ; l’infrastructure exécute ; le contrôleur expose.</p></div>
-</section>
-<section id="quiz">
-  <h2>Quiz de fin</h2>
-  <ol>
-    <li>Pourquoi la séparation des responsabilités améliore-t-elle la maintenabilité ?</li>
-    <li>Dans quel cas un monolithe reste-t-il un bon choix ?</li>
-    <li>Quelle différence entre couplage fort et forte cohésion ?</li>
-  </ol>
-  <details><summary>Corrigé synthétique</summary><p>Elle limite l’impact d’un changement. Un monolithe est adapté pour une équipe réduite, un domaine simple ou une phase de démarrage. Le couplage concerne les dépendances entre composants ; la cohésion concerne l’unité interne d’un composant.</p></details>
-</section>
+    }
+}</code></pre>
+            </section>
 
-      <div class="footer-nav"><a href="../pages/introduction.html">← Introduction</a><a href="../pages/jour-2-patterns-et-couches.html">Jour 2 →</a></div>
-    </article>
-  </div>
+            <section id="quiz">
+                <h2>Quiz : Validez vos acquis</h2>
+                <div class="quiz-container">
+                    <ol>
+                        <li><strong>Pourquoi maximiser la "Performance" peut-il réduire la "Maintenabilité" ?</strong></li>
+                        <li><strong>Si l'équipe A (Frontend) et l'équipe B (Backend) ne s'entendent pas, quel sera l'impact sur l'API (selon Conway) ?</strong></li>
+                        <li><strong>Pourquoi utiliser un "DTO" (Data Transfer Object) au lieu de renvoyer directement l'Entité JPA/Hibernate dans le contrôleur ?</strong></li>
+                    </ol>
+                    <details>
+                        <summary>Voir les réponses détaillées</summary>
+                        <ul>
+                            <li>L'optimisation extrême des performances nécessite souvent des hacks de code (cache manuel, requêtes SQL natives complexes, bits manipulation) qui rendent le code très difficile à lire et à maintenir pour les autres développeurs.</li>
+                            <li>Selon la loi de Conway, l'API conçue sera probablement chaotique, mal documentée, et l'intégration sera douloureuse, car elle reflétera le manque de communication entre les deux équipes.</li>
+                            <li>Renvoyer une Entité JPA crée un couplage fort entre la base de données et l'API publique. Si on ajoute un champ secret en BDD (ex: mot de passe), il risque de fuiter dans l'API. De plus, cela peut causer des problèmes de "Lazy Loading" (boucles infinies JSON).</li>
+                        </ul>
+                    </details>
+                </div>
+            </section>
+
+            <div class="footer-nav">
+                <a href="introduction.html" class="btn-secondary">← Retour à l'Introduction</a>
+                <a href="jour-2-patterns-et-couches.html" class="btn-primary">Passer au Jour 2 →</a>
+            </div>
+        </article>
+    </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+
 </body>
 </html>
