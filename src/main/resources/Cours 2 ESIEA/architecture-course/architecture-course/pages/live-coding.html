@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live programming</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Live programming</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Donner à l’enseignant des démos courtes, parlantes et reliées à la théorie.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Selon le chapitre</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#layered">Couches</a></li>
+<li><a href="#monolithe-microservices">Monolithe → services</a></li>
+<li><a href="#rest-errors">REST & erreurs</a></li>
+<li><a href="#resilience">Résilience</a></li>
+<li><a href="#traces">Logs & traçabilité</a></li>
+<li><a href="#security">Sécurité</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="layered">
+  <h2>Live coding 1 — Architecture en couches</h2>
+  <div class="box live-coding"><h4>Démo en direct</h4><p>Créer une API Spring Boot simple avec contrôleur, service, repository, DTO et validation.</p></div>
+  <ol>
+    <li>Générer le projet Spring Boot.</li>
+    <li>Créer <code>CreateBookRequest</code>, <code>BookController</code>, <code>BookApplicationService</code>.</li>
+    <li>Expliquer le rôle de chaque couche au fur et à mesure.</li>
+  </ol>
+  <p><strong>Ce que l’enseignant doit dire :</strong> “Le contrôleur ne décide pas, il expose. Le service orchestre. Le repository persiste.”</p>
+</section>
+<section id="monolithe-microservices">
+  <h2>Live coding 2 — Passage monolithe vers services séparés</h2>
+  <ol>
+    <li>Copier le module catalogue dans un projet séparé.</li>
+    <li>Créer une API interne de disponibilité.</li>
+    <li>Ajouter un client Feign dans le service de prêts.</li>
+  </ol>
+  <div class="box warning"><h4>Erreurs possibles</h4><p>URL en dur, contrat non documenté, duplication de logique métier, confusion entre API publique et interne.</p></div>
+</section>
+<section id="rest-errors">
+  <h2>Live coding 3 — Appel REST et gestion d’erreurs distribuées</h2>
+  <ol>
+    <li>Débrancher temporairement <code>catalog-service</code>.</li>
+    <li>Montrer l’échec côté <code>loan-service</code>.</li>
+    <li>Ajouter timeout + fallback + message d’erreur maîtrisé.</li>
+  </ol>
+</section>
+<section id="resilience">
+  <h2>Live coding 4 — Résilience simple</h2>
+  <p>Configurer Resilience4j et visualiser l’effet du circuit breaker sur plusieurs échecs consécutifs.</p>
+</section>
+<section id="traces">
+  <h2>Live coding 5 — Logs et traçabilité</h2>
+  <p>Ajouter un filtre de corrélation, propager <code>X-Correlation-Id</code> et montrer les logs corrélés entre gateway et service.</p>
+</section>
+<section id="security">
+  <h2>Live coding 6 — Sécurité simple</h2>
+  <p>Protéger un endpoint d’écriture avec JWT et rôle <code>LIBRARIAN</code>. Montrer une requête refusée puis autorisée.</p>
+</section>
+
+      <div class="footer-nav"><a href="../pages/glossary.html">← Glossaire</a><a href="../pages/architecture-dossier.html">Dossier Architecture →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

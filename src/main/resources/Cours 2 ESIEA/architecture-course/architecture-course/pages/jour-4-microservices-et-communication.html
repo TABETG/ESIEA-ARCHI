@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jour 4 — Microservices et communication inter-services</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Jour 4 — Microservices et communication inter-services</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Découper un domaine, comprendre gateway, discovery, cohérence éventuelle et principaux anti-patterns.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 3 acquis</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#principes">Principes</a></li>
+<li><a href="#decoupage">Découpage</a></li>
+<li><a href="#infra-distribuee">Gateway / discovery / config</a></li>
+<li><a href="#sync-async">REST et événementiel</a></li>
+<li><a href="#sagas">Sagas</a></li>
+<li><a href="#antipatterns">Anti-patterns</a></li>
+<li><a href="#quiz">Quiz</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="principes">
+  <h2>Principes microservices</h2>
+  <p>Le microservice n’est pas “un petit projet Spring Boot”. C’est une unité de déploiement et d’évolution autonome centrée sur une capacité métier.</p>
+  <div class="box child-mode"><h4>Mode enfant</h4><p>Au lieu d’une seule grande cuisine, tu as plusieurs cuisines spécialisées : dessert, pain, plats chauds. Chacune a son équipe et ses outils.</p></div>
+  <div class="box pro-mode"><h4>Mode pro</h4><p>Les microservices cherchent à réduire la coordination entre équipes, aligner code et domaine, et permettre un scaling différencié. Ils ne sont rentables qu’avec une maturité d’exploitation suffisante.</p></div>
+</section>
+<section id="decoupage">
+  <h2>Découpage fonctionnel</h2>
+  <p>On découpe par capacités métier cohérentes, pas par couches techniques globales.</p>
+  <pre><code>❌ Mauvais découpage
+user-controller-service
+user-repository-service
+notification-repository-service
+
+✅ Découpage métier
+catalog-service
+loan-service
+identity-service
+notification-service</code></pre>
+  <div class="box best-practice"><h4>Bonne pratique</h4><p>Un microservice doit posséder son modèle et ses données sur son périmètre. Éviter la base partagée quand on veut une vraie autonomie.</p></div>
+</section>
+<section id="infra-distribuee">
+  <h2>API Gateway, service discovery, configuration distribuée</h2>
+  <table>
+    <thead><tr><th>Composant</th><th>Rôle</th><th>Exemple</th></tr></thead>
+    <tbody>
+      <tr><td>API Gateway</td><td>Point d’entrée, routage, sécurité, quotas</td><td>Spring Cloud Gateway</td></tr>
+      <tr><td>Service Discovery</td><td>Trouver les instances</td><td>Eureka ou alternatives</td></tr>
+      <tr><td>Config distribuée</td><td>Centraliser la configuration</td><td>Spring Cloud Config</td></tr>
+    </tbody>
+  </table>
+  <pre><code># Exemple simplifié de route Gateway
+spring:
+  cloud:
+    gateway:
+      routes:
+        - id: catalog
+          uri: lb://catalog-service
+          predicates:
+            - Path=/api/catalog/**</code></pre>
+</section>
+<section id="sync-async">
+  <h2>Communication REST et événementielle</h2>
+  <div class="columns">
+    <div class="box example">
+      <h4>REST</h4>
+      <p>Bon pour une réponse immédiate. Exemple : vérifier si un livre est disponible avant de créer un prêt.</p>
+    </div>
+    <div class="box example">
+      <h4>Événementiel</h4>
+      <p>Bon pour diffuser un fait métier. Exemple : après création du prêt, envoyer “loan-created” pour déclencher une notification.</p>
+    </div>
+  </div>
+</section>
+<section id="sagas">
+  <h2>Orchestration, chorégraphie, sagas et transactions distribuées</h2>
+  <p>Dans un monolithe, une transaction locale suffit souvent. Dans le distribué, on travaille souvent avec <strong>cohérence éventuelle</strong>.</p>
+  <pre><code>Exemple de saga d'emprunt
+1. loan-service crée un prêt en statut PENDING
+2. catalog-service réserve l'exemplaire
+3. identity-service valide le profil étudiant
+4. loan-service passe le prêt à CONFIRMED
+5. si une étape échoue, compensation : annuler la réservation</code></pre>
+  <div class="box warning"><h4>Attention</h4><p>Les transactions distribuées bloquantes à travers plusieurs services sont rarement une bonne idée dans les architectures modernes généralistes.</p></div>
+</section>
+<section id="antipatterns">
+  <h2>Anti-patterns microservices fréquents</h2>
+  <ul>
+    <li><strong>Distributed Monolith</strong> : services séparés mais fortement couplés et déployés ensemble.</li>
+    <li><strong>Chatty Communication</strong> : trop d’appels réseau pour un seul cas d’usage.</li>
+    <li><strong>Shared Database</strong> : plusieurs services écrivent les mêmes tables.</li>
+    <li><strong>Nano-services</strong> : découpage trop fin, coût opérationnel énorme.</li>
+    <li><strong>Everything async</strong> : sur-utilisation de l’événementiel sans besoin réel.</li>
+  </ul>
+</section>
+<section id="quiz">
+  <h2>Quiz de fin</h2>
+  <ol>
+    <li>Pourquoi une base partagée nuit-elle à l’autonomie des microservices ?</li>
+    <li>Quelle différence entre orchestration et chorégraphie ?</li>
+    <li>Qu’est-ce qu’un “distributed monolith” ?</li>
+  </ol>
+</section>
+
+      <div class="footer-nav"><a href="../pages/jour-3-systemes-distribues-et-api.html">← Jour 3</a><a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5 →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

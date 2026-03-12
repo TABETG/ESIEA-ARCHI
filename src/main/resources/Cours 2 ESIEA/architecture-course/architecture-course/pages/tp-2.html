@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TP2 — Passage en distribué</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>TP2 — Passage en distribué</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Faire évoluer le projet fil rouge en architecture distribuée simple et contrôlée.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>TP1 terminé + Jour 3 et 4</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#objectifs">Objectifs</a></li>
+<li><a href="#enonce">Énoncé</a></li>
+<li><a href="#etapes">Étapes</a></li>
+<li><a href="#structure">Structure</a></li>
+<li><a href="#code">Code</a></li>
+<li><a href="#pieges">Pièges</a></li>
+<li><a href="#evaluation">Évaluation</a></li>
+<li><a href="#corrige">Corrigé</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="objectifs">
+  <h2>Objectifs pédagogiques</h2>
+  <ul>
+    <li>Découper progressivement le projet du TP1.</li>
+    <li>Introduire communication inter-services et API Gateway.</li>
+    <li>Observer les impacts du distribué : erreurs, temps réseau, contrats.</li>
+  </ul>
+</section>
+<section id="enonce">
+  <h2>Énoncé</h2>
+  <p>À partir du monolithe du TP1, extraire :</p>
+  <ul>
+    <li><code>catalog-service</code></li>
+    <li><code>loan-service</code></li>
+    <li><code>api-gateway</code></li>
+  </ul>
+  <p>Le <code>loan-service</code> doit appeler le <code>catalog-service</code> pour vérifier la disponibilité d’un livre avant de créer le prêt.</p>
+</section>
+<section id="etapes">
+  <h2>Étapes détaillées</h2>
+  <ol>
+    <li>Identifier les frontières métier.</li>
+    <li>Créer un contrat HTTP interne simple.</li>
+    <li>Déplacer les données par service.</li>
+    <li>Mettre en place Gateway.</li>
+    <li>Tester les cas d’erreur : service indisponible, réponse lente, contrat cassé.</li>
+  </ol>
+</section>
+<section id="structure">
+  <h2>Structure de projet attendue</h2>
+  <pre><code>distributed-library/
+├── api-gateway
+├── catalog-service
+└── loan-service</code></pre>
+</section>
+<section id="code">
+  <h2>Extraits de code commentés</h2>
+  <pre><code>@FeignClient(name = "catalog-service", url = "${catalog.url}")
+public interface CatalogClient {{
+    @GetMapping("/internal/books/{bookId}/availability")
+    AvailabilityResponse getAvailability(@PathVariable UUID bookId);
+}}</code></pre>
+  <pre><code>public LoanResponse createLoan(CreateLoanRequest request) {{
+    AvailabilityResponse availability = catalogClient.getAvailability(request.bookId());
+    if (!availability.available()) {{
+        throw new BusinessException("Livre non disponible");
+    }}
+    // créer le prêt localement
+}}</code></pre>
+</section>
+<section id="pieges">
+  <h2>Pièges fréquents</h2>
+  <ul>
+    <li>Conserver une base partagée entre services.</li>
+    <li>Multiplier les appels réseau dans une boucle.</li>
+    <li>Ne pas documenter le contrat interne.</li>
+    <li>Éparpiller les URLs de services en dur.</li>
+  </ul>
+</section>
+<section id="evaluation">
+  <h2>Critères d’évaluation</h2>
+  <ul>
+    <li>Découpage justifié.</li>
+    <li>Contrats inter-services clairs.</li>
+    <li>Gateway cohérente.</li>
+    <li>Gestion minimale des erreurs.</li>
+    <li>Compréhension explicite des nouveaux risques introduits.</li>
+  </ul>
+</section>
+<section id="corrige">
+  <h2>Corrigé détaillé</h2>
+  <p>Le bon corrigé montre que le passage au distribué n’est pas “gratuit” : on gagne en séparation mais on paie en complexité réseau, debug et déploiement.</p>
+  <div class="box child-mode"><h4>Ce que l’étudiant doit avoir compris</h4><p>Couper une application en morceaux n’est utile que si chaque morceau a un sens clair et des interactions maîtrisées.</p></div>
+</section>
+
+      <div class="footer-nav"><a href="../pages/tp-1.html">← TP1</a><a href="../pages/tp-3.html">TP3 →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

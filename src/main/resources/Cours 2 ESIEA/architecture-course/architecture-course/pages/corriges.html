@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Corrigés et éléments d’évaluation</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Corrigés et éléments d’évaluation</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Fournir des pistes de corrigé et aider à l’évaluation des étudiants.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Exercices complétés</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#elements">Éléments de corrigé</a></li>
+<li><a href="#barreme">Barème</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="elements">
+  <h2>Éléments de corrigé</h2>
+  <p>Ces corrigés donnent une direction attendue. En architecture, plusieurs réponses sont acceptables si elles sont justifiées avec rigueur.</p>
+  <details open><summary>Exercice : pourquoi garder un monolithe ?</summary>
+    <p>Parce qu’une équipe réduite, un domaine encore mouvant et une faible maturité d’exploitation rendent souvent le monolithe modulaire plus rentable. Le vrai critère est le coût global d’évolution, pas la mode.</p>
+  </details>
+  <details open><summary>Exercice : forte charge sur le catalogue</summary>
+    <p>Extraire ou isoler le catalogue si nécessaire, mettre en place cache, scaling horizontal ciblé et éventuelle réplication lecture, tout en gardant la gestion des prêts séparée.</p>
+  </details>
+  <details open><summary>Exercice : risques d’un appel REST critique</summary>
+    <p>Latence, timeouts, erreurs transitoires, propagation de panne, surcharge en cas de retries, rupture de contrat.</p>
+  </details>
+  <details open><summary>Exercice : quand préférer un événement</summary>
+    <p>Quand le consommateur n’a pas besoin de répondre immédiatement et qu’on veut un découplage temporel, par exemple notifications, audit, analytics.</p>
+  </details>
+</section>
+<section id="barreme">
+  <h2>Conseils de barème enseignant</h2>
+  <table>
+    <thead><tr><th>Axe</th><th>Barème conseillé</th></tr></thead>
+    <tbody>
+      <tr><td>Compréhension des concepts</td><td>30%</td></tr>
+      <tr><td>Justification des choix</td><td>25%</td></tr>
+      <tr><td>Qualité du code / structure</td><td>20%</td></tr>
+      <tr><td>Gestion des risques et limites</td><td>15%</td></tr>
+      <tr><td>Qualité du dossier d’architecture</td><td>10%</td></tr>
+    </tbody>
+  </table>
+</section>
+
+      <div class="footer-nav"><a href="../pages/exercices.html">← Exercices</a><a href="../pages/glossary.html">Glossaire →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

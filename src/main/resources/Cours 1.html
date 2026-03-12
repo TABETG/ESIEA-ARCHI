@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cours Complet : Architecture Logicielle & Systèmes Distribués (Master 2)</title>
+    <style>
+        /* =========================================
+           CSS PÉDAGOGIQUE (Couleurs claires, lisibilité)
+           ========================================= */
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --success: #27ae60;
+            --warning: #e67e22;
+            --danger: #e74c3c;
+            --light-bg: #fdfdfd;
+            --white: #ffffff;
+            --text: #333333;
+            --pro-color: #8e44ad;
+            --child-color: #16a085;
+            --sidebar-width: 300px;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            display: flex;
+            background-color: var(--light-bg);
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        /* Navigation Latérale */
+        nav {
+            width: var(--sidebar-width);
+            height: 100vh;
+            background: #f8f9fa;
+            border-right: 1px solid #e0e0e0;
+            position: fixed;
+            overflow-y: auto;
+            padding: 20px 0;
+        }
+
+        nav h2 { text-align: center; font-size: 1.1rem; color: var(--primary); margin-bottom: 20px; text-transform: uppercase;}
+        nav ul { list-style: none; padding: 0; margin: 0; }
+        nav ul li { padding: 12px 25px; cursor: pointer; border-bottom: 1px solid #eee; transition: 0.2s; font-size: 0.95rem; color: #555; }
+        nav ul li:hover { background: #eef2f5; color: var(--secondary); }
+        nav ul li.active { background: var(--secondary); color: white; font-weight: bold; border-left: 5px solid var(--primary); }
+        nav ul li.group { background: #eaeded; font-weight: bold; cursor: default; color: #7f8c8d; text-transform: uppercase; font-size: 0.8rem; margin-top: 10px; }
+
+        /* Contenu Principal */
+        main {
+            margin-left: var(--sidebar-width);
+            padding: 50px 80px;
+            width: 100%;
+            max-width: 1200px;
+            box-sizing: border-box;
+            background: var(--white);
+            min-height: 100vh;
+            box-shadow: -5px 0 15px rgba(0,0,0,0.02);
+        }
+
+        .page { display: none; animation: fadeIn 0.3s ease-in-out; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Typographie */
+        h1 { color: var(--primary); font-size: 2.5rem; border-bottom: 3px solid var(--secondary); padding-bottom: 10px; }
+        h2 { color: var(--secondary); margin-top: 40px; font-size: 1.8rem; }
+        h3 { color: #34495e; margin-top: 30px; font-size: 1.4rem; }
+        p { margin-bottom: 20px; font-size: 1.05rem; }
+
+        /* Blocs Pédagogiques (Cartes) */
+        .box { padding: 20px 25px; margin: 25px 0; border-radius: 8px; border-left: 6px solid; background: #fff; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .box h4 { margin-top: 0; text-transform: uppercase; font-size: 0.85rem; letter-spacing: 1px; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+
+        .definition { border-color: var(--secondary); background: #ebf5fb; }
+        .definition h4 { color: var(--secondary); }
+
+        .example { border-color: var(--success); background: #eafaf1; }
+        .example h4 { color: var(--success); }
+
+        .warning { border-color: var(--danger); background: #fdedec; }
+        .warning h4 { color: var(--danger); }
+
+        .best-practice { border-color: var(--warning); background: #fef5e7; }
+        .best-practice h4 { color: var(--warning); }
+
+        .mode-enfant { border-color: var(--child-color); background: #e8f8f5; font-style: italic; }
+        .mode-enfant h4 { color: var(--child-color); }
+
+        .mode-pro { border-color: var(--pro-color); background: #f5eef8; }
+        .mode-pro h4 { color: var(--pro-color); }
+
+        .live-coding { border-color: #2c3e50; background: #f2f4f4; border-left-style: dashed; }
+        .live-coding h4 { color: #2c3e50; }
+
+        /* Code et Terminal */
+        pre { background: #282c34; color: #abb2bf; padding: 20px; border-radius: 8px; overflow-x: auto; font-size: 0.95rem; line-height: 1.5; box-shadow: inset 0 0 10px rgba(0,0,0,0.5); }
+        code { font-family: 'Fira Code', 'Consolas', monospace; }
+        .keyword { color: #c678dd; }
+        .type { color: #e5c07b; }
+        .string { color: #98c379; }
+        .comment { color: #7f848e; font-style: italic; }
+        .annotation { color: #d19a66; }
+
+        /* Schémas Textuels */
+        .schema { background: #f8f9fa; border: 1px solid #ddd; padding: 20px; font-family: monospace; white-space: pre; overflow-x: auto; text-align: center; border-radius: 8px; }
+
+        /* Tableaux */
+        table { width: 100%; border-collapse: collapse; margin: 30px 0; background: white; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        th, td { border: 1px solid #eee; padding: 15px; text-align: left; }
+        th { background-color: var(--primary); color: white; font-weight: 600; }
+
+        /* Boutons Navigation */
+        .nav-buttons { display: flex; justify-content: space-between; margin-top: 50px; padding-top: 20px; border-top: 1px solid #ddd; }
+        .btn { padding: 12px 24px; border: none; border-radius: 6px; cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; background: var(--secondary); color: white; }
+        .btn:hover { background: #2980b9; transform: translateY(-2px); }
+        .btn-prev { background: #95a5a6; }
+        .btn-prev:hover { background: #7f8c8d; }
+
+        @media print { nav { display: none; } main { margin-left: 0; padding: 20px; } .nav-buttons { display: none; } }
+    </style>
+</head>
+<body>
+
+<nav id="sidebar">
+    <h2>Architecture M2</h2>
+    <ul>
+        <li onclick="showPage('intro')" class="active">Introduction</li>
+
+        <li class="group">Les 6 Jours de Cours</li>
+        <li onclick="showPage('j1')">J1: Fondamentaux</li>
+        <li onclick="showPage('j2')">J2: Patterns & Couches</li>
+        <li onclick="showPage('j3')">J3: Systèmes Distribués</li>
+        <li onclick="showPage('j4')">J4: Microservices</li>
+        <li onclick="showPage('j5')">J5: Résilience & Sécurité</li>
+        <li onclick="showPage('j6')">J6: Cloud & Gouvernance</li>
+
+        <li class="group">Travaux Pratiques</li>
+        <li onclick="showPage('tp1')">TP1: Monolithe Propre</li>
+        <li onclick="showPage('tp2')">TP2: Éclatement (Gateway)</li>
+        <li onclick="showPage('tp3')">TP3: Résilience & Logs</li>
+
+        <li class="group">Ateliers & Outils</li>
+        <li onclick="showPage('live')">Live Programming</li>
+        <li onclick="showPage('dat')">Dossier d'Architecture</li>
+        <li onclick="showPage('glossaire')">Glossaire</li>
+    </ul>
+</nav>
+
+<main>
+    <section id="intro" class="page active">
+        <h1>Architecture Logicielle & Systèmes Distribués</h1>
+        <p>Ce cours est conçu pour des étudiants de niveau Master 2. L'objectif n'est pas d'apprendre à coder, mais d'apprendre à <strong>concevoir</strong>. Nous allons passer d'une vision locale (comment écrire une fonction) à une vision globale (comment faire communiquer des dizaines de services sans que le système s'effondre).</p>
+
+        <div class="box definition">
+            <h4>🎯 Objectifs Pédagogiques</h4>
+            <ul>
+                <li>Comprendre les enjeux de l'architecture logicielle face aux besoins métiers.</li>
+                <li>Maîtriser les différents styles d'architecture (Monolithe, Clean, Microservices).</li>
+                <li>Appréhender les contraintes des systèmes distribués (Théorème CAP, réseaux faillibles).</li>
+                <li>Savoir sécuriser, monitorer et rendre résilient un écosystème complexe.</li>
+                <li>Être capable de justifier ses choix via un Dossier d'Architecture Technique (DAT).</li>
+            </ul>
+        </div>
+
+        <div class="box best-practice">
+            <h4>Le mantra de l'architecte</h4>
+            <p>"En architecture, il n'y a pas de bonnes ou de mauvaises réponses. Il n'y a que des compromis (Trade-offs)."</p>
+        </div>
+
+        <div class="nav-buttons">
+            <span></span>
+            <button class="btn" onclick="showPage('j1')">Commencer le Jour 1 →</button>
+        </div>
+    </section>
+
+    <section id="j1" class="page">
+        <h1>Jour 1 : Les Fondamentaux de l'Architecture</h1>
+
+        <h2>1. Qu'est-ce que l'Architecture Logicielle ?</h2>
+
+        <div class="box definition">
+            <h4>Définition</h4>
+            L'architecture logicielle est l'ensemble des décisions de conception fondamentales concernant un système, qui sont les plus difficiles (et coûteuses) à modifier une fois implémentées.
+        </div>
+
+        <div class="box mode-enfant">
+            <h4>👶 Mode Enfant</h4>
+            Imagine que tu construis une maison en briques (Lego). L'architecture, c'est décider où mettre les murs porteurs et les tuyaux d'eau. Si tu te trompes sur la couleur du canapé (le code), tu peux la changer demain. Si tu oublies de mettre des tuyaux d'eau dans les murs, tu vas devoir tout casser pour réparer ton erreur. L'architecte s'occupe des tuyaux et des murs porteurs.
+        </div>
+
+        <div class="box mode-pro">
+            <h4>👔 Mode Pro</h4>
+            L'architecture est la traduction technique des <strong>Exigences Non-Fonctionnelles</strong> (NFRs). Le métier demande qu'un calcul de panier soit juste (Fonctionnel), mais l'architecte s'assure que ce calcul puisse se faire pour 100 000 utilisateurs simultanés avec un temps de réponse &lt; 200ms et une disponibilité de 99.99% (Non-Fonctionnel).
+        </div>
+
+        <h2>2. Qualités Logicielles (Les "Ilities")</h2>
+        <p>Une bonne architecture se juge sur ces critères principaux :</p>
+        <ul>
+            <li><strong>Maintenabilité :</strong> Le code est-il facile à faire évoluer pour de nouveaux développeurs ?</li>
+            <li><strong>Scalabilité :</strong> Le système peut-il gérer plus de charge en ajoutant du matériel (Vertical) ou des serveurs (Horizontal) ?</li>
+            <li><strong>Disponibilité (Availability) :</strong> Le système est-il résistant aux pannes ? (Mesuré en "Nines" : 99.9% d'uptime = ~8h de panne par an).</li>
+            <li><strong>Sécurité :</strong> Les données sont-elles protégées contre les accès non autorisés ?</li>
+        </ul>
+
+        <h2>3. Couplage et Cohésion</h2>
+        <p>C'est la règle d'or de la conception : <strong>Faible Couplage (Low Coupling), Forte Cohésion (High Cohesion)</strong>.</p>
+
+        <div class="box example">
+            <h4>💡 Exemple Concret</h4>
+            <ul>
+                <li><strong>Forte Cohésion :</strong> La classe `Facture` gère le total, la TVA et les remises. Elle ne s'occupe PAS d'envoyer un email. Tout ce qui la compose a du sens ensemble.</li>
+                <li><strong>Faible Couplage :</strong> Le module "Paiement" communique avec le module "Facturation" via une interface simple, sans connaître les détails internes de sa base de données.</li>
+            </ul>
+        </div>
+
+        <div class="box warning">
+            <h4>⚠️ Erreur Fréquente</h4>
+            Créer des classes "God Object" (ex: <code>SystemManager</code>) qui font tout : base de données, logique métier, et formattage d'affichage. Cela crée une forte cohésion technique (tout le code est au même endroit), mais une cohésion métier catastrophique.
+        </div>
+
+        <h2>4. Séparation des Responsabilités (Separation of Concerns)</h2>
+        <p>L'architecture en couches (Layered Architecture) est l'approche classique :</p>
+        <div class="schema">
+            [ UI / Web Layer ]  <-- Contrôleurs REST, Vues
+            ↓
+            [ Business Layer ]  <-- Logique Métier, Services
+            ↓
+            [ Data Access ]     <-- Repositories, ORM, SQL
+            ↓
+            [ Database ]        <-- MySQL, PostgreSQL
+        </div>
+
+        <div class="box live-coding">
+            <h4>💻 Live Coding : Monolithe vs Distribué</h4>
+            <p><strong>Code Java (Spring) - Exemple de fort couplage à éviter :</strong></p>
+            <pre><code><span class="annotation">@Service</span>
+<span class="keyword">public class</span> <span class="type">OrderService</span> {
+    <span class="comment">// ❌ MAUVAIS : Instanciation directe, couplage fort à l'implémentation H2</span>
+    <span class="keyword">private</span> <span class="type">H2DatabaseConnection</span> db = <span class="keyword">new</span> <span class="type">H2DatabaseConnection</span>();
+
+    <span class="keyword">public void</span> createOrder(<span class="type">Order</span> order) {
+        db.insert(order);
+    }
+}</code></pre>
+
+            <p><strong>Correction (Inversion de Contrôle / Injection de Dépendance) :</strong></p>
+            <pre><code><span class="annotation">@Service</span>
+<span class="keyword">public class</span> <span class="type">OrderService</span> {
+    <span class="comment">// ✅ BON : Couplage faible via une Interface. Spring injectera l'implémentation.</span>
+    <span class="keyword">private final</span> <span class="type">OrderRepository</span> repository;
+
+    <span class="keyword">public</span> OrderService(<span class="type">OrderRepository</span> repository) {
+        <span class="keyword">this</span>.repository = repository;
+    }
+
+    <span class="keyword">public void</span> createOrder(<span class="type">Order</span> order) {
+        repository.save(order);
+    }
+}</code></pre>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('intro')">← Précédent</button>
+            <button class="btn" onclick="showPage('j2')">Jour 2 : Patterns & Couches →</button>
+        </div>
+    </section>
+
+    <section id="j2" class="page">
+        <h1>Jour 2 : Patterns d'Architecture et DDD</h1>
+
+        <h2>1. Les limites de l'architecture en couches classique</h2>
+        <p>Dans l'architecture vue au Jour 1, le Métier dépend de la base de données. Si on change la BDD, on impacte le métier. C'est le problème que résolvent l'<strong>Architecture Hexagonale</strong>, la <strong>Clean Architecture</strong> (Uncle Bob) et l'<strong>Onion Architecture</strong>.</p>
+
+        <h2>2. L'Architecture Hexagonale (Ports & Adapters)</h2>
+        <div class="box definition">
+            <h4>Définition</h4>
+            Le principe est de placer la logique métier pure au centre du système. Les dépendances vont de l'extérieur (Web, BDD) vers l'intérieur (Métier). Le métier ne dépend de rien (Inversion de Dépendance).
+        </div>
+
+        <div class="box mode-enfant">
+            <h4>👶 Mode Enfant</h4>
+            Ton cerveau (le métier) sait comment faire une addition. Qu'on te pose la question à l'oral (API REST), sur un papier (Fichier Excel), ou par SMS (RabbitMQ), ton cerveau s'en moque. Il fait juste l'addition. L'architecture hexagonale, c'est mettre des "traducteurs" (Adapters) autour de ton cerveau pour qu'il ne se concentre que sur les maths.
+        </div>
+
+        <div class="schema">
+            [ REST Adapter ] (Primary/Driving)
+            ↓ appelle
+            [ PORT IN ] (Interface Java)
+            ↓ implémente
+            (( DOMAINE MÉTIER )) <-- Ne connaît RIEN de Spring ou du Web
+            ↓ appelle
+            [ PORT OUT ] (Interface Java)
+            ↓ implémente
+            [ SQL Adapter ] (Secondary/Driven)
+        </div>
+
+        <h2>3. Domain-Driven Design (DDD) - Les Bases</h2>
+        <p>Le DDD aligne le code sur la réalité du métier.</p>
+        <ul>
+            <li><strong>Ubiquitous Language :</strong> Développeurs et experts métiers utilisent les <em>mêmes mots</em>. Si le métier dit "Panier", on ne code pas `CartManager`, on code `Panier`.</li>
+            <li><strong>Bounded Context :</strong> Un même mot peut avoir des sens différents. Un "Produit" pour l'équipe Vente (prix, description) n'a pas les mêmes propriétés qu'un "Produit" pour l'équipe Logistique (poids, dimensions). On sépare ces contextes.</li>
+            <li><strong>Entité vs Value Object :</strong> Une Entité a une identité (ex: User avec un ID). Un Value Object n'en a pas (ex: une adresse postale. Deux adresses "10 rue de Paris" sont strictement identiques, on s'en fiche de leur ID).</li>
+        </ul>
+
+        <div class="box best-practice">
+            <h4>DTO, Mapper et Repository</h4>
+            Ne sortez <strong>jamais</strong> une Entité JPA au niveau de votre contrôleur REST.
+            Utilisez un <code>DTO</code> (Data Transfer Object) pour maîtriser ce qui est exposé (pour éviter d'exposer un mot de passe hashé par exemple).
+        </div>
+
+        <div class="box live-coding">
+            <h4>💻 Live Coding : Mapper avec MapStruct</h4>
+            <pre><code><span class="comment">// 1. L'Entité interne (JPA - Infrastructure)</span>
+<span class="annotation">@Entity</span>
+<span class="keyword">public class</span> <span class="type">UserEntity</span> {
+    <span class="keyword">private</span> <span class="type">Long</span> id;
+    <span class="keyword">private</span> <span class="type">String</span> passwordHash;
+    <span class="keyword">private</span> <span class="type">String</span> email;
+}
+
+<span class="comment">// 2. Le DTO exposé (Web)</span>
+<span class="keyword">public record</span> <span class="type">UserResponseDto</span>(<span class="type">String</span> email) {}
+
+<span class="comment">// 3. Le Mapper (MapStruct)</span>
+<span class="annotation">@Mapper</span>(componentModel = <span class="string">"spring"</span>)
+<span class="keyword">public interface</span> <span class="type">UserMapper</span> {
+    <span class="type">UserResponseDto</span> toDto(<span class="type">UserEntity</span> entity);
+}</code></pre>
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('j1')">← Précédent</button>
+            <button class="btn" onclick="showPage('j3')">Jour 3 : Systèmes Distribués →</button>
+        </div>
+    </section>
+
+    <section id="j3" class="page">
+        <h1>Jour 3 : Fondamentaux des Systèmes Distribués</h1>
+
+        <h2>1. Qu'est-ce qu'un système distribué ?</h2>
+        <div class="box definition">
+            <h4>Définition</h4>
+            Un système distribué est un ensemble d'ordinateurs indépendants qui apparaissent à l'utilisateur comme un système unique. Ils communiquent par passage de messages sur un réseau.
+        </div>
+
+        <div class="box warning">
+            <h4>⚠️ Les 8 fausses croyances du réseau (Fallacies of distributed computing)</h4>
+            En passant d'un monolithe à du distribué, les juniors pensent que :
+            1. Le réseau est fiable (Faux : des câbles sont coupés, des switchs rebootent).
+            2. La latence est nulle (Faux : la lumière met du temps à traverser l'Atlantique).
+            3. La bande passante est infinie (Faux).
+            4. Le réseau est sécurisé (Faux).
+            ...
+        </div>
+
+        <h2>2. Le Théorème CAP (Crucial)</h2>
+        <p>Proposé par Eric Brewer. Dans un système distribué, vous ne pouvez choisir que 2 propriétés parmi 3 :</p>
+        <ul>
+            <li><strong>C (Consistency - Cohérence) :</strong> Tous les nœuds voient la même donnée en même temps.</li>
+            <li><strong>A (Availability - Disponibilité) :</strong> Le système répond toujours, même si certains nœuds sont en panne.</li>
+            <li><strong>P (Partition Tolerance - Tolérance au partitionnement) :</strong> Le système continue de fonctionner même si la communication réseau entre les nœuds est coupée.</li>
+        </ul>
+        <div class="box mode-pro">
+            <h4>👔 Mode Pro : La réalité de CAP</h4>
+            Sur internet, le "Partitionnement" (P) n'est pas un choix, c'est une fatalité (le réseau plantera). Donc, vous devez toujours choisir entre <strong>CP</strong> (Cohérence forte, ex: Base de données bancaire) ou <strong>AP</strong> (Disponibilité forte, ex: Flux Twitter, Panier Amazon).
+        </div>
+
+        <h2>3. Idempotence, Retries et Timeouts</h2>
+        <p>Si le réseau coupe, votre requête HTTP a peut-être échoué, ou bien la réponse a été perdue. Que faire ? On recommence (<strong>Retry</strong>).</p>
+
+        <div class="box example">
+            <h4>💡 L'importance de l'Idempotence</h4>
+            Une API est <em>idempotente</em> si l'appeler 1 fois ou 100 fois produit le même résultat côté serveur.<br>
+            - <code>DELETE /users/1</code> : Idempotent. (Le user 1 est supprimé. Si je rappelle, il est toujours supprimé).<br>
+            - <code>POST /transfer?amount=100</code> : NON Idempotent. (Si je retry suite à un timeout réseau, je risque de virer 200€ au lieu de 100€).
+            <br><strong>Solution :</strong> Utiliser des UUID de corrélation (ex: <code>Idempotency-Key</code> dans le Header).
+        </div>
+
+        <h2>4. Synchrone vs Asynchrone</h2>
+        <ul>
+            <li><strong>Synchrone (REST, gRPC) :</strong> Le client bloque et attend la réponse. Facile à coder, mais couplage temporel fort (si B est lent, A devient lent).</li>
+            <li><strong>Asynchrone (Messaging, Kafka, RabbitMQ) :</strong> Le client poste un message dans un Broker et continue sa vie (Fire and Forget). Idéal pour les systèmes résilients.</li>
+        </ul>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('j2')">← Précédent</button>
+            <button class="btn" onclick="showPage('j4')">Jour 4 : Microservices →</button>
+        </div>
+    </section>
+
+    <section id="j4" class="page">
+        <h1>Jour 4 : Microservices et Communication Inter-services</h1>
+
+        <h2>1. Principes des Microservices</h2>
+        <p>Un microservice est un service déployable indépendamment, centré sur un seul domaine métier (Bounded Context), avec sa propre base de données.</p>
+
+        <div class="box mode-enfant">
+            <h4>👶 Mode Enfant</h4>
+            Le monolithe, c'est un couteau suisse : ça fait tout, mais c'est lourd dans la poche. Les microservices, c'est une caisse à outils avec un marteau, un tournevis, une scie. Si le marteau se casse, tu peux toujours scier. Et tu peux confier le marteau à Pierre, et la scie à Paul.
+        </div>
+
+        <h2>2. Les Composants Critiques de l'Écosystème</h2>
+        <ul>
+            <li><strong>API Gateway :</strong> Le point d'entrée unique. Gère le routage, la sécurité (JWT), le Rate Limiting. Le front-end ne connaît pas les microservices, il ne connaît que la Gateway.</li>
+            <li><strong>Service Discovery (ex: Eureka, Consul) :</strong> L'annuaire. Les services s'enregistrent dynamiquement car dans le cloud, les adresses IP changent tout le temps.</li>
+            <li><strong>Configuration Distribuée :</strong> Centraliser les fichiers <code>application.yml</code> dans un repo Git.</li>
+        </ul>
+
+        <h2>3. Transactions Distribuées : Le Pattern Saga</h2>
+        <p>Dans un monolithe, vous faites un <code>@Transactional</code>. Dans les microservices, avec 3 bases de données différentes, c'est impossible (le protocole 2PC est trop lent).</p>
+
+        <div class="box definition">
+            <h4>Le Pattern SAGA</h4>
+            Une transaction métier longue est découpée en transactions locales. Si une étape échoue, on déclenche des <strong>transactions de compensation</strong> (l'équivalent d'un "Undo") pour annuler les étapes précédentes.
+        </div>
+
+        <div class="schema">
+            [ Service Commande ] --(Créée)--> [ Service Stock ] --(Réservé)--> [ Service Paiement ] (Échec: Solde Insuffisant)
+            |
+            v
+            [ Service Stock ] <--(Compensation : Libérer Stock)
+            |
+            v
+            [ Service Commande ] <--(Compensation : Commande Annulée)
+        </div>
+
+        <div class="box warning">
+            <h4>⚠️ Anti-Pattern : Le Monolithe Distribué</h4>
+            Si vos microservices communiquent massivement en REST synchrone les uns avec les autres de manière circulaire, vous avez créé un Monolithe Distribué. Vous combinez la complexité du réseau avec l'inflexibilité du monolithe. C'est le pire des deux mondes.
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('j3')">← Précédent</button>
+            <button class="btn" onclick="showPage('j5')">Jour 5 : Résilience →</button>
+        </div>
+    </section>
+
+    <section id="j5" class="page">
+        <h1>Jour 5 : Résilience, Observabilité et Sécurité</h1>
+
+        <h2>1. Design for Failure (Concevoir pour la panne)</h2>
+        <p>Dans un système distribué, la question n'est pas <em>"Est-ce que ça va planter ?"</em> mais <em>"Quand ça va planter, comment limiter les dégâts ?"</em></p>
+
+        <h3>Le Pattern Circuit Breaker (Disjoncteur)</h3>
+        <p>Si le Service B est en panne, le Service A qui l'appelle va accumuler des threads bloqués (Timeouts) et finir par crasher à son tour (Effet domino). Le Circuit Breaker empêche cela.</p>
+        <ul>
+            <li><strong>Closed (Fermé) :</strong> Tout va bien, les requêtes passent.</li>
+            <li><strong>Open (Ouvert) :</strong> Trop d'erreurs détectées. Le disjoncteur saute. Les appels échouent instantanément sans interroger le Service B (qui a ainsi le temps de respirer/redémarrer).</li>
+            <li><strong>Half-Open (Demi-ouvert) :</strong> On laisse passer 1 ou 2 requêtes pour voir si B est revenu à la vie.</li>
+        </ul>
+
+        <div class="box live-coding">
+            <h4>💻 Live Coding : Resilience4j</h4>
+            <pre><code><span class="annotation">@CircuitBreaker</span>(name = <span class="string">"inventoryService"</span>, fallbackMethod = <span class="string">"inventoryFallback"</span>)
+<span class="keyword">public</span> <span class="type">InventoryResponse</span> checkStock(<span class="type">String</span> productId) {
+    <span class="keyword">return</span> restTemplate.getForObject(<span class="string">"http://inventory-service/stock/"</span> + productId, <span class="type">InventoryResponse</span>.class);
+}
+
+<span class="comment">// Fallback : Que faire si le service est en panne ?</span>
+<span class="keyword">public</span> <span class="type">InventoryResponse</span> inventoryFallback(<span class="type">String</span> productId, <span class="type">Exception</span> e) {
+    <span class="comment">// Stratégie de repli : On assume qu'il y a du stock pour ne pas bloquer la vente, </span>
+    <span class="comment">// quitte à gérer une rupture manuellement plus tard (Trade-off métier !).</span>
+    <span class="keyword">return new</span> <span class="type">InventoryResponse</span>(productId, true, <span class="string">"FALLBACK_MODE"</span>);
+}</code></pre>
+        </div>
+
+        <h2>2. Observabilité : Logs, Métriques, Traces</h2>
+        <p>Le monitoring classique dit "Le CPU est à 90%". L'observabilité dit "La requête X a planté car le microservice C a mis 4 secondes à répondre".</p>
+        <ul>
+            <li><strong>Logs Centralisés (ELK - Elasticsearch, Logstash, Kibana) :</strong> Ne jamais lire de logs dans un terminal serveur.</li>
+            <li><strong>Métriques (Prometheus / Grafana) :</strong> Nombre de requêtes/sec, taux d'erreur HTTP 500.</li>
+            <li><strong>Distributed Tracing (Zipkin / Jaeger) :</strong> Chaque requête reçoit un <code>TraceID</code>. Ce TraceID traverse tous les microservices. On peut ainsi dessiner un diagramme de Gantt du temps passé dans chaque service.</li>
+        </ul>
+
+        <h2>3. Sécurité Inter-Services : Le JWT</h2>
+        <div class="box definition">
+            <h4>JSON Web Token (JWT)</h4>
+            Un jeton signé cryptographiquement contenant les informations de l'utilisateur (Claims). L'API Gateway le valide, puis le transmet aux microservices en aval qui peuvent lui faire confiance sans interroger la base de données (Stateless).
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('j4')">← Précédent</button>
+            <button class="btn" onclick="showPage('j6')">Jour 6 : Cloud & Déploiement →</button>
+        </div>
+    </section>
+
+    <section id="j6" class="page">
+        <h1>Jour 6 : Cloud, Déploiement et Gouvernance</h1>
+
+        <h2>1. Conteneurisation et Orchestration</h2>
+        <ul>
+            <li><strong>Docker :</strong> Package le code et ses dépendances (OS, librairies) dans un livrable immuable (L'image Docker). Résout le problème du "Ça marche sur ma machine".</li>
+            <li><strong>Kubernetes (K8s) :</strong> L'orchestrateur. Il gère des milliers de conteneurs. Si un conteneur crash, K8s en relance un. S'il y a un pic de charge, K8s fait du <em>Scaling Horizontal</em> (passe de 2 à 10 pods).</li>
+        </ul>
+
+        <div class="box mode-pro">
+            <h4>👔 Mode Pro : Stratégies de Déploiement Zero-Downtime</h4>
+            Mettre à jour un système critique sans couper le service.
+            <br><br>
+            <strong>Blue/Green Deployment :</strong> Vous avez l'environnement Bleu (v1, prod actuelle). Vous déployez l'environnement Vert (v2, caché). Vous testez Vert. Si OK, le routeur bascule 100% du trafic de Bleu vers Vert d'un coup. (Rollback immédiat si souci).
+            <br>
+            <strong>Canary Release :</strong> Vous déployez la v2 et vous lui envoyez seulement 5% des vrais utilisateurs (les "canaris"). Si les métriques d'erreurs n'explosent pas, vous montez à 20%, puis 100%.
+        </div>
+
+        <h2>2. Infrastructure as Code (IaC)</h2>
+        <p>On ne clique plus dans des interfaces web d'AWS pour créer des serveurs. On écrit du code (Terraform) qui décrit l'infrastructure. Si le datacenter brûle, on lance le script et on recrée l'infra identique ailleurs en 5 minutes.</p>
+
+        <h2>3. Gouvernance d'Architecture (L'Urbanisation du SI)</h2>
+        <div class="box best-practice">
+            <h4>Versionning d'API</h4>
+            Une API publique est un contrat. Si vous cassez le contrat (changer un nom de champ), vos clients crashent. Toujours versionner : <code>/api/v1/users</code> vers <code>/api/v2/users</code>.
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('j5')">← Précédent</button>
+            <button class="btn" onclick="showPage('tp1')">Passer aux TP →</button>
+        </div>
+    </section>
+
+    <section id="tp1" class="page">
+        <h1>TP 1 : Base Architecturale Propre (Clean Monolith)</h1>
+
+        <div class="box best-practice">
+            <h4>🎯 Objectif du TP</h4>
+            Créer une application de e-commerce "E-Shop" (catalogue de produits, commandes) avec une architecture en couches propre, préparant le terrain pour l'éclatement en microservices de demain.
+        </div>
+
+        <h3>Énoncé & Étapes Détaillées</h3>
+        <ol>
+            <li><strong>Initialisation :</strong> Spring Initializr (Web, JPA, H2, Lombok, Validation).</li>
+            <li><strong>Découpage Package :</strong> Créer une structure par "Feature" (Domaine) plutôt que par technique.
+                <pre><code>com.eshop
+├── catalog
+│   ├── domain (Product, Category)
+│   ├── infrastructure (ProductRepository, Entities)
+│   └── web (ProductController, DTOs)
+└── order
+    ├── domain (Order, OrderLine)
+    ├── infrastructure
+    └── web</code></pre>
+            </li>
+            <li><strong>Implémentation du Domaine :</strong> Créer l'entité `Product` (id, name, price, stock).</li>
+            <li><strong>Contrat d'API (DTOs) :</strong> Créer un `ProductCreateRequest` et un `ProductResponse`. Ne liez jamais l'entité au Web.</li>
+            <li><strong>Gestion d'erreurs :</strong> Implémentez un <code>@RestControllerAdvice</code>. Si on demande le produit ID 999 inexistant, l'API doit retourner un beau JSON HTTP 404 standardisé, pas une stacktrace Java hideuse.</li>
+        </ol>
+
+        <div class="box warning">
+            <h4>Pièges fréquents</h4>
+            - Laisser du <code>System.out.println</code> (utiliser SLF4J/Logback).<br>
+            - Mettre la logique métier dans le contrôleur. Le contrôleur ne fait QUE valider le JSON et appeler le Service.
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('j6')">← Cours</button>
+            <button class="btn" onclick="showPage('tp2')">TP 2 →</button>
+        </div>
+    </section>
+
+    <section id="tp2" class="page">
+        <h1>TP 2 : L'Éclatement Distribué</h1>
+
+        <div class="box best-practice">
+            <h4>🎯 Objectif du TP</h4>
+            Découper le monolithe du TP1 en deux services distincts (`catalog-service` et `order-service`) et les faire communiquer derrière une API Gateway.
+        </div>
+
+        <h3>Énoncé & Étapes Détaillées</h3>
+        <ol>
+            <li><strong>Séparation :</strong> Créez deux projets Spring Boot distincts. Ils tournent sur des ports différents (ex: 8081 et 8082).</li>
+            <li><strong>Mise en place de Spring Cloud Gateway :</strong>
+                <ul>
+                    <li>Créer un 3ème projet "gateway".</li>
+                    <li>Configurer le <code>application.yml</code> pour router <code>/api/catalog/**</code> vers 8081 et <code>/api/orders/**</code> vers 8082.</li>
+                </ul>
+            </li>
+            <li><strong>Communication Inter-Services (Synchrone) :</strong>
+                <ul>
+                    <li>Quand une commande est créée dans `order-service`, il doit vérifier le prix du produit dans `catalog-service`.</li>
+                    <li>Utilisez <strong>Spring Cloud OpenFeign</strong> pour créer un client REST déclaratif.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <div class="box live-coding">
+            <h4>💻 Extrait de Code Attendu (OpenFeign)</h4>
+            <pre><code><span class="annotation">@FeignClient</span>(name = <span class="string">"catalog-service"</span>, url = <span class="string">"http://localhost:8081"</span>)
+<span class="keyword">public interface</span> <span class="type">CatalogClient</span> {
+
+    <span class="annotation">@GetMapping</span>(<span class="string">"/api/catalog/{id}"</span>)
+    <span class="type">ProductDto</span> getProductById(<span class="annotation">@PathVariable</span>(<span class="string">"id"</span>) <span class="type">Long</span> id);
+}</code></pre>
+        </div>
+
+        <div class="box mode-pro">
+            <h4>👔 Ce que l'étudiant doit comprendre</h4>
+            En divisant le projet, on a créé un problème de latence réseau. Si le `catalog-service` est lent, la création de commande devient lente. C'est l'impact direct du système distribué.
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('tp1')">← TP 1</button>
+            <button class="btn" onclick="showPage('tp3')">TP 3 →</button>
+        </div>
+    </section>
+
+    <section id="tp3" class="page">
+        <h1>TP 3 : Résilience et Observabilité</h1>
+
+        <div class="box best-practice">
+            <h4>🎯 Objectif du TP</h4>
+            Rendre le système du TP2 "Production-Ready". Nous allons simuler des pannes et ajouter du monitoring.
+        </div>
+
+        <h3>Énoncé & Étapes Détaillées</h3>
+        <ol>
+            <li><strong>Simulation de panne :</strong> Ajoutez un `Thread.sleep(3000)` aléatoire dans `catalog-service` pour simuler une dégradation réseau. Constatez que `order-service` plante avec des Timeouts.</li>
+            <li><strong>Ajout de Resilience4j :</strong>
+                <ul>
+                    <li>Ajoutez le Circuit Breaker autour du FeignClient du TP2.</li>
+                    <li>Créez une méthode <em>Fallback</em>. Si le catalogue est injoignable, refusez la commande proprement avec un message "Service momentanément indisponible" plutôt qu'une erreur 500 générique.</li>
+                </ul>
+            </li>
+            <li><strong>Observabilité (Actuator & Micrometer) :</strong>
+                <ul>
+                    <li>Ajoutez <code>spring-boot-starter-actuator</code>.</li>
+                    <li>Exposez l'endpoint <code>/actuator/health</code>.</li>
+                    <li>Activez le traçage distribué (Zipkin/Brave) pour voir le `traceId` se propager dans les logs entre la Gateway, Order et Catalog.</li>
+                </ul>
+            </li>
+        </ol>
+
+        <div class="box warning">
+            <h4>Critères d'évaluation</h4>
+            Le TP est validé si je peux éteindre brutalement le `catalog-service` et que le `order-service` survit en renvoyant une réponse fonctionnelle gracieuse (Fallback) en moins de 500ms (grâce au Circuit Breaker ouvert).
+        </div>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('tp2')">← TP 2</button>
+            <button class="btn" onclick="showPage('dat')">Dossier Archi →</button>
+        </div>
+    </section>
+
+    <section id="dat" class="page">
+        <h1>Créer un Dossier d'Architecture Technique (DAT)</h1>
+
+        <p>Le livrable d'un architecte n'est pas (seulement) du code. C'est un document qui fige les décisions, explique le "Pourquoi" (Trade-offs) et guide les équipes de développement. Il doit être concis, visuel et orienté prise de décision.</p>
+
+        <div class="box definition">
+            <h4>Checklist d'un bon DAT</h4>
+            <ul>
+                <li><strong>1. Contexte Métier :</strong> À quel besoin répondons-nous ?</li>
+                <li><strong>2. Besoins Non Fonctionnels :</strong> SLA (99.9%), Temps de réponse cible, Volumes (Nb utilisateurs).</li>
+                <li><strong>3. Schémas d'Architecture :</strong> Logique (Composants, API), Physique (Réseau, Cloud), et Flux de données (Séquence).</li>
+                <li><strong>4. Choix Technologiques :</strong> Ne dites pas juste "On prend Kafka". Dites "On prend Kafka PARCE QUE besoin de rejouer les messages. Alternative rejetée : RabbitMQ car file d'attente éphémère".</li>
+                <li><strong>5. Sécurité :</strong> Authentification, Chiffrement (TLS), Gestion des secrets (Vault).</li>
+                <li><strong>6. ADRs (Architecture Decision Records) :</strong> Historique des choix structurants.</li>
+            </ul>
+        </div>
+
+        <h3>Exemple de format ADR</h3>
+        <pre><code>Titre: ADR-005 Utilisation de PostgreSQL pour le service Order
+Statut: Accepté
+Date: 2026-03-12
+
+Contexte :
+Le service Order doit stocker des données hautement transactionnelles.
+
+Décision :
+Nous choisissons une base de données relationnelle (PostgreSQL) plutôt qu'une base NoSQL (MongoDB).
+
+Trade-offs (Conséquences) :
+- Positif : Cohérence forte (ACID) garantie pour les paiements.
+- Négatif : Scalabilité horizontale plus complexe qu'avec du NoSQL.</code></pre>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('tp3')">← TP 3</button>
+            <button class="btn" onclick="showPage('glossaire')">Glossaire →</button>
+        </div>
+    </section>
+
+    <section id="glossaire" class="page">
+        <h1>Glossaire Expert & Anti-Patterns</h1>
+
+        <div class="box warning">
+            <h4>🚫 Top 3 des Anti-Patterns (Les erreurs à ne pas faire)</h4>
+            <ol>
+                <li><strong>Anemic Domain Model :</strong> Des entités qui ne contiennent que des Getters/Setters sans aucune règle métier, déplaçant toute la logique dans des `Services` obèses.</li>
+                <li><strong>Distributed Monolith :</strong> Des microservices tellement couplés via des appels synchrones que la mise à jour d'un service nécessite le déploiement simultané des autres.</li>
+                <li><strong>God Class / Big Ball of Mud :</strong> Un code source sans frontières claires, où tout le monde appelle tout le monde (Couplage fort).</li>
+            </ol>
+        </div>
+
+        <h3>Définitions rapides</h3>
+        <table style="margin-top:20px;">
+            <tr><th>Terme</th><th>Définition M2</th></tr>
+            <tr><td><strong>Idempotence</strong></td><td>Propriété d'une opération mathématique ou informatique qui a le même effet qu'elle soit appliquée une ou plusieurs fois. Crucial en REST (PUT, DELETE).</td></tr>
+            <tr><td><strong>CQRS</strong></td><td>Command Query Responsibility Segregation. Séparer le modèle d'écriture (Commandes - Insert/Update) du modèle de lecture (Queries - Select), parfois avec des bases de données distinctes.</td></tr>
+            <tr><td><strong>Event Sourcing</strong></td><td>Stocker non pas l'état actuel d'une entité, mais la séquence d'événements qui l'ont amenée à cet état (comme un relevé de compte bancaire).</td></tr>
+            <tr><td><strong>API Gateway</strong></td><td>Serveur agissant comme un "Reverse Proxy" intelligent, exposant une façade unifiée aux clients pour de multiples microservices en arrière-plan.</td></tr>
+        </table>
+
+        <div class="nav-buttons">
+            <button class="btn btn-prev" onclick="showPage('dat')">← Dossier Archi</button>
+        </div>
+    </section>
+
+    <section id="live" class="page">
+        <h1>Hub de Live Programming</h1>
+        <p>Ce hub regroupe toutes les démos interactives à présenter en direct. Se référer aux encarts "Live Coding" des jours 1, 2 et 5 pour le code source.</p>
+        <ul>
+            <li><a href="#" onclick="showPage('j1')">Démo 1 : L'Inversion de Dépendance (Jour 1)</a></li>
+            <li><a href="#" onclick="showPage('j2')">Démo 2 : Les Mappers MapStruct (Jour 2)</a></li>
+            <li><a href="#" onclick="showPage('j5')">Démo 3 : Circuit Breaker Resilience4j (Jour 5)</a></li>
+        </ul>
+    </section>
+
+</main>
+
+<script>
+    function showPage(pageId) {
+        // Masquer toutes les pages
+        const pages = document.querySelectorAll('.page');
+        pages.forEach(page => page.classList.remove('active'));
+
+        // Afficher la page ciblée
+        const targetPage = document.getElementById(pageId);
+        if (targetPage) {
+            targetPage.classList.add('active');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // Gérer l'état "actif" du menu latéral
+        const menuItems = document.querySelectorAll('nav ul li');
+        menuItems.forEach(item => {
+            item.classList.remove('active');
+            if (item.getAttribute('onclick') && item.getAttribute('onclick').includes(pageId)) {
+                item.classList.add('active');
+            }
+        });
+    }
+</script>
+</body>
+</html>

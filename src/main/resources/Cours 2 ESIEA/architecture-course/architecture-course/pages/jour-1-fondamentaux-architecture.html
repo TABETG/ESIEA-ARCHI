@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jour 1 — Fondamentaux de l’architecture logicielle</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Jour 1 — Fondamentaux de l’architecture logicielle</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Poser les bases : architecture, qualités logicielles, couplage, cohésion, couches et premiers arbitrages.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>POO, HTTP basique, Spring Boot de base</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#definition">Définition</a></li>
+<li><a href="#qualites">Qualités</a></li>
+<li><a href="#couplage">Couplage & cohésion</a></li>
+<li><a href="#couches">Couches</a></li>
+<li><a href="#mono-vs-distribue">Monolithe vs distribué</a></li>
+<li><a href="#spring-exemple">Exemple Spring</a></li>
+<li><a href="#quiz">Quiz</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="definition">
+  <h2>Qu’est-ce que l’architecture logicielle ?</h2>
+  <p>L’architecture logicielle est l’ensemble des décisions qui structurent durablement un système : découpage, interactions, responsabilités, flux de données, contraintes et règles d’évolution.</p>
+  <div class="box definition"><h4>Définition simple</h4><p>Architecture = comment on organise le système. Design = comment on détaille un morceau. Code = comment on implémente.</p></div>
+  <div class="box example"><h4>Exemple concret</h4><p>Dans une plateforme e-commerce, décider qu’il existe un module catalogue, un module commande et un module paiement relève de l’architecture. Décider des méthodes d’une classe <code>OrderService</code> relève du design.</p></div>
+  <div class="box child-mode"><h4>Mode enfant</h4><p>L’architecte dessine le plan de la maison, le designer choisit l’emplacement précis des meubles, le développeur pose réellement les briques.</p></div>
+  <div class="box pro-mode"><h4>Mode pro</h4><p>Une architecture réussie permet des changements métier rapides, des déploiements sûrs, une maintenance prévisible et une maîtrise du coût total de possession.</p></div>
+</section>
+<section id="qualites">
+  <h2>Qualités logicielles essentielles</h2>
+  <table>
+    <thead><tr><th>Qualité</th><th>Question à se poser</th><th>Exemple</th></tr></thead>
+    <tbody>
+      <tr><td>Maintenabilité</td><td>Est-ce facile à modifier ?</td><td>Ajouter un nouveau type d’emprunt sans casser l’existant</td></tr>
+      <tr><td>Scalabilité</td><td>Peut-on absorber plus de charge ?</td><td>Monter de 1 000 à 20 000 étudiants</td></tr>
+      <tr><td>Performance</td><td>Répond-on assez vite ?</td><td>Recherche catalogue &lt; 300 ms</td></tr>
+      <tr><td>Disponibilité</td><td>Le service reste-t-il accessible ?</td><td>Continuer à consulter le catalogue même si notifications HS</td></tr>
+      <tr><td>Sécurité</td><td>Les accès et les données sont-ils protégés ?</td><td>JWT pour API + contrôle de rôles</td></tr>
+    </tbody>
+  </table>
+  <div class="box best-practice"><h4>Bonne pratique</h4><p>Toute décision architecturale doit se relier à une qualité recherchée. Sinon, elle risque d’être gratuite ou décorative.</p></div>
+</section>
+<section id="couplage">
+  <h2>Couplage, cohésion et séparation des responsabilités</h2>
+  <p>Un bon système cherche une <strong>forte cohésion</strong> dans chaque composant et un <strong>faible couplage</strong> entre composants.</p>
+  <div class="columns">
+    <div class="box example">
+      <h4>Bonne cohésion</h4>
+      <p>Le composant <code>LoanService</code> s’occupe uniquement des règles d’emprunt.</p>
+    </div>
+    <div class="box frequent-error">
+      <h4>Couplage excessif</h4>
+      <p>Le contrôleur appelle directement le repository, envoie un mail et calcule les règles métier dans la même méthode.</p>
+    </div>
+  </div>
+  <pre><code>// Mauvais exemple : trop de responsabilités dans le contrôleur
+@PostMapping("/loans")
+public ResponseEntity&lt;?&gt; create(@RequestBody LoanRequest request) {{
+    // validation manuelle
+    // accès BD
+    // règles métier
+    // envoi de notification
+    // mapping de réponse
+    return ResponseEntity.ok().build();
+}}</code></pre>
+  <pre><code>// Meilleur exemple : responsabilités séparées
+@PostMapping("/loans")
+public ResponseEntity&lt;LoanResponse&gt; create(@Valid @RequestBody LoanRequest request) {{
+    LoanResponse response = loanApplicationService.createLoan(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+}}</code></pre>
+</section>
+<section id="couches">
+  <h2>Architecture en couches</h2>
+  <p>Une architecture en couches sépare typiquement présentation, application, domaine et infrastructure.</p>
+  <pre><code>web/controller  → reçoit HTTP
+application     → orchestre les cas d’usage
+domain          → porte les règles métier
+infrastructure  → base de données, email, broker, clients externes</code></pre>
+  <div class="box child-mode"><h4>Mode enfant</h4><p>La couche web est le guichet, la couche métier décide, la couche infrastructure va chercher les outils et les données.</p></div>
+  <div class="box pro-mode"><h4>Mode pro</h4><p>La séparation réduit l’effet domino des changements, améliore les tests et prépare une évolution vers des patterns plus stricts comme l’hexagonal.</p></div>
+</section>
+<section id="mono-vs-distribue">
+  <h2>Monolithe vs distribué</h2>
+  <table>
+    <thead><tr><th>Critère</th><th>Monolithe</th><th>Système distribué</th></tr></thead>
+    <tbody>
+      <tr><td>Déploiement</td><td>Simple</td><td>Plus complexe</td></tr>
+      <tr><td>Debug</td><td>Plus direct</td><td>Plus difficile</td></tr>
+      <tr><td>Scalabilité ciblée</td><td>Limitée</td><td>Meilleure</td></tr>
+      <tr><td>Latence</td><td>Faible en interne</td><td>Présente entre services</td></tr>
+      <tr><td>Autonomie d’équipe</td><td>Plus faible</td><td>Plus forte si bien découpé</td></tr>
+    </tbody>
+  </table>
+  <div class="box warning"><h4>Attention</h4><p>Un système distribué n’est pas “plus moderne” par nature. Il déplace des problèmes internes vers le réseau, l’observabilité, la sécurité et l’exploitation.</p></div>
+</section>
+<section id="spring-exemple">
+  <h2>Exemple Spring Boot commenté</h2>
+  <pre><code>// DTO d'entrée : l'API reçoit un objet simple et validé
+public record BookRequest(
+    @NotBlank String title,
+    @NotBlank String author,
+    @Positive int stock
+) {{}}</code></pre>
+  <pre><code>// Contrôleur : rôle = interface HTTP, pas logique métier
+@RestController
+@RequestMapping("/api/books")
+@RequiredArgsConstructor
+public class BookController {{
+
+    private final BookApplicationService bookApplicationService;
+
+    @PostMapping
+    public ResponseEntity&lt;BookResponse&gt; create(@Valid @RequestBody BookRequest request) {{
+        BookResponse created = bookApplicationService.create(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }}
+}}</code></pre>
+  <pre><code>// Service d'application : orchestre le cas d'usage
+@Service
+@RequiredArgsConstructor
+public class BookApplicationService {{
+
+    private final BookRepository bookRepository;
+    private final BookMapper bookMapper;
+
+    public BookResponse create(BookRequest request) {{
+        Book book = bookMapper.toEntity(request);
+        Book saved = bookRepository.save(book);
+        return bookMapper.toResponse(saved);
+    }}
+}}</code></pre>
+  <div class="box best-practice"><h4>Bonne pratique</h4><p>Le service d’application orchestre ; le domaine décide ; l’infrastructure exécute ; le contrôleur expose.</p></div>
+</section>
+<section id="quiz">
+  <h2>Quiz de fin</h2>
+  <ol>
+    <li>Pourquoi la séparation des responsabilités améliore-t-elle la maintenabilité ?</li>
+    <li>Dans quel cas un monolithe reste-t-il un bon choix ?</li>
+    <li>Quelle différence entre couplage fort et forte cohésion ?</li>
+  </ol>
+  <details><summary>Corrigé synthétique</summary><p>Elle limite l’impact d’un changement. Un monolithe est adapté pour une équipe réduite, un domaine simple ou une phase de démarrage. Le couplage concerne les dépendances entre composants ; la cohésion concerne l’unité interne d’un composant.</p></details>
+</section>
+
+      <div class="footer-nav"><a href="../pages/introduction.html">← Introduction</a><a href="../pages/jour-2-patterns-et-couches.html">Jour 2 →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

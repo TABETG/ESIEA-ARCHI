@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TP1 — Base architecturale propre</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>TP1 — Base architecturale propre</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Construire un monolithe propre et pédagogique servant de socle aux TP suivants.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jour 1 et Jour 2</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#objectifs">Objectifs</a></li>
+<li><a href="#enonce">Énoncé</a></li>
+<li><a href="#etapes">Étapes</a></li>
+<li><a href="#structure">Structure</a></li>
+<li><a href="#code">Code</a></li>
+<li><a href="#pieges">Pièges</a></li>
+<li><a href="#evaluation">Évaluation</a></li>
+<li><a href="#corrige">Corrigé</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="objectifs">
+  <h2>Objectifs pédagogiques</h2>
+  <ul>
+    <li>Structurer une application Spring Boot propre.</li>
+    <li>Séparer contrôleurs, services, domaine, persistance.</li>
+    <li>Utiliser DTO, validation, gestion d’erreurs, documentation.</li>
+    <li>Préparer un futur passage au distribué.</li>
+  </ul>
+</section>
+<section id="enonce">
+  <h2>Énoncé</h2>
+  <p>Créer une application <strong>Campus Library Flow</strong> monolithique permettant :</p>
+  <ul>
+    <li>gérer des livres ;</li>
+    <li>créer un prêt ;</li>
+    <li>retourner un prêt ;</li>
+    <li>consulter les prêts d’un étudiant.</li>
+  </ul>
+  <div class="box tp"><h4>Prérequis</h4><p>Java 21, Spring Boot, Spring Web, Spring Data JPA, validation Bean Validation, base H2 ou PostgreSQL.</p></div>
+</section>
+<section id="etapes">
+  <h2>Étapes détaillées</h2>
+  <ol>
+    <li>Créer le projet Spring Boot.</li>
+    <li>Définir les packages : <code>web</code>, <code>application</code>, <code>domain</code>, <code>infrastructure</code>.</li>
+    <li>Créer les entités métier <code>Book</code> et <code>Loan</code>.</li>
+    <li>Créer les DTO d’entrée/sortie.</li>
+    <li>Implémenter la validation.</li>
+    <li>Ajouter une gestion d’erreurs centralisée.</li>
+    <li>Documenter l’API avec OpenAPI / Swagger.</li>
+  </ol>
+</section>
+<section id="structure">
+  <h2>Structure de projet</h2>
+  <pre><code>src/main/java/com/example/library
+├── web
+│   ├── BookController.java
+│   ├── LoanController.java
+│   └── ApiExceptionHandler.java
+├── application
+│   ├── BookApplicationService.java
+│   └── LoanApplicationService.java
+├── domain
+│   ├── Book.java
+│   ├── Loan.java
+│   └── BusinessException.java
+└── infrastructure
+    ├── persistence
+    └── mapper</code></pre>
+</section>
+<section id="code">
+  <h2>Extraits de code commentés</h2>
+  <pre><code>// DTO de création de livre
+public record CreateBookRequest(
+    @NotBlank String title,
+    @NotBlank String author,
+    @Positive int stock
+) {{}}</code></pre>
+  <pre><code>// Gestion d'erreurs centralisée : évite les try/catch partout
+@RestControllerAdvice
+public class ApiExceptionHandler {{
+
+    @ExceptionHandler(BusinessException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleBusiness(BusinessException ex) {{
+        return ResponseEntity.badRequest()
+                .body(Map.of("error", ex.getMessage()));
+    }}
+}}</code></pre>
+</section>
+<section id="pieges">
+  <h2>Pièges fréquents</h2>
+  <ul>
+    <li>Mettre la logique métier dans le contrôleur.</li>
+    <li>Retourner directement l’entité JPA.</li>
+    <li>Écrire les règles métier dans le repository.</li>
+    <li>Ne pas distinguer erreur technique et erreur métier.</li>
+  </ul>
+</section>
+<section id="evaluation">
+  <h2>Critères d’évaluation</h2>
+  <table>
+    <thead><tr><th>Critère</th><th>Points d’attention</th></tr></thead>
+    <tbody>
+      <tr><td>Structure</td><td>Séparation claire des couches</td></tr>
+      <tr><td>Qualité API</td><td>DTO, codes HTTP, validation</td></tr>
+      <tr><td>Gestion d’erreurs</td><td>Centralisée et compréhensible</td></tr>
+      <tr><td>Clarté du code</td><td>Nommage, simplicité, commentaires utiles</td></tr>
+      <tr><td>Préparation au futur</td><td>Couplage limité, structure extensible</td></tr>
+    </tbody>
+  </table>
+</section>
+<section id="corrige">
+  <h2>Corrigé détaillé</h2>
+  <p>Le corrigé complet attendu :</p>
+  <ul>
+    <li>contrôleurs fins ;</li>
+    <li>services d’application qui orchestrent ;</li>
+    <li>modèle métier capable d’exprimer les règles de retour et de disponibilité ;</li>
+    <li>mapping explicite ;</li>
+    <li>OpenAPI ;</li>
+    <li>tests basiques de service et de contrôleur.</li>
+  </ul>
+  <div class="box best-practice"><h4>À la fin, l’étudiant doit avoir compris</h4><p>Qu’avant de parler microservices, il faut maîtriser la structuration interne d’un système unique.</p></div>
+</section>
+
+      <div class="footer-nav"><a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">← Jour 6</a><a href="../pages/tp-2.html">TP2 →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>
