@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Exercices, mini défis et questions d’examen</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Exercices, mini défis et questions d’examen</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>S’entraîner à raisonner et à argumenter les choix d’architecture.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Suivre le cours au fil de l’eau</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#reflexion">Réflexion</a></li>
+<li><a href="#mini-defis">Mini défis</a></li>
+<li><a href="#questions-examen">Questions d’examen</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="reflexion">
+  <h2>Exercices de réflexion architecture</h2>
+  <ol>
+    <li>Dans quel contexte garderais-tu un monolithe modulaire pendant 2 ans au lieu de passer aux microservices ?</li>
+    <li>Tu dois gérer une forte charge sur la recherche catalogue mais peu sur les prêts : que proposes-tu ?</li>
+    <li>Quels risques introduit un appel REST entre services critiques ?</li>
+    <li>Quand un événement “loan-created” est-il préférable à un appel direct ?</li>
+  </ol>
+</section>
+<section id="mini-defis">
+  <h2>Mini défis</h2>
+  <div class="card-grid">
+    <div class="card"><h3>Défi 1</h3><p>Réécrire un contrôleur trop gros en couches propres.</p></div>
+    <div class="card"><h3>Défi 2</h3><p>Identifier trois bounded contexts dans une université numérique.</p></div>
+    <div class="card"><h3>Défi 3</h3><p>Proposer une stratégie de fallback sur un service lent.</p></div>
+    <div class="card"><h3>Défi 4</h3><p>Écrire un ADR pour justifier une API Gateway.</p></div>
+  </div>
+</section>
+<section id="questions-examen">
+  <h2>Idées de questions d’examen</h2>
+  <ul>
+    <li>Expliquez pourquoi un système distribué est plus difficile à tester qu’un monolithe.</li>
+    <li>Comparez architecture en couches, hexagonale et clean architecture.</li>
+    <li>Expliquez les compromis d’une cohérence éventuelle.</li>
+    <li>Proposez une architecture pour une application de réservation avec contraintes de disponibilité.</li>
+  </ul>
+</section>
+
+      <div class="footer-nav"><a href="../pages/tp-3.html">← TP3</a><a href="../pages/corriges.html">Corrigés →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

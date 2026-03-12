@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dossier d’architecture</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Dossier d’architecture</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Apprendre à produire une documentation d’architecture utile, concise et exploitable.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jour 2 recommandé</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#objectif">Objectif</a></li>
+<li><a href="#contenu">Contenu</a></li>
+<li><a href="#checklist">Checklist</a></li>
+<li><a href="#adr">ADR</a></li>
+<li><a href="#mini-dossier">Mini dossier complet</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="objectif">
+  <h2>À quoi sert un dossier d’architecture ?</h2>
+  <p>Le dossier d’architecture rend explicites les décisions structurantes, les contraintes, les risques et les compromis. Il sert autant à concevoir qu’à aligner équipes, parties prenantes et exploitation.</p>
+  <div class="box child-mode"><h4>Mode enfant</h4><p>C’est le cahier qui explique pourquoi on a construit la maison de cette manière et pas autrement.</p></div>
+  <div class="box pro-mode"><h4>Mode pro</h4><p>Un bon dossier d’architecture réduit les décisions implicites, facilite l’onboarding, soutient la gouvernance et limite les débats sans mémoire.</p></div>
+</section>
+<section id="contenu">
+  <h2>Contenu attendu</h2>
+  <ul>
+    <li>Contexte métier</li>
+    <li>Besoins fonctionnels</li>
+    <li>Besoins non fonctionnels</li>
+    <li>Contraintes techniques / organisationnelles / réglementaires</li>
+    <li>Choix d’architecture</li>
+    <li>Alternatives rejetées</li>
+    <li>Diagrammes à produire</li>
+    <li>ADR</li>
+    <li>Risques</li>
+    <li>Trade-offs</li>
+    <li>Checklist finale</li>
+  </ul>
+</section>
+<section id="checklist">
+  <h2>Checklist d’architecture</h2>
+  <div class="box checklist">
+    <ul>
+      <li>Le contexte métier est-il clair ?</li>
+      <li>Les qualités prioritaires sont-elles explicites ?</li>
+      <li>Le découpage est-il justifié ?</li>
+      <li>Les flux synchrones et asynchrones sont-ils identifiés ?</li>
+      <li>La sécurité est-elle abordée ?</li>
+      <li>L’observabilité est-elle prévue ?</li>
+      <li>Les risques et dettes acceptées sont-ils écrits ?</li>
+    </ul>
+  </div>
+</section>
+<section id="adr">
+  <h2>Exemple d’ADR</h2>
+  <pre><code>ADR-001 — Choix d’une API Gateway
+Statut : accepté
+Contexte : plusieurs services exposés à des clients front
+Décision : introduire Spring Cloud Gateway
+Conséquences positives : routage centralisé, sécurité, quotas, traçabilité
+Conséquences négatives : nouveau point critique, compétence ops requise
+Alternatives rejetées : accès direct client → services</code></pre>
+</section>
+<section id="mini-dossier">
+  <h2>Exemple complet de mini dossier d’architecture</h2>
+  <pre><code>Projet : Campus Library Flow
+
+1. Contexte métier
+Université multi-campus, 20 000 étudiants, consultation catalogue fréquente,
+création de prêts modérée, notifications email souhaitées.
+
+2. Besoins fonctionnels
+- rechercher un livre
+- créer / retourner un prêt
+- consulter l'historique d'un étudiant
+- notifier un prêt créé
+
+3. Besoins non fonctionnels
+- disponibilité élevée pour la consultation catalogue
+- traçabilité des prêts
+- sécurité des opérations d'écriture
+- temps de réponse &lt; 500 ms sur la plupart des lectures
+
+4. Contraintes
+- équipe de 5 développeurs
+- budget ops limité
+- montée en charge attendue surtout sur la lecture
+
+5. Choix
+- monolithe propre au départ
+- extraction ciblée du catalogue puis des prêts
+- gateway pour exposition unifiée
+- événement "loan-created" pour notification
+- JWT pour sécuriser l'écriture
+
+6. Alternatives rejetées
+- microservices complets dès le début
+- base partagée entre tous les services
+- communication 100% synchrone
+
+7. Risques
+- complexité réseau croissante
+- dette documentaire
+- difficulté de test inter-services
+
+8. Trade-offs
+- plus de complexité technique
+- meilleure évolutivité ciblée
+- observabilité obligatoire</code></pre>
+</section>
+
+      <div class="footer-nav"><a href="../pages/live-coding.html">← Live Coding</a><a href="../pages/faq.html">FAQ →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

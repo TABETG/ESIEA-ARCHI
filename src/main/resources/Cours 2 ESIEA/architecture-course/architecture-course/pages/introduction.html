@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Introduction au module</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script defer src="assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="index.html">Accueil</a>
+<a href="pages/introduction.html">Introduction</a>
+<a href="pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="pages/tp-1.html">TP1</a>
+<a href="pages/tp-2.html">TP2</a>
+<a href="pages/tp-3.html">TP3</a>
+<a href="pages/exercices.html">Exercices</a>
+<a href="pages/corriges.html">Corrigés</a>
+<a href="pages/glossary.html">Glossaire</a>
+<a href="pages/live-coding.html">Live Coding</a>
+<a href="pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Introduction au module</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Comprendre la philosophie du cours, le projet fil rouge et la progression pédagogique.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Bases Java/Spring et intérêt pour la conception logicielle</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#positionnement">Positionnement</a></li>
+<li><a href="#objectifs">Objectifs</a></li>
+<li><a href="#fil-rouge">Fil rouge</a></li>
+<li><a href="#methode">Méthode</a></li>
+<li><a href="#quiz">Quiz</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="positionnement">
+  <h2>Positionnement du module</h2>
+  <p>Ce module ne forme pas seulement à “coder des services”. Il apprend à <strong>penser un système</strong>, à expliciter des compromis et à choisir une architecture adaptée au contexte.</p>
+  <div class="box definition"><h4>Définition simple</h4><p>Une architecture logicielle décrit l’organisation globale d’une application : blocs principaux, responsabilités, échanges, contraintes et règles de conception.</p></div>
+  <div class="box example"><h4>Pourquoi c’est utile</h4><p>Un logiciel mal structuré peut sembler rapide à produire au début, mais devient cher à modifier, fragile à tester et risqué à déployer.</p></div>
+  <div class="box child-mode"><h4>Mode enfant</h4><p>Quand tu ranges ta chambre, tu sépares les vêtements, les livres et les jouets. Si tout est mélangé, chaque changement devient pénible. En logiciel, c’est pareil.</p></div>
+  <div class="box pro-mode"><h4>Mode pro</h4><p>L’architecture répond aux attributs de qualité : maintenabilité, évolutivité, résilience, sécurité, observabilité, exploitabilité et alignement avec l’organisation des équipes.</p></div>
+</section>
+<section id="objectifs">
+  <h2>Objectifs de compétence</h2>
+  <ul>
+    <li>Lire et critiquer une architecture existante.</li>
+    <li>Structurer un monolithe propre avant de parler microservices.</li>
+    <li>Comprendre les compromis du distribué : réseau, cohérence, pannes, observabilité.</li>
+    <li>Concevoir des APIs robustes et évolutives.</li>
+    <li>Documenter les décisions via un dossier d’architecture et des ADR.</li>
+  </ul>
+  <div class="box frequent-error"><h4>Erreur fréquente</h4><p>Vouloir commencer par Kubernetes, Kafka ou un mesh sans avoir clarifié le domaine métier, les flux et les qualités cibles.</p></div>
+</section>
+<section id="fil-rouge">
+  <h2>Fil rouge pédagogique</h2>
+  <p>Nous partons d’un monolithe propre de gestion de bibliothèque universitaire, puis nous l’amenons progressivement vers une architecture distribuée.</p>
+  <pre><code>Campus Library Flow
+├── catalogue-service
+├── loan-service
+├── identity-service
+├── notification-service
+└── api-gateway</code></pre>
+  <div class="box live-coding"><h4>Live coding prévu</h4><p>Créer une première API Spring Boot propre avec couches, DTO, validation et gestion d’erreurs. Ce sera la base du TP1.</p></div>
+</section>
+<section id="methode">
+  <h2>Méthode pédagogique</h2>
+  <table>
+    <thead><tr><th>Élément</th><th>Dans le cours</th><th>Pourquoi</th></tr></thead>
+    <tbody>
+      <tr><td>Mode enfant</td><td>Analogies simples</td><td>Comprendre sans jargon</td></tr>
+      <tr><td>Mode pro</td><td>Enjeux d’entreprise</td><td>Situer les décisions dans le réel</td></tr>
+      <tr><td>Code commenté</td><td>Extraits Spring Boot</td><td>Lier théorie et pratique</td></tr>
+      <tr><td>Mini quiz</td><td>À chaque fin de chapitre</td><td>Fixer les notions</td></tr>
+      <tr><td>TP dépendants</td><td>TP1 → TP2 → TP3</td><td>Apprentissage progressif</td></tr>
+    </tbody>
+  </table>
+</section>
+<section id="quiz">
+  <h2>Quiz d’entrée</h2>
+  <ol>
+    <li>Pourquoi un monolithe n’est-il pas forcément un mauvais choix ?</li>
+    <li>Quelle est la différence entre architecture et design détaillé ?</li>
+    <li>Pourquoi la latence réseau change-t-elle la manière de coder ?</li>
+    <li>À quoi sert un dossier d’architecture ?</li>
+  </ol>
+  <details><summary>Éléments de réponse</summary><p>Un monolithe peut être simple à développer, à tester et à déployer. L’architecture décrit les grandes décisions structurantes ; le design détaillé décrit plus finement les classes, composants et interactions internes. La latence réseau impose timeouts, retries, idempotence et stratégie d’erreur. Le dossier d’architecture rend explicites les choix, contraintes, risques et arbitrages.</p></details>
+</section>
+
+      <div class="footer-nav"><a href="index.html">← Accueil</a><a href="pages/jour-1-fondamentaux-architecture.html">Jour 1 →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

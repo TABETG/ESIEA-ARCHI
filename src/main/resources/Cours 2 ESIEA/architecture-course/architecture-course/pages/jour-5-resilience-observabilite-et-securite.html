@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jour 5 — Résilience, observabilité, sécurité, fiabilité</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Jour 5 — Résilience, observabilité, sécurité, fiabilité</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Fiabiliser un système distribué avec des mécanismes concrets de résilience, de monitoring et de sécurité.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 4 acquis</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#resilience">Résilience</a></li>
+<li><a href="#observabilite">Observabilité</a></li>
+<li><a href="#healthchecks">Health checks</a></li>
+<li><a href="#securite">Sécurité</a></li>
+<li><a href="#zerotrust">Zero Trust & secrets</a></li>
+<li><a href="#quiz">Quiz</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="resilience">
+  <h2>Résilience : timeout, retry, circuit breaker, fallback, bulkhead</h2>
+  <p>La résilience consiste à empêcher qu’une panne locale devienne une panne globale.</p>
+  <table>
+    <thead><tr><th>Mécanisme</th><th>Rôle</th><th>Exemple</th></tr></thead>
+    <tbody>
+      <tr><td>Timeout</td><td>Couper l’attente excessive</td><td>1 s pour un service de disponibilité</td></tr>
+      <tr><td>Retry</td><td>Retenter un échec transitoire</td><td>2 tentatives max avec backoff</td></tr>
+      <tr><td>Circuit Breaker</td><td>Stopper temporairement les appels vers un service malade</td><td>Ouvrir après 50% d’échecs</td></tr>
+      <tr><td>Fallback</td><td>Réponse dégradée</td><td>Message “service indisponible”</td></tr>
+      <tr><td>Bulkhead</td><td>Isoler les ressources</td><td>Pool séparé pour un appel externe lent</td></tr>
+    </tbody>
+  </table>
+  <pre><code>@Retry(name = "catalogService")
+@CircuitBreaker(name = "catalogService", fallbackMethod = "fallbackAvailability")
+public AvailabilityResponse getAvailability(UUID bookId) {{
+    return catalogClient.getAvailability(bookId);
+}}
+
+public AvailabilityResponse fallbackAvailability(UUID bookId, Throwable ex) {{
+    return new AvailabilityResponse(bookId, false, "Réponse dégradée");
+}}</code></pre>
+</section>
+<section id="observabilite">
+  <h2>Observabilité : logs, métriques, traces distribuées</h2>
+  <p>Dans un système distribué, “ça ne marche pas” ne suffit plus. Il faut pouvoir répondre à trois questions : <strong>quoi</strong>, <strong>combien</strong>, <strong>où</strong>.</p>
+  <div class="columns">
+    <div class="card"><h3>Logs</h3><p>Événements horodatés, corrélés, lisibles par humain ou machine.</p></div>
+    <div class="card"><h3>Métriques</h3><p>Volumes, latences, taux d’erreur, saturation.</p></div>
+    <div class="card"><h3>Traces</h3><p>Parcours complet d’une requête à travers plusieurs services.</p></div>
+  </div>
+  <pre><code>// Exemple d'enrichissement de log
+log.info("loan-created loanId={} studentId={} correlationId={}",
+        loan.getId(), loan.getStudentId(), MDC.get("correlationId"));</code></pre>
+  <div class="box best-practice"><h4>Bonne pratique</h4><p>Adopter des logs structurés JSON en production, un identifiant de corrélation propagé entre services, et des dashboards métier + technique.</p></div>
+</section>
+<section id="healthchecks">
+  <h2>Monitoring, health checks, centralisation des logs</h2>
+  <p>Un service n’est pas “vivant” seulement parce que le process tourne. Il faut distinguer liveness, readiness et dépendances.</p>
+  <pre><code>management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,prometheus
+  endpoint:
+    health:
+      probes:
+        enabled: true</code></pre>
+</section>
+<section id="securite">
+  <h2>Sécurité inter-services : authentification, autorisation, JWT, OAuth2 / OIDC</h2>
+  <div class="box definition"><h4>Définition simple</h4><p>Authentifier = prouver qui on est. Autoriser = vérifier ce qu’on a le droit de faire.</p></div>
+  <div class="box child-mode"><h4>Mode enfant</h4><p>Le badge d’entrée dit qui tu es. Les zones autorisées disent où tu peux aller.</p></div>
+  <div class="box pro-mode"><h4>Mode pro</h4><p>Dans un SI distribué, l’identité et les droits doivent voyager de façon fiable entre services, sans faire confiance aveuglément au réseau interne.</p></div>
+  <pre><code>@Bean
+SecurityFilterChain security(HttpSecurity http) throws Exception {{
+    return http
+        .csrf(csrf -> csrf.disable())
+        .authorizeHttpRequests(auth -> auth
+            .requestMatchers("/actuator/health").permitAll()
+            .requestMatchers(HttpMethod.POST, "/api/loans/**").hasRole("LIBRARIAN")
+            .anyRequest().authenticated())
+        .oauth2ResourceServer(oauth -> oauth.jwt())
+        .build();
+}}</code></pre>
+</section>
+<section id="zerotrust">
+  <h2>Zero Trust et gestion des secrets</h2>
+  <p>Zero Trust signifie qu’aucun segment réseau n’est implicitement digne de confiance. On vérifie l’identité, le contexte et le droit d’accès à chaque étape sensible.</p>
+  <div class="box warning"><h4>Erreur fréquente</h4><p>Mettre des mots de passe, clés API ou secrets dans <code>application.yml</code> versionné.</p></div>
+  <div class="box best-practice"><h4>Bonne pratique</h4><p>Utiliser un gestionnaire de secrets, limiter les droits, faire tourner les clés, tracer les accès sensibles.</p></div>
+</section>
+<section id="quiz">
+  <h2>Quiz de fin</h2>
+  <ol>
+    <li>Pourquoi un retry sans timeout peut-il être dangereux ?</li>
+    <li>Quelle différence entre logs, métriques et traces ?</li>
+    <li>Pourquoi “le réseau interne est sûr” est-il une mauvaise hypothèse ?</li>
+  </ol>
+</section>
+
+      <div class="footer-nav"><a href="../pages/jour-4-microservices-et-communication.html">← Jour 4</a><a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6 →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>

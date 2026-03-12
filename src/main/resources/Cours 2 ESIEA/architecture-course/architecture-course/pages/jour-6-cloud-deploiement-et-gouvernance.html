@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jour 6 — Déploiement, cloud, gouvernance et architecture d’entreprise</title>
+  <link rel="stylesheet" href="../assets/css/style.css">
+  <script defer src="../assets/js/main.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+<a href="../pages/introduction.html">Introduction</a>
+<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+<a href="../pages/tp-1.html">TP1</a>
+<a href="../pages/tp-2.html">TP2</a>
+<a href="../pages/tp-3.html">TP3</a>
+<a href="../pages/exercices.html">Exercices</a>
+<a href="../pages/corriges.html">Corrigés</a>
+<a href="../pages/glossary.html">Glossaire</a>
+<a href="../pages/live-coding.html">Live Coding</a>
+<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+<a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
+</header>
+<main>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
+    </div>
+    <h1>Jour 6 — Déploiement, cloud, gouvernance et architecture d’entreprise</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Passer de l’architecture logique à l’architecture exploitable : conteneurs, déploiement, gouvernance, ADR et choix contextuel.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 5 acquis</p></div>
+    </div>
+  </div>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul><li><a href="#conteneurs">Conteneurs</a></li>
+<li><a href="#kubernetes">Kubernetes</a></li>
+<li><a href="#delivery">Blue-green / canary / CI/CD / IaC</a></li>
+<li><a href="#gouvernance">Gouvernance</a></li>
+<li><a href="#urbanisation">Urbanisation & choix</a></li>
+<li><a href="#cloture">Clôture</a></li></ul>
+    </aside>
+    <article class="content">
+      
+<section id="conteneurs">
+  <h2>Conteneurs et Docker</h2>
+  <p>Le conteneur emballe l’application et ses dépendances d’exécution de manière reproductible.</p>
+  <pre><code>FROM eclipse-temurin:21-jre
+WORKDIR /app
+COPY target/catalog-service.jar app.jar
+EXPOSE 8080
+ENTRYPOINT ["java","-jar","app.jar"]</code></pre>
+  <div class="box child-mode"><h4>Mode enfant</h4><p>Le conteneur, c’est comme une boîte de transport standardisée pour livrer ton application partout sans refaire le carton à chaque fois.</p></div>
+</section>
+<section id="kubernetes">
+  <h2>Kubernetes, scaling horizontal, rolling deployment</h2>
+  <p>Kubernetes orchestre les conteneurs : déploiement, redémarrage, scaling, exposition réseau et observation de l’état.</p>
+  <pre><code>apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: catalog-service
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: catalog-service
+  template:
+    metadata:
+      labels:
+        app: catalog-service
+    spec:
+      containers:
+        - name: catalog-service
+          image: registry.example.com/catalog-service:1.0.0
+          ports:
+            - containerPort: 8080</code></pre>
+  <div class="box example"><h4>Rolling deployment</h4><p>On remplace progressivement les anciennes instances par les nouvelles pour limiter l’interruption.</p></div>
+</section>
+<section id="delivery">
+  <h2>Blue-green, canary, CI/CD et IaC</h2>
+  <table>
+    <thead><tr><th>Pratique</th><th>But</th><th>Exemple</th></tr></thead>
+    <tbody>
+      <tr><td>Blue-Green</td><td>Bascule nette entre deux environnements</td><td>Réduire le risque de rollback</td></tr>
+      <tr><td>Canary</td><td>Exposer progressivement une nouvelle version</td><td>5% puis 20% puis 100%</td></tr>
+      <tr><td>CI/CD</td><td>Automatiser build, test, scan, déploiement</td><td>Pipeline Git</td></tr>
+      <tr><td>IaC</td><td>Décrire l’infrastructure en code</td><td>Terraform, Helm, YAML</td></tr>
+    </tbody>
+  </table>
+</section>
+<section id="gouvernance">
+  <h2>Gouvernance d’API, versioning, documentation et ADR</h2>
+  <p>Plus un système grandit, plus la gouvernance évite le chaos : conventions, standards, compatibilité, cycle de vie des endpoints, règles de sécurité, documentation et validation des contrats.</p>
+  <div class="box best-practice"><h4>Checklist de gouvernance</h4>
+    <ul>
+      <li>Nommage cohérent des APIs et événements</li>
+      <li>Versioning explicite</li>
+      <li>Contrats documentés</li>
+      <li>Dépréciation annoncée</li>
+      <li>Traçabilité des décisions via ADR</li>
+    </ul>
+  </div>
+</section>
+<section id="urbanisation">
+  <h2>Urbanisation SI et choix d’architecture selon le contexte</h2>
+  <p>Un bon architecte ne vend pas une architecture “préférée”. Il choisit selon le contexte : taille équipe, criticité, budget, maturité ops, charge, réglementation, dette existante.</p>
+  <table>
+    <thead><tr><th>Contexte</th><th>Choix souvent pertinent</th><th>Pourquoi</th></tr></thead>
+    <tbody>
+      <tr><td>Startup / équipe réduite</td><td>Monolithe modulaire</td><td>Vitesse et simplicité</td></tr>
+      <tr><td>Domaine stable mais volumineux</td><td>Monolithe bien structuré</td><td>Cohérence et coût ops faible</td></tr>
+      <tr><td>Plusieurs équipes autonomes</td><td>Microservices ciblés</td><td>Découplage organisationnel</td></tr>
+      <tr><td>Système très événementiel</td><td>Architecture pilotée par événements</td><td>Découplage temporel</td></tr>
+    </tbody>
+  </table>
+</section>
+<section id="cloture">
+  <h2>Clôture et préparation à l’évaluation finale</h2>
+  <div class="box tp"><h4>Livrable final conseillé</h4><p>Chaque groupe remet : code TP3, ADR principaux, dossier d’architecture synthétique, schéma texte des flux, justification des choix et limites connues.</p></div>
+  <ol>
+    <li>Justifier pourquoi l’on n’a pas choisi “tout en microservices”.</li>
+    <li>Présenter une stratégie de sécurité et de résilience minimale.</li>
+    <li>Expliquer comment on déploie et on surveille le système.</li>
+  </ol>
+</section>
+
+      <div class="footer-nav"><a href="../pages/jour-5-resilience-observabilite-et-securite.html">← Jour 5</a><a href="../pages/tp-1.html">TP1 →</a></div>
+    </article>
+  </div>
+</main>
+</body>
+</html>
