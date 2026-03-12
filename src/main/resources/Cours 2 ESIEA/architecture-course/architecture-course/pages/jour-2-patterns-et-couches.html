@@ -3,8 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jour 2 — Patterns d’architecture et structuration d’applications</title>
+  <title>Jour 2 — Patterns d’architecture et structuration | Architecture & Systèmes Distribués</title>
+
   <link rel="stylesheet" href="../assets/css/style.css">
+
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+  <style>
+    pre[class*="language-"] {
+      background: #0f172a !important;
+      margin: 0 0 1.5rem 0 !important;
+      border: 1px solid #0f172a !important;
+      border-radius: 8px !important;
+      border-top-left-radius: 0 !important;
+      border-top-right-radius: 0 !important;
+      padding: 1.5rem !important;
+      box-shadow: none !important;
+    }
+    code[class*="language-"], pre[class*="language-"] {
+      text-shadow: none !important;
+      font-family: 'Fira Code', Consolas, Monaco, monospace !important;
+      font-size: 0.9rem !important;
+    }
+    .token.annotation { color: #e5c07b !important; }
+  </style>
+
   <script defer src="../assets/js/main.js"></script>
 </head>
 <body>
@@ -13,163 +36,216 @@
     <div class="brand">Architecture logicielle & systèmes distribués</div>
     <nav class="top-nav">
       <a href="../index.html">Accueil</a>
-<a href="../pages/introduction.html">Introduction</a>
-<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-<a href="../pages/tp-1.html">TP1</a>
-<a href="../pages/tp-2.html">TP2</a>
-<a href="../pages/tp-3.html">TP3</a>
-<a href="../pages/exercices.html">Exercices</a>
-<a href="../pages/corriges.html">Corrigés</a>
-<a href="../pages/glossary.html">Glossaire</a>
-<a href="../pages/live-coding.html">Live Coding</a>
-<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-<a href="../pages/faq.html">FAQ</a>
+      <a href="introduction.html">Introduction</a>
+      <a href="jour-1-fondamentaux-architecture.html">Jour 1</a>
+      <a href="jour-2-patterns-et-couches.html" class="active">Jour 2</a>
+      <a href="jour-3-systemes-distribues-et-api.html">Jour 3</a>
+      <a href="jour-4-microservices-et-communication.html">Jour 4</a>
+      <a href="jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+      <a href="jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+      <a href="tp-1.html">TP1</a>
+      <a href="tp-2.html">TP2</a>
+      <a href="tp-3.html">TP3</a>
+      <a href="exercices.html">Exercices</a>
+      <a href="corriges.html">Corrigés</a>
+      <a href="glossary.html">Glossaire</a>
+      <a href="architecture-dossier.html">Dossier Architecture</a>
     </nav>
   </div>
 </header>
+
 <main>
   <div class="hero">
     <div class="badges">
-      <span class="badge">Support HTML modulaire</span>
-      <span class="badge">Master 2</span>
-      <span class="badge">6 jours</span>
-      <span class="badge">3 TP progressifs</span>
-      <span class="badge">Java / Spring Boot</span>
+      <span class="badge">Jour 2 sur 6</span>
+      <span class="badge">Patterns de Conception</span>
+      <span class="badge">DDD & Hexagonal</span>
     </div>
-    <h1>Jour 2 — Patterns d’architecture et structuration d’applications</h1>
+    <h1>Jour 2 — Patterns d’architecture et structuration</h1>
     <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Comprendre les grands patterns, la dépendance vers le métier, et structurer un backend Spring Boot propre.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>Jour 1 acquis</p></div>
+      <div class="meta">
+        <h3>Objectifs pédagogiques</h3>
+        <p>Maîtriser l'inversion de dépendances pour isoler la logique métier. Comprendre le Domain-Driven Design (DDD) et l'architecture Hexagonale (Ports & Adapters).</p>
+      </div>
+      <div class="meta">
+        <h3>Temps estimé</h3>
+        <p>≈ 6h incluant la conception de Bounded Contexts et la rédaction du premier ADR.</p>
+      </div>
+      <div class="meta">
+        <h3>Prérequis</h3>
+        <p>Compréhension de l'architecture en couches N-Tiers et des interfaces en Java.</p>
+      </div>
     </div>
   </div>
+
   <div class="layout">
     <aside class="toc">
-      <h2>Table des matières</h2>
-      <ul><li><a href="#patterns">Patterns</a></li>
-<li><a href="#hexagonal">Hexagonal</a></li>
-<li><a href="#dip">Inversion de dépendance</a></li>
-<li><a href="#ddd">DDD de base</a></li>
-<li><a href="#dto">DTO / mapper / repository</a></li>
-<li><a href="#dossier">Dossier d’architecture</a></li>
-<li><a href="#quiz">Quiz</a></li></ul>
+      <h2>Sommaire</h2>
+      <ul>
+        <li><a href="#hexagonal">Architecture Hexagonale</a></li>
+        <li><a href="#ddd">Bases du DDD</a></li>
+        <li><a href="#cqrs">Introduction à CQRS</a></li>
+        <li><a href="#code-spring">Exemple Spring Boot</a></li>
+        <li><a href="#adr">Rédiger un ADR</a></li>
+        <li><a href="#quiz">Auto-évaluation</a></li>
+      </ul>
     </aside>
-    <article class="content">
-      
-<section id="patterns">
-  <h2>Patterns d’architecture</h2>
-  <p>Un pattern d’architecture est une manière connue d’organiser un système pour répondre à certains besoins. Il ne s’agit pas d’une vérité universelle mais d’un compromis réutilisable.</p>
-  <table>
-    <thead><tr><th>Pattern</th><th>Idée</th><th>Quand l’utiliser</th><th>Limite</th></tr></thead>
-    <tbody>
-      <tr><td>Layered</td><td>Couches techniques</td><td>Application simple à moyenne</td><td>Peut devenir trop technique</td></tr>
-      <tr><td>Hexagonal</td><td>Domaine au centre, ports/adapters autour</td><td>Testabilité, isolation du métier</td><td>Demande de discipline</td></tr>
-      <tr><td>Clean</td><td>Dépendances vers l’intérieur</td><td>Longue durée de vie, métier riche</td><td>Abstraction parfois excessive</td></tr>
-      <tr><td>Onion</td><td>Anneaux autour du domaine</td><td>Proche de Clean/Hexa</td><td>Peut paraître théorique au début</td></tr>
-      <tr><td>MVC</td><td>Modèle/Vue/Contrôleur</td><td>UI et applications web classiques</td><td>Ne suffit pas pour structurer tout le backend</td></tr>
-    </tbody>
-  </table>
-</section>
-<section id="hexagonal">
-  <h2>Hexagonal architecture</h2>
-  <div class="box definition"><h4>Définition simple</h4><p>Le métier ne dépend pas de la base, du web ou d’un broker. Il expose des ports, et les adapters réalisent les détails techniques.</p></div>
-  <div class="box child-mode"><h4>Mode enfant</h4><p>Le métier est le cerveau. Les adapters sont les mains et les oreilles. Si on change d’outil, le cerveau garde ses règles.</p></div>
-  <div class="box pro-mode"><h4>Mode pro</h4><p>L’hexagonal aide à découpler le domaine des frameworks et des protocoles. Il facilite les tests métier purs et limite l’enfermement technique.</p></div>
-  <pre><code>domain/
-  model/
-  service/
-application/
-  port/in/
-  port/out/
-infrastructure/
-  persistence/
-  web/
-  messaging/</code></pre>
-  <pre><code>// Port de sortie : le métier exprime son besoin sans connaître JPA
-public interface BookPersistencePort {{
-    Book save(Book book);
-    Optional&lt;Book&gt; findById(UUID id);
-}}</code></pre>
-  <pre><code>// Adapter JPA : détail technique branché sur le port
-@Component
-@RequiredArgsConstructor
-public class BookPersistenceAdapter implements BookPersistencePort {{
 
-    private final SpringDataBookRepository repository;
+    <article class="content">
+
+      <section id="hexagonal">
+        <h2>L'Architecture Hexagonale (Ports & Adapters)</h2>
+        <p>L'architecture en couches classique (présentée au Jour 1) a un défaut majeur : le domaine métier finit toujours par dépendre de la base de données (via l'ORM). L'architecture hexagonale résout cela par <strong>l'Inversion de Contrôle</strong>.</p>
+
+        <div class="grid-2">
+          <div class="box child-mode">
+            <h4>L'analogie de la console (Mode enfant)</h4>
+            <p>Le cœur de l'application est comme une console de jeu. Les "Ports" sont les prises USB. Tu peux y brancher n'importe quelle manette ou écran (les "Adapters"). La console s'en fiche, tant que la prise rentre !</p>
+          </div>
+          <div class="box pro-mode">
+            <h4>Agnosticisme technique (Mode pro)</h4>
+            <p>Le domaine (le cœur) ne connaît ni Spring, ni SQL, ni le Web. Il expose des <strong>Ports (Interfaces)</strong>. L'infrastructure implémente ces interfaces via des <strong>Adapters</strong>. Le métier devient 100% testable unitairement sans base de données.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="ddd">
+        <h2>Bases du Domain-Driven Design (DDD)</h2>
+        <p>Inventé par Eric Evans, le DDD est une approche où la structure du code doit correspondre exactement au métier de l'entreprise.</p>
+
+        <table>
+          <thead>
+          <tr>
+            <th>Concept DDD</th>
+            <th>Explication</th>
+            <th>Exemple (Bibliothèque)</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr>
+            <td><strong>Ubiquitous Language</strong></td>
+            <td>Le vocabulaire partagé entre les développeurs et les experts métier. Aucun terme technique.</td>
+            <td>On ne dit pas <code>updateUserStatus()</code> mais <code>suspendLibraryCard()</code>.</td>
+          </tr>
+          <tr>
+            <td><strong>Bounded Context</strong></td>
+            <td>Une frontière stricte autour d'un modèle métier. Un même mot peut avoir un sens différent selon le contexte.</td>
+            <td>Un "Livre" dans le contexte <em>Catalogue</em> a un résumé et des auteurs. Dans le contexte <em>Inventaire</em>, c'est juste un code barre et un état (emprunté/disponible).</td>
+          </tr>
+          <tr>
+            <td><strong>Aggregate Root</strong></td>
+            <td>L'entité principale qui garantit la cohérence des entités enfants lors d'une transaction.</td>
+            <td>L'<code>Emprunt</code> (Aggregate Root) contrôle ses <code>Lignes d'emprunt</code>. On ne sauvegarde pas une ligne seule.</td>
+          </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <section id="cqrs">
+        <h2>Introduction à CQRS</h2>
+        <p>Le pattern <strong>Command Query Responsibility Segregation</strong> consiste à séparer complètement les modèles de mise à jour (Command) des modèles de lecture (Query).</p>
+
+        <div class="box frequent-error">
+          <h4>Le problème du modèle unique</h4>
+          <p>Dans un monolithe classique, on utilise la même entité JPA pour écrire en base et pour afficher à l'écran. Résultat : on ajoute des champs inutiles au métier juste pour le front-end, et on fait des jointures horribles (N+1 selects) pour l'affichage.</p>
+        </div>
+        <p>Avec CQRS, on a une BDD (ou des tables) optimisée pour l'écriture de règles métier complexes, et une autre optimisée pour la lecture (ex: ElasticSearch, ou des vues matérialisées SQL).</p>
+      </section>
+
+      <section id="code-spring">
+        <h2>Implémentation d'un Port et d'un Adapter en Spring</h2>
+        <p>Voyons comment inverser la dépendance vers la base de données.</p>
+
+        <div class="code-header">1. Le Port (Dans le package 'Domain', pas de Spring ici)</div>
+        <pre><code class="language-java">public interface BookRepositoryPort {
+    Optional<Book> findById(BookId id);
+    void save(Book book);
+}</code></pre>
+
+        <div class="code-header">2. Le Cas d'Usage (Dans le package 'Domain')</div>
+        <pre><code class="language-java">public class BorrowBookUseCase {
+
+    // Le domaine dépend de l'interface, pas de l'implémentation !
+    private final BookRepositoryPort bookRepository;
+
+    public BorrowBookUseCase(BookRepositoryPort bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    public void execute(BookId bookId) {
+        Book book = bookRepository.findById(bookId)
+            .orElseThrow(() -> new BookNotFoundException(bookId));
+
+        book.borrow(); // Logique purement métier
+        bookRepository.save(book);
+    }
+}</code></pre>
+
+        <div class="code-header">3. L'Adapter (Dans le package 'Infrastructure', lié à Spring/JPA)</div>
+        <pre><code class="language-java">@Repository
+@RequiredArgsConstructor
+public class JpaBookRepositoryAdapter implements BookRepositoryPort {
+
+    private final SpringDataJpaBookRepository springRepository;
     private final BookEntityMapper mapper;
 
     @Override
-    public Book save(Book book) {{
-        BookEntity entity = mapper.toEntity(book);
-        BookEntity saved = repository.save(entity);
-        return mapper.toDomain(saved);
-    }}
-}}</code></pre>
-</section>
-<section id="dip">
-  <h2>Inversion de dépendance et ports/adapters</h2>
-  <p>L’inversion de dépendance signifie que la logique métier dépend d’abstractions stables, pas d’implémentations instables.</p>
-  <div class="box best-practice"><h4>Bonne pratique</h4><p>Quand tu écris la logique métier, pose-toi la question : “Si je change de base de données ou de protocole, mon code métier doit-il changer ?” Si la réponse est oui, le couplage est trop fort.</p></div>
-</section>
-<section id="ddd">
-  <h2>DDD de base : bounded context, agrégats, services applicatifs</h2>
-  <p>Le Domain-Driven Design aide à aligner le logiciel sur le langage métier.</p>
-  <div class="columns">
-    <div class="card"><h3>Bounded Context</h3><p>Zone où un mot a un sens précis. “Utilisateur” côté identité n’est pas forcément “lecteur” côté bibliothèque.</p></div>
-    <div class="card"><h3>Agrégat</h3><p>Groupe cohérent d’objets métier manipulés de façon consistante, avec une racine d’agrégat.</p></div>
-  </div>
-  <div class="box example"><h4>Exemple</h4><p>Dans <em>loan-service</em>, l’agrégat <code>Loan</code> garantit qu’un exemplaire ne peut pas être prêté deux fois en même temps.</p></div>
-  <pre><code>public class Loan {{
-    private final UUID id;
-    private final UUID bookId;
-    private final UUID studentId;
-    private LoanStatus status;
+    public void save(Book book) {
+        // L'Adapter fait la traduction entre le Domaine pur et la BDD
+        JpaBookEntity entity = mapper.toJpaEntity(book);
+        springRepository.save(entity);
+    }
+    // ...
+}</code></pre>
+      </section>
 
-    public void returnBook() {{
-        if (status == LoanStatus.RETURNED) {{
-            throw new BusinessException("Le prêt est déjà clôturé");
-        }}
-        this.status = LoanStatus.RETURNED;
-    }}
-}}</code></pre>
-</section>
-<section id="dto">
-  <h2>DTO, mapper, repository</h2>
-  <table>
-    <thead><tr><th>Élément</th><th>Rôle</th><th>Erreur fréquente</th></tr></thead>
-    <tbody>
-      <tr><td>DTO</td><td>Transporter des données aux frontières</td><td>Exposer l’entité JPA directement</td></tr>
-      <tr><td>Mapper</td><td>Transformer DTO ↔ domaine ↔ entité</td><td>Disperser les conversions partout</td></tr>
-      <tr><td>Repository</td><td>Accès à la persistance</td><td>Y mettre les règles métier</td></tr>
-    </tbody>
-  </table>
-</section>
-<section id="dossier">
-  <h2>Dossier d’architecture associé</h2>
-  <div class="box tp"><h4>Travail demandé</h4><p>À la fin du jour 2, les étudiants produisent une note courte : contexte, objectifs, pattern choisi, avantages, limites, diagramme texte, dette technique acceptée.</p></div>
-  <pre><code>Décision : architecture hexagonale légère
-Contexte : monolithe Spring Boot pour bibliothèque universitaire
-Raison : préparer testabilité + séparation métier/infrastructure
-Alternatives rejetées : CRUD direct controller/repository, clean architecture complète
-Trade-off : un peu plus d'abstraction au démarrage</code></pre>
-</section>
-<section id="quiz">
-  <h2>Quiz de fin</h2>
-  <ol>
-    <li>Pourquoi l’hexagonal peut-il être plus coûteux au début mais rentable ensuite ?</li>
-    <li>Que signifie “bounded context” ?</li>
-    <li>Pourquoi un repository ne doit pas contenir les règles métier ?</li>
-  </ol>
-</section>
+      <section id="adr">
+        <h2>Dossier d’architecture : Rédiger un ADR</h2>
+        <p>Les choix architecturaux doivent être documentés sous forme d'<strong>Architectural Decision Records (ADR)</strong>. Voici ce que vous devrez produire pour le TP.</p>
 
-      <div class="footer-nav"><a href="../pages/jour-1-fondamentaux-architecture.html">← Jour 1</a><a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3 →</a></div>
+        <div class="box live-coding">
+          <h4>Exemple d'ADR pour le projet fil rouge</h4>
+          <ul style="margin-bottom: 0;">
+            <li><strong>Titre :</strong> Adoption d'une Architecture Hexagonale Allégée</li>
+            <li><strong>Contexte :</strong> Le monolithe de la bibliothèque commence à mélanger code métier et requêtes SQL. Les tests unitaires sont impossibles sans lancer un conteneur de base de données.</li>
+            <li><strong>Décision :</strong> Nous introduisons le pattern Ports & Adapters pour le module <em>Emprunt</em> (cœur métier). Le module <em>Catalogue</em> (essentiellement de la lecture/affichage) restera en CRUD basique (CQRS léger).</li>
+            <li><strong>Conséquences :</strong>
+              <br>+ Le domaine <em>Emprunt</em> est testable en millisecondes.
+              <br>- Ajout de classes intermédiaires (Mappers, Interfaces), courbe d'apprentissage pour l'équipe.
+            </li>
+          </ul>
+        </div>
+      </section>
+
+      <section id="quiz">
+        <h2>Quiz : Validez vos acquis</h2>
+        <div class="quiz-container">
+          <ol>
+            <li><strong>Pourquoi l’architecture hexagonale est-elle souvent jugée "trop coûteuse" au démarrage ?</strong></li>
+            <li><strong>Qu'est-ce qu'un "Bounded Context" dans le DDD ?</strong></li>
+            <li><strong>Si je veux afficher une page web qui regroupe les données de 5 tables différentes, pourquoi CQRS est-il utile ?</strong></li>
+          </ol>
+          <details>
+            <summary>Voir les réponses détaillées</summary>
+            <ul>
+              <li>Elle nécessite d'écrire beaucoup de code "boilerplate" : des interfaces pour les ports, des classes d'adapters, et surtout des Mappers pour traduire les entités du Domaine vers les entités JPA de la base de données. C'est un surcoût initial pour un gain à long terme.</li>
+              <li>C'est une frontière explicite dans laquelle un modèle métier (et son vocabulaire) est strictement défini. Cela évite d'avoir une classe géante `Utilisateur` qui contient à la fois les données d'authentification, les factures et les préférences de notification.</li>
+              <li>Au lieu de forcer le domaine métier à faire des jointures complexes qui n'ont aucun sens métier (uniquement pour l'affichage), CQRS permet de créer un modèle de lecture (Query) dédié. Par exemple, une simple vue SQL ou un document NoSQL pré-calculé, mis à jour par des événements.</li>
+            </ul>
+          </details>
+        </div>
+      </section>
+
+      <div class="footer-nav">
+        <a href="jour-1-fondamentaux-architecture.html" class="btn-secondary">← Retour au Jour 1</a>
+        <a href="jour-3-systemes-distribues-et-api.html" class="btn-primary">Passer au Jour 3 →</a>
+      </div>
     </article>
   </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
+
 </body>
 </html>
