@@ -13,27 +13,28 @@
     <div class="brand">Architecture logicielle & systèmes distribués</div>
     <nav class="top-nav">
       <a href="../index.html">Accueil</a>
-<a href="../pages/introduction.html">Introduction</a>
-<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-<a href="../pages/tp-1.html">TP1</a>
-<a href="../pages/tp-2.html">TP2</a>
-<a href="../pages/tp-3.html">TP3</a>
-<a href="../pages/exercices.html">Exercices</a>
-<a href="../pages/corriges.html">Corrigés</a>
-<a href="../pages/glossary.html">Glossaire</a>
-<a href="../pages/live-coding.html">Live Coding</a>
-<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-<a href="../pages/faq.html">FAQ</a>
+      <a href="../pages/introduction.html">Introduction</a>
+      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+      <a href="../pages/jour-3-systemes-distribues-et-api.html" class="active">Jour 3</a>
+      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+      <a href="../pages/tp-1.html">TP1</a>
+      <a href="../pages/tp-2.html">TP2</a>
+      <a href="../pages/tp-3.html">TP3</a>
+      <a href="../pages/exercices.html">Exercices</a>
+      <a href="../pages/corriges.html">Corrigés</a>
+      <a href="../pages/glossary.html">Glossaire</a>
+      <a href="../pages/live-coding.html">Live Coding</a>
+      <a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+      <a href="../pages/faq.html">FAQ</a>
     </nav>
   </div>
 </header>
+
 <main>
-  <div class="hero">
+  <section class="hero">
     <div class="badges">
       <span class="badge">Support HTML modulaire</span>
       <span class="badge">Master 2</span>
@@ -42,98 +43,303 @@
       <span class="badge">Java / Spring Boot</span>
     </div>
     <h1>Jour 3 — Fondamentaux des systèmes distribués</h1>
+    <p class="lead">
+      Aujourd’hui, on change de monde : dès qu’un appel traverse le réseau, les hypothèses du code local ne tiennent plus.
+      Ce chapitre te donne les réflexes d’architecture à avoir pour concevoir des APIs et des échanges inter-services plus robustes.
+    </p>
     <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Comprendre ce qui change quand le code traverse le réseau : latence, pannes, cohérence, protocoles et contrats.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>Jours 1 et 2 acquis</p></div>
+      <div class="meta">
+        <h3>Objectifs pédagogiques</h3>
+        <p>Comprendre latence, pannes partielles, cohérence, contrats d’échange et choix de communication.</p>
+      </div>
+      <div class="meta">
+        <h3>Temps estimé</h3>
+        <p>≈ 6h avec démos, quiz, échanges et mini-cas d’architecture.</p>
+      </div>
+      <div class="meta">
+        <h3>Prérequis</h3>
+        <p>Jour 1 et Jour 2 acquis : couches, responsabilités, découpage logique et patterns de base.</p>
+      </div>
     </div>
-  </div>
+  </section>
+
   <div class="layout">
     <aside class="toc">
       <h2>Table des matières</h2>
-      <ul><li><a href="#definition">Définition</a></li>
-<li><a href="#reseau">Réseau & pannes</a></li>
-<li><a href="#cap">CAP</a></li>
-<li><a href="#idempotence">Idempotence / retries / timeouts</a></li>
-<li><a href="#communication">Communication</a></li>
-<li><a href="#serialisation">Sérialisation & versioning</a></li>
-<li><a href="#quiz">Quiz</a></li></ul>
+      <ul>
+        <li><a href="#definition">Définition</a></li>
+        <li><a href="#reseau">Réseau & pannes</a></li>
+        <li><a href="#cap">CAP</a></li>
+        <li><a href="#idempotence">Idempotence / retries / timeouts</a></li>
+        <li><a href="#communication">Communication</a></li>
+        <li><a href="#serialisation">Sérialisation & versioning</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+      </ul>
     </aside>
+
     <article class="content">
-      
-<section id="definition">
-  <h2>Qu’est-ce qu’un système distribué ?</h2>
-  <p>Un système distribué est un ensemble de composants exécutés sur plusieurs processus ou machines qui collaborent pour rendre un service unique à l’utilisateur.</p>
-  <div class="box child-mode"><h4>Mode enfant</h4><p>Au lieu d’avoir une seule grosse boutique, tu ouvres plusieurs petits magasins spécialisés qui doivent se parler correctement.</p></div>
-  <div class="box pro-mode"><h4>Mode pro</h4><p>Le distribué introduit latence, pannes partielles, duplication de données, cohérence asynchrone, sécurité réseau et complexité opérationnelle. Il apporte en échange autonomie, scalabilité ciblée et alignement avec plusieurs équipes.</p></div>
-</section>
-<section id="reseau">
-  <h2>Latence réseau et pannes partielles</h2>
-  <p>Dans un monolithe, un appel de méthode échoue vite et localement. Dans un système distribué, un appel réseau peut être lent, se perdre, être dupliqué ou échouer après traitement partiel.</p>
-  <div class="box warning"><h4>Attention</h4><p>Le réseau n’est ni instantané ni fiable. Cette phrase doit devenir un réflexe architectural.</p></div>
-  <pre><code>// Exemple OpenFeign côté loan-service
-@FeignClient(name = "catalog-service")
-public interface CatalogClient {{
+      <section id="definition">
+        <div class="mini-title">Concept clé</div>
+        <h2>Qu’est-ce qu’un système distribué ?</h2>
+        <p>
+          Un système distribué est un ensemble de composants exécutés sur plusieurs processus ou machines,
+          qui collaborent pour rendre un service unique à l’utilisateur.
+        </p>
 
-    @GetMapping("/internal/books/{bookId}/availability")
-    AvailabilityResponse getAvailability(@PathVariable UUID bookId);
-}}</code></pre>
-  <div class="box frequent-error"><h4>Erreur fréquente</h4><p>Appeler un service distant comme si c’était une méthode locale, sans timeout ni gestion d’erreur.</p></div>
-</section>
-<section id="cap">
-  <h2>CAP : cohérence, disponibilité, partitionnement</h2>
-  <p>Le théorème CAP rappelle qu’en présence de partition réseau, on ne peut pas garantir simultanément cohérence forte et disponibilité totale.</p>
-  <table>
-    <thead><tr><th>Choix</th><th>Conséquence</th><th>Exemple</th></tr></thead>
-    <tbody>
-      <tr><td>Favoriser cohérence</td><td>On refuse certaines requêtes si le doute existe</td><td>Solde bancaire critique</td></tr>
-      <tr><td>Favoriser disponibilité</td><td>On répond parfois avec une donnée pas encore fraîche</td><td>Catalogue de produits</td></tr>
-    </tbody>
-  </table>
-  <div class="box example"><h4>Exemple concret</h4><p>Afficher un stock légèrement retardé sur un catalogue est souvent acceptable. Débiter deux fois une carte ne l’est pas.</p></div>
-</section>
-<section id="idempotence">
-  <h2>Idempotence, retries et timeouts</h2>
-  <div class="box definition"><h4>Définition simple</h4><p>Une opération idempotente peut être rejouée plusieurs fois sans effet supplémentaire indésirable.</p></div>
-  <pre><code>// Idée : un identifiant de requête empêche les doublons
-@PostMapping("/loans")
-public ResponseEntity&lt;LoanResponse&gt; create(
-        @RequestHeader("Idempotency-Key") String idempotencyKey,
-        @Valid @RequestBody CreateLoanRequest request) {{
-    return ResponseEntity.status(HttpStatus.CREATED)
-            .body(loanApplicationService.createLoan(idempotencyKey, request));
-}}</code></pre>
-  <div class="box best-practice"><h4>Bonne pratique</h4><p>Utiliser retries uniquement sur des erreurs transitoires, avec backoff, et de préférence sur des opérations idempotentes.</p></div>
-</section>
-<section id="communication">
-  <h2>Communication synchrone vs asynchrone</h2>
-  <table>
-    <thead><tr><th>Mode</th><th>Avantage</th><th>Limite</th><th>Exemple</th></tr></thead>
-    <tbody>
-      <tr><td>REST</td><td>Simple, universel</td><td>Couplage temporel</td><td>Consulter disponibilité</td></tr>
-      <tr><td>gRPC</td><td>Rapide, contrats forts</td><td>Moins naturel pour le web public</td><td>Appels internes performants</td></tr>
-      <tr><td>Messaging</td><td>Découplage temporel</td><td>Debug plus difficile</td><td>Événement “loan-created”</td></tr>
-    </tbody>
-  </table>
-  <pre><code>// Événement simple publié vers Kafka/RabbitMQ
-public record LoanCreatedEvent(UUID loanId, UUID studentId, UUID bookId, Instant createdAt) {{}}</code></pre>
-</section>
-<section id="serialisation">
-  <h2>Sérialisation et versioning d’API</h2>
-  <p>Quand on distribue un système, on échange des contrats. Le contrat doit être stable, documenté et versionné.</p>
-  <div class="box example"><h4>Exemple de versioning</h4><p><code>/api/v1/books</code> pour l’API publique, ou versioning par header pour des usages plus avancés. Pour les événements, on documente le schéma et on évite les ruptures brutales.</p></div>
-  <div class="box warning"><h4>Attention</h4><p>Renommer un champ JSON “innocent” peut casser un autre service déployé à un rythme différent.</p></div>
-</section>
-<section id="quiz">
-  <h2>Quiz de fin</h2>
-  <ol>
-    <li>Pourquoi un retry peut-il empirer un incident ?</li>
-    <li>Dans quel cas le messaging est-il préférable à REST ?</li>
-    <li>Pourquoi le versioning devient-il central dans le distribué ?</li>
-  </ol>
-</section>
+        <div class="duo">
+          <div class="box child-mode">
+            <h4>Mode enfant</h4>
+            <p>
+              Au lieu d’avoir une seule grosse boutique, tu ouvres plusieurs petits magasins spécialisés :
+              un pour les livres, un pour les prêts, un pour les notifications.
+              Le vrai défi, ce n’est pas seulement de les séparer, c’est de les faire travailler ensemble sans se tromper.
+            </p>
+          </div>
 
-      <div class="footer-nav"><a href="../pages/jour-2-patterns-et-couches.html">← Jour 2</a><a href="../pages/jour-4-microservices-et-communication.html">Jour 4 →</a></div>
+          <div class="box pro-mode">
+            <h4>Mode pro</h4>
+            <p>
+              Le distribué apporte autonomie d’équipe, scalabilité ciblée et isolation fonctionnelle.
+              En échange, il introduit latence réseau, pannes partielles, cohérence asynchrone,
+              sécurité inter-services, observabilité complexe et coûts opérationnels plus élevés.
+            </p>
+          </div>
+        </div>
+
+        <div class="summary-grid">
+          <div class="summary-card">
+            <h4>Gain</h4>
+            <p>Découper par responsabilités, faire évoluer un service sans redéployer tout le système.</p>
+          </div>
+          <div class="summary-card">
+            <h4>Risque</h4>
+            <p>Multiplier les points de panne et compliquer le diagnostic si le découpage est mauvais.</p>
+          </div>
+          <div class="summary-card">
+            <h4>Réflexe</h4>
+            <p>Ne jamais distribuer “pour faire moderne”, mais pour résoudre un vrai besoin métier ou d’échelle.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="reseau">
+        <div class="mini-title">Réflexe d’architecte</div>
+        <h2>Latence réseau et pannes partielles</h2>
+        <p>
+          Dans un monolithe, un appel de méthode reste local. Dans un système distribué, un appel réseau peut être lent,
+          perdu, dupliqué, expirer ou échouer après un traitement déjà commencé côté distant.
+        </p>
+
+        <div class="box warning">
+          <h4>Attention</h4>
+          <p>Le réseau n’est ni instantané, ni fiable, ni gratuit. Cette phrase doit devenir un réflexe permanent.</p>
+        </div>
+
+        <pre><code><span class="code-comment">// Exemple OpenFeign côté loan-service</span>
+<span class="code-annotation">@FeignClient</span>(name <span class="code-operator">=</span> <span class="code-string">"catalog-service"</span>)
+<span class="code-keyword">public interface</span> <span class="code-class">CatalogClient</span> {
+
+    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/internal/books/{bookId}/availability"</span>)
+    <span class="code-type">AvailabilityResponse</span> <span class="code-method">getAvailability</span>(<span class="code-annotation">@PathVariable</span> <span class="code-type">UUID</span> bookId);
+}</code></pre>
+
+        <div class="box frequent-error">
+          <h4>Erreur fréquente</h4>
+          <p>Appeler un service distant comme si c’était une simple méthode locale, sans timeout, sans fallback et sans stratégie d’erreur.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Exemple terrain</h4>
+          <p>
+            <strong>loan-service</strong> demande au <strong>catalog-service</strong> si un livre est disponible.
+            Si le catalogue répond en 40 ms, tout semble “normal”.
+            Si un jour il répond en 8 secondes, l’application peut geler, saturer ses threads HTTP, puis déclencher une cascade d’échecs.
+          </p>
+        </div>
+      </section>
+
+      <section id="cap">
+        <div class="mini-title">Choix d’architecture</div>
+        <h2>CAP : cohérence, disponibilité, partitionnement</h2>
+        <p>
+          Le théorème CAP rappelle qu’en présence d’une partition réseau, on ne peut pas garantir à la fois
+          une cohérence forte et une disponibilité totale.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Choix</th>
+              <th>Conséquence</th>
+              <th>Exemple métier</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Favoriser la cohérence</td>
+              <td>On refuse ou bloque certaines requêtes si le doute existe.</td>
+              <td>Solde bancaire, paiement, réservation critique.</td>
+            </tr>
+            <tr>
+              <td>Favoriser la disponibilité</td>
+              <td>On accepte parfois une donnée un peu retardée ou approximative.</td>
+              <td>Catalogue de produits, suggestions, statistiques.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="box example">
+          <h4>Exemple concret</h4>
+          <p>
+            Afficher un stock légèrement retardé sur un catalogue est souvent acceptable.
+            Débiter deux fois une carte bancaire ou créer deux prêts identiques ne l’est pas.
+          </p>
+        </div>
+      </section>
+
+      <section id="idempotence">
+        <div class="mini-title">Robustesse</div>
+        <h2>Idempotence, retries et timeouts</h2>
+        <p>
+          En distribué, on doit penser aux requêtes rejouées, aux réponses perdues et aux traitements partiellement terminés.
+          C’est là que l’idempotence devient centrale.
+        </p>
+
+        <div class="box definition">
+          <h4>Définition simple</h4>
+          <p>Une opération idempotente peut être rejouée plusieurs fois sans produire d’effet supplémentaire indésirable.</p>
+        </div>
+
+        <pre><code><span class="code-comment">// Idée : un identifiant de requête empêche les doublons</span>
+<span class="code-annotation">@PostMapping</span>(<span class="code-string">"/loans"</span>)
+<span class="code-keyword">public</span> <span class="code-type">ResponseEntity</span><span class="code-generic">&lt;<span class="code-type">LoanResponse</span>&gt;</span> <span class="code-method">create</span>(
+        <span class="code-annotation">@RequestHeader</span>(<span class="code-string">"Idempotency-Key"</span>) <span class="code-type">String</span> idempotencyKey,
+        <span class="code-annotation">@Valid</span> <span class="code-annotation">@RequestBody</span> <span class="code-type">CreateLoanRequest</span> request) {
+    <span class="code-keyword">return</span> <span class="code-type">ResponseEntity</span>.<span class="code-method">status</span>(<span class="code-type">HttpStatus</span>.<span class="code-constant">CREATED</span>)
+            .<span class="code-method">body</span>(loanApplicationService.<span class="code-method">createLoan</span>(idempotencyKey, request));
+}</code></pre>
+
+        <div class="duo">
+          <div class="box best-practice">
+            <h4>Bonne pratique</h4>
+            <p>Utiliser les retries seulement sur des erreurs transitoires, avec backoff, jitter et préférence pour des opérations idempotentes.</p>
+          </div>
+          <div class="box frequent-error">
+            <h4>Mauvaise idée</h4>
+            <p>Relancer automatiquement une création de paiement ou de commande sans mécanisme anti-doublon.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="communication">
+        <div class="mini-title">Contrats d’échange</div>
+        <h2>Communication synchrone vs asynchrone</h2>
+        <p>
+          Le bon mode de communication dépend du besoin métier : réponse immédiate, découplage temporel,
+          volume, performance, traçabilité ou tolérance à la latence.
+        </p>
+
+        <table>
+          <thead>
+            <tr>
+              <th>Mode</th>
+              <th>Avantage</th>
+              <th>Limite</th>
+              <th>Exemple</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>REST</td>
+              <td>Simple, universel, lisible</td>
+              <td>Couplage temporel fort</td>
+              <td>Consulter une disponibilité en temps réel</td>
+            </tr>
+            <tr>
+              <td>gRPC</td>
+              <td>Rapide, contrats forts, efficace en interne</td>
+              <td>Moins naturel pour une API publique web</td>
+              <td>Appels internes performants</td>
+            </tr>
+            <tr>
+              <td>Messaging</td>
+              <td>Découplage temporel, absorption de pics</td>
+              <td>Debug et suivi plus difficiles</td>
+              <td>Publier un événement <code>loan-created</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code><span class="code-comment">// Événement simple publié vers Kafka/RabbitMQ</span>
+<span class="code-keyword">public record</span> <span class="code-class">LoanCreatedEvent</span>(
+        <span class="code-type">UUID</span> loanId,
+        <span class="code-type">UUID</span> studentId,
+        <span class="code-type">UUID</span> bookId,
+        <span class="code-type">Instant</span> createdAt
+) {}</code></pre>
+      </section>
+
+      <section id="serialisation">
+        <div class="mini-title">Compatibilité</div>
+        <h2>Sérialisation et versioning d’API</h2>
+        <p>
+          Quand un système est distribué, on ne partage pas juste du code : on partage des contrats.
+          Ces contrats doivent être stables, documentés, versionnés et compatibles dans le temps.
+        </p>
+
+        <div class="box example">
+          <h4>Exemple de versioning</h4>
+          <p>
+            Pour une API publique, on peut utiliser <code>/api/v1/books</code>.
+            Pour des cas plus avancés, on peut versionner par header.
+            Pour les événements, on versionne le schéma et on évite les ruptures brutales.
+          </p>
+        </div>
+
+        <div class="box warning">
+          <h4>Attention</h4>
+          <p>
+            Renommer un champ JSON qui paraît “inoffensif” peut casser un service déployé à un autre rythme.
+            En distribué, une petite modification locale peut avoir un impact global.
+          </p>
+        </div>
+      </section>
+
+      <section id="quiz">
+        <div class="mini-title">Validation</div>
+        <h2>Quiz de fin</h2>
+        <ol>
+          <li>Pourquoi un retry peut-il empirer un incident déjà en cours ?</li>
+          <li>Dans quel cas le messaging est-il préférable à REST ?</li>
+          <li>Pourquoi le versioning devient-il central dans un système distribué ?</li>
+        </ol>
+
+        <div class="quiz-answers">
+          <h3>Réponses</h3>
+          <ol>
+            <li>
+              <strong>Un retry peut empirer un incident</strong> parce qu’il ajoute encore plus de trafic vers un service déjà lent ou en panne.
+              Résultat : on augmente la saturation, on consomme plus de threads, on propage l’incident à d’autres services
+              et on peut même créer des doublons si l’opération n’est pas idempotente.
+            </li>
+            <li>
+              <strong>Le messaging est préférable à REST</strong> quand on veut du découplage temporel,
+              absorber des pics de charge, traiter en arrière-plan, ou publier un événement à plusieurs consommateurs
+              sans exiger une réponse immédiate. Exemple : notification, audit, analytics, propagation d’un événement métier.
+            </li>
+            <li>
+              <strong>Le versioning devient central</strong> parce que les services d’un système distribué ne sont pas toujours déployés en même temps.
+              Si on casse le contrat d’API ou le schéma d’un événement sans stratégie de compatibilité,
+              certains consommateurs peuvent tomber en erreur alors que d’autres fonctionnent encore.
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <div class="footer-nav">
+        <a href="../pages/jour-2-patterns-et-couches.html">← Jour 2</a>
+        <a href="../pages/jour-4-microservices-et-communication.html">Jour 4 →</a>
+      </div>
     </article>
   </div>
 </main>
