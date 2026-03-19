@@ -3,32 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jour 6 — Déploiement, cloud, gouvernance et architecture d’entreprise</title>
+  <title>Jour 6 — Déploiement, cloud, gouvernance et architecture d'entreprise</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <script defer src="../assets/js/main.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </head>
 <body>
 <header class="site-header">
   <div class="nav-wrap">
-    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
     <nav class="top-nav">
       <a href="../index.html">Accueil</a>
-<a href="../pages/introduction.html">Introduction</a>
-<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-<a href="../pages/tp-1.html">TP1</a>
-<a href="../pages/tp-2.html">TP2</a>
-<a href="../pages/tp-3.html">TP3</a>
-<a href="../pages/exercices.html">Exercices</a>
-<a href="../pages/corriges.html">Corrigés</a>
-<a href="../pages/glossary.html">Glossaire</a>
-<a href="../pages/live-coding.html">Live Coding</a>
-<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-<a href="../pages/faq.html">FAQ</a>
+      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+      <a href="../pages/tp-1.html">TP1</a>
+      <a href="../pages/tp-2.html">TP2</a>
+      <a href="../pages/tp-3.html">TP3</a>
+      <a href="../pages/glossary.html">Glossaire</a>
     </nav>
   </div>
 </header>
@@ -38,50 +33,123 @@
       <span class="badge">Support HTML modulaire</span>
       <span class="badge">Master 2</span>
       <span class="badge">6 jours</span>
-      <span class="badge">3 TP progressifs</span>
       <span class="badge">Java / Spring Boot</span>
     </div>
-    <h1>Jour 6 — Déploiement, cloud, gouvernance et architecture d’entreprise</h1>
+    <h1>Jour 6 — Déploiement, cloud, gouvernance &amp; architecture d'entreprise</h1>
     <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Passer de l’architecture logique à l’architecture exploitable : conteneurs, déploiement, gouvernance, ADR et choix contextuel.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Docker multi-stage, Kubernetes avancé, CI/CD GitHub Actions, IaC Terraform, gouvernance ADR, choix contextuels d'architecture.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos, live coding et quiz</p></div>
       <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 5 acquis</p></div>
     </div>
   </div>
   <div class="layout">
     <aside class="toc">
       <h2>Table des matières</h2>
-      <ul><li><a href="#conteneurs">Conteneurs</a></li>
-<li><a href="#kubernetes">Kubernetes</a></li>
-<li><a href="#delivery">Blue-green / canary / CI/CD / IaC</a></li>
-<li><a href="#gouvernance">Gouvernance</a></li>
-<li><a href="#urbanisation">Urbanisation & choix</a></li>
-<li><a href="#cloture">Clôture</a></li></ul>
+      <ul>
+        <li><a href="#conteneurs">1. Conteneurs &amp; Docker</a></li>
+        <li><a href="#kubernetes">2. Kubernetes avancé</a></li>
+        <li><a href="#delivery">3. CI/CD &amp; IaC</a></li>
+        <li><a href="#gouvernance">4. Gouvernance &amp; ADR</a></li>
+        <li><a href="#urbanisation">5. Urbanisation &amp; choix</a></li>
+        <li><a href="#cloture">6. Clôture &amp; évaluation</a></li>
+        <li><a href="#quiz">Quiz de fin</a></li>
+      </ul>
     </aside>
     <article class="content">
-      
+
 <section id="conteneurs">
-  <h2>Conteneurs et Docker</h2>
-  <p>Le conteneur emballe l’application et ses dépendances d’exécution de manière reproductible.</p>
-  <pre><code>FROM eclipse-temurin:21-jre
+  <h2>1. Conteneurs et Docker</h2>
+  <div class="box child-mode">
+    <h4>&#x1F9D2; Mode enfant</h4>
+    <p>Un conteneur c'est comme une boite de transport standardisée : peu importe ce qu'il y a dedans, elle s'emboite partout de la meme facon — sur ton laptop, le serveur du client, le cloud. Plus de "ca marche chez moi mais pas en prod".</p>
+  </div>
+  <table>
+    <thead><tr><th></th><th>VM</th><th>Conteneur</th></tr></thead>
+    <tbody>
+      <tr><td>Isolation</td><td>Noyau + OS complet</td><td>Processus isolés (namespaces Linux)</td></tr>
+      <tr><td>Taille</td><td>Plusieurs Go</td><td>Quelques Mo à quelques centaines de Mo</td></tr>
+      <tr><td>Démarrage</td><td>Plusieurs minutes</td><td>Secondes</td></tr>
+      <tr><td>Portabilité</td><td>Limitée</td><td>Totale (Docker Engine)</td></tr>
+    </tbody>
+  </table>
+
+  <h3>1.1 Dockerfile basique</h3>
+  <span class="level-badge junior">&#x1F7E2; Junior</span>
+  <div class="code-example bad">
+    <span class="code-label">❌ Dockerfile naif — image inutilement lourde</span>
+    <pre data-label="Dockerfile"><code class="language-dockerfile">FROM eclipse-temurin:21
+COPY . /app
 WORKDIR /app
-COPY target/catalog-service.jar app.jar
+RUN ./mvnw package
+CMD ["java", "-jar", "target/catalog-service.jar"]</code></pre>
+  </div>
+  <div class="code-example good">
+    <span class="code-label">✅ Dockerfile optimisé — multi-stage build</span>
+    <pre data-label="Dockerfile"><code class="language-dockerfile"># Stage 1 : Build (JDK + Maven)
+FROM eclipse-temurin:21-jdk AS build
+WORKDIR /build
+COPY pom.xml .
+RUN mvn dependency:go-offline -q
+COPY src ./src
+RUN mvn package -DskipTests -q
+
+# Stage 2 : Runtime (JRE seul = image 3x plus petite)
+FROM eclipse-temurin:21-jre AS runtime
+RUN addgroup --system appgroup \
+ && adduser --system --ingroup appgroup appuser
+WORKDIR /app
+COPY --from=build /build/target/catalog-service.jar app.jar
+USER appuser
 EXPOSE 8080
-ENTRYPOINT ["java","-jar","app.jar"]</code></pre>
-  <div class="box child-mode"><h4>Mode enfant</h4><p>Le conteneur, c’est comme une boîte de transport standardisée pour livrer ton application partout sans refaire le carton à chaque fois.</p></div>
+ENTRYPOINT ["java", \
+  "-XX:MaxRAMPercentage=75.0", \
+  "-Djava.security.egd=file:/dev/./urandom", \
+  "-jar", "app.jar"]</code></pre>
+  </div>
+
+  <div class="box best-practice">
+    <h4>✅ Checklist Dockerfile production</h4>
+    <ul>
+      <li><code>.dockerignore</code> : exclure <code>target/</code>, <code>.git/</code>, <code>*.md</code></li>
+      <li>Utilisateur non-root (<code>USER appuser</code>)</li>
+      <li>Image de base minimale (JRE != JDK)</li>
+      <li>Jamais de secrets dans le Dockerfile</li>
+      <li>Scan CVE : <code>trivy image catalog-service:latest</code></li>
+    </ul>
+  </div>
+  <pre data-label=".dockerignore"><code class="language-bash">.git
+target/
+*.md
+*.log
+.env
+.idea
+**/*.class</code></pre>
 </section>
+
 <section id="kubernetes">
-  <h2>Kubernetes, scaling horizontal, rolling deployment</h2>
-  <p>Kubernetes orchestre les conteneurs : déploiement, redémarrage, scaling, exposition réseau et observation de l’état.</p>
-  <pre><code>apiVersion: apps/v1
+  <h2>2. Kubernetes — Orchestration avancée</h2>
+  <div class="box child-mode">
+    <h4>&#x1F9D2; Mode enfant</h4>
+    <p>Kubernetes c'est le chef d'orchestre de tes conteneurs. Tu lui dis "je veux 3 copies de ce service" et il s'en assure en permanence, même si l'un plante — il le remplace automatiquement.</p>
+  </div>
+
+  <h3>2.1 Deployment complet avec sondes et ressources</h3>
+  <span class="level-badge mid">&#x1F7E1; Intermédiaire</span>
+  <pre data-label="catalog-deployment.yaml"><code class="language-yaml">apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: catalog-service
+  namespace: library
 spec:
   replicas: 3
   selector:
     matchLabels:
       app: catalog-service
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1  # au max 1 pod indispo pendant le déploiement
+      maxSurge: 1        # au max 1 pod supplémentaire pendant la transition
   template:
     metadata:
       labels:
@@ -89,60 +157,477 @@ spec:
     spec:
       containers:
         - name: catalog-service
-          image: registry.example.com/catalog-service:1.0.0
+          image: registry.example.com/catalog-service:1.2.0
           ports:
-            - containerPort: 8080</code></pre>
-  <div class="box example"><h4>Rolling deployment</h4><p>On remplace progressivement les anciennes instances par les nouvelles pour limiter l’interruption.</p></div>
+            - containerPort: 8080
+          resources:
+            requests:
+              cpu: "250m"
+              memory: "256Mi"
+            limits:
+              cpu: "1000m"
+              memory: "512Mi"
+          env:
+            - name: SPRING_PROFILES_ACTIVE
+              value: prod
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: catalog-db-secret
+                  key: password
+          startupProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            failureThreshold: 30
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            periodSeconds: 20
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            periodSeconds: 10
+            failureThreshold: 3</code></pre>
+
+  <h3>2.2 HPA — Horizontal Pod Autoscaler</h3>
+  <span class="level-badge expert">&#x1F534; Expert</span>
+  <pre data-label="catalog-hpa.yaml"><code class="language-yaml">apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: catalog-hpa
+  namespace: library
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: catalog-service
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70  # Scale si CPU moyen > 70%
+    - type: Pods
+      pods:
+        metric:
+          name: http_requests_per_second
+        target:
+          type: AverageValue
+          averageValue: "100"</code></pre>
+
+  <div class="box warning">
+    <h4>⚠️ Kubernetes Secrets != sécurisés par défaut</h4>
+    <p>Les Secrets sont encodés en base64 dans etcd — pas chiffrés. En production : activer le chiffrement etcd ou utiliser HashiCorp Vault Injector / Sealed Secrets.</p>
+  </div>
+
+  <div class="box live-coding">
+    <h4>&#x1F5A5;️ Live Coding — Rolling update sans downtime</h4>
+    <ol>
+      <li>Déployer <code>catalog-service:1.0.0</code> avec 3 réplicas</li>
+      <li>Dans un terminal : <code>watch -n1 curl http://catalog/actuator/health</code></li>
+      <li>Mettre à jour l'image : <code>kubectl set image deployment/catalog-service catalog-service=registry/catalog-service:1.1.0</code></li>
+      <li>Observer : <code>kubectl rollout status deployment/catalog-service</code></li>
+      <li>Rollback : <code>kubectl rollout undo deployment/catalog-service</code></li>
+    </ol>
+  </div>
 </section>
+
 <section id="delivery">
-  <h2>Blue-green, canary, CI/CD et IaC</h2>
+  <h2>3. Stratégies de déploiement, CI/CD et IaC</h2>
+
   <table>
-    <thead><tr><th>Pratique</th><th>But</th><th>Exemple</th></tr></thead>
+    <thead><tr><th>Pratique</th><th>But</th><th>Avantage</th><th>Coût / Risque</th></tr></thead>
     <tbody>
-      <tr><td>Blue-Green</td><td>Bascule nette entre deux environnements</td><td>Réduire le risque de rollback</td></tr>
-      <tr><td>Canary</td><td>Exposer progressivement une nouvelle version</td><td>5% puis 20% puis 100%</td></tr>
-      <tr><td>CI/CD</td><td>Automatiser build, test, scan, déploiement</td><td>Pipeline Git</td></tr>
-      <tr><td>IaC</td><td>Décrire l’infrastructure en code</td><td>Terraform, Helm, YAML</td></tr>
+      <tr><td><strong>Rolling</strong></td><td>Remplacement progressif des pods</td><td>Pas de downtime, simple</td><td>2 versions en parallèle brièvement</td></tr>
+      <tr><td><strong>Blue-Green</strong></td><td>Bascule nette entre 2 environnements</td><td>Rollback instantané</td><td>Double coût infra</td></tr>
+      <tr><td><strong>Canary</strong></td><td>Exposition progressive (5% → 100%)</td><td>Limite le blast radius</td><td>Complexité routing + observabilité</td></tr>
+      <tr><td><strong>Feature Flags</strong></td><td>Découpler déploiement et activation</td><td>Rollback sans re-déploiement</td><td>Complexité du code</td></tr>
     </tbody>
   </table>
-</section>
-<section id="gouvernance">
-  <h2>Gouvernance d’API, versioning, documentation et ADR</h2>
-  <p>Plus un système grandit, plus la gouvernance évite le chaos : conventions, standards, compatibilité, cycle de vie des endpoints, règles de sécurité, documentation et validation des contrats.</p>
-  <div class="box best-practice"><h4>Checklist de gouvernance</h4>
+
+  <div class="diagram">Blue-Green :
+  Load Balancer
+       |
+       +---> [Blue  v1.0 — 3 pods]  (production actuelle)
+       |
+       +---> [Green v1.1 — 3 pods]  (nouvelle version testée)
+  -> Basculer 100% du trafic d'un coup -> Blue reste pour rollback instantané
+
+Canary :
+  Load Balancer
+       |
+       +---> [Stable v1.0 — 90%]
+       |
+       +---> [Canary  v1.1 — 10%] -> surveiller métriques -> augmenter progressivement</div>
+
+  <h3>3.1 Pipeline CI/CD avec GitHub Actions</h3>
+  <span class="level-badge mid">&#x1F7E1; Intermédiaire</span>
+  <pre data-label=".github/workflows/catalog-service.yml"><code class="language-yaml">name: CI/CD — catalog-service
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main]
+
+env:
+  IMAGE: registry.example.com/catalog-service
+  JAVA_VERSION: '21'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: temurin
+          cache: maven
+      - name: Build and tests
+        run: mvn verify -q
+      - name: SonarQube analysis
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn sonar:sonar
+
+  docker-build:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build image
+        run: docker build -t $IMAGE:${{ github.sha }} .
+      - name: Scan CVE (Trivy)
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: ${{ env.IMAGE }}:${{ github.sha }}
+          exit-code: '1'
+          severity: 'CRITICAL,HIGH'
+      - name: Push
+        run: |
+          echo "${{ secrets.REGISTRY_TOKEN }}" | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin registry.example.com
+          docker push $IMAGE:${{ github.sha }}
+
+  deploy-staging:
+    needs: docker-build
+    environment: staging
+    runs-on: ubuntu-latest
+    steps:
+      - name: Rolling update staging
+        run: kubectl set image deployment/catalog-service catalog-service=$IMAGE:${{ github.sha }} --namespace=staging
+      - name: Smoke test
+        run: |
+          sleep 30
+          curl -f https://catalog.staging.example.com/actuator/health
+
+  deploy-production:
+    needs: deploy-staging
+    environment: production    # Approbation manuelle requise dans GitHub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy canary 10%
+        run: kubectl set image deployment/catalog-service-canary catalog-service=$IMAGE:${{ github.sha }} --namespace=production</code></pre>
+
+  <h3>3.2 Infrastructure as Code avec Terraform</h3>
+  <span class="level-badge expert">&#x1F534; Expert</span>
+  <pre data-label="main.tf — Cluster GKE"><code class="language-bash">terraform {
+  required_providers {
+    google = { source = "hashicorp/google", version = "~> 5.0" }
+  }
+  backend "gcs" {
+    bucket = "tfstate-library-prod"
+    prefix = "catalog-service"
+  }
+}
+
+resource "google_container_cluster" "library_cluster" {
+  name                     = "library-cluster"
+  location                 = "europe-west1"
+  remove_default_node_pool = true
+  initial_node_count       = 1
+}
+
+resource "google_container_node_pool" "primary_nodes" {
+  name       = "primary-pool"
+  cluster    = google_container_cluster.library_cluster.name
+  location   = google_container_cluster.library_cluster.location
+  node_count = 3
+  node_config {
+    machine_type = "e2-standard-2"
+    disk_size_gb = 50
+    labels       = { env = "prod" }
+  }
+  management {
+    auto_repair  = true
+    auto_upgrade = true
+  }
+}</code></pre>
+  <div class="box best-practice">
+    <h4>✅ Bonnes pratiques IaC</h4>
     <ul>
-      <li>Nommage cohérent des APIs et événements</li>
-      <li>Versioning explicite</li>
-      <li>Contrats documentés</li>
-      <li>Dépréciation annoncée</li>
-      <li>Traçabilité des décisions via ADR</li>
+      <li>État Terraform dans un backend remote (GCS, S3) — jamais localement</li>
+      <li><code>terraform plan</code> dans la PR, <code>terraform apply</code> sur merge main uniquement</li>
+      <li>Modules réutilisables par équipe (principe DRY)</li>
+      <li>Secrets sensibles dans les variables CI, jamais dans <code>terraform.tfvars</code> versionné</li>
+      <li>Tagger toutes les ressources (coût, équipe, environnement)</li>
     </ul>
   </div>
 </section>
+
+<section id="gouvernance">
+  <h2>4. Gouvernance d'API, versioning et ADR</h2>
+
+  <div class="box best-practice">
+    <h4>✅ Checklist gouvernance API</h4>
+    <ul>
+      <li>Nommage cohérent des endpoints (<code>/api/v1/loans</code>, noms au pluriel)</li>
+      <li>Versioning explicite dans l'URL ou le header <code>Accept</code></li>
+      <li>Contrats OpenAPI publiés dans un portail développeur</li>
+      <li>Dépréciation annoncée avec délai (ex. 6 mois) via header <code>Deprecation</code></li>
+      <li>Contract testing (Spring Cloud Contract, Pact)</li>
+      <li>ADR pour chaque décision architecturale importante</li>
+    </ul>
+  </div>
+
+  <h3>4.1 Architecture Decision Record (ADR)</h3>
+  <span class="level-badge junior">&#x1F7E2; Junior</span>
+  <div class="box definition">
+    <h4>Qu'est-ce qu'un ADR ?</h4>
+    <p>Un document court qui capture une décision architecturale importante : le contexte, la décision, les alternatives considérées et les conséquences. C'est la mémoire vivante de l'architecture — indispensable quand une équipe grandit ou se renouvelle.</p>
+  </div>
+
+  <pre data-label="docs/adr/ADR-003-resilience.md (template)"><code class="language-bash"># ADR-003 — Adoption de Resilience4j
+
+**Date :** 2025-03-15
+**Statut :** Accepté
+**Décideurs :** Alice (tech lead), Bob (architecte), Carol (SRE)
+
+## Contexte
+loan-service appelle catalog-service de façon synchrone (HTTP).
+Des pannes intermittentes provoquent des timeouts en cascade.
+
+## Décision
+Adopter Resilience4j pour tous les appels inter-services synchrones.
+
+## Alternatives considérées
+| Alternative     | Raison d'exclusion                       |
+|-----------------|-------------------------------------------|
+| Netflix Hystrix | Abandonné depuis 2018                     |
+| Custom / manuel | Complexité, réinventer la roue            |
+
+## Conséquences
+[+] Circuit breaker, retry, timeout disponibles avec annotations
+[+] Intégration native Spring Boot + Actuator + Micrometer
+[-] CompletableFuture requis pour TimeLimiter (changement API)
+[-] Courbe d'apprentissage sur l'ordre des décorateurs</code></pre>
+
+  <h3>4.2 Changements rétro-compatibles vs BREAKING</h3>
+  <span class="level-badge mid">&#x1F7E1; Intermédiaire</span>
+  <div class="columns">
+    <div class="card">
+      <h3>✅ Rétro-compatibles</h3>
+      <ul>
+        <li>Ajouter un champ optionnel dans la réponse</li>
+        <li>Ajouter un nouveau endpoint</li>
+        <li>Ajouter un paramètre optionnel</li>
+        <li>Déprécier (mais garder) un champ</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>❌ BREAKING changes</h3>
+      <ul>
+        <li>Supprimer ou renommer un champ</li>
+        <li>Changer le type d'un champ</li>
+        <li>Changer la sémantique d'un endpoint</li>
+        <li>Rendre obligatoire un champ optionnel</li>
+      </ul>
+    </div>
+  </div>
+
+  <pre data-label="LoanController.java — Gestion versions API"><code class="language-java">@RestController
+@RequestMapping("/api")
+public class LoanController {
+
+    // v1 maintenu pour compatibilité ascendante
+    @GetMapping("/v1/loans/{id}")
+    @Deprecated
+    public LoanDtoV1 getLoanV1(@PathVariable UUID id) {
+        return LoanMapper.toV1(loanService.findById(id));
+    }
+
+    // v2 — nouvelle structure enrichie
+    @GetMapping("/v2/loans/{id}")
+    public LoanDtoV2 getLoanV2(@PathVariable UUID id) {
+        return LoanMapper.toV2(loanService.findById(id));
+    }
+}
+
+// V1 — structure originale
+public record LoanDtoV1(UUID id, String bookTitle, String studentName) {}
+
+// V2 — enrichi, sans casser les clients V1 (ils ignorent les nouveaux champs)
+public record LoanDtoV2(
+    UUID id,
+    String bookTitle,
+    String studentName,
+    LocalDate dueDate,       // nouveau
+    LoanStatus status,       // nouveau
+    List&lt;Link&gt; links         // HATEOAS
+) {}</code></pre>
+</section>
+
 <section id="urbanisation">
-  <h2>Urbanisation SI et choix d’architecture selon le contexte</h2>
-  <p>Un bon architecte ne vend pas une architecture “préférée”. Il choisit selon le contexte : taille équipe, criticité, budget, maturité ops, charge, réglementation, dette existante.</p>
+  <h2>5. Urbanisation SI et choix d'architecture selon le contexte</h2>
+  <div class="box pro-mode">
+    <h4>Mode pro</h4>
+    <p>Un bon architecte ne vend pas une architecture "préférée". Il choisit selon le contexte : taille de l'équipe, criticité, budget, maturité ops, charge, réglementation, dette. Il n'y a rarement qu'une seule bonne réponse.</p>
+  </div>
+
   <table>
     <thead><tr><th>Contexte</th><th>Choix souvent pertinent</th><th>Pourquoi</th></tr></thead>
     <tbody>
-      <tr><td>Startup / équipe réduite</td><td>Monolithe modulaire</td><td>Vitesse et simplicité</td></tr>
-      <tr><td>Domaine stable mais volumineux</td><td>Monolithe bien structuré</td><td>Cohérence et coût ops faible</td></tr>
-      <tr><td>Plusieurs équipes autonomes</td><td>Microservices ciblés</td><td>Découplage organisationnel</td></tr>
-      <tr><td>Système très événementiel</td><td>Architecture pilotée par événements</td><td>Découplage temporel</td></tr>
+      <tr><td>Startup / équipe &lt; 5 dev</td><td>Monolithe modulaire</td><td>Vitesse, simplicité, pas d'overhead ops</td></tr>
+      <tr><td>Domaine stable, fort volume</td><td>Monolithe bien structuré</td><td>Cohérence transactionnelle, coût ops faible</td></tr>
+      <tr><td>Plusieurs équipes autonomes</td><td>Microservices ciblés</td><td>Découplage organisationnel (Loi de Conway)</td></tr>
+      <tr><td>Système très événementiel</td><td>Event-driven architecture</td><td>Découplage temporel, scalabilité async</td></tr>
+      <tr><td>Legacy à moderniser</td><td>Strangler Fig Pattern</td><td>Migration progressive, sans big bang risqué</td></tr>
+    </tbody>
+  </table>
+
+  <h3>5.1 Loi de Conway</h3>
+  <span class="level-badge mid">&#x1F7E1; Intermédiaire</span>
+  <blockquote>
+    <em>"Any organization that designs a system will produce a design whose structure is a copy of the organization's communication structure."</em> — Melvin Conway, 1967
+  </blockquote>
+  <p>En pratique : si vous avez 3 équipes (catalog, loan, notification), vous aurez naturellement 3 services. Inversement, imposer des microservices à une équipe de 3 personnes crée de la friction sans valeur.</p>
+
+  <h3>5.2 Strangler Fig Pattern</h3>
+  <span class="level-badge expert">&#x1F534; Expert</span>
+  <p>Moderniser un legacy en extrayant progressivement des features vers de nouveaux services, en plaçant un API Gateway devant les deux. À terme, le legacy est entièrement remplacé sans jamais avoir fait de réécriture complète risquée.</p>
+  <div class="diagram">Étape 1 : API Gateway devant le legacy
+  Gateway ---> [Legacy monolithe]
+
+Étape 2 : Extraire une feature
+  Gateway ---> [Nouveau service A]  (nouvelle feature)
+           ---> [Legacy monolithe]  (reste du système)
+
+Étape N : Legacy entièrement remplacé
+  Gateway ---> [Service A] [Service B] [Service C]</div>
+
+  <h3>5.3 Framework de décision</h3>
+  <table>
+    <thead><tr><th>Dimension</th><th>Questions clés</th><th>Impact</th></tr></thead>
+    <tbody>
+      <tr><td>Équipe</td><td>Taille ? Maturité DevOps ?</td><td>Microservices = overhead ops élevé</td></tr>
+      <tr><td>Domaine</td><td>Stable ou en rapide évolution ?</td><td>Stabilité → monolithe</td></tr>
+      <tr><td>Charge</td><td>Pics de trafic ? Scaling partiel ?</td><td>Scaling sélectif → microservices</td></tr>
+      <tr><td>Contraintes</td><td>RGPD, données médicales ?</td><td>Isolation et audit log</td></tr>
+      <tr><td>Budget</td><td>Coût infra ? TTM ?</td><td>Microservices = coût opérationnel élevé</td></tr>
     </tbody>
   </table>
 </section>
+
 <section id="cloture">
-  <h2>Clôture et préparation à l’évaluation finale</h2>
-  <div class="box tp"><h4>Livrable final conseillé</h4><p>Chaque groupe remet : code TP3, ADR principaux, dossier d’architecture synthétique, schéma texte des flux, justification des choix et limites connues.</p></div>
-  <ol>
-    <li>Justifier pourquoi l’on n’a pas choisi “tout en microservices”.</li>
-    <li>Présenter une stratégie de sécurité et de résilience minimale.</li>
-    <li>Expliquer comment on déploie et on surveille le système.</li>
-  </ol>
+  <h2>6. Clôture — Synthèse et préparation à l'évaluation</h2>
+  <div class="box tp">
+    <h4>&#x1F4E6; Livrable final attendu</h4>
+    <ol>
+      <li>Code TP3 (Spring Boot microservices) sur Git</li>
+      <li>3 ADR minimum (choix d'architecture, résilience, sécurité)</li>
+      <li>Dossier d'architecture synthétique (2–3 pages) : contexte, décisions, compromis</li>
+      <li>Schéma des flux principaux (diagramme de séquence ou C4)</li>
+      <li>Justification des choix et limites connues du système</li>
+    </ol>
+  </div>
+
+  <div class="box checklist">
+    <h4>Ce que vous devez pouvoir expliquer à l'oral</h4>
+    <ul>
+      <li>Jour 1 : Qu'est-ce qu'un bon découpage de domaine ? (SRP, DDD, bounded context)</li>
+      <li>Jour 2 : Quand choisir un monolithe modulaire vs microservices ?</li>
+      <li>Jour 3 : Différence entre REST, GraphQL, gRPC et quand choisir quoi ?</li>
+      <li>Jour 4 : Communication sync vs async — avantages et inconvénients ?</li>
+      <li>Jour 5 : Comment se défendre contre une cascade failure ?</li>
+      <li>Jour 6 : Pourquoi "ça marche en dev mais pas en prod" ? (infra, secrets, sondes)</li>
+    </ul>
+  </div>
+
+  <div class="quiz-item">
+    <p><strong>Q1</strong> — "Pourquoi les microservices et pas un monolithe ?"</p>
+    <details>
+      <summary>Ce qu'on attend</summary>
+      <p>Une justification contextuelle, pas "parce que c'est mieux". Idéalement : autonomie des équipes, scaling différencié, isolation des domaines. Une réponse honnête incluant les compromis est meilleure qu'une réponse marketing. "Aucune limite connue" est éliminatoire.</p>
+    </details>
+  </div>
+  <div class="quiz-item">
+    <p><strong>Q2</strong> — "Que se passe-t-il si catalog-service est indisponible 1h ?"</p>
+    <details>
+      <summary>Ce qu'on attend</summary>
+      <p>Circuit breaker (évite la cascade), fallback (réponse dégradée), alerte Prometheus, runbook d'incident. Bonus : cache pour servir les données en lecture même si le service est down.</p>
+    </details>
+  </div>
+  <div class="quiz-item">
+    <p><strong>Q3</strong> — "Comment un nouveau dev déploie-t-il en production ?"</p>
+    <details>
+      <summary>Ce qu'on attend</summary>
+      <p>Pipeline CI/CD automatisé : <code>git push</code> → build → tests → scan CVE → image Docker → déploiement Kubernetes. Aucune étape manuelle. Le développeur ne touche pas kubectl en production.</p>
+    </details>
+  </div>
 </section>
 
-      <div class="footer-nav"><a href="../pages/jour-5-resilience-observabilite-et-securite.html">← Jour 5</a><a href="../pages/tp-1.html">TP1 →</a></div>
+<section id="quiz">
+  <h2>Quiz de fin — Jour 6</h2>
+  <div class="quiz-item">
+    <p><strong>1.</strong> Quelle est la différence entre Blue-Green et Canary ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p><strong>Blue-Green</strong> : bascule 100% du trafic d'un coup entre 2 environnements complets. Rollback en secondes mais double coût infra. <strong>Canary</strong> : exposition progressive (5% → 20% → 100%) pour limiter le blast radius. Plus de complexité routing/observabilité mais risque maîtrisé.</p>
+    </details>
+  </div>
+  <div class="quiz-item">
+    <p><strong>2.</strong> Pourquoi utiliser un multi-stage build Docker ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>Séparer l'environnement de build (JDK + Maven = lourd) du runtime (JRE seul = léger). L'image finale ne contient que le nécessaire à l'exécution : 3x plus petite, surface d'attaque CVE réduite, pull plus rapide.</p>
+    </details>
+  </div>
+  <div class="quiz-item">
+    <p><strong>3.</strong> Qu'est-ce qu'un ADR et pourquoi en écrire ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>Un Architecture Decision Record capture une décision architecturale : contexte, décision, alternatives, conséquences. Sans ADR, les équipes qui arrivent 6 mois plus tard ne savent pas pourquoi l'architecture est ainsi, et prennent des décisions contradictoires.</p>
+    </details>
+  </div>
+  <div class="quiz-item">
+    <p><strong>4.</strong> Qu'est-ce que la Loi de Conway ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>La structure d'un système reflète la structure de communication de l'organisation qui le produit. Conséquence : si vous voulez des microservices découplés, organisez vos équipes en squads autonomes par domaine. Imposer des microservices à une équipe unique crée de la complexité sans bénéfice.</p>
+    </details>
+  </div>
+  <div class="quiz-item">
+    <p><strong>5. (Expert)</strong> Qu'est-ce que le Strangler Fig Pattern ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>Migration progressive d'un legacy : extraction feature par feature vers de nouveaux services, un API Gateway devant les deux systèmes. À terme, le legacy est remplacé sans réécriture complète risquée. À utiliser quand le système est trop important pour être arrêté.</p>
+    </details>
+  </div>
+</section>
+
+      <div class="footer-nav">
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">← Jour 5</a>
+        <a href="../pages/tp-1.html">TP 1 →</a>
+      </div>
     </article>
   </div>
 </main>

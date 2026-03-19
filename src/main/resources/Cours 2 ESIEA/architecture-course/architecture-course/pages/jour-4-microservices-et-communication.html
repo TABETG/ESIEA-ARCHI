@@ -4,34 +4,285 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jour 4 — Microservices et communication inter-services</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script defer src="../assets/js/main.js"></script>
+
+  <!-- Prism.js – thème VS Code Dark+ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+
+  <style>
+    :root {
+      --bg: #f7fafc;
+      --surface: #ffffff;
+      --surface-alt: #eef3ff;
+      --text: #1f2937;
+      --muted: #5b6575;
+      --border: #d8e2ee;
+      --blue: #5da9ff;
+      --blue-soft: #e8f3ff;
+      --green: #4ba37a;
+      --green-soft: #e9f8f0;
+      --orange: #ef9b53;
+      --orange-soft: #fff3e7;
+      --red: #c85d5d;
+      --red-soft: #fff0f0;
+      --purple: #8b7cf6;
+      --purple-soft: #f2efff;
+      --shadow: 0 8px 24px rgba(36,53,84,.08);
+      --radius: 18px;
+      --max: 1180px;
+
+      --code-bg:        #1e1e1e;
+      --code-fg:        #d4d4d4;
+      --code-comment:   #6a9955;
+      --code-keyword:   #569cd6;
+      --code-string:    #ce9178;
+      --code-number:    #b5cea8;
+      --code-function:  #dcdcaa;
+      --code-class:     #4ec9b0;
+      --code-annotation:#c586c0;
+      --code-variable:  #9cdcfe;
+      --code-constant:  #4fc1ff;
+      --code-lineno:    #6e7681;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: linear-gradient(180deg, #f9fbfd 0%, #f4f8fb 100%);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    a { color: #1557b0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    header.site-header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-wrap {
+      max-width: var(--max); margin: auto;
+      display: flex; gap: 16px; align-items: center; padding: 12px 20px;
+    }
+    .brand { font-weight: 800; font-size: 1.05rem; color: #163b66; white-space: nowrap; }
+    nav.top-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav.top-nav a {
+      padding: 6px 11px; border-radius: 999px;
+      background: #fff; border: 1px solid var(--border); font-size: .88rem;
+    }
+
+    main { max-width: var(--max); margin: 24px auto; padding: 0 20px 60px; }
+    .hero {
+      background: linear-gradient(135deg, var(--purple-soft), #fff 45%, var(--blue-soft));
+      padding: 28px; border: 1px solid var(--border);
+      border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 22px;
+    }
+    .hero h1 { margin: .2rem 0 1rem; font-size: 2.2rem; }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+    }
+    .meta {
+      background: var(--surface); padding: 16px 18px;
+      border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .meta h3 { margin-top: 0; }
+    .layout { display: grid; grid-template-columns: 290px 1fr; gap: 22px; }
+    @media(max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+    aside.toc {
+      align-self: start; position: sticky; top: 84px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
+    }
+    aside.toc h2 { font-size: 1rem; margin-top: 0; }
+    aside.toc ul { padding-left: 18px; margin: .2rem 0; }
+    aside.toc li { margin: .35rem 0; }
+    article.content section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 18px; box-shadow: var(--shadow);
+    }
+
+    h1, h2, h3, h4 { line-height: 1.2; }
+    h2 { margin-top: 0; color: #123f73; }
+    h3 { color: #244d7c; }
+    p, li { font-size: 1rem; }
+
+    .badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 18px; }
+    .badge {
+      background: #fff; border: 1px solid var(--border);
+      padding: 6px 10px; border-radius: 999px; font-size: .88rem; color: var(--muted);
+    }
+
+    .box {
+      border-left: 6px solid var(--blue); padding: 14px 16px;
+      border-radius: 14px; background: var(--blue-soft); margin: 14px 0;
+    }
+    .box.definition { border-left-color: var(--blue); background: var(--blue-soft); }
+    .box.example    { border-left-color: var(--green); background: var(--green-soft); }
+    .box.warning    { border-left-color: var(--orange); background: var(--orange-soft); }
+    .box.best-practice  { border-left-color: var(--green); background: #effaf5; }
+    .box.frequent-error { border-left-color: var(--red); background: var(--red-soft); }
+    .box.child-mode { border-left-color: var(--purple); background: var(--purple-soft); }
+    .box.pro-mode   { border-left-color: #3857b0; background: #edf2ff; }
+    .box.live-coding{ border-left-color: #0f766e; background: #ecfeff; }
+    .box.tp         { border-left-color: #7c3aed; background: #f5f3ff; }
+    .box.expert     { border-left-color: #b45309; background: #fffbeb; }
+    .box h4 { margin: 0 0 8px; }
+    .box h5 { margin: 12px 0 6px; font-size: .95rem; }
+
+    /* ── CODE — VS Code Dark+ ── */
+    :not(pre) > code {
+      font-family: "Fira Code", Consolas, Monaco, monospace;
+      font-size: .86em;
+      background: #2d2d2d;
+      color: #ce9178;
+      padding: 2px 7px;
+      border-radius: 5px;
+      border: 1px solid #444;
+    }
+
+    pre {
+      position: relative;
+      margin: 1.4em 0;
+      padding: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,.45);
+      border: 1px solid #3c3c3c;
+      background: var(--code-bg);
+    }
+
+    pre::before {
+      content: "● ● ●";
+      display: block;
+      padding: 8px 14px;
+      background: #2d2d2d;
+      color: #858585;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      border-bottom: 1px solid #3c3c3c;
+      font-family: sans-serif;
+    }
+
+    pre > code {
+      display: block !important;
+      padding: 1.1em 1.4em !important;
+      background: var(--code-bg) !important;
+      color: var(--code-fg) !important;
+      font-family: "Fira Code", Consolas, "Courier New", monospace !important;
+      font-size: .875rem !important;
+      line-height: 1.8 !important;
+      overflow-x: auto !important;
+      border: none !important;
+      border-radius: 0 !important;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Tokens VS Code Dark+ */
+    .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #6a9955; font-style: italic; }
+    .token.punctuation  { color: #d4d4d4; }
+    .token.namespace    { opacity: .75; }
+    .token.boolean, .token.number { color: #b5cea8; }
+    .token.constant, .token.symbol, .token.deleted { color: #b5cea8; }
+    .token.property, .token.tag  { color: #569cd6; }
+    .token.selector, .token.attr-name, .token.string,
+    .token.char, .token.builtin, .token.inserted { color: #ce9178; }
+    .token.operator, .token.entity, .token.url  { color: #d4d4d4; }
+    .token.keyword      { color: #569cd6; }
+    .token.atrule       { color: #ce9178; }
+    .token.attr-value   { color: #ce9178; }
+    .token.rule         { color: #c586c0; }
+    .token.function     { color: #dcdcaa; }
+    .token.class-name   { color: #4ec9b0; }
+    .token.annotation   { color: #c586c0; font-style: italic; }
+    .token.variable     { color: #9cdcfe; }
+    .token.regex, .token.important { color: #4fc1ff; }
+    .language-yaml .token.key { color: #9cdcfe; }
+    .language-xml .token.tag > .token.tag { color: #569cd6; }
+    .language-xml .token.attr-name  { color: #9cdcfe; }
+    .language-xml .token.attr-value { color: #ce9178; }
+    .line-numbers .line-numbers-rows { border-right: 1px solid #3c3c3c; }
+    .line-numbers-rows > span::before { color: #6e7681; }
+
+    table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+    th, td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
+    th { background: #eff6ff; }
+
+    summary { cursor: pointer; font-weight: 600; }
+
+    .footer-nav { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
+    .footer-nav a {
+      display: inline-block; padding: 12px 16px;
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    }
+
+    .quiz-item {
+      margin-bottom: 20px; padding: 15px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .quiz-item p { margin-top: 0; font-size: 1.05rem; }
+    .quiz-item details { margin-top: 12px; background: var(--surface-alt); border-radius: 12px; padding: 12px 15px; }
+    .quiz-item summary { font-weight: 700; color: var(--blue); }
+    .quiz-item details[open] summary { margin-bottom: 10px; }
+    .quiz-item details p { margin: 0; padding-left: 10px; border-left: 3px solid var(--blue); }
+
+    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width: 760px) { .columns { grid-template-columns: 1fr; } }
+
+    .level-bar { display: flex; gap: 8px; align-items: center; margin: 0 0 14px; }
+    .level-pill { padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
+    .level-pill.junior { background: #dcfce7; color: #15803d; }
+    .level-pill.mid    { background: #fef9c3; color: #854d0e; }
+    .level-pill.senior { background: #fce7f3; color: #9d174d; }
+    .level-pill.expert { background: #ede9fe; color: #5b21b6; }
+
+    /* Diagramme ASCII stylisé */
+    .diagram {
+      background: #1e1e1e;
+      border: 1px solid #3c3c3c;
+      border-radius: 12px;
+      padding: 1.2em 1.5em;
+      font-family: "Fira Code", Consolas, monospace;
+      font-size: .85rem;
+      color: #9cdcfe;
+      line-height: 1.7;
+      margin: 1.2em 0;
+      overflow-x: auto;
+    }
+    .diagram .d-green  { color: #4ec9b0; }
+    .diagram .d-yellow { color: #dcdcaa; }
+    .diagram .d-orange { color: #ce9178; }
+    .diagram .d-gray   { color: #858585; }
+  </style>
 </head>
 <body>
+
 <header class="site-header">
   <div class="nav-wrap">
-    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
     <nav class="top-nav">
       <a href="../index.html">Accueil</a>
-<a href="../pages/introduction.html">Introduction</a>
-<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-<a href="../pages/tp-1.html">TP1</a>
-<a href="../pages/tp-2.html">TP2</a>
-<a href="../pages/tp-3.html">TP3</a>
-<a href="../pages/exercices.html">Exercices</a>
-<a href="../pages/corriges.html">Corrigés</a>
-<a href="../pages/glossary.html">Glossaire</a>
-<a href="../pages/live-coding.html">Live Coding</a>
-<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-<a href="../pages/faq.html">FAQ</a>
+      <a href="../pages/introduction.html">Introduction</a>
+      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+      <a href="../pages/tp-1.html">TP1</a>
+      <a href="../pages/tp-2.html">TP2</a>
+      <a href="../pages/tp-3.html">TP3</a>
+      <a href="../pages/exercices.html">Exercices</a>
+      <a href="../pages/corriges.html">Corrigés</a>
+      <a href="../pages/glossary.html">Glossaire</a>
     </nav>
   </div>
 </header>
+
 <main>
   <div class="hero">
     <div class="badges">
@@ -43,111 +294,1307 @@
     </div>
     <h1>Jour 4 — Microservices et communication inter-services</h1>
     <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Découper un domaine, comprendre gateway, discovery, cohérence éventuelle et principaux anti-patterns.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta">
+        <h3>Objectifs pédagogiques</h3>
+        <p>Découper un domaine par bounded contexts, maîtriser la communication sync/async, les patterns de résilience (Circuit Breaker, Saga) et les anti-patterns à éviter.</p>
+      </div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 7h incluant démos et quiz</p></div>
       <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 3 acquis</p></div>
     </div>
   </div>
+
   <div class="layout">
     <aside class="toc">
       <h2>Table des matières</h2>
-      <ul><li><a href="#principes">Principes</a></li>
-<li><a href="#decoupage">Découpage</a></li>
-<li><a href="#infra-distribuee">Gateway / discovery / config</a></li>
-<li><a href="#sync-async">REST et événementiel</a></li>
-<li><a href="#sagas">Sagas</a></li>
-<li><a href="#antipatterns">Anti-patterns</a></li>
-<li><a href="#quiz">Quiz</a></li></ul>
+      <ul>
+        <li><a href="#principes">1. Principes microservices</a></li>
+        <li><a href="#decoupage">2. Découpage par domaine (DDD)</a></li>
+        <li><a href="#feign">3. Communication sync — OpenFeign</a></li>
+        <li><a href="#kafka-deep">4. Communication async — Kafka</a></li>
+        <li><a href="#circuit-breaker">5. Circuit Breaker</a></li>
+        <li><a href="#gateway-deep">6. API Gateway avancé</a></li>
+        <li><a href="#sagas">7. Saga — Orchestration &amp; Chorégraphie</a></li>
+        <li><a href="#antipatterns">8. Anti-patterns</a></li>
+        <li><a href="#testing">9. Stratégie de tests</a></li>
+        <li><a href="#service-mesh">10. Service Mesh (intro)</a></li>
+        <li><a href="#quiz">11. Quiz</a></li>
+      </ul>
     </aside>
-    <article class="content">
-      
-<section id="principes">
-  <h2>Principes microservices</h2>
-  <p>Le microservice n’est pas “un petit projet Spring Boot”. C’est une unité de déploiement et d’évolution autonome centrée sur une capacité métier.</p>
-  <div class="box child-mode"><h4>Mode enfant</h4><p>Au lieu d’une seule grande cuisine, tu as plusieurs cuisines spécialisées : dessert, pain, plats chauds. Chacune a son équipe et ses outils.</p></div>
-  <div class="box pro-mode"><h4>Mode pro</h4><p>Les microservices cherchent à réduire la coordination entre équipes, aligner code et domaine, et permettre un scaling différencié. Ils ne sont rentables qu’avec une maturité d’exploitation suffisante.</p></div>
-</section>
-<section id="decoupage">
-  <h2>Découpage fonctionnel</h2>
-  <p>On découpe par capacités métier cohérentes, pas par couches techniques globales.</p>
-  <pre><code>❌ Mauvais découpage
-user-controller-service
-user-repository-service
-notification-repository-service
 
-✅ Découpage métier
-catalog-service
-loan-service
-identity-service
-notification-service</code></pre>
-  <div class="box best-practice"><h4>Bonne pratique</h4><p>Un microservice doit posséder son modèle et ses données sur son périmètre. Éviter la base partagée quand on veut une vraie autonomie.</p></div>
-</section>
-<section id="infra-distribuee">
-  <h2>API Gateway, service discovery, configuration distribuée</h2>
-  <table>
-    <thead><tr><th>Composant</th><th>Rôle</th><th>Exemple</th></tr></thead>
-    <tbody>
-      <tr><td>API Gateway</td><td>Point d’entrée, routage, sécurité, quotas</td><td>Spring Cloud Gateway</td></tr>
-      <tr><td>Service Discovery</td><td>Trouver les instances</td><td>Eureka ou alternatives</td></tr>
-      <tr><td>Config distribuée</td><td>Centraliser la configuration</td><td>Spring Cloud Config</td></tr>
-    </tbody>
-  </table>
-  <pre><code># Exemple simplifié de route Gateway
+    <article class="content">
+
+      <!-- ═══════════════════════════════
+           1. PRINCIPES
+      ═══════════════════════════════ -->
+      <section id="principes">
+        <h2>Principes des microservices</h2>
+        <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span></div>
+
+        <p>Le microservice n'est pas <em>"un petit projet Spring Boot"</em>. C'est une <strong>unité de déploiement et d'évolution autonome</strong> centrée sur une capacité métier unique. Sam Newman (auteur de référence) le définit comme un service qui <em>peut être déployé indépendamment</em>.</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Au lieu d'une seule grande cuisine qui fait tout (entrées, plats, desserts), tu as plusieurs cuisines spécialisées avec chacune son équipe et ses outils. Si la cuisine des desserts est en panne, les plats chauds continuent d'être servis.</p>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓</h4>
+          <p>Les microservices cherchent à réduire la <strong>coordination entre équipes</strong> (Conway's Law), aligner code et domaine métier, et permettre un scaling différencié. Ils ne sont rentables qu'avec une <strong>maturité d'exploitation suffisante</strong> : CI/CD mature, observabilité, on-call, container orchestration.</p>
+        </div>
+
+        <div class="box definition">
+          <h4>Les 5 caractéristiques d'un vrai microservice</h4>
+          <ol>
+            <li><strong>Déployable indépendamment</strong> — sans coordination avec d'autres équipes.</li>
+            <li><strong>Responsabilité unique</strong> — centré sur une seule capacité métier.</li>
+            <li><strong>Propriétaire de ses données</strong> — sa propre base de données (Database per Service).</li>
+            <li><strong>Communicant via API explicite</strong> — jamais via une base partagée.</li>
+            <li><strong>Résilient aux pannes des voisins</strong> — dégradation gracieuse si un service est down.</li>
+          </ol>
+        </div>
+
+        <div class="box warning">
+          <h4>⚠️ Microservices ne convient pas à tout le monde</h4>
+          <p>Un monolithe bien structuré (Modular Monolith) est souvent <strong>le bon choix pour une startup</strong> ou une équipe réduite. Les microservices doublent la complexité opérationnelle. Migrez vers les microservices quand la douleur du monolithe est réelle, pas par mode.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           2. DÉCOUPAGE PAR DOMAINE
+      ═══════════════════════════════ -->
+      <section id="decoupage">
+        <h2>Découpage fonctionnel — Domain-Driven Design</h2>
+        <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+        <p>Le découpage est la décision la plus critique en microservices. Un mauvais découpage crée un <em>Distributed Monolith</em> — le pire des deux mondes. On utilise le <strong>Bounded Context</strong> de DDD comme unité naturelle de découpage.</p>
+
+        <div class="box definition">
+          <h4>Bounded Context — Définition</h4>
+          <p>Un Bounded Context est une frontière logique dans laquelle un modèle de domaine est <strong>cohérent et non ambigu</strong>. Le même mot peut avoir une signification différente dans deux contextes différents.</p>
+          <p>Exemple : le mot <strong>"Book"</strong> :</p>
+          <ul>
+            <li>Dans le <em>Catalog Context</em> : titre, auteur, ISBN, disponibilité physique.</li>
+            <li>Dans le <em>Loan Context</em> : exemplaire emprunté, date de retour, état.</li>
+            <li>Dans le <em>Billing Context</em> : prix de location, pénalités de retard.</li>
+          </ul>
+          <p>Chaque contexte a son propre modèle — ne les fusionnez pas !</p>
+        </div>
+
+        <div class="box example">
+          <h4>Analyse Event Storming → Services pour une bibliothèque</h4>
+          <div class="diagram">
+<pre>
+┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────────┐
+│  catalog-service│  │  loan-service   │  │identity-service │  │notification-svc  │
+├─────────────────┤  ├─────────────────┤  ├─────────────────┤  ├──────────────────┤
+│ Book            │  │ Loan            │  │ Student         │  │ Notification     │
+│ Author          │  │ Reservation     │  │ Membership      │  │ EmailTemplate    │
+│ Category        │  │ Return          │  │ Auth / JWT      │  │ PushSubscription │
+├─────────────────┤  ├─────────────────┤  ├─────────────────┤  ├──────────────────┤
+│ DB: PostgreSQL  │  │ DB: PostgreSQL  │  │ DB: PostgreSQL  │  │ Queue: Kafka     │
+│ Port: 8081      │  │ Port: 8082      │  │ Port: 8083      │  │ Port: 8084       │
+└─────────────────┘  └─────────────────┘  └─────────────────┘  └──────────────────┘
+</pre>
+          </div>
+        </div>
+
+        <div class="columns">
+          <div class="box frequent-error">
+            <h4>❌ Mauvais découpage — par couche technique</h4>
+<pre><code class="language-text">user-controller-service     ← controller pour tout
+user-repository-service     ← data pour tout
+notification-repository-svc
+business-logic-service</code></pre>
+            <p>→ Couplage fort, impossible de déployer indépendamment.</p>
+          </div>
+          <div class="box best-practice">
+            <h4>✅ Bon découpage — par capacité métier</h4>
+<pre><code class="language-text">catalog-service      ← tout sur les livres
+loan-service         ← tout sur les emprunts
+identity-service     ← auth + profil étudiant
+notification-service ← emails, push, SMS</code></pre>
+            <p>→ Chaque service = une équipe = un domaine = une base.</p>
+          </div>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Heuristiques de découpage (règles pratiques)</h4>
+          <ul>
+            <li><strong>Single Responsibility</strong> : "Ce service fait une chose et la fait bien."</li>
+            <li><strong>Taille d'équipe</strong> : une équipe de 2 à 8 personnes peut posséder un service (Two-Pizza Team).</li>
+            <li><strong>Faible couplage</strong> : si changer un service force à changer un autre, ils sont trop liés → fusionnez ou redécoupez.</li>
+            <li><strong>Forte cohésion</strong> : les données et comportements qui changent ensemble restent ensemble.</li>
+            <li><strong>Strangler Fig</strong> : migrez un monolithe progressivement, service par service, sans tout réécrire d'un coup.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           3. OPENFEIGN
+      ═══════════════════════════════ -->
+      <section id="feign">
+        <h2>Communication synchrone — OpenFeign</h2>
+        <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+        <p><strong>OpenFeign</strong> est un client HTTP déclaratif intégré à Spring Cloud. Il élimine le boilerplate des appels HTTP entre services et s'intègre nativement avec Eureka (découverte) et Resilience4j (résilience).</p>
+
+        <div class="box example">
+          <h4>Étape 1 — Dépendance Maven</h4>
+<pre><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.github.resilience4j&lt;/groupId&gt;
+  &lt;artifactId&gt;resilience4j-spring-boot3&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+
+          <h5>Étape 2 — Activer Feign dans l'application</h5>
+<pre><code class="language-java">@SpringBootApplication
+@EnableFeignClients(basePackages = "com.example.loan.clients")
+public class LoanServiceApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(LoanServiceApplication.class, args);
+    }
+}</code></pre>
+
+          <h5>Étape 3 — Interface déclarative</h5>
+<pre><code class="language-java">// loan-service → catalog-service
+@FeignClient(
+    name      = "catalog-service",          // résolu par Eureka
+    path      = "/internal",
+    fallback  = CatalogClientFallback.class // utilisé si CircuitBreaker open
+)
+public interface CatalogClient {
+
+    @GetMapping("/books/{bookId}/availability")
+    AvailabilityResponse getAvailability(@PathVariable UUID bookId);
+
+    @PutMapping("/books/{bookId}/reserve")
+    void reserveBook(@PathVariable UUID bookId,
+                     @RequestBody ReservationRequest request);
+
+    @PutMapping("/books/{bookId}/release")
+    void releaseBook(@PathVariable UUID bookId);
+}
+
+// Fallback — valeur par défaut si le service est indisponible
+@Component
+public class CatalogClientFallback implements CatalogClient {
+
+    @Override
+    public AvailabilityResponse getAvailability(UUID bookId) {
+        log.warn("catalog-service unavailable, returning cached/default response");
+        // Stratégie dégradée : supposer disponible pour ne pas bloquer l'UX
+        return new AvailabilityResponse(false, 0, "UNKNOWN");
+    }
+
+    @Override
+    public void reserveBook(UUID bookId, ReservationRequest request) {
+        // Publier un événement compensation dans Kafka pour retry asynchrone
+        compensationPublisher.publish(new ReservationFailedEvent(bookId));
+    }
+
+    @Override
+    public void releaseBook(UUID bookId) {
+        log.error("Could not release book {} — manual intervention needed", bookId);
+    }
+}</code></pre>
+
+          <h5>Étape 4 — Configuration complète</h5>
+<pre><code class="language-yaml"># application.yml
 spring:
+  cloud:
+    openfeign:
+      circuitbreaker:
+        enabled: true
+      client:
+        config:
+          catalog-service:
+            connectTimeout: 1000    # ms — connexion TCP
+            readTimeout: 3000       # ms — attente de la réponse
+            loggerLevel: FULL       # en dev ; BASIC en prod
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      catalog-service:
+        slidingWindowType: COUNT_BASED
+        slidingWindowSize: 10
+        failureRateThreshold: 50       # % d'échecs pour ouvrir
+        waitDurationInOpenState: 10s   # attendre 10s avant HALF_OPEN
+        permittedNumberOfCallsInHalfOpenState: 3
+        registerHealthIndicator: true
+
+  retry:
+    instances:
+      catalog-service:
+        maxAttempts: 3
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        randomizedWaitFactor: 0.25
+        retryExceptions:
+          - feign.RetryableException
+          - java.net.ConnectException
+        ignoreExceptions:
+          - com.example.catalog.BookNotFoundException</code></pre>
+        </div>
+
+        <div class="box expert">
+          <h4>⚙️ Expert — Intercepteur Feign pour propager les headers</h4>
+<pre><code class="language-java">// Propagation automatique du Trace ID et de l'Authorization
+@Bean
+public RequestInterceptor feignRequestInterceptor() {
+    return requestTemplate -> {
+        // Récupérer le context de la requête courante
+        HttpServletRequest currentRequest = ((ServletRequestAttributes)
+            RequestContextHolder.currentRequestAttributes()).getRequest();
+
+        // Propager le token JWT vers les services internes
+        String authHeader = currentRequest.getHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeader != null) {
+            requestTemplate.header(HttpHeaders.AUTHORIZATION, authHeader);
+        }
+
+        // Propager le Trace ID pour le distributed tracing
+        String traceId = MDC.get("traceId");
+        if (traceId != null) {
+            requestTemplate.header("X-Trace-Id", traceId);
+        }
+
+        // Propager l'identité de l'appelant (pour l'audit)
+        requestTemplate.header("X-Caller-Service", "loan-service");
+    };
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           4. KAFKA DEEP DIVE
+      ═══════════════════════════════ -->
+      <section id="kafka-deep">
+        <h2>Communication asynchrone — Kafka en profondeur</h2>
+        <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
+
+        <p>Apache Kafka est un log distribué immuable et persistant. Comprendre ses mécanismes internes est essentiel pour construire des systèmes fiables.</p>
+
+        <div class="box definition">
+          <h4>Concepts fondamentaux Kafka</h4>
+          <table>
+            <thead><tr><th>Concept</th><th>Définition</th><th>Analogie</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Topic</strong></td><td>Canal nommé de messages</td><td>File de courrier par sujet</td></tr>
+              <tr><td><strong>Partition</strong></td><td>Sous-unité d'un topic, ordonnée</td><td>Tiroir dans la file</td></tr>
+              <tr><td><strong>Offset</strong></td><td>Position d'un message dans une partition</td><td>Numéro de page</td></tr>
+              <tr><td><strong>Consumer Group</strong></td><td>Groupe de consommateurs partageant la charge</td><td>Équipe qui traite le courrier</td></tr>
+              <tr><td><strong>Broker</strong></td><td>Nœud Kafka stockant les partitions</td><td>Serveur de messagerie</td></tr>
+              <tr><td><strong>Replication Factor</strong></td><td>Nombre de copies d'une partition</td><td>Sauvegardes</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box example">
+          <h4>Architecture Kafka pour la bibliothèque</h4>
+          <div class="diagram">
+<pre>
+Topics & Partitions
+
+loan.created        [P0][P1][P2]  ← key = loanId (hash)
+book.reserved       [P0][P1]
+book.released       [P0][P1]
+notification.send   [P0][P1][P2]
+
+Consumer Groups
+
+loan.created ──┬──► notification-service (group: notif-grp)  [P0,P1] → instance A
+               │                                              [P2]    → instance B
+               └──► analytics-service    (group: analytics)  [P0,P1,P2] → instance C
+               └──► audit-service        (group: audit)      [P0,P1,P2] → instance D
+
+Principe : chaque consumer group lit tous les messages indépendamment
+</pre>
+          </div>
+
+          <h5>Configuration Kafka — application.yml complète</h5>
+<pre><code class="language-yaml">spring:
+  kafka:
+    bootstrap-servers: kafka-1:9092,kafka-2:9092,kafka-3:9092
+    producer:
+      key-serializer:   org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all              # Leader + toutes les réplicas = durabilité max
+      retries: 3
+      batch-size: 16384      # 16 KB — batch pour la performance
+      linger-ms: 5           # attendre 5ms pour batcher
+      compression-type: snappy  # compression pour le réseau
+      properties:
+        enable.idempotence: true   # producteur idempotent
+        max.in.flight.requests.per.connection: 5
+
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false    # commit manuel = exactement une fois
+      isolation-level: read_committed  # lire uniquement les transactions committées
+      key-deserializer:   org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.example.events"
+        max.poll.records: 50       # 50 messages par poll
+        max.poll.interval.ms: 300000  # 5 min max par batch
+
+    listener:
+      ack-mode: MANUAL_IMMEDIATE   # commit après traitement réussi
+      concurrency: 3               # 3 threads consommateurs</code></pre>
+
+          <h5>Consommateur robuste avec Dead Letter Queue</h5>
+<pre><code class="language-java">@Configuration
+public class KafkaConsumerConfig {
+
+    // Dead Letter Topic : les messages en erreur sont envoyés ici
+    @Bean
+    public DefaultErrorHandler errorHandler(KafkaTemplate&lt;String, Object&gt; template) {
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
+            template,
+            (record, ex) -> new TopicPartition(
+                record.topic() + ".DLT",   // loan.created.DLT
+                record.partition()
+            )
+        );
+
+        // Backoff exponentiel : 1s, 2s, 4s, 8s — puis DLT
+        ExponentialBackOffWithMaxRetries backOff =
+            new ExponentialBackOffWithMaxRetries(4);
+        backOff.setInitialInterval(1_000);
+        backOff.setMultiplier(2.0);
+
+        DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
+        // Ne pas retenter les erreurs de désérialisation (données corrompues)
+        handler.addNotRetryableExceptions(JsonParseException.class);
+
+        return handler;
+    }
+}
+
+@Component
+@RequiredArgsConstructor
+public class LoanCreatedConsumer {
+
+    private final NotificationService notificationService;
+    private final MeterRegistry registry;
+
+    @KafkaListener(topics = "loan.created", groupId = "notification-service")
+    public void onLoanCreated(
+            @Payload LoanCreatedEvent event,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset,
+            Acknowledgment ack) {
+
+        log.info("Processing [loanId={}, partition={}, offset={}]",
+            event.loanId(), partition, offset);
+
+        try {
+            notificationService.sendConfirmation(event.studentId(), event.loanId());
+            ack.acknowledge();  // commit l'offset APRÈS succès
+            registry.counter("kafka.consumed", "topic", "loan.created", "status", "ok")
+                    .increment();
+        } catch (Exception e) {
+            registry.counter("kafka.consumed", "topic", "loan.created", "status", "error")
+                    .increment();
+            throw e;  // ne pas ack → retry + DLT si max retries atteint
+        }
+    }
+
+    // Consommateur du DLT pour monitoring/alerting
+    @KafkaListener(topics = "loan.created.DLT", groupId = "notification-dlq")
+    public void onLoanCreatedDlt(@Payload LoanCreatedEvent event) {
+        log.error("DEAD LETTER: failed to process loan.created for loanId={}",
+            event.loanId());
+        alertingService.createAlert("Kafka DLT message", event);
+    }
+}</code></pre>
+        </div>
+
+        <div class="box expert">
+          <h4>⚙️ Expert — Transactions Kafka (Exactly-Once Semantics)</h4>
+<pre><code class="language-java">// Garantie : le message est publié exactement une fois, même en cas de crash
+
+@Configuration
+public class KafkaTransactionConfig {
+
+    @Bean
+    public KafkaTransactionManager&lt;String, Object&gt; kafkaTransactionManager(
+            ProducerFactory&lt;String, Object&gt; pf) {
+        return new KafkaTransactionManager&lt;&gt;(pf);
+    }
+}
+
+@Service
+public class LoanApplicationService {
+
+    private final LoanRepository loanRepo;
+    private final KafkaTemplate&lt;String, LoanCreatedEvent&gt; kafka;
+
+    // Transaction Spring coordonne : BDD + Kafka commit en même temps
+    // Si l'un échoue, les deux sont rollbackés
+    @Transactional("kafkaTransactionManager")
+    public Loan createLoan(CreateLoanRequest request) {
+        // 1. Persister en base
+        Loan loan = loanRepo.save(Loan.from(request));
+
+        // 2. Publier l'événement — même transaction que la BDD
+        kafka.send("loan.created", loan.getId().toString(),
+            new LoanCreatedEvent(loan.getId(), request.studentId(),
+                                 request.bookId(), Instant.now()));
+
+        return loan;
+        // Si commit Kafka échoue → rollback BDD aussi (atomique)
+    }
+}</code></pre>
+          <p>La combinaison <code>enable.idempotence=true</code> côté producteur + <code>isolation.level=read_committed</code> côté consommateur garantit l'<strong>Exactly-Once Semantics (EOS)</strong> de bout en bout.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           5. CIRCUIT BREAKER
+      ═══════════════════════════════ -->
+      <section id="circuit-breaker">
+        <h2>Circuit Breaker — Résilience4j</h2>
+        <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+        <p>Le <strong>Circuit Breaker</strong> est le pattern de résilience le plus important des microservices. Inspiré du disjoncteur électrique, il coupe automatiquement les appels vers un service défaillant pour éviter la propagation des pannes (<em>Cascading Failure</em>).</p>
+
+        <div class="box definition">
+          <h4>Les 3 états du Circuit Breaker</h4>
+          <div class="diagram">
+<pre>
+       Taux d'erreurs ≥ seuil             Appels de test réussis
+CLOSED ─────────────────────► OPEN ──────────────────────────► HALF-OPEN
+  │     (appels normaux)        │   (appels court-circuités)       │
+  │                             │   ← fallback retourné            │
+  └─────────────────────────────┘◄──── Appels de test échouent ────┘
+
+CLOSED    → Circuit fermé, appels normaux
+OPEN      → Circuit ouvert, fallback immédiat (pas d'appel réseau)
+HALF-OPEN → Quelques appels de test passent pour vérifier la récupération
+</pre>
+          </div>
+        </div>
+
+        <div class="box example">
+          <h4>Configuration et utilisation — Resilience4j</h4>
+<pre><code class="language-yaml"># application.yml
+resilience4j:
+  circuitbreaker:
+    instances:
+      catalog-service:
+        # Fenêtre d'évaluation
+        slidingWindowType: COUNT_BASED   # ou TIME_BASED
+        slidingWindowSize: 20            # 20 derniers appels
+        minimumNumberOfCalls: 5          # minimum avant évaluation
+
+        # Seuils
+        failureRateThreshold: 50         # 50% d'échecs → OPEN
+        slowCallRateThreshold: 80        # 80% d'appels lents → OPEN
+        slowCallDurationThreshold: 2s    # seuil de "lenteur"
+
+        # Timing
+        waitDurationInOpenState: 30s     # 30s avant test en HALF-OPEN
+        permittedNumberOfCallsInHalfOpenState: 5
+
+        # Observabilité
+        registerHealthIndicator: true
+        recordExceptions:
+          - java.net.ConnectException
+          - feign.FeignException$ServiceUnavailable
+        ignoreExceptions:
+          - com.example.BookNotFoundException  # 404 n'est pas une panne</code></pre>
+
+<pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class CatalogService {
+
+    private final CatalogClient catalogClient;
+    private final CircuitBreakerRegistry circuitBreakerRegistry;
+
+    // Annotation — le plus simple
+    @CircuitBreaker(name = "catalog-service", fallbackMethod = "getAvailabilityFallback")
+    @Retry(name = "catalog-service")
+    @TimeLimiter(name = "catalog-service")
+    public AvailabilityResponse getAvailability(UUID bookId) {
+        return catalogClient.getAvailability(bookId);
+    }
+
+    // Fallback method — signature : même params + Throwable en dernier
+    private AvailabilityResponse getAvailabilityFallback(UUID bookId, Throwable ex) {
+        log.warn("CB fallback for bookId={}, cause={}", bookId, ex.getMessage());
+        // Stratégie : réponse dégradée conservative
+        return new AvailabilityResponse(false, 0, "DEGRADED");
+    }
+
+    // Approche programmatique pour plus de contrôle
+    public AvailabilityResponse getAvailabilityProgrammatic(UUID bookId) {
+        CircuitBreaker cb = circuitBreakerRegistry.circuitBreaker("catalog-service");
+
+        Supplier&lt;AvailabilityResponse&gt; decoratedSupplier = CircuitBreaker
+            .decorateSupplier(cb, () -> catalogClient.getAvailability(bookId));
+
+        return Try.ofSupplier(decoratedSupplier)
+            .recover(CallNotPermittedException.class,
+                ex -> new AvailabilityResponse(false, 0, "CB_OPEN"))
+            .recover(Exception.class,
+                ex -> new AvailabilityResponse(false, 0, "ERROR"))
+            .get();
+    }
+}</code></pre>
+
+          <h5>Monitoring du Circuit Breaker (Actuator + Prometheus)</h5>
+<pre><code class="language-yaml">management:
+  endpoints:
+    web:
+      exposure:
+        include: health, prometheus, circuitbreakers
+  health:
+    circuitbreakers:
+      enabled: true
+  metrics:
+    tags:
+      application: loan-service</code></pre>
+<pre><code class="language-text">GET /actuator/health → état du circuit breaker en temps réel
+
+{
+  "components": {
+    "circuitBreakers": {
+      "details": {
+        "catalog-service": {
+          "details": {
+            "failureRate": "20.0%",
+            "slowCallRate": "0.0%",
+            "state": "CLOSED",
+            "bufferedCalls": 5,
+            "failedCalls": 1
+          },
+          "status": "UP"
+        }
+      }
+    }
+  }
+}</code></pre>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Combiner les patterns de résilience</h4>
+          <p>L'ordre d'application des décorateurs Resilience4j compte :</p>
+          <p><strong>TimeLimiter → CircuitBreaker → Retry → Bulkhead</strong></p>
+          <ol>
+            <li><strong>TimeLimiter</strong> : couper si trop lent (ex: 2s).</li>
+            <li><strong>CircuitBreaker</strong> : couper si trop d'échecs.</li>
+            <li><strong>Retry</strong> : retenter si erreur transitoire.</li>
+            <li><strong>Bulkhead</strong> : limiter la concurrence (thread pool isolation).</li>
+          </ol>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           6. GATEWAY AVANCÉ
+      ═══════════════════════════════ -->
+      <section id="gateway-deep">
+        <h2>API Gateway — Configuration avancée</h2>
+        <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+        <div class="box example">
+          <h4>Route avec Circuit Breaker + Fallback</h4>
+<pre><code class="language-yaml">spring:
   cloud:
     gateway:
       routes:
-        - id: catalog
-          uri: lb://catalog-service
+        - id: loan-service
+          uri: lb://loan-service
           predicates:
-            - Path=/api/catalog/**</code></pre>
-</section>
-<section id="sync-async">
-  <h2>Communication REST et événementielle</h2>
-  <div class="columns">
-    <div class="box example">
-      <h4>REST</h4>
-      <p>Bon pour une réponse immédiate. Exemple : vérifier si un livre est disponible avant de créer un prêt.</p>
-    </div>
-    <div class="box example">
-      <h4>Événementiel</h4>
-      <p>Bon pour diffuser un fait métier. Exemple : après création du prêt, envoyer “loan-created” pour déclencher une notification.</p>
-    </div>
-  </div>
-</section>
-<section id="sagas">
-  <h2>Orchestration, chorégraphie, sagas et transactions distribuées</h2>
-  <p>Dans un monolithe, une transaction locale suffit souvent. Dans le distribué, on travaille souvent avec <strong>cohérence éventuelle</strong>.</p>
-  <pre><code>Exemple de saga d'emprunt
-1. loan-service crée un prêt en statut PENDING
-2. catalog-service réserve l'exemplaire
-3. identity-service valide le profil étudiant
-4. loan-service passe le prêt à CONFIRMED
-5. si une étape échoue, compensation : annuler la réservation</code></pre>
-  <div class="box warning"><h4>Attention</h4><p>Les transactions distribuées bloquantes à travers plusieurs services sont rarement une bonne idée dans les architectures modernes généralistes.</p></div>
-</section>
-<section id="antipatterns">
-  <h2>Anti-patterns microservices fréquents</h2>
-  <ul>
-    <li><strong>Distributed Monolith</strong> : services séparés mais fortement couplés et déployés ensemble.</li>
-    <li><strong>Chatty Communication</strong> : trop d’appels réseau pour un seul cas d’usage.</li>
-    <li><strong>Shared Database</strong> : plusieurs services écrivent les mêmes tables.</li>
-    <li><strong>Nano-services</strong> : découpage trop fin, coût opérationnel énorme.</li>
-    <li><strong>Everything async</strong> : sur-utilisation de l’événementiel sans besoin réel.</li>
-  </ul>
-</section>
-<section id="quiz">
-  <h2>Quiz de fin</h2>
-  <ol>
-    <li>Pourquoi une base partagée nuit-elle à l’autonomie des microservices ?</li>
-    <li>Quelle différence entre orchestration et chorégraphie ?</li>
-    <li>Qu’est-ce qu’un “distributed monolith” ?</li>
-  </ol>
-</section>
+            - Path=/api/v1/loans/**
+            - Method=GET,POST,PUT,DELETE
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loanServiceCB
+                fallbackUri: forward:/fallback/loans
+            - name: RequestRateLimiter
+              args:
+                redis-rate-limiter.replenishRate: 50
+                redis-rate-limiter.burstCapacity:  100
+                key-resolver: "#{@apiKeyResolver}"
+            - name: Retry
+              args:
+                retries: 2
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
+                methods: GET           # retry GET seulement (idempotent)
+                backoff:
+                  firstBackoff: 50ms
+                  maxBackoff: 500ms
+                  factor: 2
+            - AddRequestHeader=X-Request-Source, gateway
+            - AddResponseHeader=X-Response-Time, "#{T(java.time.Instant).now()}"</code></pre>
 
-      <div class="footer-nav"><a href="../pages/jour-3-systemes-distribues-et-api.html">← Jour 3</a><a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5 →</a></div>
+          <h5>Fallback Controller</h5>
+<pre><code class="language-java">@RestController
+@RequestMapping("/fallback")
+public class FallbackController {
+
+    @GetMapping("/loans")
+    public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; loansFallback(
+            ServerWebExchange exchange) {
+        String traceId = exchange.getRequest()
+            .getHeaders()
+            .getFirst("X-Trace-Id");
+
+        return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
+            .body(Map.of(
+                "error",   "Service temporarily unavailable",
+                "service", "loan-service",
+                "traceId", traceId != null ? traceId : "unknown",
+                "retryAfter", 30
+            ));
+    }
+}</code></pre>
+
+          <h5>Key Resolver par API Key (Rate Limiting)</h5>
+<pre><code class="language-java">@Bean
+public KeyResolver apiKeyResolver() {
+    return exchange -> {
+        String apiKey = exchange.getRequest()
+            .getHeaders()
+            .getFirst("X-Api-Key");
+        if (apiKey != null) {
+            return Mono.just(apiKey);
+        }
+        // Fallback sur l'IP si pas d'API key
+        InetSocketAddress remoteAddress = exchange.getRequest()
+            .getRemoteAddress();
+        return Mono.just(
+            remoteAddress != null ? remoteAddress.getHostString() : "anonymous"
+        );
+    };
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           7. SAGAS
+      ═══════════════════════════════ -->
+      <section id="sagas">
+        <h2>Transactions distribuées — Pattern Saga</h2>
+        <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
+
+        <p>Dans un monolithe, une transaction ACID locale garantit la cohérence. Dans les microservices, chaque service a sa propre base : une transaction distribuée bloquante (2PC) est trop coûteuse et fragile. Le <strong>pattern Saga</strong> découpe la transaction en étapes avec des <strong>transactions compensatoires</strong> en cas d'échec.</p>
+
+        <div class="columns">
+          <div class="box definition">
+            <h4>Orchestration</h4>
+            <p>Un <strong>orchestrateur central</strong> (Saga Manager) dicte les étapes à chaque service. Chaque service répond "succès" ou "échec".</p>
+            <p>✅ Flux visible et centralisé.<br>⚠️ Single point of complexity.</p>
+          </div>
+          <div class="box definition">
+            <h4>Chorégraphie</h4>
+            <p>Chaque service <strong>réagit aux événements</strong> et publie les siens. Pas de chef d'orchestre.</p>
+            <p>✅ Découplage maximal.<br>⚠️ Flux difficile à visualiser.</p>
+          </div>
+        </div>
+
+        <h3>Saga par Orchestration — Exemple complet</h3>
+
+        <div class="box example">
+          <h4>Saga "Créer un emprunt" — Orchestration</h4>
+          <div class="diagram">
+<pre>
+Client ──► LoanSaga (Orchestrateur)
+              │
+              ├─1.► catalog-service.reserveBook(bookId)
+              │         └── ✅ BookReserved  →  étape 2
+              │         └── ❌ BookNotAvailable → fin (CompensationNotNeeded)
+              │
+              ├─2.► identity-service.validateStudent(studentId)
+              │         └── ✅ StudentValidated  →  étape 3
+              │         └── ❌ StudentSuspended  →  compenser étape 1
+              │             ↳ catalog-service.releaseBook(bookId)
+              │
+              └─3.► loan-service.confirmLoan(loanId)
+                        └── ✅ LoanConfirmed → saga terminée
+                        └── ❌ LoanFailed   → compenser étapes 1 et 2
+                            ↳ identity-service.decrementLoanCount(studentId)
+                            ↳ catalog-service.releaseBook(bookId)
+</pre>
+          </div>
+
+<pre><code class="language-java">// État de la saga
+public enum LoanSagaState {
+    STARTED, BOOK_RESERVED, STUDENT_VALIDATED, LOAN_CONFIRMED,
+    COMPENSATING_BOOK, COMPENSATING_STUDENT, FAILED, COMPLETED
+}
+
+// Orchestrateur — utilise une machine à états
+@Component
+@RequiredArgsConstructor
+public class CreateLoanSaga {
+
+    private final CatalogClient catalogClient;
+    private final IdentityClient identityClient;
+    private final LoanRepository loanRepo;
+    private final KafkaTemplate&lt;String, Object&gt; kafka;
+
+    @Transactional
+    public LoanSagaResult execute(CreateLoanCommand cmd) {
+        LoanSaga saga = LoanSaga.builder()
+            .id(UUID.randomUUID())
+            .loanId(cmd.loanId())
+            .bookId(cmd.bookId())
+            .studentId(cmd.studentId())
+            .state(LoanSagaState.STARTED)
+            .build();
+        sagaRepository.save(saga);
+
+        try {
+            // Étape 1 — Réserver le livre
+            catalogClient.reserveBook(cmd.bookId(),
+                new ReservationRequest(cmd.loanId()));
+            saga.setState(LoanSagaState.BOOK_RESERVED);
+
+            // Étape 2 — Valider l'étudiant
+            identityClient.validateStudentForLoan(cmd.studentId());
+            saga.setState(LoanSagaState.STUDENT_VALIDATED);
+
+            // Étape 3 — Confirmer le prêt
+            Loan loan = loanRepo.findById(cmd.loanId()).orElseThrow();
+            loan.confirm(Instant.now().plus(30, ChronoUnit.DAYS));
+            loanRepo.save(loan);
+            saga.setState(LoanSagaState.LOAN_CONFIRMED);
+
+            // Publier l'événement de succès
+            kafka.send("loan.created", new LoanCreatedEvent(cmd.loanId(),
+                cmd.studentId(), cmd.bookId(), Instant.now()));
+
+            saga.setState(LoanSagaState.COMPLETED);
+            return LoanSagaResult.success(cmd.loanId());
+
+        } catch (BookNotAvailableException e) {
+            saga.setState(LoanSagaState.FAILED);
+            return LoanSagaResult.failure("Book not available");
+
+        } catch (StudentSuspendedException e) {
+            // Compenser étape 1
+            saga.setState(LoanSagaState.COMPENSATING_BOOK);
+            compensateBookReservation(cmd.bookId(), saga);
+            saga.setState(LoanSagaState.FAILED);
+            return LoanSagaResult.failure("Student account suspended");
+
+        } catch (Exception e) {
+            // Compenser toutes les étapes réussies
+            compensateAll(cmd, saga);
+            saga.setState(LoanSagaState.FAILED);
+            return LoanSagaResult.failure("Unexpected error: " + e.getMessage());
+
+        } finally {
+            sagaRepository.save(saga);  // persister l'état final
+        }
+    }
+
+    private void compensateBookReservation(UUID bookId, LoanSaga saga) {
+        try {
+            catalogClient.releaseBook(bookId);
+        } catch (Exception e) {
+            // La compensation a échoué → alerter, retry manuel, ou DLT
+            log.error("COMPENSATION FAILED for bookId={}", bookId, e);
+            saga.addCompensationFailure("book-release", e.getMessage());
+            alertingService.criticalAlert("Saga compensation failure", saga);
+        }
+    }
+}</code></pre>
+        </div>
+
+        <h3>Saga par Chorégraphie — Événements réactifs</h3>
+
+        <div class="box example">
+          <h4>Chorégraphie — loan-service émet, catalog-service réagit</h4>
+<pre><code class="language-java">// ═══ loan-service ═══
+// Publie l'intention (pas le fait accompli)
+@Service
+public class LoanApplicationService {
+
+    @Transactional
+    public UUID initiateLoan(CreateLoanRequest request) {
+        Loan loan = new Loan(request.studentId(), request.bookId());
+        loan.setStatus(LoanStatus.PENDING);
+        loanRepo.save(loan);
+
+        // Émet un événement — catalog-service va réagir
+        kafka.send("loan.initiation-requested",
+            new LoanInitiationRequestedEvent(
+                loan.getId(), request.bookId(), request.studentId()
+            ));
+
+        return loan.getId();
+    }
+
+    // Réagit à la réponse du catalog-service
+    @KafkaListener(topics = "book.reservation-confirmed")
+    public void onBookReserved(BookReservationConfirmedEvent event) {
+        Loan loan = loanRepo.findById(event.loanId()).orElseThrow();
+        loan.setStatus(LoanStatus.BOOK_RESERVED);
+        loanRepo.save(loan);
+        // Émet la prochaine étape
+        kafka.send("student.validation-requested",
+            new StudentValidationRequestedEvent(event.loanId(), loan.getStudentId()));
+    }
+
+    // Si le livre n'est pas disponible
+    @KafkaListener(topics = "book.reservation-rejected")
+    public void onBookReservationRejected(BookReservationRejectedEvent event) {
+        Loan loan = loanRepo.findById(event.loanId()).orElseThrow();
+        loan.setStatus(LoanStatus.REJECTED);
+        loan.setRejectionReason("Book not available: " + event.reason());
+        loanRepo.save(loan);
+        kafka.send("loan.rejected",
+            new LoanRejectedEvent(event.loanId(), event.reason()));
+    }
+}
+
+// ═══ catalog-service ═══
+@KafkaListener(topics = "loan.initiation-requested")
+public void onLoanInitiationRequested(LoanInitiationRequestedEvent event) {
+    boolean available = bookRepository.isAvailable(event.bookId());
+
+    if (available) {
+        bookRepository.reserve(event.bookId(), event.loanId());
+        kafka.send("book.reservation-confirmed",
+            new BookReservationConfirmedEvent(event.loanId(), event.bookId()));
+    } else {
+        kafka.send("book.reservation-rejected",
+            new BookReservationRejectedEvent(event.loanId(), "No copies left"));
+    }
+}</code></pre>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Critère</th><th>Orchestration</th><th>Chorégraphie</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Visibilité du flux</td><td>✅ Centralisée, facile à tracer</td><td>⚠️ Flux implicite, difficile à visualiser</td></tr>
+            <tr><td>Couplage</td><td>⚠️ Orchestrateur connaît tous les services</td><td>✅ Découplage maximal</td></tr>
+            <tr><td>Complexité</td><td>⚠️ Single point of complexity</td><td>⚠️ Complexité répartie</td></tr>
+            <tr><td>Scalabilité</td><td>⚠️ Orchestrateur peut devenir goulot</td><td>✅ Naturellement scalable</td></tr>
+            <tr><td>Quand l'utiliser</td><td>Flux longs et complexes, audit requis</td><td>Flux simples, fort découplage requis</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══════════════════════════════
+           8. ANTI-PATTERNS
+      ═══════════════════════════════ -->
+      <section id="antipatterns">
+        <h2>Anti-patterns microservices</h2>
+        <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill senior">Senior</span></div>
+
+        <div class="box frequent-error">
+          <h4>🔴 1. Distributed Monolith</h4>
+          <p>Services techniquement séparés mais si fortement couplés qu'ils doivent être développés, testés et déployés ensemble. On a la complexité du distribué <strong>sans les bénéfices de l'autonomie</strong>.</p>
+          <p><strong>Symptômes :</strong> "On ne peut pas déployer A sans déployer B." — Appels synchrones en chaîne : A→B→C→D. — Base de données partagée.</p>
+<pre><code class="language-java">// ❌ Anti-pattern : loan-service appelle catalog → catalog appelle identity
+@GetMapping("/loans/{id}/details")
+public LoanDetailsDto getDetails(@PathVariable UUID id) {
+    Loan loan = loanRepo.findById(id).orElseThrow();
+    Book book = catalogClient.getBook(loan.getBookId());           // appel 1
+    Author author = catalogClient.getAuthor(book.getAuthorId());  // appel 2
+    Student student = identityClient.getStudent(loan.getStudentId()); // appel 3
+    // Si identity-service est down → 3 appels échouent en cascade
+    return new LoanDetailsDto(loan, book, author, student);
+}</code></pre>
+<pre><code class="language-java">// ✅ Pattern : CQRS + Vue matérialisée locale (read model)
+// loan-service maintient sa propre vue des données dont il a besoin
+@KafkaListener(topics = "book.updated")
+public void updateLocalBookView(BookUpdatedEvent event) {
+    // Stocker uniquement ce dont loan-service a besoin
+    localBookViewRepo.upsert(new LoanBookView(
+        event.bookId(), event.title(), event.authorName()
+    ));
+}
+
+@GetMapping("/loans/{id}/details")
+public LoanDetailsDto getDetails(@PathVariable UUID id) {
+    // Tout en local — 0 appel réseau
+    Loan loan = loanRepo.findById(id).orElseThrow();
+    LoanBookView book = localBookViewRepo.findByBookId(loan.getBookId());
+    return new LoanDetailsDto(loan, book);
+}</code></pre>
+        </div>
+
+        <div class="box frequent-error">
+          <h4>🔴 2. Shared Database</h4>
+          <p>Plusieurs microservices lisent/écrivent les mêmes tables. Impossible de migrer, scaler ou redéployer indépendamment.</p>
+<pre><code class="language-java">// ❌ Anti-pattern : notification-service lit directement la table loans
+@Repository
+public class NotificationRepository {
+    @Query("SELECT * FROM loans WHERE due_date &lt; :date AND notified = false")
+    List&lt;Loan&gt; findOverdue(LocalDate date);  // couplage fort au schéma loan-service
+}
+
+// ✅ Correct : notification-service écoute les événements Kafka
+@KafkaListener(topics = "loan.overdue")
+public void onLoanOverdue(LoanOverdueEvent event) {
+    notificationService.sendOverdueNotice(event.studentId(), event.loanId(),
+        event.dueDate());
+}</code></pre>
+        </div>
+
+        <div class="box frequent-error">
+          <h4>🔴 3. Chatty Communication</h4>
+          <p>Trop d'appels réseau pour un seul cas d'usage. Chaque appel ajoute de la latence et de la fragilité.</p>
+<pre><code class="language-java">// ❌ Anti-pattern : N+1 en distribué
+for (UUID bookId : loanedBookIds) {
+    Book book = catalogClient.getBook(bookId);  // N appels réseau !
+}
+
+// ✅ Correct : batch API
+@FeignClient(name = "catalog-service")
+public interface CatalogClient {
+    @PostMapping("/internal/books/batch")
+    List&lt;BookDto&gt; getBooksBatch(@RequestBody List&lt;UUID&gt; bookIds);
+}
+// 1 seul appel pour N livres</code></pre>
+        </div>
+
+        <div class="box frequent-error">
+          <h4>🔴 4. Nano-services</h4>
+          <p>Découpage trop fin : un service pour chaque entité. Coût opérationnel exorbitant, performances catastrophiques.</p>
+<pre><code class="language-text">// ❌ Nano-services (éviter absolument)
+BookTitleService
+BookAuthorService
+BookISBNService
+BookAvailabilityService
+
+// ✅ Un service par domaine cohérent
+catalog-service  ← tout ce qui concerne les livres et le catalogue</code></pre>
+        </div>
+
+        <div class="box frequent-error">
+          <h4>🔴 5. Synchronous Chain (couplage temporel)</h4>
+          <p>Toute la chaîne tombe si un seul service est lent.</p>
+<pre><code class="language-text">// ❌ Chaîne synchrone : latence = somme de toutes les latences
+Client ──► Gateway ──► A (200ms) ──► B (300ms) ──► C (500ms)
+Total = 200 + 300 + 500 = 1000ms + overhead réseau
+
+// ✅ Fan-out asynchrone : latence = max des latences parallèles
+Client ──► Gateway ──► A ──► Kafka
+                        ├──► B (traite en parallèle)
+                        └──► C (traite en parallèle)
+Client reçoit la réponse immédiatement, B et C s'exécutent en arrière-plan</code></pre>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           9. STRATÉGIE DE TESTS
+      ═══════════════════════════════ -->
+      <section id="testing">
+        <h2>Stratégie de tests dans les microservices</h2>
+        <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+        <p>La pyramide des tests traditionnelle s'adapte aux microservices. L'objectif : détecter les bugs au plus tôt, le plus localement possible, sans dépendre des autres services à chaque exécution.</p>
+
+        <div class="box definition">
+          <h4>Pyramide des tests microservices</h4>
+          <div class="diagram">
+<pre>
+              /\
+             /  \   ← Tests End-to-End (quelques uns, lents, coûteux)
+            /E2E \      Environnement complet déployé
+           /──────\
+          /        \  ← Contract Tests (Pact, Spring Cloud Contract)
+         / Contract \     Consumer → Provider, sans déploiement réel
+        /────────────\
+       /              \  ← Tests d'intégration (Testcontainers)
+      /  Integration   \    BDD réelle, Kafka réel — service isolé
+     /──────────────────\
+    /                    \  ← Tests unitaires (JUnit, Mockito)
+   /      Unit Tests      \    Logique métier pure — très rapides
+  /────────────────────────\
+</pre>
+          </div>
+        </div>
+
+        <div class="box example">
+          <h4>Test d'intégration avec Testcontainers</h4>
+<pre><code class="language-xml">&lt;!-- pom.xml --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.testcontainers&lt;/groupId&gt;
+  &lt;artifactId&gt;junit-jupiter&lt;/artifactId&gt;
+  &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.testcontainers&lt;/groupId&gt;
+  &lt;artifactId&gt;postgresql&lt;/artifactId&gt;
+  &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.testcontainers&lt;/groupId&gt;
+  &lt;artifactId&gt;kafka&lt;/artifactId&gt;
+  &lt;scope&gt;test&lt;/scope&gt;
+&lt;/dependency&gt;</code></pre>
+
+<pre><code class="language-java">@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
+@Testcontainers
+class LoanServiceIntegrationTest {
+
+    @Container
+    static PostgreSQLContainer&lt;?&gt; postgres =
+        new PostgreSQLContainer&lt;&gt;("postgres:16-alpine")
+            .withDatabaseName("library_test")
+            .withUsername("test")
+            .withPassword("test");
+
+    @Container
+    static KafkaContainer kafka =
+        new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"));
+
+    @DynamicPropertySource
+    static void configureProperties(DynamicPropertyRegistry registry) {
+        registry.add("spring.datasource.url",     postgres::getJdbcUrl);
+        registry.add("spring.datasource.username", postgres::getUsername);
+        registry.add("spring.datasource.password", postgres::getPassword);
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+    }
+
+    @Autowired private TestRestTemplate restTemplate;
+    @Autowired private LoanRepository loanRepo;
+
+    @Test
+    void shouldCreateLoanAndPublishEvent() throws Exception {
+        // Given
+        UUID studentId = UUID.randomUUID();
+        UUID bookId    = UUID.randomUUID();
+        CreateLoanRequest request = new CreateLoanRequest(studentId, bookId);
+
+        // When
+        ResponseEntity&lt;LoanDto&gt; response = restTemplate.postForEntity(
+            "/api/v1/loans", request, LoanDto.class);
+
+        // Then — HTTP
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().studentId()).isEqualTo(studentId);
+
+        // Then — Base de données
+        Optional&lt;Loan&gt; savedLoan = loanRepo.findById(response.getBody().id());
+        assertThat(savedLoan).isPresent();
+        assertThat(savedLoan.get().getStatus()).isEqualTo(LoanStatus.PENDING);
+
+        // Then — Événement Kafka publié
+        ConsumerRecords&lt;String, String&gt; records = KafkaTestUtils.getRecords(
+            testConsumer, Duration.ofSeconds(5));
+        assertThat(records.count()).isEqualTo(1);
+        assertThat(records.iterator().next().topic()).isEqualTo("loan.created");
+    }
+}
+</code></pre>
+
+          <h5>Test OpenFeign avec WireMock</h5>
+<pre><code class="language-java">@SpringBootTest
+@AutoConfigureWireMock(port = 0)  // port aléatoire
+class CatalogClientTest {
+
+    @Autowired private CatalogClient catalogClient;
+
+    @Test
+    void shouldGetAvailabilityFromCatalogService() {
+        // Stubber le catalog-service avec WireMock
+        stubFor(get(urlPathEqualTo("/internal/books/d290f1ee/availability"))
+            .willReturn(aResponse()
+                .withStatus(200)
+                .withHeader("Content-Type", "application/json")
+                .withBody("""
+                    { "available": true, "copies": 3 }
+                    """)));
+
+        // Appeler le client Feign → il appelle WireMock
+        AvailabilityResponse response = catalogClient.getAvailability(
+            UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851"));
+
+        assertThat(response.available()).isTrue();
+        assertThat(response.copies()).isEqualTo(3);
+    }
+
+    @Test
+    void shouldActivateFallbackWhenCatalogServiceIsDown() {
+        // Simuler un timeout
+        stubFor(get(anyUrl())
+            .willReturn(aResponse()
+                .withStatus(503)
+                .withFixedDelay(3000)));  // 3s → timeout déclenché
+
+        // Le fallback doit retourner une réponse dégradée
+        AvailabilityResponse response = catalogClient.getAvailability(UUID.randomUUID());
+        assertThat(response.available()).isFalse();
+    }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           10. SERVICE MESH
+      ═══════════════════════════════ -->
+      <section id="service-mesh">
+        <h2>Service Mesh — Introduction à Istio</h2>
+        <div class="level-bar"><span class="level-pill expert">Expert</span></div>
+
+        <p>Un <strong>Service Mesh</strong> déplace les préoccupations réseau (mTLS, Circuit Breaker, retry, observabilité) <strong>hors du code</strong> et dans l'infrastructure, via des proxies <em>sidecar</em> injectés automatiquement dans chaque pod.</p>
+
+        <div class="box definition">
+          <h4>Architecture Istio</h4>
+          <div class="diagram">
+<pre>
+┌─────────────────────────────────────────────────────────────┐
+│  loan-service Pod                                           │
+│  ┌─────────────────┐    ┌──────────────────────────────┐   │
+│  │  loan-service   │◄──►│  Envoy Sidecar Proxy         │   │
+│  │  container      │    │  - mTLS (chiffrement auto)   │   │
+│  └─────────────────┘    │  - Circuit Breaker           │   │
+│                          │  - Retry                     │   │
+│                          │  - Tracing (OpenTelemetry)   │   │
+│                          │  - Metrics Prometheus        │   │
+│                          └──────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────┘
+         │ Tout le trafic passe par Envoy — transparent pour l'app │
+</pre>
+          </div>
+        </div>
+
+        <div class="box example">
+          <h4>Politique de retry et Circuit Breaker — DestinationRule Istio (YAML)</h4>
+<pre><code class="language-yaml">apiVersion: networking.istio.io/v1alpha3
+kind: VirtualService
+metadata:
+  name: catalog-service
+spec:
+  hosts:
+    - catalog-service
+  http:
+    - retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: connect-failure,refused-stream,503
+      fault:
+        delay:
+          percentage:
+            value: 5    # Chaos Engineering : 5% des req avec 2s de délai
+          fixedDelay: 2s
+---
+apiVersion: networking.istio.io/v1alpha3
+kind: DestinationRule
+metadata:
+  name: catalog-service-cb
+spec:
+  host: catalog-service
+  trafficPolicy:
+    outlierDetection:
+      consecutive5xxErrors: 5      # 5 erreurs 5xx → éjecter l'instance
+      interval: 30s
+      baseEjectionTime: 1m
+      maxEjectionPercent: 50       # max 50% des instances éjectées</code></pre>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Avantages du Service Mesh</h4>
+          <ul>
+            <li>✅ <strong>mTLS automatique</strong> : chiffrement entre services sans modifier le code.</li>
+            <li>✅ <strong>Observabilité gratuite</strong> : traces, métriques, logs sans instrumentation.</li>
+            <li>✅ <strong>Circuit Breaker infrastructure</strong> : pas de Resilience4j dans le code.</li>
+            <li>✅ <strong>Chaos Engineering</strong> : injecter des pannes et des délais via YAML.</li>
+            <li>⚠️ <strong>Complexité opérationnelle</strong> accrue — réservé aux équipes DevOps matures.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           11. QUIZ
+      ═══════════════════════════════ -->
+      <section id="quiz">
+        <h2>Quiz de fin — Jour 4</h2>
+
+        <div class="quiz-item">
+          <p><strong>1.</strong> Pourquoi une base de données partagée nuit-elle à l'autonomie des microservices ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Elle crée un couplage fort au niveau du schéma. Si une équipe modifie la base, elle peut casser un autre service sans le savoir, ce qui empêche les déploiements indépendants. La solution est le pattern <strong>Database per Service</strong> couplé à la communication par événements.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>2.</strong> Quelle différence entre orchestration et chorégraphie dans les Sagas ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>En <strong>orchestration</strong>, un service central (Saga Manager) dicte les étapes et connaît le flux complet. En <strong>chorégraphie</strong>, chaque service réagit aux événements et publie les siens sans chef d'orchestre. L'orchestration est plus visible et facile à auditer ; la chorégraphie offre un meilleur découplage mais un flux plus difficile à tracer.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>3.</strong> Qu'est-ce qu'un "distributed monolith" et comment l'éviter ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Un Distributed Monolith est un anti-pattern où les services sont techniquement séparés mais si fortement couplés (base partagée, appels synchrones en chaîne, déploiement coordonné) qu'ils ont la complexité du distribué sans les avantages de l'autonomie. On l'évite en respectant les bounded contexts, en utilisant une base par service, et en communiquant via API ou événements.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>4.</strong> Décrivez les 3 états d'un Circuit Breaker et les transitions entre eux.</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p><strong>CLOSED</strong> : appels normaux. Si le taux d'échecs dépasse le seuil → passe à OPEN. <strong>OPEN</strong> : appels court-circuités (fallback immédiat). Après un délai d'attente → passe à HALF-OPEN. <strong>HALF-OPEN</strong> : quelques appels de test passent. Si réussis → CLOSED. Si échoués → OPEN à nouveau.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>5.</strong> Pourquoi utilise-t-on Testcontainers plutôt que des mocks pour les tests d'intégration ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Les mocks simulent le comportement mais peuvent diverger de l'implémentation réelle. Testcontainers démarre de vraies instances PostgreSQL, Kafka, Redis, etc. dans des conteneurs Docker pendant les tests. On teste ainsi le vrai comportement de la base de données (transactions, contraintes, types), ce qui capture des bugs impossibles à détecter avec des mocks.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>6.</strong> Qu'est-ce que l'Exactly-Once Semantics (EOS) dans Kafka et comment l'activer ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>EOS garantit que chaque message est traité exactement une fois, même en cas de crash ou retry. Il s'active avec <code>enable.idempotence=true</code> côté producteur (évite les doublons) et <code>isolation.level=read_committed</code> côté consommateur (ne lit que les messages committés). L'utilisation de <code>KafkaTransactionManager</code> permet de coordonner atomiquement BDD et Kafka.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>7.</strong> <em>(Expert)</em> Quels avantages offre un Service Mesh comme Istio par rapport à Resilience4j dans le code ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Istio déplace les préoccupations réseau (mTLS, retry, circuit breaker, tracing) hors du code et dans l'infrastructure via des proxies Envoy sidecar. Avantages : les politiques de résilience sont configurées en YAML sans modifier le code Java, le mTLS est automatique entre tous les services, et l'observabilité (traces, métriques) est fournie sans instrumentation. Inconvénient : complexité opérationnelle accrue — réservé aux équipes avec maturité Kubernetes.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>8.</strong> Comment éviter le N+1 problem dans un contexte de microservices ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Trois approches : (1) <strong>API de batch</strong> — exposer un endpoint <code>POST /books/batch</code> qui accepte une liste d'IDs pour un seul appel réseau. (2) <strong>Vue matérialisée locale</strong> — le service maintient une copie locale des données dont il a besoin, mise à jour via événements Kafka. (3) <strong>GraphQL Federation</strong> — laisser le client composer la requête pour éviter les appels en cascade côté serveur.</p>
+          </details>
+        </div>
+      </section>
+
+      <div class="footer-nav">
+        <a href="../pages/jour-3-systemes-distribues-et-api.html">← Jour 3</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5 →</a>
+      </div>
     </article>
   </div>
 </main>
+
+<!-- Prism.js core + langages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 </body>
 </html>

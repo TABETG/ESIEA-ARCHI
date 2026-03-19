@@ -3,53 +3,125 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Jour 2 — Patterns d’architecture et structuration | Architecture & Systèmes Distribués</title>
-
-  <link rel="stylesheet" href="../assets/css/style.css">
-
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
-
+  <title>Jour 2 — Patterns d'architecture et structuration d'applications</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
   <style>
-    pre[class*="language-"] {
-      background: #0f172a !important;
-      margin: 0 0 1.5rem 0 !important;
-      border: 1px solid #0f172a !important;
-      border-radius: 8px !important;
-      border-top-left-radius: 0 !important;
-      border-top-right-radius: 0 !important;
-      padding: 1.5rem !important;
-      box-shadow: none !important;
+    :root{
+      --bg:#f7fafc;--surface:#fff;--surface-alt:#eef3ff;--text:#1f2937;
+      --muted:#5b6575;--border:#d8e2ee;
+      --blue:#5da9ff;--blue-soft:#e8f3ff;
+      --green:#4ba37a;--green-soft:#e9f8f0;
+      --orange:#ef9b53;--orange-soft:#fff3e7;
+      --red:#c85d5d;--red-soft:#fff0f0;
+      --purple:#8b7cf6;--purple-soft:#f2efff;
+      --shadow:0 8px 24px rgba(36,53,84,.08);
+      --radius:18px;--max:1180px;
+      --code-bg:#1e1e1e;--code-fg:#d4d4d4;
+      --code-comment:#6a9955;--code-keyword:#569cd6;
+      --code-string:#ce9178;--code-number:#b5cea8;
+      --code-function:#dcdcaa;--code-class:#4ec9b0;
+      --code-variable:#9cdcfe;--code-lineno:#6e7681;
     }
-    code[class*="language-"], pre[class*="language-"] {
-      text-shadow: none !important;
-      font-family: 'Fira Code', Consolas, Monaco, monospace !important;
-      font-size: 0.9rem !important;
-    }
-    .token.annotation { color: #e5c07b !important; }
+    *{box-sizing:border-box}html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:linear-gradient(180deg,#f9fbfd,#f4f8fb);color:var(--text);line-height:1.65}
+    a{color:#1557b0;text-decoration:none}a:hover{text-decoration:underline}
+    header.site-header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .nav-wrap{max-width:var(--max);margin:auto;display:flex;gap:16px;align-items:center;padding:12px 20px}
+    .brand{font-weight:800;font-size:1.05rem;color:#163b66}
+    nav.top-nav{display:flex;gap:10px;flex-wrap:wrap}
+    nav.top-nav a{padding:8px 12px;border-radius:999px;background:#fff;border:1px solid var(--border);font-size:.92rem}
+    main{max-width:var(--max);margin:24px auto;padding:0 20px 60px}
+    .hero{background:linear-gradient(135deg,var(--blue-soft),#fff 45%,var(--green-soft));padding:28px;border:1px solid var(--border);border-radius:24px;box-shadow:var(--shadow);margin-bottom:22px}
+    .hero h1{margin:.2rem 0 1rem;font-size:2.2rem}
+    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .meta{background:var(--surface);padding:16px 18px;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .meta h3{margin-top:0}
+    .layout{display:grid;grid-template-columns:290px 1fr;gap:22px}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}}
+    aside.toc{align-self:start;position:sticky;top:84px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    aside.toc h2{font-size:1rem;margin-top:0}
+    aside.toc ul{padding-left:18px;margin:.2rem 0}
+    aside.toc li{margin:.35rem 0}
+    article.content section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:24px;margin-bottom:18px;box-shadow:var(--shadow)}
+    h1,h2,h3,h4,h5{line-height:1.2}
+    h2{margin-top:0;color:#123f73}h3{color:#244d7c}
+    p,li{font-size:1rem}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 18px}
+    .badge{background:#fff;border:1px solid var(--border);padding:6px 10px;border-radius:999px;font-size:.88rem;color:var(--muted)}
+    .box{border-left:6px solid var(--blue);padding:14px 16px;border-radius:14px;background:var(--blue-soft);margin:14px 0}
+    .box.definition{border-left-color:var(--blue);background:var(--blue-soft)}
+    .box.example{border-left-color:var(--green);background:var(--green-soft)}
+    .box.warning{border-left-color:var(--orange);background:var(--orange-soft)}
+    .box.best-practice{border-left-color:var(--green);background:#effaf5}
+    .box.frequent-error{border-left-color:var(--red);background:var(--red-soft)}
+    .box.child-mode{border-left-color:var(--purple);background:var(--purple-soft)}
+    .box.pro-mode{border-left-color:#3857b0;background:#edf2ff}
+    .box.live-coding{border-left-color:#0f766e;background:#ecfeff}
+    .box.tp{border-left-color:#7c3aed;background:#f5f3ff}
+    .box h4{margin:0 0 8px}.box h5{margin:12px 0 6px;font-size:.95rem}
+    :not(pre)>code{font-family:"Fira Code",Consolas,monospace;font-size:.87em;background:#2d2d2d;color:#f8f8f2;padding:2px 6px;border-radius:5px;border:1px solid #444}
+    pre{margin:1.4em 0;padding:0;border-radius:12px;overflow:hidden;box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid #3c3c3c;background:var(--code-bg)}
+    pre::before{content:"● ● ●";display:block;padding:8px 14px;background:#2d2d2d;color:#858585;font-size:.72rem;letter-spacing:.1em;border-bottom:1px solid #3c3c3c;font-family:sans-serif}
+    pre>code{display:block;padding:1.1em 1.3em !important;background:var(--code-bg) !important;color:var(--code-fg);font-family:"Fira Code",Consolas,monospace;font-size:.89rem;line-height:1.75;overflow-x:auto;border:none !important;border-radius:0 !important}
+    .token.comment,.token.prolog,.token.doctype,.token.cdata{color:var(--code-comment);font-style:italic}
+    .token.punctuation{color:#d4d4d4}
+    .token.boolean,.token.number,.token.constant,.token.symbol,.token.deleted{color:var(--code-number)}
+    .token.property,.token.tag{color:var(--code-keyword)}
+    .token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:var(--code-string)}
+    .token.operator,.token.entity,.token.url{color:#d4d4d4}
+    .token.keyword,.token.atrule,.token.attr-value{color:var(--code-keyword)}
+    .token.function{color:var(--code-function)}
+    .token.class-name{color:var(--code-class)}
+    .token.annotation{color:var(--code-function);font-style:italic}
+    .token.variable{color:var(--code-variable)}
+    .line-numbers .line-numbers-rows{border-right:1px solid #3c3c3c}
+    .line-numbers-rows>span::before{color:var(--code-lineno)}
+    table{width:100%;border-collapse:collapse;margin:14px 0}
+    th,td{border:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top}
+    th{background:#eff6ff}
+    summary{cursor:pointer;font-weight:600}
+    .footer-nav{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:20px}
+    .footer-nav a{display:inline-block;padding:12px 16px;background:#fff;border:1px solid var(--border);border-radius:12px}
+    .quiz-item{margin-bottom:20px;padding:15px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .quiz-item p{margin-top:0;font-size:1.1rem}
+    .quiz-item details{margin-top:15px;background:var(--surface-alt);border:none;border-radius:12px;padding:12px 15px}
+    .quiz-item summary{font-weight:700;color:var(--blue);outline:none}
+    .quiz-item summary:hover{text-decoration:underline}
+    .quiz-item details[open] summary{margin-bottom:10px}
+    .quiz-item details p{margin:0;padding-left:10px;border-left:3px solid var(--blue)}
+    .columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:760px){.columns{grid-template-columns:1fr}}
+    .card{background:var(--surface);padding:16px 18px;border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card h3{margin-top:0}
+    blockquote{margin:12px 0;padding:12px 18px;border-left:4px solid var(--blue);background:#f8fbff;border-radius:8px;font-style:italic}
+    .code-label{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 10px;border-radius:6px;margin-bottom:4px;margin-top:12px}
+    .code-label.bad{background:var(--red-soft);color:var(--red)}
+    .code-label.good{background:var(--green-soft);color:var(--green)}
+    .arch-compare{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;margin:16px 0}
+    .arch-box{border:2px solid var(--border);border-radius:14px;padding:14px;text-align:center}
+    .arch-box.active{border-color:var(--blue);background:var(--blue-soft)}
+    .arch-box h4{margin:0 0 6px;font-size:.95rem}
+    .arch-box p{margin:0;font-size:.82rem;color:var(--muted)}
   </style>
-
-  <script defer src="../assets/js/main.js"></script>
 </head>
 <body>
 <header class="site-header">
   <div class="nav-wrap">
-    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
     <nav class="top-nav">
       <a href="../index.html">Accueil</a>
-      <a href="introduction.html">Introduction</a>
-      <a href="jour-1-fondamentaux-architecture.html">Jour 1</a>
-      <a href="jour-2-patterns-et-couches.html" class="active">Jour 2</a>
-      <a href="jour-3-systemes-distribues-et-api.html">Jour 3</a>
-      <a href="jour-4-microservices-et-communication.html">Jour 4</a>
-      <a href="jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-      <a href="jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-      <a href="tp-1.html">TP1</a>
-      <a href="tp-2.html">TP2</a>
-      <a href="tp-3.html">TP3</a>
-      <a href="exercices.html">Exercices</a>
-      <a href="corriges.html">Corrigés</a>
-      <a href="glossary.html">Glossaire</a>
-      <a href="architecture-dossier.html">Dossier Architecture</a>
+      <a href="../pages/introduction.html">Introduction</a>
+      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+      <a href="../pages/tp-1.html">TP1</a><a href="../pages/tp-2.html">TP2</a><a href="../pages/tp-3.html">TP3</a>
+      <a href="../pages/exercices.html">Exercices</a><a href="../pages/corriges.html">Corrigés</a>
+      <a href="../pages/glossary.html">Glossaire</a><a href="../pages/live-coding.html">Live Coding</a>
+      <a href="../pages/architecture-dossier.html">Dossier Architecture</a><a href="../pages/faq.html">FAQ</a>
     </nav>
   </div>
 </header>
@@ -57,195 +129,966 @@
 <main>
   <div class="hero">
     <div class="badges">
-      <span class="badge">Jour 2 sur 6</span>
-      <span class="badge">Patterns de Conception</span>
-      <span class="badge">DDD & Hexagonal</span>
+      <span class="badge">Support HTML modulaire</span><span class="badge">Master 2</span>
+      <span class="badge">6 jours</span><span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
     </div>
-    <h1>Jour 2 — Patterns d’architecture et structuration</h1>
+    <h1>Jour 2 — Patterns d'architecture et structuration d'applications</h1>
     <div class="meta-grid">
-      <div class="meta">
-        <h3>Objectifs pédagogiques</h3>
-        <p>Maîtriser l'inversion de dépendances pour isoler la logique métier. Comprendre le Domain-Driven Design (DDD) et l'architecture Hexagonale (Ports & Adapters).</p>
-      </div>
-      <div class="meta">
-        <h3>Temps estimé</h3>
-        <p>≈ 6h incluant la conception de Bounded Contexts et la rédaction du premier ADR.</p>
-      </div>
-      <div class="meta">
-        <h3>Prérequis</h3>
-        <p>Compréhension de l'architecture en couches N-Tiers et des interfaces en Java.</p>
-      </div>
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Maîtriser les grands patterns, l'inversion de dépendance, le DDD tactique, CQRS, les Value Objects et structurer un backend Spring Boot propre.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jour 1 acquis — SOLID, couches, couplage</p></div>
     </div>
   </div>
 
   <div class="layout">
     <aside class="toc">
-      <h2>Sommaire</h2>
+      <h2>Table des matières</h2>
       <ul>
-        <li><a href="#hexagonal">Architecture Hexagonale</a></li>
-        <li><a href="#ddd">Bases du DDD</a></li>
-        <li><a href="#cqrs">Introduction à CQRS</a></li>
-        <li><a href="#code-spring">Exemple Spring Boot</a></li>
-        <li><a href="#adr">Rédiger un ADR</a></li>
-        <li><a href="#quiz">Auto-évaluation</a></li>
+        <li><a href="#patterns">Panorama des patterns</a></li>
+        <li><a href="#hexagonal">Architecture hexagonale</a></li>
+        <li><a href="#dip">Inversion de dépendance</a></li>
+        <li><a href="#ddd">DDD tactique</a></li>
+        <li><a href="#value-objects">Value Objects</a></li>
+        <li><a href="#domain-events">Événements de domaine</a></li>
+        <li><a href="#cqrs">CQRS</a></li>
+        <li><a href="#dto">DTO, Mapper &amp; Repository</a></li>
+        <li><a href="#mapstruct">MapStruct</a></li>
+        <li><a href="#arch-tests">Tests d'architecture</a></li>
+        <li><a href="#dossier">Dossier &amp; ADR</a></li>
+        <li><a href="#quiz">Quiz</a></li>
       </ul>
     </aside>
 
     <article class="content">
 
-      <section id="hexagonal">
-        <h2>L'Architecture Hexagonale (Ports & Adapters)</h2>
-        <p>L'architecture en couches classique (présentée au Jour 1) a un défaut majeur : le domaine métier finit toujours par dépendre de la base de données (via l'ORM). L'architecture hexagonale résout cela par <strong>l'Inversion de Contrôle</strong>.</p>
-
-        <div class="grid-2">
-          <div class="box child-mode">
-            <h4>L'analogie de la console (Mode enfant)</h4>
-            <p>Le cœur de l'application est comme une console de jeu. Les "Ports" sont les prises USB. Tu peux y brancher n'importe quelle manette ou écran (les "Adapters"). La console s'en fiche, tant que la prise rentre !</p>
-          </div>
-          <div class="box pro-mode">
-            <h4>Agnosticisme technique (Mode pro)</h4>
-            <p>Le domaine (le cœur) ne connaît ni Spring, ni SQL, ni le Web. Il expose des <strong>Ports (Interfaces)</strong>. L'infrastructure implémente ces interfaces via des <strong>Adapters</strong>. Le métier devient 100% testable unitairement sans base de données.</p>
-          </div>
-        </div>
-      </section>
-
-      <section id="ddd">
-        <h2>Bases du Domain-Driven Design (DDD)</h2>
-        <p>Inventé par Eric Evans, le DDD est une approche où la structure du code doit correspondre exactement au métier de l'entreprise.</p>
+      <!-- ══════════ PANORAMA ══════════ -->
+      <section id="patterns">
+        <h2>Panorama des patterns d'architecture</h2>
+        <p>Un pattern d'architecture est une solution <strong>connue et éprouvée</strong> pour un problème récurrent. Choisir un pattern c'est choisir ses avantages <em>et</em> ses inconvénients — pas de silver bullet.</p>
 
         <table>
-          <thead>
-          <tr>
-            <th>Concept DDD</th>
-            <th>Explication</th>
-            <th>Exemple (Bibliothèque)</th>
-          </tr>
-          </thead>
+          <thead><tr><th>Pattern</th><th>Idée centrale</th><th>Quand l'utiliser</th><th>Limite principale</th></tr></thead>
           <tbody>
-          <tr>
-            <td><strong>Ubiquitous Language</strong></td>
-            <td>Le vocabulaire partagé entre les développeurs et les experts métier. Aucun terme technique.</td>
-            <td>On ne dit pas <code>updateUserStatus()</code> mais <code>suspendLibraryCard()</code>.</td>
-          </tr>
-          <tr>
-            <td><strong>Bounded Context</strong></td>
-            <td>Une frontière stricte autour d'un modèle métier. Un même mot peut avoir un sens différent selon le contexte.</td>
-            <td>Un "Livre" dans le contexte <em>Catalogue</em> a un résumé et des auteurs. Dans le contexte <em>Inventaire</em>, c'est juste un code barre et un état (emprunté/disponible).</td>
-          </tr>
-          <tr>
-            <td><strong>Aggregate Root</strong></td>
-            <td>L'entité principale qui garantit la cohérence des entités enfants lors d'une transaction.</td>
-            <td>L'<code>Emprunt</code> (Aggregate Root) contrôle ses <code>Lignes d'emprunt</code>. On ne sauvegarde pas une ligne seule.</td>
-          </tr>
+            <tr><td><strong>Layered</strong></td><td>Couches techniques empilées</td><td>App simple, équipe débutante</td><td>Couplage implicite entre couches</td></tr>
+            <tr><td><strong>Hexagonal</strong></td><td>Domaine au centre, ports/adapters</td><td>Testabilité forte, isolation du métier</td><td>Plus de fichiers, discipline requise</td></tr>
+            <tr><td><strong>Clean Architecture</strong></td><td>Règle de dépendance vers l'intérieur</td><td>Longue durée de vie, métier très riche</td><td>Abstractions parfois excessives</td></tr>
+            <tr><td><strong>Onion</strong></td><td>Anneaux concentriques autour du domaine</td><td>Proche de Hexagonal / Clean</td><td>Peut sembler théorique au départ</td></tr>
+            <tr><td><strong>CQRS</strong></td><td>Séparer lecture et écriture</td><td>Lectures complexes, haute scalabilité</td><td>Cohérence éventuelle à gérer</td></tr>
+            <tr><td><strong>MVC</strong></td><td>Modèle / Vue / Contrôleur</td><td>UI web classiques</td><td>Insuffisant seul pour le backend</td></tr>
           </tbody>
         </table>
-      </section>
 
-      <section id="cqrs">
-        <h2>Introduction à CQRS</h2>
-        <p>Le pattern <strong>Command Query Responsibility Segregation</strong> consiste à séparer complètement les modèles de mise à jour (Command) des modèles de lecture (Query).</p>
-
-        <div class="box frequent-error">
-          <h4>Le problème du modèle unique</h4>
-          <p>Dans un monolithe classique, on utilise la même entité JPA pour écrire en base et pour afficher à l'écran. Résultat : on ajoute des champs inutiles au métier juste pour le front-end, et on fait des jointures horribles (N+1 selects) pour l'affichage.</p>
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Imagine que tu construis une maison. Tu peux juste empiler des briques (Layered), ou faire un plan précis où chaque pièce a un rôle (Hexagonal), ou diviser en zones avec des règles d'accès strictes (Clean). Le plan dépend de la taille de la maison et de combien de personnes vont y vivre.</p>
         </div>
-        <p>Avec CQRS, on a une BDD (ou des tables) optimisée pour l'écriture de règles métier complexes, et une autre optimisée pour la lecture (ex: ElasticSearch, ou des vues matérialisées SQL).</p>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — Comment choisir ?</h4>
+          <p>La complexité architecturale doit être <strong>proportionnelle à la complexité métier et à la durée de vie du projet</strong>. Un CRUD simple avec 5 tables ne mérite pas une Clean Architecture. Un calcul de risque financier qui durera 10 ans le mérite. Over-engineering et under-engineering sont tous les deux coûteux.</p>
+        </div>
+
+        <div class="arch-compare">
+          <div class="arch-box"><h4>Layered</h4><p>Web → App → Domain → Infra<br>Simple, direct</p></div>
+          <div class="arch-box active"><h4>Hexagonal ⭐</h4><p>Domain ← Ports → Adapters<br>Utilisé dans ce cours</p></div>
+          <div class="arch-box"><h4>Clean</h4><p>Entities → UseCases → Interface<br>Rigueur maximale</p></div>
+          <div class="arch-box"><h4>CQRS</h4><p>Command ≠ Query<br>Scalabilité lecture</p></div>
+        </div>
       </section>
 
-      <section id="code-spring">
-        <h2>Implémentation d'un Port et d'un Adapter en Spring</h2>
-        <p>Voyons comment inverser la dépendance vers la base de données.</p>
+      <!-- ══════════ HEXAGONAL ══════════ -->
+      <section id="hexagonal">
+        <h2>Architecture hexagonale — en profondeur</h2>
 
-        <div class="code-header">1. Le Port (Dans le package 'Domain', pas de Spring ici)</div>
-        <pre><code class="language-java">public interface BookRepositoryPort {
-    Optional<Book> findById(BookId id);
-    void save(Book book);
+        <div class="box definition">
+          <h4>Principe fondamental</h4>
+          <p>Le domaine métier <strong>ne dépend de rien</strong> — ni de Spring, ni de JPA, ni de Kafka. Il expose des <strong>ports</strong> (interfaces) et des <strong>adapters</strong> externes réalisent les détails techniques.</p>
+        </div>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Ton téléphone (le domaine) ne sait pas comment il reçoit de l'électricité. Il expose juste une prise USB-C (le port). Tu peux brancher un chargeur mural, une batterie externe ou un câble voiture (les adapters). Si tu changes de chargeur, ton téléphone ne change pas.</p>
+        </div>
+
+        <h3>Structure de dossiers recommandée</h3>
+<pre><code class="language-bash">src/main/java/fr/univ/library/
+├── domain/
+│   ├── model/          # Entités, Value Objects, Agrégats
+│   │   ├── Book.java
+│   │   ├── Loan.java
+│   │   └── LoanId.java
+│   ├── service/        # Services domaine (logique pure)
+│   │   └── LoanDomainService.java
+│   └── event/          # Événements de domaine
+│       └── LoanCreatedEvent.java
+│
+├── application/
+│   ├── port/
+│   │   ├── in/         # Ports ENTRANTS (use cases exposés)
+│   │   │   ├── CreateLoanUseCase.java
+│   │   │   └── ReturnBookUseCase.java
+│   │   └── out/        # Ports SORTANTS (besoins du domaine)
+│   │       ├── LoanRepositoryPort.java
+│   │       └── BookAvailabilityPort.java
+│   └── service/        # Implémentations des use cases
+│       └── LoanApplicationService.java
+│
+└── infrastructure/
+    ├── persistence/    # Adapter JPA sortant
+    │   ├── JpaLoanRepositoryAdapter.java
+    │   └── LoanJpaEntity.java
+    ├── web/            # Adapter HTTP entrant
+    │   ├── LoanController.java
+    │   └── dto/
+    └── messaging/      # Adapter Kafka sortant
+        └── KafkaLoanEventPublisher.java</code></pre>
+
+        <h3>Port entrant — le use case</h3>
+<pre><code class="language-java">// Port entrant : interface définie PAR le domaine
+public interface CreateLoanUseCase {
+    LoanId createLoan(CreateLoanCommand command);
+}
+
+// Commande immuable transportant les données du use case
+public record CreateLoanCommand(UUID studentId, UUID bookId) {
+    public CreateLoanCommand {
+        Objects.requireNonNull(studentId, "studentId obligatoire");
+        Objects.requireNonNull(bookId,    "bookId obligatoire");
+    }
 }</code></pre>
 
-        <div class="code-header">2. Le Cas d'Usage (Dans le package 'Domain')</div>
-        <pre><code class="language-java">public class BorrowBookUseCase {
+        <h3>Port sortant — ce dont le domaine a besoin</h3>
+<pre><code class="language-java">// Ce que le domaine REQUIERT de l'infrastructure
+public interface LoanRepositoryPort {
+    void save(Loan loan);
+    Optional&lt;Loan&gt; findById(LoanId id);
+    List&lt;Loan&gt; findActiveByStudent(UUID studentId);
+}
 
-    // Le domaine dépend de l'interface, pas de l'implémentation !
-    private final BookRepositoryPort bookRepository;
-
-    public BorrowBookUseCase(BookRepositoryPort bookRepository) {
-        this.bookRepository = bookRepository;
-    }
-
-    public void execute(BookId bookId) {
-        Book book = bookRepository.findById(bookId)
-            .orElseThrow(() -> new BookNotFoundException(bookId));
-
-        book.borrow(); // Logique purement métier
-        bookRepository.save(book);
-    }
+public interface BookAvailabilityPort {
+    boolean isAvailable(UUID bookId);
+    void decrementStock(UUID bookId);
 }</code></pre>
 
-        <div class="code-header">3. L'Adapter (Dans le package 'Infrastructure', lié à Spring/JPA)</div>
-        <pre><code class="language-java">@Repository
+        <h3>Service d'application — implémente le use case</h3>
+<pre><code class="language-java">@Service
 @RequiredArgsConstructor
-public class JpaBookRepositoryAdapter implements BookRepositoryPort {
+@Transactional
+public class LoanApplicationService
+        implements CreateLoanUseCase, ReturnBookUseCase {
 
-    private final SpringDataJpaBookRepository springRepository;
-    private final BookEntityMapper mapper;
+    private final LoanRepositoryPort   loanRepository;
+    private final BookAvailabilityPort bookAvailability;
+    private final LoanEventPublisher   eventPublisher;
 
     @Override
-    public void save(Book book) {
-        // L'Adapter fait la traduction entre le Domaine pur et la BDD
-        JpaBookEntity entity = mapper.toJpaEntity(book);
-        springRepository.save(entity);
+    public LoanId createLoan(CreateLoanCommand command) {
+        // 1. Vérifier disponibilité via le port (abstraction)
+        if (!bookAvailability.isAvailable(command.bookId())) {
+            throw new BookNotAvailableException(command.bookId());
+        }
+        // 2. Créer l'agrégat — toutes les règles métier sont là
+        Loan loan = Loan.create(command.studentId(), command.bookId());
+        // 3. Persister et publier
+        loanRepository.save(loan);
+        bookAvailability.decrementStock(command.bookId());
+        eventPublisher.publish(LoanCreatedEvent.of(loan));
+        return loan.getId();
     }
-    // ...
+}</code></pre>
+
+        <h3>Adapter JPA — implémente le port sortant</h3>
+<pre><code class="language-java">@Component
+@RequiredArgsConstructor
+public class JpaLoanRepositoryAdapter implements LoanRepositoryPort {
+
+    private final SpringDataLoanRepository jpa;
+    private final LoanEntityMapper         mapper;
+
+    @Override
+    public void save(Loan loan) {
+        jpa.save(mapper.toEntity(loan));
+    }
+
+    @Override
+    public Optional&lt;Loan&gt; findById(LoanId id) {
+        return jpa.findById(id.value()).map(mapper::toDomain);
+    }
+
+    @Override
+    public List&lt;Loan&gt; findActiveByStudent(UUID studentId) {
+        return jpa.findByStudentIdAndStatus(studentId, LoanStatus.ACTIVE)
+                  .stream().map(mapper::toDomain).toList();
+    }
+}</code></pre>
+
+        <div class="box best-practice">
+          <h4>✅ Règle de la flèche de dépendance</h4>
+          <p>Les flèches de dépendance pointent <em>toujours</em> vers le domaine. L'infrastructure <em>implémente</em> les ports du domaine. Si vous voyez <code>import org.springframework</code> ou <code>import jakarta.persistence</code> dans votre package <code>domain/</code>, c'est une violation d'architecture.</p>
+        </div>
+      </section>
+
+      <!-- ══════════ DIP ══════════ -->
+      <section id="dip">
+        <h2>Inversion de dépendance — le "D" de SOLID appliqué</h2>
+        <p>L'inversion de dépendance (DIP) est le principe qui rend l'hexagonal possible : la logique métier dépend d'<strong>abstractions stables</strong>, pas d'implémentations instables.</p>
+
+        <div class="columns">
+          <div class="box frequent-error">
+            <h4>❌ Sans inversion — couplage direct</h4>
+<pre><code class="language-java">@Service
+public class LoanService {
+    // Dépendance concrète JPA !
+    @Autowired
+    private JpaLoanRepository repo;
+    // Changer de BDD → modifier ce service
+}</code></pre>
+          </div>
+          <div class="box best-practice">
+            <h4>✅ Avec inversion — abstraction</h4>
+<pre><code class="language-java">@Service
+public class LoanApplicationService {
+    // Abstraction — JPA, Mongo ou InMemory
+    private final LoanRepositoryPort repo;
+    public LoanApplicationService(
+            LoanRepositoryPort repo) {
+        this.repo = repo;
+    }
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — L'impact sur les tests</h4>
+          <p>Avec l'inversion de dépendance, on injecte un <strong>repository in-memory</strong> dans les tests — zéro base de données, zéro contexte Spring. Un test de domaine s'exécute en <strong>millisecondes</strong>. Un test d'intégration avec Postgres prend 2–5 secondes. Sur 500 tests : 5 secondes vs 40 minutes.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Test du service avec doubles de test</h4>
+<pre><code class="language-java">class LoanApplicationServiceTest {
+
+    private final LoanRepositoryPort   loanRepo  = new InMemoryLoanRepository();
+    private final BookAvailabilityPort bookAvail = new FakeBookAvailabilityAdapter();
+    private final LoanEventPublisher   publisher = new NoOpLoanEventPublisher();
+
+    private final LoanApplicationService service =
+        new LoanApplicationService(loanRepo, bookAvail, publisher);
+
+    @Test
+    void createLoan_should_persist_loan() {
+        LoanId id = service.createLoan(
+            new CreateLoanCommand(UUID.randomUUID(), UUID.randomUUID()));
+        assertThat(loanRepo.findById(id)).isPresent();
+    }
+
+    @Test
+    void createLoan_should_throw_when_book_unavailable() {
+        bookAvail.setStock(someBookId, 0);
+        assertThatThrownBy(() ->
+            service.createLoan(new CreateLoanCommand(studentId, someBookId)))
+            .isInstanceOf(BookNotAvailableException.class);
+    }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ══════════ DDD ══════════ -->
+      <section id="ddd">
+        <h2>DDD tactique — les briques du domaine</h2>
+        <p>Le <strong>Domain-Driven Design</strong> (Eric Evans, 2003) place le domaine métier au cœur de toutes les décisions. Ce n'est pas un pattern d'architecture, mais un ensemble de <strong>briques tactiques</strong> pour modéliser le domaine de façon riche et expressive.</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Le DDD, c'est parler le même langage que les experts métier. Si le bibliothécaire dit "prêt", "retour", "prolongation", ton code doit avoir des classes <code>Loan</code>, <code>Return</code>, <code>Extension</code> — pas <code>DataRecord</code> ou <code>ProcessObject</code>.</p>
+        </div>
+
+        <blockquote>"The heart of software is its ability to solve domain-related problems for its users." — Eric Evans</blockquote>
+
+        <h3>Bounded Context</h3>
+        <div class="box definition">
+          <h4>Définition</h4>
+          <p>Un <strong>Bounded Context</strong> est une frontière linguistique où chaque terme a un sens <em>précis et unique</em>. Au-delà de cette frontière, le même mot peut avoir un sens différent.</p>
+        </div>
+
+        <table>
+          <thead><tr><th>Terme</th><th>Contexte Catalogue</th><th>Contexte Prêt</th><th>Contexte Identité</th></tr></thead>
+          <tbody>
+            <tr><td><code>Book</code></td><td>Titre, auteur, éditeur, ISBN, stock</td><td>BookId uniquement (référence)</td><td>N/A</td></tr>
+            <tr><td><code>User</code></td><td>N/A</td><td>StudentId, quotas d'emprunt</td><td>Email, rôles, mot de passe hashé</td></tr>
+            <tr><td><code>Loan</code></td><td>N/A</td><td>Agrégat central avec règles métier</td><td>N/A</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Agrégat &amp; Racine d'agrégat</h3>
+        <div class="box definition">
+          <h4>Règles des agrégats</h4>
+          <ul>
+            <li>On ne modifie jamais un objet interne directement — on passe par la <strong>racine</strong>.</li>
+            <li>Les transactions ne franchissent <strong>jamais</strong> les frontières d'un agrégat.</li>
+            <li>Les agrégats communiquent entre eux par <strong>identité</strong> (UUID), jamais par référence directe.</li>
+          </ul>
+        </div>
+
+<pre><code class="language-java">// Loan est la racine — il contrôle tous ses invariants
+public class Loan {
+    private final LoanId id;
+    private final UUID   studentId;
+    private final UUID   bookId;
+    private       LoanStatus status;
+    private final Instant    createdAt;
+    private       Instant    dueDate;
+    private       Instant    returnedAt;
+
+    // Factory method — la création valide les règles
+    public static Loan create(UUID studentId, UUID bookId) {
+        return new Loan(
+            LoanId.generate(), studentId, bookId,
+            LoanStatus.ACTIVE, Instant.now(),
+            Instant.now().plus(21, ChronoUnit.DAYS), // règle : 3 semaines
+            null
+        );
+    }
+
+    // Méthode métier — encapsule la règle de retour
+    public void returnBook() {
+        if (this.status == LoanStatus.RETURNED)
+            throw new BusinessException("Ce prêt est déjà clôturé.");
+        if (this.status == LoanStatus.CANCELLED)
+            throw new BusinessException("Un prêt annulé ne peut pas être retourné.");
+        this.status     = LoanStatus.RETURNED;
+        this.returnedAt = Instant.now();
+    }
+
+    // Méthode métier — est-il en retard ?
+    public boolean isOverdue() {
+        return status == LoanStatus.ACTIVE
+            && Instant.now().isAfter(dueDate);
+    }
+
+    // Prolongation (règle : pas si déjà en retard)
+    public void extend(int days) {
+        if (status != LoanStatus.ACTIVE)
+            throw new BusinessException("Impossible de prolonger un prêt inactif.");
+        if (isOverdue())
+            throw new BusinessException("Impossible de prolonger un prêt en retard.");
+        this.dueDate = dueDate.plus(days, ChronoUnit.DAYS);
+    }
+
+    // Getters — PAS de setters publics (encapsulation forte)
+    public LoanId     getId()        { return id;        }
+    public UUID       getStudentId() { return studentId; }
+    public LoanStatus getStatus()    { return status;    }
+    public boolean    isActive()     { return status == LoanStatus.ACTIVE; }
+}</code></pre>
+
+        <div class="box warning">
+          <h4>⚠️ Agrégat anémique — l'anti-pattern le plus répandu</h4>
+<pre><code class="language-java">// ❌ Agrégat anémique : juste des getters/setters, zéro logique
+public class Loan {
+    private LoanStatus status;
+    public void setStatus(LoanStatus s) { this.status = s; } // qui contrôle les règles ?
+}
+
+// La logique se retrouve éparpillée dans les services — dupliquée partout
+public class LoanService {
+    public void returnBook(UUID loanId) {
+        Loan loan = repo.findById(loanId);
+        if (loan.getStatus() == LoanStatus.RETURNED) // règle dupliquée
+            throw new Exception("...");
+        loan.setStatus(LoanStatus.RETURNED); // violation d'encapsulation
+    }
+}</code></pre>
+          <p>Résultat : règles métier dupliquées dans tous les services, invariants non garantis, bugs qui se multiplient.</p>
+        </div>
+
+        <h3>Service de domaine</h3>
+        <p>Quand une règle métier implique plusieurs agrégats, on crée un <strong>service de domaine</strong> — pur, sans état, sans framework.</p>
+<pre><code class="language-java">// "Un étudiant ne peut pas emprunter plus de 5 livres simultanément"
+public class LoanDomainService {
+
+    public void validateStudentQuota(UUID studentId, List&lt;Loan&gt; activeLoans) {
+        long count = activeLoans.stream().filter(Loan::isActive).count();
+        if (count >= 5) {
+            throw new QuotaExceededException(
+                "Quota de 5 emprunts actifs atteint pour l'étudiant " + studentId);
+        }
+    }
 }</code></pre>
       </section>
 
-      <section id="adr">
-        <h2>Dossier d’architecture : Rédiger un ADR</h2>
-        <p>Les choix architecturaux doivent être documentés sous forme d'<strong>Architectural Decision Records (ADR)</strong>. Voici ce que vous devrez produire pour le TP.</p>
+      <!-- ══════════ VALUE OBJECTS ══════════ -->
+      <section id="value-objects">
+        <h2>Value Objects — des types qui ont du sens métier</h2>
+        <p>Un <strong>Value Object</strong> est un objet défini uniquement par sa <em>valeur</em>, sans identité propre. Il est <strong>immuable</strong> — on ne le modifie jamais, on en crée un nouveau.</p>
 
-        <div class="box live-coding">
-          <h4>Exemple d'ADR pour le projet fil rouge</h4>
-          <ul style="margin-bottom: 0;">
-            <li><strong>Titre :</strong> Adoption d'une Architecture Hexagonale Allégée</li>
-            <li><strong>Contexte :</strong> Le monolithe de la bibliothèque commence à mélanger code métier et requêtes SQL. Les tests unitaires sont impossibles sans lancer un conteneur de base de données.</li>
-            <li><strong>Décision :</strong> Nous introduisons le pattern Ports & Adapters pour le module <em>Emprunt</em> (cœur métier). Le module <em>Catalogue</em> (essentiellement de la lecture/affichage) restera en CRUD basique (CQRS léger).</li>
-            <li><strong>Conséquences :</strong>
-              <br>+ Le domaine <em>Emprunt</em> est testable en millisecondes.
-              <br>- Ajout de classes intermédiaires (Mappers, Interfaces), courbe d'apprentissage pour l'équipe.
-            </li>
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Un billet de 10€ est un Value Object. Deux billets de 10€ sont identiques — ce qui compte c'est la valeur, pas "quel billet précisément". Si tu veux 20€, tu prends deux billets — tu ne modifies pas le premier.</p>
+        </div>
+
+        <div class="columns">
+          <div class="box frequent-error">
+            <h4>❌ Sans Value Object — types primitifs dangereux</h4>
+<pre><code class="language-java">// Un UUID peut être bookId ou studentId...
+// Le compilateur ne peut pas détecter l'erreur !
+public void save(UUID bookId, UUID studentId) { ... }
+
+// Bug silencieux : arguments inversés
+service.save(studentId, bookId); // compile, mais faux !</code></pre>
+          </div>
+          <div class="box best-practice">
+            <h4>✅ Avec Value Objects — types expressifs</h4>
+<pre><code class="language-java">public record LoanId(UUID value) {
+    public LoanId {
+        Objects.requireNonNull(value);
+    }
+    public static LoanId generate() {
+        return new LoanId(UUID.randomUUID());
+    }
+}
+public record BookId(UUID value) { ... }
+public record StudentId(UUID value) { ... }
+
+// Impossible de confondre BookId et StudentId
+public void save(BookId bookId, StudentId studentId) { ... }</code></pre>
+          </div>
+        </div>
+
+        <div class="box example">
+          <h4>Value Object métier — ISBN avec validation</h4>
+<pre><code class="language-java">public record Isbn(String value) {
+
+    private static final Pattern ISBN_13 =
+        Pattern.compile("^97[89]\\d{10}$");
+
+    // Validation à la construction — impossible de créer un ISBN invalide
+    public Isbn {
+        Objects.requireNonNull(value, "ISBN ne peut pas être null");
+        String clean = value.replaceAll("[\\s-]", "");
+        if (!ISBN_13.matcher(clean).matches())
+            throw new InvalidIsbnException("Format ISBN-13 invalide : " + value);
+        value = clean; // normalisation
+    }
+
+    @Override public String toString() { return value; }
+}
+
+// Usage : la validation est garantie — pas besoin de la répéter ailleurs
+Book book = new Book(BookId.generate(), "Clean Code",
+                     new Isbn("978-0-13-235088-4")); // valide ou exception</code></pre>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — Value Objects et JPA</h4>
+<pre><code class="language-java">// Convertisseur JPA pour LoanId — transparent pour le reste du code
+@Converter(autoApply = true)
+public class LoanIdConverter implements AttributeConverter&lt;LoanId, UUID&gt; {
+    @Override public UUID   convertToDatabaseColumn(LoanId id)  { return id.value();       }
+    @Override public LoanId convertToEntityAttribute(UUID uuid) { return new LoanId(uuid); }
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ══════════ DOMAIN EVENTS ══════════ -->
+      <section id="domain-events">
+        <h2>Événements de domaine</h2>
+        <p>Un <strong>événement de domaine</strong> représente quelque chose d'important qui s'est produit dans le domaine. Nommé au <strong>passé</strong>, immuable, il exprime le fait accompli.</p>
+
+        <div class="box definition">
+          <h4>Règles des événements de domaine</h4>
+          <ul>
+            <li>Nommé au passé : <code>LoanCreated</code>, <code>BookReturned</code>, <code>StudentBlocked</code>.</li>
+            <li><strong>Immuable</strong> — une fois créé, jamais modifié.</li>
+            <li>Contient toutes les informations pertinentes au moment de l'occurrence.</li>
+            <li>POJO pur ou Java record — zéro dépendance framework.</li>
+          </ul>
+        </div>
+
+<pre><code class="language-java">// Interface commune — tout événement de domaine
+public interface DomainEvent {
+    UUID    eventId();
+    Instant occurredAt();
+}
+
+// Événement immuable avec Java record
+public record LoanCreatedEvent(
+    UUID    eventId,
+    Instant occurredAt,
+    LoanId  loanId,
+    UUID    studentId,
+    UUID    bookId,
+    Instant dueDate
+) implements DomainEvent {
+
+    public static LoanCreatedEvent of(Loan loan) {
+        return new LoanCreatedEvent(
+            UUID.randomUUID(), Instant.now(),
+            loan.getId(), loan.getStudentId(),
+            loan.getBookId(), loan.getDueDate()
+        );
+    }
+}
+
+public record BookReturnedEvent(
+    UUID    eventId,
+    Instant occurredAt,
+    LoanId  loanId,
+    UUID    bookId,
+    boolean wasOverdue
+) implements DomainEvent {}</code></pre>
+
+        <div class="box example">
+          <h4>Pattern — accumuler et publier les événements</h4>
+<pre><code class="language-java">// L'agrégat accumule ses événements
+public class Loan {
+    private final List&lt;DomainEvent&gt; domainEvents = new ArrayList&lt;&gt;();
+
+    public static Loan create(UUID studentId, UUID bookId) {
+        Loan loan = new Loan(/* ... */);
+        loan.domainEvents.add(LoanCreatedEvent.of(loan)); // accumulé
+        return loan;
+    }
+
+    // Consommé une seule fois par le service d'application
+    public List&lt;DomainEvent&gt; pullEvents() {
+        List&lt;DomainEvent&gt; events = List.copyOf(domainEvents);
+        domainEvents.clear();
+        return events;
+    }
+}
+
+// Dans le service d'application — publié APRÈS persistance
+@Transactional
+public LoanId createLoan(CreateLoanCommand cmd) {
+    Loan loan = Loan.create(cmd.studentId(), cmd.bookId());
+    loanRepository.save(loan);
+    // Publié après commit pour cohérence
+    loan.pullEvents().forEach(applicationEventPublisher::publishEvent);
+    return loan.getId();
+}
+
+// Handler dans le même processus (monolithe)
+@EventListener
+public void onLoanCreated(LoanCreatedEvent event) {
+    notificationService.sendConfirmation(event.studentId(), event.loanId());
+}</code></pre>
+        </div>
+
+        <div class="box warning">
+          <h4>⚠️ Événements intra-service vs inter-services</h4>
+          <p><code>ApplicationEventPublisher</code> est synchrone et dans le même processus — parfait pour un monolithe. Pour communiquer entre microservices distincts, il faut un broker externe (Kafka, RabbitMQ) — couvert au Jour 4.</p>
+        </div>
+      </section>
+
+      <!-- ══════════ CQRS ══════════ -->
+      <section id="cqrs">
+        <h2>CQRS — Command Query Responsibility Segregation</h2>
+        <p>CQRS sépare les opérations d'<strong>écriture</strong> (Commands) des opérations de <strong>lecture</strong> (Queries). Les besoins de lecture et d'écriture sont souvent si différents qu'ils justifient des modèles séparés.</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Dans un restaurant, la <strong>commande</strong> (ce que tu veux manger) passe par le serveur vers la cuisine. La <strong>carte</strong> (menu à lire) est conçue pour être consultée rapidement par tout le monde. Ce sont deux flux totalement différents — la cuisine ne gère pas la carte.</p>
+        </div>
+
+        <table>
+          <thead><tr><th></th><th>Command</th><th>Query</th></tr></thead>
+          <tbody>
+            <tr><td><strong>But</strong></td><td>Modifier l'état</td><td>Lire l'état</td></tr>
+            <tr><td><strong>Retourne</strong></td><td>Rien ou un ID</td><td>Des données (jamais de modification)</td></tr>
+            <tr><td><strong>Idempotent ?</strong></td><td>Non (en général)</td><td>Toujours</td></tr>
+            <tr><td><strong>Modèle</strong></td><td>Domaine riche, agrégats</td><td>Projection optimisée, vue SQL</td></tr>
+          </tbody>
+        </table>
+
+        <h3>CQRS léger — dans un seul service</h3>
+<pre><code class="language-java">// ══ CÔTÉ COMMANDE — domaine riche ══════════════════════════════
+
+public record CreateLoanCommand(UUID studentId, UUID bookId) {}
+public record ReturnBookCommand(LoanId loanId) {}
+
+@Service
+public class LoanCommandHandler {
+
+    public LoanId handle(CreateLoanCommand cmd) {
+        Loan loan = Loan.create(cmd.studentId(), cmd.bookId());
+        loanRepo.save(loan);
+        return loan.getId();
+    }
+
+    public void handle(ReturnBookCommand cmd) {
+        Loan loan = loanRepo.findById(cmd.loanId()).orElseThrow();
+        loan.returnBook(); // logique dans l'agrégat
+        loanRepo.save(loan);
+    }
+}
+
+// ══ CÔTÉ QUERY — lecture optimisée ═════════════════════════════
+
+// Projection de lecture : contient des données dénormalisées
+public record LoanSummaryView(
+    UUID    loanId,
+    String  bookTitle,   // dénormalisé depuis catalog
+    String  studentName, // dénormalisé depuis identity
+    String  status,
+    String  dueDate,
+    boolean overdue
+) {}
+
+@Service
+public class LoanQueryHandler {
+
+    @Transactional(readOnly = true)
+    public Page&lt;LoanSummaryView&gt; handle(GetActiveLoansQuery query) {
+        // Requête SQL directe sur une vue dénormalisée — pas d'agrégat
+        return loanReadRepository.findActiveByStudent(
+            query.studentId(),
+            PageRequest.of(query.page(), query.size())
+        );
+    }
+}</code></pre>
+
+        <h3>Mise à jour de la projection par événement</h3>
+<pre><code class="language-java">// La projection est maintenue à jour via les événements de domaine
+@EventListener
+@Transactional
+public void on(LoanCreatedEvent event) {
+    // Dénormaliser : récupérer les données depuis d'autres services
+    String bookTitle   = catalogClient.getBookTitle(event.bookId());
+    String studentName = identityClient.getStudentName(event.studentId());
+
+    LoanSummaryEntity view = new LoanSummaryEntity();
+    view.setLoanId(event.loanId().value());
+    view.setBookTitle(bookTitle);
+    view.setStudentName(studentName);
+    view.setStatus("ACTIVE");
+    view.setDueDate(event.dueDate());
+    loanSummaryRepository.save(view);
+}</code></pre>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — Quand utiliser CQRS ?</h4>
+          <ul>
+            <li>✅ Les lectures sont <strong>beaucoup plus fréquentes</strong> que les écritures.</li>
+            <li>✅ Le modèle de lecture nécessite des <strong>jointures complexes</strong> ou des données agrégées.</li>
+            <li>✅ On veut scaler la <strong>lecture indépendamment</strong> de l'écriture (réplicas en lecture seule).</li>
+            <li>❌ CRUD simple — CQRS est un over-engineering si les modèles lecture/écriture sont identiques.</li>
           </ul>
         </div>
       </section>
 
+      <!-- ══════════ DTO MAPPER REPO ══════════ -->
+      <section id="dto">
+        <h2>DTO, Mapper &amp; Repository — les contrats aux frontières</h2>
+
+        <table>
+          <thead><tr><th>Élément</th><th>Rôle</th><th>Où il vit</th><th>Erreur fréquente</th></tr></thead>
+          <tbody>
+            <tr><td><strong>DTO</strong></td><td>Transporter des données aux frontières HTTP</td><td>Infrastructure/web</td><td>Exposer l'entité JPA directement</td></tr>
+            <tr><td><strong>Command</strong></td><td>Transporter une intention d'action</td><td>Application</td><td>Y mettre de la logique métier</td></tr>
+            <tr><td><strong>Mapper</strong></td><td>Transformer DTO ↔ domaine ↔ entité JPA</td><td>Infra / application</td><td>Disperser les conversions dans les services</td></tr>
+            <tr><td><strong>Repository</strong></td><td>Accéder à la persistance</td><td>Infrastructure</td><td>Y mettre des règles métier</td></tr>
+          </tbody>
+        </table>
+
+        <div class="code-label bad">❌ Anti-pattern — exposer l'entité JPA en réponse HTTP</div>
+<pre><code class="language-java">@GetMapping("/{id}")
+public Book getBook(@PathVariable UUID id) {
+    return bookRepository.findById(id).orElseThrow();
+    // Problèmes :
+    // 1. Détails internes JPA (@Column, lazy) sérialisés
+    // 2. Changer la BDD change l'API publique
+    // 3. Risque de boucle infinie JSON (relations bidirectionnelles)
+    // 4. Liste des champs exposés incontrôlée
+}</code></pre>
+
+        <div class="code-label good">✅ Bonne pratique — DTO explicites et maîtrisés</div>
+<pre><code class="language-java">// DTO d'entrée : valide la forme HTTP
+public record CreateBookRequest(
+    @NotBlank String title,
+    @NotBlank String author,
+    @Positive int    stock,
+    @NotBlank String isbn
+) {}
+
+// DTO de sortie : contrat d'API stable
+public record BookResponse(UUID id, String title, String author,
+                            int stock, String isbn, Instant createdAt) {}
+
+// DTO de liste allégé (moins de données = moins de bande passante)
+public record BookSummary(UUID id, String title, String author) {}
+
+@GetMapping("/{id}")
+public BookResponse getBook(@PathVariable UUID id) {
+    return bookService.findById(id); // DTO — jamais l'entité
+}</code></pre>
+      </section>
+
+      <!-- ══════════ MAPSTRUCT ══════════ -->
+      <section id="mapstruct">
+        <h2>MapStruct — mapping sans boilerplate</h2>
+        <p>MapStruct génère les mappers entre objets à la <strong>compilation</strong>. Zéro réflexion à l'exécution, zéro boilerplate, et les erreurs de mapping sont détectées au build.</p>
+
+        <div class="box example">
+          <h4>Dépendance Maven</h4>
+<pre><code class="language-xml">&lt;dependency&gt;
+    &lt;groupId&gt;org.mapstruct&lt;/groupId&gt;
+    &lt;artifactId&gt;mapstruct&lt;/artifactId&gt;
+    &lt;version&gt;1.6.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;!-- Dans annotationProcessorPaths — après Lombok si utilisé --&gt;
+&lt;path&gt;
+    &lt;groupId&gt;org.mapstruct&lt;/groupId&gt;
+    &lt;artifactId&gt;mapstruct-processor&lt;/artifactId&gt;
+    &lt;version&gt;1.6.0&lt;/version&gt;
+&lt;/path&gt;</code></pre>
+        </div>
+
+<pre><code class="language-java">@Mapper(componentModel = "spring")
+public interface BookMapper {
+
+    // Domaine → DTO de réponse (mapping automatique par nom de champ)
+    BookResponse toResponse(Book book);
+
+    // Liste de domaine → liste DTO
+    List&lt;BookSummary&gt; toSummaryList(List&lt;Book&gt; books);
+
+    // DTO d'entrée → domaine (id ignoré — généré par le domaine)
+    @Mapping(target = "id", ignore = true)
+    Book toDomain(CreateBookRequest request);
+
+    // Domaine → Entité JPA (LoanId → UUID)
+    @Mapping(source = "id.value", target = "id")
+    LoanJpaEntity toEntity(Loan loan);
+
+    // Entité JPA → Domaine (UUID → LoanId)
+    @Mapping(source = "id", target = "id",
+             qualifiedByName = "uuidToLoanId")
+    Loan toDomain(LoanJpaEntity entity);
+
+    @Named("uuidToLoanId")
+    default LoanId uuidToLoanId(UUID uuid) { return new LoanId(uuid); }
+}</code></pre>
+
+        <div class="box best-practice">
+          <h4>✅ Ce que MapStruct génère à la compilation</h4>
+<pre><code class="language-java">// Code généré — ne jamais modifier manuellement
+@Component
+public class BookMapperImpl implements BookMapper {
+    @Override
+    public BookResponse toResponse(Book book) {
+        if (book == null) return null;
+        return new BookResponse(
+            book.getId().value(), book.getTitle(),
+            book.getAuthor(), book.getStock(),
+            book.getIsbn().value(), book.getCreatedAt()
+        );
+    }
+    // ... autres méthodes
+}</code></pre>
+          <p>Si un champ change dans le domaine et n'est pas mappé, le <strong>build échoue</strong> avec un message précis — vous êtes alerté immédiatement.</p>
+        </div>
+
+        <div class="box warning">
+          <h4>⚠️ Pièges classiques avec MapStruct</h4>
+          <ul>
+            <li>Oublier <code>componentModel = "spring"</code> → le mapper n'est pas un bean Spring.</li>
+            <li>Conflit avec Lombok → mettre le processor MapStruct <em>après</em> Lombok dans <code>annotationProcessorPaths</code>.</li>
+            <li>Mapper des entités JPA avec lazy loading → déclenche des requêtes N+1 pendant la sérialisation.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ══════════ TESTS ARCHI ══════════ -->
+      <section id="arch-tests">
+        <h2>Tests d'architecture avec ArchUnit</h2>
+        <p>ArchUnit vérifie <strong>automatiquement</strong> les règles d'architecture dans vos tests. Si quelqu'un viole une règle, le build CI casse — pas besoin de revue de code pour le détecter.</p>
+
+<pre><code class="language-java">@AnalyzeClasses(packages = "fr.univ.library")
+class ArchitectureTest {
+
+    // Le domaine n'importe aucune classe Spring
+    @ArchTest
+    static final ArchRule domain_no_spring =
+        noClasses()
+            .that().resideInAPackage("..domain..")
+            .should().dependOnClassesThat()
+            .resideInAnyPackage("org.springframework..");
+
+    // Le domaine n'importe aucune classe JPA
+    @ArchTest
+    static final ArchRule domain_no_jpa =
+        noClasses()
+            .that().resideInAPackage("..domain..")
+            .should().dependOnClassesThat()
+            .resideInAnyPackage("jakarta.persistence..");
+
+    // Les contrôleurs ne touchent pas aux repositories
+    @ArchTest
+    static final ArchRule controllers_no_repos =
+        noClasses()
+            .that().resideInAPackage("..web..")
+            .should().dependOnClassesThat()
+            .resideInAPackage("..persistence..");
+
+    // Les ports entrants sont des interfaces
+    @ArchTest
+    static final ArchRule ports_in_are_interfaces =
+        classes()
+            .that().resideInAPackage("..port.in..")
+            .should().beInterfaces();
+
+    // Architecture en couches vérifiée globalement
+    @ArchTest
+    static final ArchRule layered =
+        layeredArchitecture()
+            .consideringAllDependencies()
+            .layer("Web")           .definedBy("..infrastructure.web..")
+            .layer("Application")   .definedBy("..application..")
+            .layer("Domain")        .definedBy("..domain..")
+            .layer("Infra")         .definedBy("..infrastructure..")
+            .whereLayer("Web")      .mayNotBeAccessedByAnyLayer()
+            .whereLayer("Domain")   .mayOnlyBeAccessedByLayers("Application", "Infra");
+}</code></pre>
+
+        <div class="box best-practice">
+          <h4>✅ Pourquoi c'est indispensable en équipe</h4>
+          <p>Un développeur junior peut involontairement injecter un <code>JpaRepository</code> dans le domaine. Sans ArchUnit, cela peut passer en revue de code. Avec ArchUnit, le build CI casse immédiatement avec un message précis. C'est du <strong>linting architectural automatisé</strong> — les règles implicites deviennent des tests exécutables.</p>
+        </div>
+      </section>
+
+      <!-- ══════════ DOSSIER ADR ══════════ -->
+      <section id="dossier">
+        <h2>Dossier d'architecture &amp; ADR du Jour 2</h2>
+
+        <div class="box tp">
+          <h4>🧪 Travail demandé</h4>
+          <p>À la fin du Jour 2 : contexte du projet, pattern choisi, diagramme ASCII, 2 ADR clés, dette technique identifiée et backlog de remboursement.</p>
+        </div>
+
+<pre><code class="language-markdown"># Dossier d'architecture — Campus Library (Jour 2)
+
+## Contexte
+Bibliothèque universitaire : ~500 utilisateurs actifs, équipe de 3 dev,
+MVP dans 4 semaines, évolution vers microservices envisagée à J+6 mois.
+
+## Pattern choisi : Architecture hexagonale légère
+
+### Diagramme
+[ HTTP REST ]  → LoanController (adapter entrant)
+                      |
+              CreateLoanUseCase (port entrant)
+                      |
+          LoanApplicationService (service application)
+                      |
+    Loan / LoanDomainService (DOMAINE — zéro dépendance)
+                      |
+           LoanRepositoryPort (port sortant)
+                      |
+      JpaLoanRepositoryAdapter (adapter sortant JPA)
+
+---
+
+## ADR-001 : Architecture hexagonale plutôt que Layered
+
+Statut : Accepté — 2025-09-15
+Contexte : Besoin de testabilité forte du domaine métier et
+           préparation à un éventuel découpage en services.
+Décision : Hexagonal avec ports et adapters.
+Alternatives rejetées :
+  - Layered simple : couplage JPA dans le domaine, tests lents
+  - Clean Architecture : trop d'abstractions pour une équipe de 3
+Conséquences :
+  + Tests domaine sans Spring en millisecondes
+  + Domaine portable si changement de technologie
+  - Plus de fichiers (ports, adapters, mappers)
+  - Courbe d'apprentissage initiale
+
+## ADR-002 : MapStruct pour le mapping
+
+Statut : Accepté — 2025-09-15
+Contexte : 3 couches d'objets nécessitent du mapping sans boilerplate.
+Décision : MapStruct avec génération à la compilation.
+Alternatives rejetées :
+  - Mapping manuel : verbeux, erreur-prone
+  - ModelMapper : réflexion runtime, moins sûr à la compilation
+Conséquences :
+  + Erreurs de mapping détectées au build
+  - Syntaxe d'annotation à apprendre
+
+## Dette technique identifiée
+
+| ID    | Description                          | Impact | Plan                     |
+|-------|--------------------------------------|--------|--------------------------|
+| DT-01 | Pas de CQRS — lecture/écriture mixées | Moyen  | Sprint 3 si perf insuffisante |
+| DT-02 | Pas d'événements inter-services       | Faible | Jour 4 (Kafka)           |
+| DT-03 | Pas de ArchUnit en CI                 | Moyen  | Sprint 2                 |</code></pre>
+      </section>
+
+      <!-- ══════════ QUIZ ══════════ -->
       <section id="quiz">
-        <h2>Quiz : Validez vos acquis</h2>
-        <div class="quiz-container">
-          <ol>
-            <li><strong>Pourquoi l’architecture hexagonale est-elle souvent jugée "trop coûteuse" au démarrage ?</strong></li>
-            <li><strong>Qu'est-ce qu'un "Bounded Context" dans le DDD ?</strong></li>
-            <li><strong>Si je veux afficher une page web qui regroupe les données de 5 tables différentes, pourquoi CQRS est-il utile ?</strong></li>
-          </ol>
-          <details>
-            <summary>Voir les réponses détaillées</summary>
-            <ul>
-              <li>Elle nécessite d'écrire beaucoup de code "boilerplate" : des interfaces pour les ports, des classes d'adapters, et surtout des Mappers pour traduire les entités du Domaine vers les entités JPA de la base de données. C'est un surcoût initial pour un gain à long terme.</li>
-              <li>C'est une frontière explicite dans laquelle un modèle métier (et son vocabulaire) est strictement défini. Cela évite d'avoir une classe géante `Utilisateur` qui contient à la fois les données d'authentification, les factures et les préférences de notification.</li>
-              <li>Au lieu de forcer le domaine métier à faire des jointures complexes qui n'ont aucun sens métier (uniquement pour l'affichage), CQRS permet de créer un modèle de lecture (Query) dédié. Par exemple, une simple vue SQL ou un document NoSQL pré-calculé, mis à jour par des événements.</li>
-            </ul>
+        <h2>Quiz de fin</h2>
+
+        <div class="quiz-item">
+          <p><strong>1.</strong> Pourquoi l'hexagonal peut-il être plus coûteux au début mais rentable sur la durée ?</p>
+          <details><summary>Voir la réponse</summary>
+            <p>Il demande plus de code au départ (ports, adapters, mappers). Ce coût est rentabilisé par des <strong>tests ultra-rapides</strong> (domaine sans Spring), une <strong>maintenabilité accrue</strong> (changer la BDD ne touche qu'un adapter) et une <strong>facilité de migration</strong> vers des microservices (le domaine est déjà isolé).</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>2.</strong> Quelle est la différence entre un port entrant et un port sortant ?</p>
+          <details><summary>Voir la réponse</summary>
+            <p>Un <strong>port entrant</strong> représente ce que le domaine <em>offre</em> au monde extérieur — c'est un use case (ex : <code>CreateLoanUseCase</code>). Un <strong>port sortant</strong> représente ce que le domaine <em>requiert</em> de l'infrastructure (ex : <code>LoanRepositoryPort</code>). Le domaine <em>définit</em> les deux ; l'infrastructure <em>implémente</em> les ports sortants.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>3.</strong> Que signifie "Bounded Context" et comment l'identifier ?</p>
+          <details><summary>Voir la réponse</summary>
+            <p>Une frontière linguistique où chaque terme a un sens unique et non ambigu. On l'identifie en cherchant les <em>ambiguïtés de langage</em> : si "Client" n'a pas le même sens en comptabilité et au support, on a deux contextes. Pratiquement : parlez avec les experts métier et construisez un <strong>Ubiquitous Language</strong> par sous-domaine.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>4.</strong> Pourquoi un repository ne doit-il jamais contenir de règles métier ?</p>
+          <details><summary>Voir la réponse</summary>
+            <p>Le repository a une seule responsabilité : <strong>persister et retrouver des objets</strong>. Des règles métier dans le repository violent le SRP, les rendent non testables sans base de données et ouvrent la porte aux contournements accidentels (si quelqu'un accède à la BD sans passer par ce repository, la règle est ignorée).</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>5.</strong> Pourquoi utiliser des Value Objects plutôt que des String ou des UUID bruts ?</p>
+          <details><summary>Voir la réponse</summary>
+            <p><strong>Expressivité</strong> (signature auto-documentée), <strong>validation à la construction</strong> (impossible de créer un <code>Isbn</code> invalide), <strong>encapsulation du comportement</strong> et <strong>sécurité à la compilation</strong> (impossible de passer un <code>BookId</code> là où un <code>LoanId</code> est attendu). Ils éliminent toute une catégorie de bugs de confusion d'arguments.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>6.</strong> Quelle est la différence entre une Command et une Query dans CQRS ?</p>
+          <details><summary>Voir la réponse</summary>
+            <p>Une <strong>Command</strong> exprime une <em>intention de modifier l'état</em> — elle ne retourne rien ou juste un ID. Une <strong>Query</strong> ne fait que <em>lire l'état</em> — elle ne modifie <em>jamais</em> rien. Cette séparation permet d'optimiser chaque côté indépendamment : modèle d'écriture riche avec agrégats, modèle de lecture avec vue SQL dénormalisée.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>7.</strong> À quoi sert ArchUnit et pourquoi est-il préférable aux règles de revue de code manuelles ?</p>
+          <details><summary>Voir la réponse</summary>
+            <p>ArchUnit vérifie les règles d'architecture <strong>automatiquement à chaque build</strong>. Une revue manuelle peut rater une violation (fatigue, oubli, urgence). ArchUnit ne rate jamais et casse le build CI avec un message précis. Il transforme les règles implicites en <strong>tests exécutables vérifiés en continu</strong> — c'est du linting architectural.</p>
           </details>
         </div>
       </section>
 
       <div class="footer-nav">
-        <a href="jour-1-fondamentaux-architecture.html" class="btn-secondary">← Retour au Jour 1</a>
-        <a href="jour-3-systemes-distribues-et-api.html" class="btn-primary">Passer au Jour 3 →</a>
+        <a href="../pages/jour-1-fondamentaux-architecture.html">← Jour 1</a>
+        <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3 →</a>
       </div>
     </article>
   </div>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 </body>
 </html>

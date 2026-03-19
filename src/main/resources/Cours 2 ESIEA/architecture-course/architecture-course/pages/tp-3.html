@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TP3 — Résilience + observabilité + sécurité</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-okaidia.min.css">
   <script defer src="../assets/js/main.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </head>
 <body>
 <header class="site-header">
@@ -93,7 +96,7 @@
 </section>
 <section id="code">
   <h2>Extraits de code commentés</h2>
-  <pre><code>resilience4j:
+  <pre><code class="language-yaml">resilience4j:
   circuitbreaker:
     instances:
       catalogService:
@@ -103,7 +106,7 @@
     instances:
       catalogService:
         maxAttempts: 3</code></pre>
-  <pre><code>@Component
+  <pre><code class="language-java">@Component
 public class CorrelationIdFilter extends OncePerRequestFilter {{
     @Override
     protected void doFilterInternal(HttpServletRequest request,

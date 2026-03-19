@@ -3,26 +3,163 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Introduction au module | Architecture & Systèmes Distribués</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script defer src="../assets/js/main.js"></script>
+  <title>Introduction au module — Architecture logicielle</title>
+
+  <!-- Prism.js VS Code Dark+ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+
+  <style>
+    :root{
+      --bg:#f7fafc; --surface:#fff; --surface-alt:#eef3ff; --text:#1f2937;
+      --muted:#5b6575; --border:#d8e2ee;
+      --blue:#5da9ff; --blue-soft:#e8f3ff;
+      --green:#4ba37a; --green-soft:#e9f8f0;
+      --orange:#ef9b53; --orange-soft:#fff3e7;
+      --red:#c85d5d; --red-soft:#fff0f0;
+      --purple:#8b7cf6; --purple-soft:#f2efff;
+      --shadow:0 8px 24px rgba(36,53,84,.08);
+      --radius:18px; --max:1180px;
+      /* VS Code Dark+ */
+      --code-bg:#1e1e1e; --code-fg:#d4d4d4;
+      --code-comment:#6a9955; --code-keyword:#569cd6;
+      --code-string:#ce9178; --code-number:#b5cea8;
+      --code-function:#dcdcaa; --code-class:#4ec9b0;
+      --code-variable:#9cdcfe; --code-lineno:#6e7681;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;
+      background:linear-gradient(180deg,#f9fbfd,#f4f8fb);color:var(--text);line-height:1.65}
+    a{color:#1557b0;text-decoration:none} a:hover{text-decoration:underline}
+
+    header.site-header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);
+      backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .nav-wrap{max-width:var(--max);margin:auto;display:flex;gap:16px;align-items:center;padding:12px 20px}
+    .brand{font-weight:800;font-size:1.05rem;color:#163b66}
+    nav.top-nav{display:flex;gap:10px;flex-wrap:wrap}
+    nav.top-nav a{padding:8px 12px;border-radius:999px;background:#fff;
+      border:1px solid var(--border);font-size:.92rem}
+
+    main{max-width:var(--max);margin:24px auto;padding:0 20px 60px}
+    .hero{background:linear-gradient(135deg,var(--blue-soft),#fff 45%,var(--green-soft));
+      padding:28px;border:1px solid var(--border);border-radius:24px;
+      box-shadow:var(--shadow);margin-bottom:22px}
+    .hero h1{margin:.2rem 0 1rem;font-size:2.2rem}
+    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .meta{background:var(--surface);padding:16px 18px;border:1px solid var(--border);
+      border-radius:var(--radius);box-shadow:var(--shadow)}
+    .meta h3{margin-top:0}
+    .layout{display:grid;grid-template-columns:290px 1fr;gap:22px}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}}
+    aside.toc{align-self:start;position:sticky;top:84px;background:var(--surface);
+      border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    aside.toc h2{font-size:1rem;margin-top:0}
+    aside.toc ul{padding-left:18px;margin:.2rem 0}
+    aside.toc li{margin:.35rem 0}
+    article.content section{background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:24px;margin-bottom:18px;box-shadow:var(--shadow)}
+    h1,h2,h3,h4{line-height:1.2}
+    h2{margin-top:0;color:#123f73} h3{color:#244d7c}
+    p,li{font-size:1rem}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 18px}
+    .badge{background:#fff;border:1px solid var(--border);padding:6px 10px;
+      border-radius:999px;font-size:.88rem;color:var(--muted)}
+    .box{border-left:6px solid var(--blue);padding:14px 16px;border-radius:14px;
+      background:var(--blue-soft);margin:14px 0}
+    .box.definition{border-left-color:var(--blue);background:var(--blue-soft)}
+    .box.example{border-left-color:var(--green);background:var(--green-soft)}
+    .box.warning{border-left-color:var(--orange);background:var(--orange-soft)}
+    .box.best-practice{border-left-color:var(--green);background:#effaf5}
+    .box.frequent-error{border-left-color:var(--red);background:var(--red-soft)}
+    .box.child-mode{border-left-color:var(--purple);background:var(--purple-soft)}
+    .box.pro-mode{border-left-color:#3857b0;background:#edf2ff}
+    .box.live-coding{border-left-color:#0f766e;background:#ecfeff}
+    .box.tp{border-left-color:#7c3aed;background:#f5f3ff}
+    .box h4{margin:0 0 8px} .box h5{margin:12px 0 6px}
+
+    /* Inline code */
+    :not(pre)>code{font-family:"Fira Code",Consolas,monospace;font-size:.87em;
+      background:#2d2d2d;color:#f8f8f2;padding:2px 6px;border-radius:5px;border:1px solid #444}
+
+    /* Blocs de code VS Code Dark+ */
+    pre{margin:1.4em 0;padding:0;border-radius:12px;overflow:hidden;
+      box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid #3c3c3c;background:var(--code-bg)}
+    pre::before{content:"● ● ●";display:block;padding:8px 14px;background:#2d2d2d;
+      color:#858585;font-size:.72rem;letter-spacing:.1em;border-bottom:1px solid #3c3c3c;font-family:sans-serif}
+    pre>code{display:block;padding:1.1em 1.3em !important;background:var(--code-bg) !important;
+      color:var(--code-fg);font-family:"Fira Code",Consolas,monospace;font-size:.89rem;
+      line-height:1.75;overflow-x:auto;border:none !important;border-radius:0 !important}
+
+    /* Tokens Prism */
+    .token.comment,.token.prolog,.token.doctype,.token.cdata{color:var(--code-comment);font-style:italic}
+    .token.punctuation{color:#d4d4d4}
+    .token.boolean,.token.number,.token.constant,.token.symbol,.token.deleted{color:var(--code-number)}
+    .token.property,.token.tag{color:var(--code-keyword)}
+    .token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:var(--code-string)}
+    .token.operator,.token.entity,.token.url{color:#d4d4d4}
+    .token.keyword,.token.atrule,.token.attr-value{color:var(--code-keyword)}
+    .token.function{color:var(--code-function)}
+    .token.class-name{color:var(--code-class)}
+    .token.annotation{color:var(--code-function);font-style:italic}
+    .token.variable{color:var(--code-variable)}
+    .line-numbers .line-numbers-rows{border-right:1px solid #3c3c3c}
+    .line-numbers-rows>span::before{color:var(--code-lineno)}
+
+    table{width:100%;border-collapse:collapse;margin:14px 0}
+    th,td{border:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top}
+    th{background:#eff6ff}
+    summary{cursor:pointer;font-weight:600}
+    .footer-nav{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:20px}
+    .footer-nav a{display:inline-block;padding:12px 16px;background:#fff;
+      border:1px solid var(--border);border-radius:12px}
+    .quiz-item{margin-bottom:20px;padding:15px;background:var(--surface);
+      border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .quiz-item p{margin-top:0;font-size:1.1rem}
+    .quiz-item details{margin-top:15px;background:var(--surface-alt);
+      border:none;border-radius:12px;padding:12px 15px}
+    .quiz-item summary{font-weight:700;color:var(--blue);outline:none}
+    .quiz-item summary:hover{text-decoration:underline}
+    .quiz-item details[open] summary{margin-bottom:10px}
+    .quiz-item details p{margin:0;padding-left:10px;border-left:3px solid var(--blue)}
+    .columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:760px){.columns{grid-template-columns:1fr}}
+    .card{background:var(--surface);padding:16px 18px;border:1px solid var(--border);
+      border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card h3{margin-top:0}
+
+    /* Timeline fil rouge */
+    .timeline{list-style:none;padding:0;margin:18px 0;position:relative}
+    .timeline::before{content:'';position:absolute;left:16px;top:0;bottom:0;
+      width:2px;background:var(--border)}
+    .timeline li{padding:12px 12px 12px 44px;position:relative;margin-bottom:8px;
+      background:var(--surface);border:1px solid var(--border);border-radius:12px}
+    .timeline li::before{content:attr(data-step);position:absolute;left:6px;top:50%;
+      transform:translateY(-50%);width:22px;height:22px;border-radius:50%;
+      background:var(--blue);color:#fff;font-size:.75rem;font-weight:700;
+      display:flex;align-items:center;justify-content:center}
+    .tag{display:inline-block;font-size:.78rem;padding:2px 8px;border-radius:6px;
+      font-weight:600;margin-right:4px}
+    .tag.green{background:var(--green-soft);color:var(--green)}
+    .tag.blue{background:var(--blue-soft);color:#2563eb}
+    .tag.orange{background:var(--orange-soft);color:#b45309}
+    blockquote{margin:12px 0;padding:12px 18px;border-left:4px solid var(--blue);
+      background:#f8fbff;border-radius:8px;font-style:italic}
+  </style>
 </head>
 <body>
 <header class="site-header">
   <div class="nav-wrap">
-    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
     <nav class="top-nav">
       <a href="../index.html">Accueil</a>
-      <a href="introduction.html" class="active">Introduction</a>
+      <a href="introduction.html">Introduction</a>
       <a href="jour-1-fondamentaux-architecture.html">Jour 1</a>
       <a href="jour-2-patterns-et-couches.html">Jour 2</a>
       <a href="jour-3-systemes-distribues-et-api.html">Jour 3</a>
       <a href="jour-4-microservices-et-communication.html">Jour 4</a>
       <a href="jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
       <a href="jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-      <a href="tp-1.html">TP1</a>
-      <a href="tp-2.html">TP2</a>
-      <a href="tp-3.html">TP3</a>
+      <a href="tp-1.html">TP1</a><a href="tp-2.html">TP2</a><a href="tp-3.html">TP3</a>
       <a href="exercices.html">Exercices</a>
       <a href="corriges.html">Corrigés</a>
       <a href="glossary.html">Glossaire</a>
@@ -38,120 +175,406 @@
     <div class="badges">
       <span class="badge">Support HTML modulaire</span>
       <span class="badge">Master 2</span>
-      <span class="badge">6 Jours</span>
+      <span class="badge">6 jours</span>
       <span class="badge">3 TP progressifs</span>
       <span class="badge">Java / Spring Boot</span>
     </div>
-    <h1>Cours complet — Architecture logicielle & systèmes distribués</h1>
-
+    <h1>Introduction au module</h1>
     <div class="meta-grid">
-      <div class="meta">
-        <h3>Objectifs pédagogiques</h3>
-        <p>Comprendre, concevoir et faire évoluer une architecture logicielle, du monolithe propre vers des systèmes distribués résilients, observables et gouvernés.</p>
-      </div>
-      <div class="meta">
-        <h3>Temps estimé</h3>
-        <p>6 jours de formation + 3 TP + exercices + live coding</p>
-      </div>
-      <div class="meta">
-        <h3>Prérequis</h3>
-        <p>Bases Java, programmation orientée objet, HTTP, SQL, Spring Boot débutant-intermédiaire</p>
-      </div>
+      <div class="meta"><h3>Objectifs pédagogiques</h3>
+        <p>Comprendre la philosophie du cours, le projet fil rouge, les ADR et la progression pédagogique.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 1h30 (lecture + quiz)</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Bases Java / Spring Boot, intérêt pour la conception logicielle</p></div>
     </div>
   </div>
 
   <div class="layout">
     <aside class="toc">
-      <h2>Sommaire</h2>
+      <h2>Table des matières</h2>
       <ul>
         <li><a href="#positionnement">Positionnement</a></li>
-        <li><a href="#drivers">Drivers d'Architecture</a></li>
-        <li><a href="#objectifs">Objectifs & Compétences</a></li>
-        <li><a href="#fil-rouge">Le Projet Fil Rouge</a></li>
-        <li><a href="#methode">Méthodologie ADR</a></li>
-        <li><a href="#quiz">Auto-évaluation</a></li>
+        <li><a href="#pourquoi">Pourquoi l'archi ?</a></li>
+        <li><a href="#objectifs">Objectifs de compétence</a></li>
+        <li><a href="#fil-rouge">Fil rouge</a></li>
+        <li><a href="#adr">ADR</a></li>
+        <li><a href="#dette">Dette technique</a></li>
+        <li><a href="#methode">Méthode pédagogique</a></li>
+        <li><a href="#parcours">Parcours junior → expert</a></li>
+        <li><a href="#quiz">Quiz d'entrée</a></li>
       </ul>
     </aside>
 
     <article class="content">
+
+      <!-- ══════════════════════════════════
+           POSITIONNEMENT
+      ══════════════════════════════════ -->
       <section id="positionnement">
         <h2>Positionnement du module</h2>
-        <p>Ce module ne forme pas seulement à “coder des services”. Il apprend à <strong>penser un système</strong> global.</p>
-        <div class="grid-2">
-          <div class="box child-mode">
-            <h4>Analogie : Le rangement (Mode enfant)</h4>
-            <p>Si tu mélanges tes jouets, tes livres et tes vêtements dans un seul coffre, trouver un objet précis ou trier ce qui est sale devient un calvaire.</p>
+        <p>Ce module ne forme pas seulement à "coder des services". Il apprend à <strong>penser un système</strong>, à expliciter des compromis et à choisir une architecture adaptée au contexte. La maîtrise du code seul ne suffit plus dès qu'une équipe grandit et qu'un système doit vivre plusieurs années.</p>
+
+        <div class="box definition">
+          <h4>Définition</h4>
+          <p>Une <strong>architecture logicielle</strong> décrit l'organisation globale d'un système : ses blocs principaux, leurs responsabilités, leurs échanges, les contraintes structurantes et les règles d'évolution. C'est l'ensemble des <em>décisions difficiles à défaire</em>.</p>
+        </div>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Quand tu ranges ta chambre, tu sépares les vêtements, les livres et les jouets dans des tiroirs différents. Si tout est mélangé dans un seul tas, chaque fois que tu cherches quelque chose tu dois tout remuer et tu risques de casser ce que tu cherchais. En logiciel, c'est exactement pareil.</p>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓</h4>
+          <p>L'architecture répond aux <strong>attributs de qualité</strong> (ISO 25010) : maintenabilité, évolutivité, résilience, sécurité, observabilité, exploitabilité et alignement avec l'organisation des équipes (Loi de Conway). Une architecture qui ne répond à aucun attribut de qualité explicite est probablement accidentelle.</p>
+        </div>
+
+        <blockquote>"Architecture is the decisions that you wish you could get right early in a project." — Ralph Johnson</blockquote>
+      </section>
+
+      <!-- ══════════════════════════════════
+           POURQUOI L'ARCHI
+      ══════════════════════════════════ -->
+      <section id="pourquoi">
+        <h2>Pourquoi l'architecture, concrètement ?</h2>
+        <p>La question revient souvent : <em>"Pourquoi ne pas juste coder et voir ce qui se passe ?"</em> Voici ce qui arrive quand on ne pense pas l'architecture.</p>
+
+        <div class="box frequent-error">
+          <h4>Ce qui arrive sans architecture ❌</h4>
+          <ul>
+            <li><strong>Big Ball of Mud</strong> : tout dépend de tout, personne ne comprend plus le système après 6 mois.</li>
+            <li><strong>Régression permanente</strong> : toucher une feature en casse une autre non liée.</li>
+            <li><strong>Tests impossibles</strong> : la logique métier est mélangée avec la BD et l'HTTP.</li>
+            <li><strong>Déploiements risqués</strong> : chaque mise en production est une opération à haut risque.</li>
+            <li><strong>Onboarding long</strong> : il faut des semaines à un nouveau développeur pour être productif.</li>
+          </ul>
+        </div>
+
+        <div class="box example">
+          <h4>Exemple réel — Knight Capital Group (2012)</h4>
+          <p>Knight Capital a perdu <strong>440 millions de dollars en 45 minutes</strong> à cause d'un déploiement bâclé sur un système mal architecturé. Un ancien code de test, jamais supprimé, s'est activé en production sur certains serveurs. Sans monitoring, sans rollback propre, sans isolation des modules, l'incident était inévitable.</p>
+          <p>L'architecture logicielle, c'est aussi de la <strong>gestion du risque opérationnel</strong>.</p>
+        </div>
+
+        <div class="box best-practice">
+          <h4>Ce qu'une bonne architecture permet ✅</h4>
+          <ul>
+            <li>Modifier une feature sans toucher au reste.</li>
+            <li>Tester chaque couche indépendamment.</li>
+            <li>Déployer en confiance, avec rollback possible.</li>
+            <li>Scaler uniquement la partie sous charge.</li>
+            <li>Onboarder un nouveau développeur en 2 jours.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           OBJECTIFS
+      ══════════════════════════════════ -->
+      <section id="objectifs">
+        <h2>Objectifs de compétence</h2>
+        <p>À la fin des 6 jours, vous serez capables de :</p>
+
+        <table>
+          <thead><tr><th>Compétence</th><th>Niveau visé</th><th>Évalué dans</th></tr></thead>
+          <tbody>
+            <tr><td>Lire et critiquer une architecture existante</td><td>Autonome</td><td>Dossier architecture</td></tr>
+            <tr><td>Structurer un monolithe propre (couches, DDD léger)</td><td>Autonome</td><td>TP 1</td></tr>
+            <tr><td>Comprendre les compromis du distribué</td><td>Guidé → Autonome</td><td>TP 2</td></tr>
+            <tr><td>Concevoir des APIs robustes et versionnées</td><td>Autonome</td><td>TP 2 + 3</td></tr>
+            <tr><td>Documenter les décisions via ADR</td><td>Guidé</td><td>Dossier architecture</td></tr>
+            <tr><td>Mettre en place observabilité + résilience</td><td>Guidé</td><td>TP 3</td></tr>
+          </tbody>
+        </table>
+
+        <div class="box frequent-error">
+          <h4>Erreur fréquente 🔴</h4>
+          <p>Vouloir commencer par Kubernetes, Kafka ou un service mesh sans avoir clarifié le domaine métier, les flux et les qualités cibles. Les outils servent une architecture — ils n'en sont pas une.</p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           FIL ROUGE
+      ══════════════════════════════════ -->
+      <section id="fil-rouge">
+        <h2>Fil rouge — Campus Library</h2>
+        <p>Nous partons d'un <strong>monolithe propre</strong> de gestion de bibliothèque universitaire, puis nous l'amenons progressivement vers une architecture distribuée. Chaque jour ajoute une couche de complexité réaliste.</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>C'est comme construire une ville. Au début, un seul immeuble fait tout (mairie, école, épicerie). Quand la ville grandit, on sépare les bâtiments, on construit des routes entre eux, on embauche du personnel spécialisé. Mais on le fait <em>progressivement</em>, pas du jour au lendemain.</p>
+        </div>
+
+        <h3>Les services du projet</h3>
+<pre><code class="language-bash">campus-library/
+├── catalog-service        # Gestion du catalogue de livres
+├── loan-service           # Règles d'emprunt et retours
+├── identity-service       # Authentification, rôles (JWT)
+├── notification-service   # Emails, alertes (asynchrone)
+└── api-gateway            # Point d'entrée unique, routage</code></pre>
+
+        <h3>Progression jour par jour</h3>
+        <ul class="timeline">
+          <li data-step="1"><strong>Jour 1</strong> — Monolithe bien structuré : couches, DTO, validation <span class="tag green">Junior</span></li>
+          <li data-step="2"><strong>Jour 2</strong> — Patterns applicatifs : hexagonal, CQRS, DDD léger <span class="tag blue">Intermédiaire</span></li>
+          <li data-step="3"><strong>Jour 3</strong> — Systèmes distribués : réseau, CAP, idempotence, API <span class="tag blue">Intermédiaire</span></li>
+          <li data-step="4"><strong>Jour 4</strong> — Microservices : découpage, communication, Kafka <span class="tag orange">Avancé</span></li>
+          <li data-step="5"><strong>Jour 5</strong> — Résilience, observabilité, sécurité <span class="tag orange">Avancé</span></li>
+          <li data-step="6"><strong>Jour 6</strong> — Cloud, déploiement, gouvernance, ADR <span class="tag orange">Expert</span></li>
+        </ul>
+
+        <div class="box live-coding">
+          <h4>🖥️ Live coding du Jour 1</h4>
+          <p>Créer une première API Spring Boot propre avec couches, DTO, validation Bean et gestion d'erreurs globale (<code>@ControllerAdvice</code>). Ce sera la base du TP 1.</p>
+        </div>
+
+        <h3>Schéma global de l'architecture cible</h3>
+<pre><code class="language-bash">[ Client web / mobile ]
+         │ HTTPS
+         ▼
+  [ API Gateway ]  ←── JWT validation, rate limiting, routing
+    │         │
+    ▼         ▼
+[catalog]  [loan]          ← REST synchrone entre services
+               │
+               ▼
+         [ Kafka broker ]  ← événements asynchrones
+               │
+    ┌──────────┘
+    ▼
+[notification]             ← consomme LoanCreatedEvent</code></pre>
+      </section>
+
+      <!-- ══════════════════════════════════
+           ADR
+      ══════════════════════════════════ -->
+      <section id="adr">
+        <h2>Architecture Decision Records (ADR)</h2>
+        <p>Un <strong>ADR</strong> est un court document qui capture une décision architecturale importante, le contexte dans lequel elle a été prise, les alternatives considérées et les conséquences attendues. C'est de la documentation légère mais durable.</p>
+
+        <div class="box definition">
+          <h4>Pourquoi écrire des ADR ?</h4>
+          <ul>
+            <li>Dans 6 mois, personne ne se souvient <em>pourquoi</em> on a choisi Kafka plutôt que RabbitMQ.</li>
+            <li>Un nouveau développeur peut comprendre les contraintes historiques sans ré-ouvrir tous les débats.</li>
+            <li>Forcer l'explicitation d'un choix améliore la qualité de la décision elle-même.</li>
+          </ul>
+        </div>
+
+        <div class="box example">
+          <h4>Exemple d'ADR — choix de PostgreSQL</h4>
+<pre><code class="language-markdown"># ADR-001 : Utilisation de PostgreSQL comme base de données principale
+
+## Statut
+Accepté — 2025-09-01
+
+## Contexte
+Le service loan-service doit gérer des transactions ACID
+(un emprunt ne doit pas être créé deux fois, le stock doit
+être décrémenté de façon atomique). La volumétrie attendue
+est de ~50 000 emprunts/an.
+
+## Décision
+Utiliser PostgreSQL 16 via Spring Data JPA / Hibernate.
+
+## Alternatives considérées
+- MongoDB : rejeté — pas de transactions multi-documents natives en v5
+- MySQL 8  : acceptable, mais PostgreSQL offre de meilleures
+             fonctionnalités JSON et de meilleurs plans de requêtes
+
+## Conséquences
++ Transactions ACID garanties
++ Écosystème Spring mature
+- Schéma à migrer via Flyway à chaque évolution du modèle</code></pre>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Format recommandé (Michael Nygard)</h4>
+          <p>Titre · Statut · Contexte · Décision · Alternatives · Conséquences. Les ADR sont versionnés avec le code dans <code>docs/adr/</code>. Un ADR ne se modifie pas, il se <em>supercède</em> par un nouveau.</p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           DETTE TECHNIQUE
+      ══════════════════════════════════ -->
+      <section id="dette">
+        <h2>Dette technique — comprendre pour mieux décider</h2>
+        <p>La <strong>dette technique</strong> est la somme des compromis pris volontairement (ou non) dans le code et l'architecture qui <em>coûteront plus cher plus tard</em> à rembourser qu'à éviter.</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>C'est comme emprunter de l'argent. Parfois c'est utile (livrer vite un MVP), mais si on n'y fait pas attention, les intérêts s'accumulent et on passe tout son temps à rembourser au lieu d'avancer.</p>
+        </div>
+
+        <div class="columns">
+          <div class="box warning">
+            <h4>⚠️ Dette délibérée</h4>
+            <p>On choisit de ne pas faire proprement <em>maintenant</em> pour aller vite. Acceptable si on planifie le remboursement.</p>
+            <p><em>Exemple : copier-coller une fonction en attendant d'extraire un service commun.</em></p>
           </div>
-          <div class="box pro-mode">
-            <h4>Réalité : Le couplage (Mode pro)</h4>
-            <p>En entreprise, une architecture propre garantit la <strong>maintenabilité</strong> et l'<strong>alignement</strong> avec les équipes métier (Loi de Conway).</p>
+          <div class="box frequent-error">
+            <h4>❌ Dette accidentelle</h4>
+            <p>On ne sait pas qu'on accumule de la dette. Souvent dûe à un manque de connaissances ou d'expérience.</p>
+            <p><em>Exemple : mettre toute la logique dans le contrôleur sans le savoir.</em></p>
+          </div>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — Quadrant de la dette (Fowler)</h4>
+          <table>
+            <thead><tr><th></th><th>Délibéré</th><th>Accidentel</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Imprudent</strong></td><td>"On n'a pas le temps de faire propre"</td><td>"C'est quoi le pattern Repository ?"</td></tr>
+              <tr><td><strong>Prudent</strong></td><td>"On livre vite et on refactorise après"</td><td>"Maintenant on sait ce qu'on aurait dû faire"</td></tr>
+            </tbody>
+          </table>
+          <p>Seule la dette <strong>délibérée/prudente</strong> est acceptable — et seulement si elle est documentée et remboursée.</p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           MÉTHODE PÉDAGOGIQUE
+      ══════════════════════════════════ -->
+      <section id="methode">
+        <h2>Méthode pédagogique</h2>
+        <table>
+          <thead><tr><th>Élément</th><th>Dans le cours</th><th>Pourquoi</th></tr></thead>
+          <tbody>
+            <tr><td>🧸 Mode enfant</td><td>Analogies du quotidien</td><td>Comprendre l'intuition sans jargon</td></tr>
+            <tr><td>🎓 Mode pro</td><td>Enjeux d'entreprise, standards</td><td>Situer les décisions dans le réel</td></tr>
+            <tr><td>💻 Code commenté</td><td>Extraits Spring Boot complets</td><td>Lier théorie et pratique immédiatement</td></tr>
+            <tr><td>⚠️ Erreurs fréquentes</td><td>Anti-patterns nommés</td><td>Apprendre des erreurs des autres</td></tr>
+            <tr><td>✅ Best practices</td><td>Règles opérationnelles</td><td>Avoir des réflexes solides</td></tr>
+            <tr><td>❓ Mini quiz</td><td>À chaque fin de chapitre</td><td>Consolider par la réflexion active</td></tr>
+            <tr><td>📁 ADR</td><td>Décisions documentées</td><td>Comprendre le "pourquoi" des choix</td></tr>
+            <tr><td>🧪 TP progressifs</td><td>TP1 → TP2 → TP3</td><td>Montée en complexité maîtrisée</td></tr>
+          </tbody>
+        </table>
+
+        <div class="box tp">
+          <h4>🧪 Structure des TP</h4>
+          <ul>
+            <li><strong>TP1</strong> — Construire un monolithe propre : API REST, couches, validation, gestion d'erreurs.</li>
+            <li><strong>TP2</strong> — Évoluer vers le distribué : découper en 2 services, communication REST, Feign.</li>
+            <li><strong>TP3</strong> — Résilience &amp; observabilité : circuit breaker, tracing, métriques, Kafka.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           PARCOURS JUNIOR → EXPERT
+      ══════════════════════════════════ -->
+      <section id="parcours">
+        <h2>Parcours de montée en compétence</h2>
+        <p>Voici comment le contenu de ce module se positionne dans le parcours global d'un développeur backend.</p>
+
+        <div class="columns">
+          <div class="card">
+            <h3>🟢 Junior</h3>
+            <ul>
+              <li>Séparer contrôleur / service / repository.</li>
+              <li>Utiliser les DTO, ne pas exposer les entités.</li>
+              <li>Valider les entrées avec Bean Validation.</li>
+              <li>Lire et écrire des tests unitaires.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>🔵 Intermédiaire</h3>
+            <ul>
+              <li>Appliquer l'architecture hexagonale.</li>
+              <li>Comprendre les compromis CAP.</li>
+              <li>Concevoir des APIs versionnées.</li>
+              <li>Gérer timeouts, retries, idempotence.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="columns" style="margin-top:16px">
+          <div class="card">
+            <h3>🟠 Avancé</h3>
+            <ul>
+              <li>Découper par domaine métier (DDD).</li>
+              <li>Mettre en place CQRS / Event Sourcing.</li>
+              <li>Circuit breaker, bulkhead, observabilité.</li>
+              <li>Publier et consommer des événements Kafka.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>🔴 Expert</h3>
+            <ul>
+              <li>Choisir une topologie de déploiement (cloud-native).</li>
+              <li>Gérer la gouvernance des APIs à l'échelle.</li>
+              <li>Écrire et défendre des ADR en comité.</li>
+              <li>Anticiper la loi de Conway dans le découpage.</li>
+            </ul>
           </div>
         </div>
       </section>
 
-      <section id="drivers">
-        <h2>Les Drivers : Pourquoi on décide ?</h2>
-        <p>L'architecture est dictée par des forces souvent contradictoires. Nous apprendrons à prioriser :</p>
-        <table>
-          <thead>
-          <tr>
-            <th>Driver</th>
-            <th>Description</th>
-            <th>Exemple concret</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr>
-            <td><strong>Contraintes</strong></td>
-            <td>Facteurs non négociables.</td>
-            <td>RGPD, Budget Cloud limité, Legacy Java 8.</td>
-          </tr>
-          <tr>
-            <td><strong>Attributs Qualité</strong></td>
-            <td>Les "-ilities" du système.</td>
-            <td>Scalabilité, Disponibilité (99.9%), Sécurité.</td>
-          </tr>
-          <tr>
-            <td><strong>Principes</strong></td>
-            <td>Règles de l'équipe.</td>
-            <td>"API First", "Stateless uniquement", "Test-driven".</td>
-          </tr>
-          </tbody>
-        </table>
-      </section>
-
-      <section id="fil-rouge">
-        <h2>Le projet : Campus Library Flow</h2>
-        <p>Nous allons faire évoluer une gestion de bibliothèque universitaire d'un monolithe vers un système distribué.</p>
-        <div class="code-header">Évolution de la pile technique</div>
-        <pre><code>// Phase 1 : Monolithe Modulaire (Spring Boot + H2)
-// Phase 2 : Extraction de services (Communication REST / DTO)
-// Phase 3 : Résilience & Messaging (RabbitMQ / Circuit Breaker)</code></pre>
-      </section>
-
+      <!-- ══════════════════════════════════
+           QUIZ
+      ══════════════════════════════════ -->
       <section id="quiz">
-        <h2>Quiz d'entrée : Testez vos réflexes</h2>
-        <div class="quiz-container">
-          <ol>
-            <li><strong>Un monolithe est-il forcément une dette technique ?</strong></li>
-            <li><strong>Pourquoi le réseau est-il l'ennemi de l'architecte ?</strong></li>
-          </ol>
+        <h2>Quiz d'entrée — testez vos intuitions</h2>
+        <p style="color:var(--muted);font-size:.95rem">Pas de panique si vous ne savez pas — ce sont précisément les questions auxquelles le module va répondre.</p>
+
+        <div class="quiz-item">
+          <p><strong>1.</strong> Pourquoi un monolithe n'est-il pas forcément un mauvais choix ?</p>
           <details>
-            <summary>Voir les éléments de réflexion</summary>
-            <ul>
-              <li>Un monolithe bien structuré est souvent préférable à des microservices mal conçus (complexité inutile).</li>
-              <li>Le réseau introduit des latences, des pertes de paquets et des pannes partielles.</li>
-            </ul>
+            <summary>Voir la réponse</summary>
+            <p>Un monolithe est simple à développer, tester et déployer — surtout pour une petite équipe ou un MVP. La complexité des microservices (réseau, déploiements, observabilité) ne se justifie que quand la scalabilité, l'autonomie des équipes ou les domaines métier le requièrent.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>2.</strong> Quelle est la différence entre architecture et design détaillé ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>L'<strong>architecture</strong> décrit les grandes décisions structurantes (monolithe vs microservices, choix du broker, découpage en modules). Le <strong>design détaillé</strong> s'occupe de l'organisation interne des composants (patterns de classes, interfaces, algorithmes). L'architecture impacte des dizaines de fichiers ; le design en impacte généralement quelques-uns.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>3.</strong> Pourquoi la latence réseau change-t-elle la façon de coder ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Un appel de méthode local prend quelques nanosecondes et n'échoue presque jamais. Un appel réseau prend plusieurs millisecondes, peut se perdre, être dupliqué ou ne jamais répondre. Cela impose de gérer les <strong>timeouts</strong>, les <strong>retries</strong>, l'<strong>idempotence</strong> et les <strong>pannes partielles</strong> — des concepts absents du code local.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>4.</strong> À quoi sert un dossier d'architecture / un ADR ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Il sert à rendre <strong>explicites</strong> les décisions importantes, les alternatives envisagées, les contraintes et les compromis. Sans cela, dans 6 mois l'équipe ne sait plus pourquoi une décision a été prise et risque de la remettre en cause sans contexte. C'est un outil de communication et de mémoire collective.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>5.</strong> Qu'est-ce que la Loi de Conway et pourquoi un architecte doit-il la connaître ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p><em>"Les organisations créent des systèmes qui reproduisent leur structure de communication."</em> — Melvin Conway (1967). Si votre organisation a 3 équipes silos, vous aurez 3 gros blocs couplés. Un architecte doit co-concevoir <strong>l'organisation des équipes</strong> et <strong>l'architecture du système</strong> en parallèle (Inverse Conway Manoeuvre).</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>6.</strong> Qu'est-ce que la dette technique délibérée/prudente ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>C'est un choix <em>conscient</em> de faire une implémentation imparfaite maintenant pour livrer vite, avec la <em>décision explicite</em> de corriger plus tard. Elle est acceptable si elle est <strong>documentée</strong> (ADR, TODO, ticket) et <strong>remboursée</strong> dans un délai raisonnable. Sans documentation et sans plan, elle devient de la dette accidentelle.</p>
           </details>
         </div>
       </section>
 
       <div class="footer-nav">
-        <a href="../index.html" class="btn-secondary">← Retour à l'accueil</a>
-        <a href="jour-1-fondamentaux-architecture.html" class="btn-primary">Démarrer le Jour 1 →</a>
+        <a href="../index.html">← Accueil</a>
+        <a href="jour-1-fondamentaux-architecture.html">Jour 1 →</a>
       </div>
     </article>
   </div>
 </main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 </body>
 </html>

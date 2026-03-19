@@ -1,280 +1,899 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jour 1 — Fondamentaux de l’architecture logicielle | Architecture & Systèmes Distribués</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jour 1 — Fondamentaux de l'architecture logicielle</title>
 
-    <link rel="stylesheet" href="../assets/css/style.css">
+  <!-- Prism.js VS Code Dark+ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+  <style>
+    :root{
+      --bg:#f7fafc; --surface:#fff; --surface-alt:#eef3ff; --text:#1f2937;
+      --muted:#5b6575; --border:#d8e2ee;
+      --blue:#5da9ff; --blue-soft:#e8f3ff;
+      --green:#4ba37a; --green-soft:#e9f8f0;
+      --orange:#ef9b53; --orange-soft:#fff3e7;
+      --red:#c85d5d; --red-soft:#fff0f0;
+      --purple:#8b7cf6; --purple-soft:#f2efff;
+      --shadow:0 8px 24px rgba(36,53,84,.08);
+      --radius:18px; --max:1180px;
+      --code-bg:#1e1e1e; --code-fg:#d4d4d4;
+      --code-comment:#6a9955; --code-keyword:#569cd6;
+      --code-string:#ce9178; --code-number:#b5cea8;
+      --code-function:#dcdcaa; --code-class:#4ec9b0;
+      --code-variable:#9cdcfe; --code-lineno:#6e7681;
+    }
+    *{box-sizing:border-box} html{scroll-behavior:smooth}
+    body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;
+      background:linear-gradient(180deg,#f9fbfd,#f4f8fb);color:var(--text);line-height:1.65}
+    a{color:#1557b0;text-decoration:none} a:hover{text-decoration:underline}
 
-    <style>
-        pre[class*="language-"] {
-            background: #0f172a !important;
-            margin: 0 0 1.5rem 0 !important;
-            border: 1px solid #0f172a !important;
-            border-radius: 8px !important;
-            border-top-left-radius: 0 !important;
-            border-top-right-radius: 0 !important;
-            padding: 1.5rem !important;
-            box-shadow: none !important;
-        }
-        code[class*="language-"], pre[class*="language-"] {
-            text-shadow: none !important;
-            font-family: 'Fira Code', Consolas, Monaco, monospace !important;
-            font-size: 0.9rem !important;
-        }
-        /* Coloriser spécifiquement les annotations Java en jaune/orange comme sur ta capture */
-        .token.annotation { color: #e5c07b !important; }
-    </style>
+    header.site-header{position:sticky;top:0;z-index:20;background:rgba(255,255,255,.92);
+      backdrop-filter:blur(8px);border-bottom:1px solid var(--border)}
+    .nav-wrap{max-width:var(--max);margin:auto;display:flex;gap:16px;align-items:center;padding:12px 20px}
+    .brand{font-weight:800;font-size:1.05rem;color:#163b66}
+    nav.top-nav{display:flex;gap:10px;flex-wrap:wrap}
+    nav.top-nav a{padding:8px 12px;border-radius:999px;background:#fff;
+      border:1px solid var(--border);font-size:.92rem}
 
-    <script defer src="../assets/js/main.js"></script>
+    main{max-width:var(--max);margin:24px auto;padding:0 20px 60px}
+    .hero{background:linear-gradient(135deg,var(--blue-soft),#fff 45%,var(--green-soft));
+      padding:28px;border:1px solid var(--border);border-radius:24px;
+      box-shadow:var(--shadow);margin-bottom:22px}
+    .hero h1{margin:.2rem 0 1rem;font-size:2.2rem}
+    .meta-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .meta{background:var(--surface);padding:16px 18px;border:1px solid var(--border);
+      border-radius:var(--radius);box-shadow:var(--shadow)}
+    .meta h3{margin-top:0}
+    .layout{display:grid;grid-template-columns:290px 1fr;gap:22px}
+    @media(max-width:980px){.layout{grid-template-columns:1fr}}
+    aside.toc{align-self:start;position:sticky;top:84px;background:var(--surface);
+      border:1px solid var(--border);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow)}
+    aside.toc h2{font-size:1rem;margin-top:0}
+    aside.toc ul{padding-left:18px;margin:.2rem 0}
+    aside.toc li{margin:.35rem 0}
+    article.content section{background:var(--surface);border:1px solid var(--border);
+      border-radius:var(--radius);padding:24px;margin-bottom:18px;box-shadow:var(--shadow)}
+    h1,h2,h3,h4{line-height:1.2}
+    h2{margin-top:0;color:#123f73} h3{color:#244d7c}
+    p,li{font-size:1rem}
+    .badges{display:flex;flex-wrap:wrap;gap:10px;margin:10px 0 18px}
+    .badge{background:#fff;border:1px solid var(--border);padding:6px 10px;
+      border-radius:999px;font-size:.88rem;color:var(--muted)}
+    .box{border-left:6px solid var(--blue);padding:14px 16px;border-radius:14px;
+      background:var(--blue-soft);margin:14px 0}
+    .box.definition{border-left-color:var(--blue);background:var(--blue-soft)}
+    .box.example{border-left-color:var(--green);background:var(--green-soft)}
+    .box.warning{border-left-color:var(--orange);background:var(--orange-soft)}
+    .box.best-practice{border-left-color:var(--green);background:#effaf5}
+    .box.frequent-error{border-left-color:var(--red);background:var(--red-soft)}
+    .box.child-mode{border-left-color:var(--purple);background:var(--purple-soft)}
+    .box.pro-mode{border-left-color:#3857b0;background:#edf2ff}
+    .box.live-coding{border-left-color:#0f766e;background:#ecfeff}
+    .box.tp{border-left-color:#7c3aed;background:#f5f3ff}
+    .box h4{margin:0 0 8px} .box h5{margin:12px 0 6px}
+
+    :not(pre)>code{font-family:"Fira Code",Consolas,monospace;font-size:.87em;
+      background:#2d2d2d;color:#f8f8f2;padding:2px 6px;border-radius:5px;border:1px solid #444}
+
+    pre{margin:1.4em 0;padding:0;border-radius:12px;overflow:hidden;
+      box-shadow:0 4px 20px rgba(0,0,0,.4);border:1px solid #3c3c3c;background:var(--code-bg)}
+    pre::before{content:"● ● ●";display:block;padding:8px 14px;background:#2d2d2d;
+      color:#858585;font-size:.72rem;letter-spacing:.1em;border-bottom:1px solid #3c3c3c;font-family:sans-serif}
+    pre>code{display:block;padding:1.1em 1.3em !important;background:var(--code-bg) !important;
+      color:var(--code-fg);font-family:"Fira Code",Consolas,monospace;font-size:.89rem;
+      line-height:1.75;overflow-x:auto;border:none !important;border-radius:0 !important}
+
+    .token.comment,.token.prolog,.token.doctype,.token.cdata{color:var(--code-comment);font-style:italic}
+    .token.punctuation{color:#d4d4d4}
+    .token.boolean,.token.number,.token.constant,.token.symbol,.token.deleted{color:var(--code-number)}
+    .token.property,.token.tag{color:var(--code-keyword)}
+    .token.selector,.token.attr-name,.token.string,.token.char,.token.builtin,.token.inserted{color:var(--code-string)}
+    .token.operator,.token.entity,.token.url{color:#d4d4d4}
+    .token.keyword,.token.atrule,.token.attr-value{color:var(--code-keyword)}
+    .token.function{color:var(--code-function)}
+    .token.class-name{color:var(--code-class)}
+    .token.annotation{color:var(--code-function);font-style:italic}
+    .token.variable{color:var(--code-variable)}
+    .line-numbers .line-numbers-rows{border-right:1px solid #3c3c3c}
+    .line-numbers-rows>span::before{color:var(--code-lineno)}
+
+    table{width:100%;border-collapse:collapse;margin:14px 0}
+    th,td{border:1px solid var(--border);padding:10px 12px;text-align:left;vertical-align:top}
+    th{background:#eff6ff}
+    summary{cursor:pointer;font-weight:600}
+    .footer-nav{display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-top:20px}
+    .footer-nav a{display:inline-block;padding:12px 16px;background:#fff;
+      border:1px solid var(--border);border-radius:12px}
+    .quiz-item{margin-bottom:20px;padding:15px;background:var(--surface);
+      border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow)}
+    .quiz-item p{margin-top:0;font-size:1.1rem}
+    .quiz-item details{margin-top:15px;background:var(--surface-alt);
+      border:none;border-radius:12px;padding:12px 15px}
+    .quiz-item summary{font-weight:700;color:var(--blue);outline:none}
+    .quiz-item summary:hover{text-decoration:underline}
+    .quiz-item details[open] summary{margin-bottom:10px}
+    .quiz-item details p{margin:0;padding-left:10px;border-left:3px solid var(--blue)}
+    .columns{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:760px){.columns{grid-template-columns:1fr}}
+    .card{background:var(--surface);padding:16px 18px;border:1px solid var(--border);
+      border-radius:var(--radius);box-shadow:var(--shadow)}
+    .card h3{margin-top:0}
+    blockquote{margin:12px 0;padding:12px 18px;border-left:4px solid var(--blue);
+      background:#f8fbff;border-radius:8px;font-style:italic}
+
+    /* Labels bonne/mauvaise pratique */
+    .code-label{display:inline-block;font-size:.75rem;font-weight:700;padding:2px 10px;
+      border-radius:6px;margin-bottom:6px}
+    .code-label.bad{background:var(--red-soft);color:var(--red)}
+    .code-label.good{background:var(--green-soft);color:var(--green)}
+  </style>
 </head>
 <body>
 <header class="site-header">
-    <div class="nav-wrap">
-        <div class="brand">Architecture logicielle & systèmes distribués</div>
-        <nav class="top-nav">
-            <a href="../index.html">Accueil</a>
-            <a href="introduction.html">Introduction</a>
-            <a href="jour-1-fondamentaux-architecture.html" class="active">Jour 1</a>
-            <a href="jour-2-patterns-et-couches.html">Jour 2</a>
-            <a href="jour-3-systemes-distribues-et-api.html">Jour 3</a>
-            <a href="jour-4-microservices-et-communication.html">Jour 4</a>
-            <a href="jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-            <a href="jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-            <a href="tp-1.html">TP1</a>
-            <a href="tp-2.html">TP2</a>
-            <a href="tp-3.html">TP3</a>
-            <a href="exercices.html">Exercices</a>
-            <a href="corriges.html">Corrigés</a>
-            <a href="glossary.html">Glossaire</a>
-            <a href="architecture-dossier.html">Dossier Architecture</a>
-        </nav>
-    </div>
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
+    <nav class="top-nav">
+      <a href="../index.html">Accueil</a>
+      <a href="../pages/introduction.html">Introduction</a>
+      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+      <a href="../pages/tp-1.html">TP1</a><a href="../pages/tp-2.html">TP2</a><a href="../pages/tp-3.html">TP3</a>
+      <a href="../pages/exercices.html">Exercices</a>
+      <a href="../pages/corriges.html">Corrigés</a>
+      <a href="../pages/glossary.html">Glossaire</a>
+      <a href="../pages/live-coding.html">Live Coding</a>
+      <a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+      <a href="../pages/faq.html">FAQ</a>
+    </nav>
+  </div>
 </header>
 
 <main>
-    <div class="hero">
-        <div class="badges">
-            <span class="badge">Jour 1 sur 6</span>
-            <span class="badge">Fondamentaux</span>
-            <span class="badge">Théorie & Pratique</span>
-        </div>
-        <h1>Jour 1 — Fondamentaux de l’architecture logicielle</h1>
-        <div class="meta-grid">
-            <div class="meta">
-                <h3>Objectifs pédagogiques</h3>
-                <p>Poser les bases scientifiques et empiriques : architecture, qualités logicielles, couplage, cohésion, couches et premiers arbitrages techniques.</p>
-            </div>
-            <div class="meta">
-                <h3>Temps estimé</h3>
-                <p>≈ 6h incluant concepts théoriques, débats, démos et premier TP.</p>
-            </div>
-            <div class="meta">
-                <h3>Prérequis</h3>
-                <p>Programmation Orientée Objet (POO), base des protocoles web (HTTP), Spring Boot intermédiaire.</p>
-            </div>
-        </div>
+  <div class="hero">
+    <div class="badges">
+      <span class="badge">Support HTML modulaire</span>
+      <span class="badge">Master 2</span>
+      <span class="badge">6 jours</span>
+      <span class="badge">3 TP progressifs</span>
+      <span class="badge">Java / Spring Boot</span>
     </div>
+    <h1>Jour 1 — Fondamentaux de l'architecture logicielle</h1>
+    <div class="meta-grid">
+      <div class="meta"><h3>Objectifs pédagogiques</h3>
+        <p>Poser les bases : architecture, qualités logicielles, SOLID, couplage, cohésion, couches et premiers arbitrages.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>POO, HTTP basique, Spring Boot de base</p></div>
+    </div>
+  </div>
 
-    <div class="layout">
-        <aside class="toc">
-            <h2>Sommaire</h2>
-            <ul>
-                <li><a href="#definition">Définition & Périmètre</a></li>
-                <li><a href="#qualites">Attributs de Qualité</a></li>
-                <li><a href="#couplage">Couplage & Cohésion</a></li>
-                <li><a href="#couches">L'Architecture en Couches</a></li>
-                <li><a href="#mono-vs-distribue">Monolithe vs Distribué</a></li>
-                <li><a href="#spring-exemple">Implémentation Spring</a></li>
-                <li><a href="#quiz">Auto-évaluation</a></li>
-            </ul>
-        </aside>
+  <div class="layout">
+    <aside class="toc">
+      <h2>Table des matières</h2>
+      <ul>
+        <li><a href="#definition">Définition</a></li>
+        <li><a href="#qualites">Qualités logicielles</a></li>
+        <li><a href="#solid">Principes SOLID</a></li>
+        <li><a href="#couplage">Couplage &amp; cohésion</a></li>
+        <li><a href="#couches">Architecture en couches</a></li>
+        <li><a href="#hexagonal">Architecture hexagonale</a></li>
+        <li><a href="#mono-vs-distribue">Monolithe vs distribué</a></li>
+        <li><a href="#spring-exemple">Exemple Spring Boot complet</a></li>
+        <li><a href="#quiz">Quiz</a></li>
+      </ul>
+    </aside>
 
-        <article class="content">
+    <article class="content">
 
-            <section id="definition">
-                <h2>Qu’est-ce que l’architecture logicielle ?</h2>
-                <p>L’architecture logicielle est l’ensemble des décisions <strong>difficiles et coûteuses à modifier</strong> une fois implémentées. Elle définit la structure du système, la répartition des responsabilités, les flux de données et les règles d’évolution.</p>
+      <!-- ══════════════════════════════════
+           DÉFINITION
+      ══════════════════════════════════ -->
+      <section id="definition">
+        <h2>Qu'est-ce que l'architecture logicielle ?</h2>
+        <p>L'architecture logicielle est l'ensemble des <strong>décisions qui structurent durablement un système</strong> : découpage en composants, leurs responsabilités, leurs interactions, les flux de données, les contraintes non fonctionnelles et les règles d'évolution.</p>
 
-                <div class="grid-2">
-                    <div class="box child-mode">
-                        <h4>La métaphore du bâtiment (Mode enfant)</h4>
-                        <p>L’architecte décide où placer les murs porteurs, l'arrivée d'eau et le réseau électrique. Le designer choisit la couleur de la peinture et l'emplacement des meubles. Si la peinture ne plaît pas, c'est facile à changer. Casser un mur porteur est un cauchemar.</p>
-                    </div>
-                    <div class="box pro-mode">
-                        <h4>La Loi de Conway (Mode pro)</h4>
-                        <p><em>"Les organisations qui conçoivent des systèmes sont contraintes de produire des designs qui sont des copies de la structure de communication de leur organisation."</em> L'architecture technique d'une entreprise est souvent le miroir de son organigramme.</p>
-                    </div>
-                </div>
-            </section>
+        <div class="box definition">
+          <h4>Les trois niveaux</h4>
+          <table>
+            <thead><tr><th>Niveau</th><th>Question</th><th>Exemple</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Architecture</strong></td><td>Comment on organise le système ?</td><td>Monolithe vs microservices, choix du broker</td></tr>
+              <tr><td><strong>Design</strong></td><td>Comment on structure un composant ?</td><td>Méthodes de <code>LoanService</code>, patterns de classes</td></tr>
+              <tr><td><strong>Code</strong></td><td>Comment on implémente ?</td><td>Algorithmes, nommage, lisibilité</td></tr>
+            </tbody>
+          </table>
+        </div>
 
-            <section id="qualites">
-                <h2>Les Attributs de Qualité (Les "-ilities")</h2>
-                <p>Une architecture ne se juge pas à sa beauté, mais à sa capacité à satisfaire des besoins non-fonctionnels. Or, <strong>maximiser une qualité dégrade souvent une autre (Trade-off)</strong>.</p>
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>L'<strong>architecte</strong> dessine le plan de la maison et décide combien d'étages il y aura. Le <strong>designer</strong> choisit l'emplacement précis des meubles dans chaque pièce. Le <strong>développeur</strong> pose réellement les briques, une à une, en suivant le plan.</p>
+        </div>
 
-                <table>
-                    <thead>
-                    <tr>
-                        <th>Attribut</th>
-                        <th>Question clé</th>
-                        <th>Trade-off courant (Le prix à payer)</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr>
-                        <td><strong>Maintenabilité</strong></td>
-                        <td>Combien de temps pour ajouter une feature sans tout casser ?</td>
-                        <td>Demande plus de temps de conception (abstraction, interfaces).</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Scalabilité</strong></td>
-                        <td>Peut-on absorber 10x plus d'utilisateurs sans ralentir ?</td>
-                        <td>Complexifie le système (nécessite du distribué, des caches).</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Performance</strong></td>
-                        <td>Quel est le temps de réponse sous charge (ex: < 200ms) ?</td>
-                        <td>S'oppose souvent à la portabilité ou au code générique.</td>
-                    </tr>
-                    <tr>
-                        <td><strong>Sécurité</strong></td>
-                        <td>Le système résiste-t-il aux attaques (Zero Trust) ?</td>
-                        <td>Dégrade la performance (chiffrement) et l'expérience utilisateur.</td>
-                    </tr>
-                    </tbody>
-                </table>
-            </section>
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓</h4>
+          <p>Une architecture réussie maximise la <strong>vélocité à long terme</strong> : changements métier rapides, déploiements sûrs, maintenance prévisible et maîtrise du coût total de possession (TCO). Elle répond explicitement à des <em>attributs de qualité</em> (ISO 25010).</p>
+        </div>
 
-            <section id="couplage">
-                <h2>Couplage & Cohésion : Le cœur du métier</h2>
-                <p>Le Saint Graal de l'architecte se résume en une phrase : <strong>Forte Cohésion et Faible Couplage</strong>.</p>
+        <blockquote>"Making the architecture explicit is the key to making it evolvable." — Sam Newman</blockquote>
+      </section>
 
-                <div class="grid-2">
-                    <div class="box">
-                        <h4>Forte Cohésion (Ce qu'on veut)</h4>
-                        <p>Les éléments d'un même module sont fortement liés et ont une vocation unique. (Exemple : Un module <code>Billing</code> ne gère que les factures, pas l'envoi de mails promotionnels).</p>
-                    </div>
-                    <div class="box" style="border-left: 4px solid #ef4444;">
-                        <h4>Couplage Fort (Le danger)</h4>
-                        <p>Le changement dans un module A force un changement dans un module B. (Exemple : Si on modifie la table SQL "Users", l'application Mobile crashe car l'API renvoie une erreur).</p>
-                    </div>
-                </div>
-            </section>
+      <!-- ══════════════════════════════════
+           QUALITÉS
+      ══════════════════════════════════ -->
+      <section id="qualites">
+        <h2>Qualités logicielles essentielles</h2>
+        <p>Toute décision architecturale doit se justifier par au moins une qualité cible. Sinon, c'est une décision décorative ou risquée.</p>
 
-            <section id="couches">
-                <h2>L'Architecture en Couches (N-Tiers)</h2>
-                <p>Pour réduire le couplage, le standard de l'industrie est l'architecture en couches. La règle d'or est la <strong>dépendance unidirectionnelle</strong> (une couche supérieure ne peut appeler qu'une couche inférieure).</p>
+        <table>
+          <thead><tr><th>Qualité</th><th>Question à se poser</th><th>Exemple Campus Library</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Maintenabilité</strong></td><td>Peut-on modifier sans tout casser ?</td><td>Ajouter un nouveau type d'emprunt sans toucher au contrôleur</td></tr>
+            <tr><td><strong>Scalabilité</strong></td><td>Peut-on absorber plus de charge ?</td><td>Passer de 1 000 à 20 000 étudiants actifs</td></tr>
+            <tr><td><strong>Performance</strong></td><td>Répond-on assez vite ?</td><td>Recherche catalogue &lt; 300 ms au p99</td></tr>
+            <tr><td><strong>Disponibilité</strong></td><td>Le service reste-t-il accessible ?</td><td>Catalogue consultable même si notifications HS</td></tr>
+            <tr><td><strong>Sécurité</strong></td><td>Accès et données protégés ?</td><td>JWT + RBAC + validation des entrées</td></tr>
+            <tr><td><strong>Testabilité</strong></td><td>Peut-on tester chaque pièce isolément ?</td><td>Domaine testable sans Spring, sans BD</td></tr>
+            <tr><td><strong>Observabilité</strong></td><td>Sait-on ce qui se passe en prod ?</td><td>Logs structurés, métriques, tracing distribué</td></tr>
+          </tbody>
+        </table>
 
-                <div class="code-header">Flux standard d'une architecture N-Tiers</div>
-                <pre><code class="language-text">[ Controller / API ]  → Reçoit la requête HTTP, valide le JSON (Couche Présentation)
-       ↓
-[ Service Métier ]    → Orchestre la logique, applique les règles (Couche Application)
-       ↓
-[ Repository / DAO ]  → Traduit l'objet en SQL, gère la BDD (Couche Infrastructure)</code></pre>
-            </section>
+        <div class="box warning">
+          <h4>⚠️ Les qualités s'opposent parfois</h4>
+          <p>Performance maximale et maintenabilité maximale sont souvent en tension. Plus on optimise pour la performance (cache, dénormalisation, code bas niveau), plus le code est difficile à modifier. <strong>Le rôle de l'architecte est de gérer ces compromis explicitement</strong>, pas de les ignorer.</p>
+        </div>
 
-            <section id="mono-vs-distribue">
-                <h2>Monolithe vs Distribué : Les illusions</h2>
-                <p>Un système distribué (ex: Microservices) n’est pas "mieux" qu'un Monolithe. Il résout des problèmes d'échelle humaine (équipes) au prix d'une immense complexité technique.</p>
+        <div class="box best-practice">
+          <h4>✅ Prioriser les qualités dès le départ</h4>
+          <p>En début de projet, listez vos 3 qualités prioritaires et leurs seuils mesurables. Ex : <em>disponibilité ≥ 99,5%, latence p95 &lt; 500ms, MTTR &lt; 1h</em>. Ces seuils guideront toutes vos décisions architecturales.</p>
+        </div>
+      </section>
 
-                <div class="box pro-mode">
-                    <h4>Les 8 illusions de l'informatique distribuée (L. Peter Deutsch)</h4>
-                    <p>Quand on passe au distribué, les développeurs supposent souvent à tort que :</p>
-                    <ul style="margin-bottom: 0;">
-                        <li>1. Le réseau est fiable.</li>
-                        <li>2. La latence est nulle.</li>
-                        <li>3. La bande passante est infinie.</li>
-                        <li>4. Le réseau est sûr.</li>
-                        <li>5. La topologie ne change pas.</li>
-                        <li>6. Il y a un seul administrateur.</li>
-                        <li>7. Le coût de transport est nul.</li>
-                        <li>8. Le réseau est homogène.</li>
-                    </ul>
-                </div>
-            </section>
+      <!-- ══════════════════════════════════
+           SOLID
+      ══════════════════════════════════ -->
+      <section id="solid">
+        <h2>Principes SOLID</h2>
+        <p>Les principes SOLID (Robert C. Martin, ~2000) sont les fondations du design orienté objet. Ils s'appliquent au niveau classe, mais aussi au niveau module et service.</p>
 
-            <section id="spring-exemple">
-                <h2>Implémentation "Clean" avec Spring Boot</h2>
-                <p>Voici comment séparer proprement les responsabilités (DTO, Contrôleur, Service) pour garantir une bonne cohésion.</p>
+        <!-- S -->
+        <h3>S — Single Responsibility Principle</h3>
+        <p><em>"Une classe ne doit avoir qu'une seule raison de changer."</em></p>
+        <div class="code-label bad">❌ Mauvais — trop de responsabilités</div>
+<pre><code class="language-java">public class LoanService {
+    // Règle métier
+    public void createLoan(LoanRequest req) { ... }
+    // Persistance — autre responsabilité
+    public void saveToDatabase(Loan loan) { ... }
+    // Notification — encore une autre
+    public void sendEmailToStudent(Loan loan) { ... }
+    // Rapport — une de plus
+    public String generateMonthlyReport() { ... }
+}</code></pre>
+        <div class="code-label good">✅ Correct — une responsabilité par classe</div>
+<pre><code class="language-java">// Chaque classe a une seule raison de changer
+public class LoanApplicationService { /* règles métier */   }
+public class LoanRepository          { /* persistance */     }
+public class LoanNotificationService { /* notifications */   }
+public class LoanReportService       { /* rapports */        }</code></pre>
 
-                <div class="code-header">BookRequest.java (Présentation - Validation)</div>
-                <pre><code class="language-java">// DTO d'entrée : l'API reçoit un objet immuable et validé
-public record BookRequest(
-    @NotBlank(message = "Le titre est obligatoire") String title,
-    @NotBlank(message = "L'auteur est obligatoire") String author,
-    @Positive(message = "Le stock doit être > 0") int stock
-) {}</code></pre>
+        <!-- O -->
+        <h3>O — Open/Closed Principle</h3>
+        <p><em>"Ouvert à l'extension, fermé à la modification."</em> Ajouter un comportement ne doit pas nécessiter de modifier le code existant.</p>
+<pre><code class="language-java">// ❌ Mauvais : ajouter un type de notification oblige à modifier la méthode
+public void notify(String type, Loan loan) {
+    if (type.equals("EMAIL")) { /* email */ }
+    else if (type.equals("SMS")) { /* SMS — ajouté plus tard, modifie la méthode */ }
+}
 
-                <div class="code-header">BookController.java (Présentation - Routage HTTP)</div>
-                <pre><code class="language-java">@RestController
-@RequestMapping("/api/books")
-@RequiredArgsConstructor
-public class BookController {
+// ✅ Correct : chaque nouveau type est une nouvelle implémentation
+public interface LoanNotifier {
+    void notify(Loan loan);
+}
 
-    private final BookApplicationService bookApplicationService;
+public class EmailLoanNotifier implements LoanNotifier { ... }
+public class SmsLoanNotifier  implements LoanNotifier { ... }
+// Ajouter PushNotifier ne touche pas au code existant</code></pre>
+
+        <!-- L -->
+        <h3>L — Liskov Substitution Principle</h3>
+        <p><em>"Un sous-type doit pouvoir remplacer son type parent sans casser le comportement."</em></p>
+<pre><code class="language-java">// ❌ Violation LSP : DigitalBook ne peut pas être emprunté comme Book
+public class Book {
+    public void borrow() { /* décrémente le stock physique */ }
+}
+public class DigitalBook extends Book {
+    @Override
+    public void borrow() {
+        throw new UnsupportedOperationException("Pas de stock physique !");
+        // L'appelant qui reçoit un Book s'attend à pouvoir appeler borrow()
+    }
+}
+
+// ✅ Correct : séparer les abstractions
+public interface Borrowable { void borrow(); }
+public class PhysicalBook implements Borrowable { ... }
+public class DigitalBook   { /* pas Borrowable, accès différent */ }</code></pre>
+
+        <!-- I -->
+        <h3>I — Interface Segregation Principle</h3>
+        <p><em>"Ne forcez pas un client à dépendre d'interfaces qu'il n'utilise pas."</em></p>
+<pre><code class="language-java">// ❌ Interface trop large — les clients n'ont pas besoin de tout
+public interface BookRepository {
+    Book findById(UUID id);
+    void save(Book book);
+    void delete(UUID id);
+    List&lt;Book&gt; findAllForReport();     // utilisé seulement par le service de reporting
+    List&lt;Book&gt; findExpiredLoans();     // utilisé seulement par le job de nettoyage
+}
+
+// ✅ Interfaces ciblées par cas d'usage
+public interface BookReader    { Book findById(UUID id); }
+public interface BookWriter    { void save(Book book); void delete(UUID id); }
+public interface BookReporting { List&lt;Book&gt; findAllForReport(); }</code></pre>
+
+        <!-- D -->
+        <h3>D — Dependency Inversion Principle</h3>
+        <p><em>"Les modules de haut niveau ne doivent pas dépendre des modules de bas niveau. Les deux doivent dépendre d'abstractions."</em> C'est la base de l'injection de dépendances.</p>
+<pre><code class="language-java">// ❌ La couche métier dépend directement de l'infra
+public class LoanApplicationService {
+    private final PostgresLoanRepository repo; // dépendance concrète !
+
+    public void createLoan(LoanRequest req) {
+        repo.save(/* ... */);
+    }
+}
+
+// ✅ La couche métier dépend d'une abstraction (port)
+public interface LoanRepository {
+    void save(Loan loan);
+    Optional&lt;Loan&gt; findById(UUID id);
+}
+
+@Service
+public class LoanApplicationService {
+    private final LoanRepository loanRepository; // abstraction injektée
+
+    public LoanApplicationService(LoanRepository loanRepository) {
+        this.loanRepository = loanRepository;
+    }
+    // On peut maintenant injecter PostgresLoanRepository, InMemoryLoanRepository
+    // (pour les tests), ou MongoLoanRepository sans changer cette classe.
+}</code></pre>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — SOLID à l'échelle des services</h4>
+          <p>SOLID ne s'applique pas qu'aux classes. Au niveau microservices : <strong>SRP</strong> → chaque service a un seul domaine. <strong>OCP</strong> → on ajoute des fonctionnalités par nouveaux services. <strong>DIP</strong> → les services dépendent d'interfaces (contrats d'API, schémas d'événements), pas d'implémentations concrètes.</p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           COUPLAGE & COHÉSION
+      ══════════════════════════════════ -->
+      <section id="couplage">
+        <h2>Couplage, cohésion et séparation des responsabilités</h2>
+        <p>Ces deux métriques qualitatives permettent d'évaluer la santé d'une architecture.</p>
+
+        <div class="columns">
+          <div class="box definition">
+            <h4>Forte cohésion ✅</h4>
+            <p>Tous les éléments d'un composant travaillent ensemble vers <strong>un seul but</strong>. Changer l'un n'implique pas de changer les autres.</p>
+            <p><em>Exemple : <code>LoanService</code> ne contient que les règles d'emprunt.</em></p>
+          </div>
+          <div class="box warning">
+            <h4>Faible couplage ✅</h4>
+            <p>Les composants ont <strong>peu de connaissances</strong> les uns sur les autres. On peut les changer, tester ou remplacer indépendamment.</p>
+            <p><em>Exemple : <code>LoanService</code> ne sait pas si le repo est Postgres ou MongoDB.</em></p>
+          </div>
+        </div>
+
+        <h3>Visualiser le couplage</h3>
+
+        <div class="code-label bad">❌ Contrôleur trop couplé — tout dans une méthode</div>
+<pre><code class="language-java">@PostMapping("/loans")
+public ResponseEntity&lt;?&gt; create(@RequestBody LoanRequest req) {
+    // 1. Validation manuelle — devrait être dans Bean Validation
+    if (req.getBookId() == null) throw new RuntimeException("bookId requis");
+
+    // 2. Accès direct à la BD — devrait passer par un service
+    Book book = bookRepository.findById(req.getBookId()).orElseThrow();
+
+    // 3. Règle métier dans le contrôleur — devrait être dans le domaine
+    if (book.getStock() <= 0) throw new RuntimeException("Plus de stock");
+    book.setStock(book.getStock() - 1);
+    bookRepository.save(book);
+
+    // 4. Envoi de mail — devrait être dans un service dédié
+    mailService.send(req.getStudentEmail(), "Emprunt confirmé");
+
+    // 5. Mapping manuel — devrait être dans un mapper
+    LoanResponse resp = new LoanResponse();
+    resp.setId(loan.getId());
+    return ResponseEntity.ok(resp);
+}</code></pre>
+
+        <div class="code-label good">✅ Contrôleur correctement découplé</div>
+<pre><code class="language-java">@PostMapping("/loans")
+public ResponseEntity&lt;LoanResponse&gt; create(
+        @Valid @RequestBody LoanRequest request) {
+    // Le contrôleur délègue tout — il ne fait que recevoir et renvoyer
+    LoanResponse response = loanApplicationService.createLoan(request);
+    return ResponseEntity.status(HttpStatus.CREATED).body(response);
+}</code></pre>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — Loi de Déméter</h4>
+          <p>La <strong>Loi de Déméter</strong> (<em>Principle of Least Knowledge</em>) dit qu'un objet ne doit parler qu'à ses <em>amis directs</em> — jamais à des amis d'amis. Un symptôme de violation : les chaînes de points <code>service.getRepository().findAll().stream()…</code>. Chaque point supplémentaire est un couplage invisible.</p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           COUCHES
+      ══════════════════════════════════ -->
+      <section id="couches">
+        <h2>Architecture en couches (Layered Architecture)</h2>
+        <p>L'architecture en couches est le point de départ le plus courant. Elle sépare typiquement <strong>4 préoccupations</strong> qui changent à des rythmes différents.</p>
+
+<pre><code class="language-bash">┌─────────────────────────────────────┐
+│  web / controller                   │  ← Reçoit HTTP, valide la forme
+├─────────────────────────────────────┤
+│  application                        │  ← Orchestre les cas d'usage
+├─────────────────────────────────────┤
+│  domain                             │  ← Règles métier pures
+├─────────────────────────────────────┤
+│  infrastructure                     │  ← BDD, mail, broker, API externes
+└─────────────────────────────────────┘</code></pre>
+
+        <table>
+          <thead><tr><th>Couche</th><th>Responsabilité</th><th>Technologie</th><th>Peut dépendre de</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Web</strong></td><td>Mapper HTTP ↔ objets métier</td><td>Spring MVC, @RestController</td><td>Application</td></tr>
+            <tr><td><strong>Application</strong></td><td>Orchestrer les cas d'usage</td><td>@Service</td><td>Domain, Infrastructure (via ports)</td></tr>
+            <tr><td><strong>Domain</strong></td><td>Règles métier, invariants</td><td>POJO pur, aucun framework</td><td>Personne</td></tr>
+            <tr><td><strong>Infrastructure</strong></td><td>Détails techniques</td><td>JPA, Kafka, RestTemplate</td><td>Domain (implémente les ports)</td></tr>
+          </tbody>
+        </table>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>La couche web c'est le <strong>guichet</strong> qui reçoit les clients et parle leur langage. La couche application c'est le <strong>chef de projet</strong> qui coordonne. Le domaine c'est l'<strong>expert métier</strong> qui connaît les règles. L'infrastructure c'est l'<strong>équipe technique</strong> qui s'occupe des outils.</p>
+        </div>
+
+        <div class="box warning">
+          <h4>⚠️ Règle d'or des couches</h4>
+          <p>Les dépendances ne vont que <strong>vers le bas</strong> (ou via des abstractions). Le domaine ne doit <em>jamais</em> importer une classe Spring, JPA, ou Kafka. Si c'est le cas, vous avez un couplage à l'infrastructure dans votre logique métier — le pire des couplages.</p>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Vérifier les dépendances avec ArchUnit</h4>
+<pre><code class="language-java">// Test automatique qui vérifie les règles d'architecture
+@AnalyzeClasses(packages = "fr.univ.library")
+public class LayerArchitectureTest {
+
+    @ArchTest
+    static final ArchRule domain_should_not_depend_on_infra =
+        noClasses()
+            .that().resideInAPackage("..domain..")
+            .should().dependOnClassesThat()
+            .resideInAPackage("..infrastructure..");
+
+    @ArchTest
+    static final ArchRule controllers_should_not_access_repos =
+        noClasses()
+            .that().resideInAPackage("..web..")
+            .should().dependOnClassesThat()
+            .resideInAPackage("..repository..");
+}</code></pre>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           HEXAGONALE
+      ══════════════════════════════════ -->
+      <section id="hexagonal">
+        <h2>Architecture hexagonale (Ports &amp; Adapters)</h2>
+        <p>L'architecture hexagonale (Alistair Cockburn, 2005) pousse plus loin la séparation des couches. Le <strong>domaine est au centre</strong>, isolé du monde extérieur par des <strong>ports</strong> (interfaces) et des <strong>adapters</strong> (implémentations).</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Ton téléphone (le domaine) ne sait pas comment il est chargé. Il expose juste une prise USB-C (le port). Tu peux brancher un chargeur secteur, une batterie portable ou un câble voiture (les adapters). Le téléphone n'a pas besoin de changer quand tu changes de chargeur.</p>
+        </div>
+
+<pre><code class="language-bash">          [ REST API ]  [ Tests ]  [ CLI ]
+                 │          │        │
+         ┌───── adapter ────┤        │
+         │                 │        │
+         ▼                 ▼        ▼
+    ┌─── port entrant (interface) ───┐
+    │                               │
+    │        DOMAINE MÉTIER         │   ← Règles pures, sans framework
+    │                               │
+    └─── port sortant (interface) ──┘
+         │                 │
+         ▼                 ▼
+    [ Postgres ]       [ Kafka ]       ← Adapters sortants</code></pre>
+
+        <div class="box example">
+          <h4>Port entrant (driven by the outside world)</h4>
+<pre><code class="language-java">// Port : interface définie par le DOMAINE
+public interface LoanUseCase {
+    LoanId createLoan(CreateLoanCommand command);
+    void returnLoan(LoanId loanId);
+}
+
+// Adapter entrant : traduit HTTP → commande domaine
+@RestController
+@RequestMapping("/api/v1/loans")
+public class LoanController {
+
+    private final LoanUseCase loanUseCase;  // dépend du PORT, pas de l'impl
 
     @PostMapping
-    public ResponseEntity<BookResponse> create(@Valid @RequestBody BookRequest request) {
-        // Le contrôleur ne fait aucune règle métier. Il délègue.
-        BookResponse created = bookApplicationService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    public ResponseEntity&lt;LoanResponse&gt; create(
+            @Valid @RequestBody CreateLoanRequest req) {
+        CreateLoanCommand cmd = new CreateLoanCommand(
+            req.studentId(), req.bookId()
+        );
+        LoanId id = loanUseCase.createLoan(cmd);
+        return ResponseEntity.created(URI.create("/api/v1/loans/" + id))
+                             .build();
     }
 }</code></pre>
 
-                <div class="code-header">BookApplicationService.java (Application - Orchestration)</div>
-                <pre><code class="language-java">@Service
+          <h4>Port sortant (driven by the domain)</h4>
+<pre><code class="language-java">// Port : interface définie par le DOMAINE (ce dont il a besoin)
+public interface LoanRepository {
+    void save(Loan loan);
+    Optional&lt;Loan&gt; findById(LoanId id);
+}
+
+// Adapter sortant : implémentation technique (infra)
+@Repository
+public class JpaLoanRepository implements LoanRepository {
+
+    private final LoanJpaEntityRepository jpa; // Spring Data JPA
+
+    @Override
+    public void save(Loan loan) {
+        LoanJpaEntity entity = LoanMapper.toEntity(loan);
+        jpa.save(entity);
+    }
+
+    @Override
+    public Optional&lt;Loan&gt; findById(LoanId id) {
+        return jpa.findById(id.value()).map(LoanMapper::toDomain);
+    }
+}
+
+// Pour les tests : adapter in-memory, sans BD
+public class InMemoryLoanRepository implements LoanRepository {
+    private final Map&lt;LoanId, Loan&gt; store = new HashMap&lt;&gt;();
+
+    @Override public void save(Loan loan)                    { store.put(loan.getId(), loan); }
+    @Override public Optional&lt;Loan&gt; findById(LoanId id)     { return Optional.ofNullable(store.get(id)); }
+}</code></pre>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — Bénéfices concrets</h4>
+          <ul>
+            <li><strong>Tests ultra-rapides</strong> : le domaine se teste avec des repositories in-memory, sans Spring, sans BD. Chaque test s'exécute en millisecondes.</li>
+            <li><strong>Remplacement de technologie</strong> : migrer de Postgres vers MongoDB = écrire un nouvel adapter, sans toucher au domaine.</li>
+            <li><strong>Multi-canaux</strong> : le même domaine est accessible par REST, CLI, batch, gRPC — chacun est un adapter différent.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           MONOLITHE VS DISTRIBUÉ
+      ══════════════════════════════════ -->
+      <section id="mono-vs-distribue">
+        <h2>Monolithe vs distribué — choisir au bon moment</h2>
+        <p>Le choix n'est pas "quel est le meilleur ?" mais "quel est le plus <em>adapté à mon contexte</em> ?"</p>
+
+        <table>
+          <thead><tr><th>Critère</th><th>Monolithe bien structuré</th><th>Microservices</th></tr></thead>
+          <tbody>
+            <tr><td>Déploiement</td><td>Simple, un seul artefact</td><td>Complexe (orchestration, CI/CD par service)</td></tr>
+            <tr><td>Debug</td><td>Stack trace locale, directe</td><td>Nécessite tracing distribué</td></tr>
+            <tr><td>Scalabilité ciblée</td><td>Tout monte ensemble</td><td>On scale uniquement le service sous charge</td></tr>
+            <tr><td>Latence interne</td><td>Appels mémoire (~ns)</td><td>Appels réseau (~ms, avec risques)</td></tr>
+            <tr><td>Autonomie d'équipe</td><td>Coordination nécessaire</td><td>Forte si bien découpé (Loi de Conway)</td></tr>
+            <tr><td>Taille d'équipe cible</td><td>1–10 développeurs</td><td>10+ développeurs, plusieurs équipes</td></tr>
+            <tr><td>Maturité du domaine</td><td>Domaine encore flou / MVP</td><td>Domaine bien compris et stabilisé</td></tr>
+          </tbody>
+        </table>
+
+        <div class="box warning">
+          <h4>⚠️ Microservices ≠ modernité</h4>
+          <p>Un système distribué n'est pas "plus moderne" par nature. Il <strong>déplace des problèmes</strong> (couplage, état partagé) vers de <em>nouveaux problèmes</em> (réseau, cohérence, observabilité, sécurité, exploitation). Commencer par un monolithe bien structuré, découper ensuite quand la douleur est réelle.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Le Monolith-First Pattern (Martin Fowler)</h4>
+          <p>La recommandation de Martin Fowler : <strong>commencer par un monolithe</strong>, identifier les modules qui ont des contraintes de scalabilité, de déploiement ou d'équipe différentes, puis extraire <em>seulement ceux-là</em> en services. Le monolithe en couches (voire hexagonal) facilite cette extraction car les modules sont déjà bien séparés.</p>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓 — Le Modular Monolith</h4>
+          <p>Entre monolithe classique et microservices, il existe le <strong>Modular Monolith</strong> : un seul processus, mais des modules internes avec des frontières strictes (pas d'accès direct aux tables d'un autre module, communication via des interfaces explicites). C'est souvent le meilleur point d'entrée avant de distribuer.</p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           EXEMPLE SPRING COMPLET
+      ══════════════════════════════════ -->
+      <section id="spring-exemple">
+        <h2>Exemple Spring Boot complet — Créer un livre</h2>
+        <p>Voici comment les couches s'articulent pour un cas d'usage simple : créer un livre dans le catalogue.</p>
+
+        <h3>1. DTO d'entrée — couche web</h3>
+<pre><code class="language-java">// Le DTO valide la forme (HTTP) — pas les règles métier
+public record CreateBookRequest(
+    @NotBlank(message = "Le titre est obligatoire")
+    String title,
+
+    @NotBlank(message = "L'auteur est obligatoire")
+    String author,
+
+    @Positive(message = "Le stock doit être positif")
+    @Max(value = 1000, message = "Stock limité à 1000")
+    int stock,
+
+    @ISBN(message = "Format ISBN invalide")
+    String isbn
+) {}
+
+// DTO de sortie — ne jamais exposer l'entité JPA !
+public record BookResponse(
+    UUID   id,
+    String title,
+    String author,
+    int    stock,
+    String isbn,
+    Instant createdAt
+) {}</code></pre>
+
+        <h3>2. Contrôleur — couche web</h3>
+<pre><code class="language-java">@RestController
+@RequestMapping("/api/v1/books")
 @RequiredArgsConstructor
+@Tag(name = "Catalogue", description = "Gestion des livres")
+public class BookController {
+
+    private final BookApplicationService bookService;
+
+    @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
+    @Operation(summary = "Créer un nouveau livre")
+    public BookResponse create(
+            @Valid @RequestBody CreateBookRequest request) {
+        return bookService.create(request);
+    }
+
+    @GetMapping("/{id}")
+    public BookResponse findById(@PathVariable UUID id) {
+        return bookService.findById(id);
+    }
+
+    @GetMapping
+    public Page&lt;BookResponse&gt; search(
+            @RequestParam(required = false) String query,
+            Pageable pageable) {
+        return bookService.search(query, pageable);
+    }
+}</code></pre>
+
+        <h3>3. Service d'application — couche application</h3>
+<pre><code class="language-java">@Service
+@RequiredArgsConstructor
+@Transactional
 public class BookApplicationService {
 
-    private final BookRepository bookRepository;
-    private final BookMapper bookMapper;
+    private final BookRepository  bookRepository;
+    private final BookMapper      bookMapper;
+    private final BookEventPublisher eventPublisher;
 
-    @Transactional
-    public BookResponse create(BookRequest request) {
-        // 1. Mapping
-        Book book = bookMapper.toEntity(request);
-        // 2. Règle métier (déléguée au domaine si complexe)
-        book.generateIsbn();
-        // 3. Persistance
-        Book saved = bookRepository.save(book);
-        // 4. Retour
-        return bookMapper.toResponse(saved);
+    public BookResponse create(CreateBookRequest request) {
+        // Vérification de l'unicité de l'ISBN (règle métier)
+        if (bookRepository.existsByIsbn(request.isbn())) {
+            throw new BookAlreadyExistsException(request.isbn());
+        }
+
+        // Création de l'entité domaine
+        Book book = new Book(
+            UUID.randomUUID(),
+            request.title(),
+            request.author(),
+            request.stock(),
+            request.isbn()
+        );
+
+        // Persistance via le port
+        bookRepository.save(book);
+
+        // Événement domaine (optionnel à ce stade)
+        eventPublisher.publish(new BookCreatedEvent(book.getId()));
+
+        return bookMapper.toResponse(book);
+    }
+
+    @Transactional(readOnly = true)
+    public BookResponse findById(UUID id) {
+        return bookRepository.findById(id)
+            .map(bookMapper::toResponse)
+            .orElseThrow(() -> new BookNotFoundException(id));
     }
 }</code></pre>
-            </section>
 
-            <section id="quiz">
-                <h2>Quiz : Validez vos acquis</h2>
-                <div class="quiz-container">
-                    <ol>
-                        <li><strong>Pourquoi maximiser la "Performance" peut-il réduire la "Maintenabilité" ?</strong></li>
-                        <li><strong>Si l'équipe A (Frontend) et l'équipe B (Backend) ne s'entendent pas, quel sera l'impact sur l'API (selon Conway) ?</strong></li>
-                        <li><strong>Pourquoi utiliser un "DTO" (Data Transfer Object) au lieu de renvoyer directement l'Entité JPA/Hibernate dans le contrôleur ?</strong></li>
-                    </ol>
-                    <details>
-                        <summary>Voir les réponses détaillées</summary>
-                        <ul>
-                            <li>L'optimisation extrême des performances nécessite souvent des hacks de code (cache manuel, requêtes SQL natives complexes, bits manipulation) qui rendent le code très difficile à lire et à maintenir pour les autres développeurs.</li>
-                            <li>Selon la loi de Conway, l'API conçue sera probablement chaotique, mal documentée, et l'intégration sera douloureuse, car elle reflétera le manque de communication entre les deux équipes.</li>
-                            <li>Renvoyer une Entité JPA crée un couplage fort entre la base de données et l'API publique. Si on ajoute un champ secret en BDD (ex: mot de passe), il risque de fuiter dans l'API. De plus, cela peut causer des problèmes de "Lazy Loading" (boucles infinies JSON).</li>
-                        </ul>
-                    </details>
-                </div>
-            </section>
+        <h3>4. Entité domaine — couche domaine</h3>
+<pre><code class="language-java">// Entité riche : porte ses invariants et ses règles métier
+public class Book {
+    private final UUID   id;
+    private       String title;
+    private       String author;
+    private       int    stock;
+    private final String isbn;
 
-            <div class="footer-nav">
-                <a href="introduction.html" class="btn-secondary">← Retour à l'Introduction</a>
-                <a href="jour-2-patterns-et-couches.html" class="btn-primary">Passer au Jour 2 →</a>
-            </div>
-        </article>
-    </div>
+    public Book(UUID id, String title, String author, int stock, String isbn) {
+        if (stock < 0) throw new IllegalArgumentException("Stock négatif interdit");
+        this.id     = id;
+        this.title  = title;
+        this.author = author;
+        this.stock  = stock;
+        this.isbn   = isbn;
+    }
+
+    // Méthode métier — encapsule la règle "un emprunt décrémente le stock"
+    public void decrementStock() {
+        if (this.stock <= 0) {
+            throw new BookNotAvailableException(this.id);
+        }
+        this.stock--;
+    }
+
+    public void incrementStock() { this.stock++; }
+
+    // Getters (pas de setters publics — encapsulation)
+    public UUID   getId()     { return id;     }
+    public int    getStock()  { return stock;  }
+    public String getTitle()  { return title;  }
+    public String getAuthor() { return author; }
+    public String getIsbn()   { return isbn;   }
+}</code></pre>
+
+        <h3>5. Gestion globale des erreurs — couche web</h3>
+<pre><code class="language-java">@RestControllerAdvice
+public class GlobalExceptionHandler {
+
+    @ExceptionHandler(BookNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ProblemDetail handleNotFound(BookNotFoundException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.NOT_FOUND);
+        pd.setTitle("Livre introuvable");
+        pd.setDetail(ex.getMessage());
+        return pd;
+    }
+
+    @ExceptionHandler(BookNotAvailableException.class)
+    @ResponseStatus(HttpStatus.CONFLICT)
+    public ProblemDetail handleNotAvailable(BookNotAvailableException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.CONFLICT);
+        pd.setTitle("Livre indisponible");
+        pd.setDetail("Le livre demandé n'a plus de stock disponible.");
+        return pd;
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public ProblemDetail handleValidation(MethodArgumentNotValidException ex) {
+        ProblemDetail pd = ProblemDetail.forStatus(HttpStatus.BAD_REQUEST);
+        pd.setTitle("Données invalides");
+        Map&lt;String, String&gt; errors = new LinkedHashMap&lt;&gt;();
+        ex.getBindingResult().getFieldErrors()
+          .forEach(fe -> errors.put(fe.getField(), fe.getDefaultMessage()));
+        pd.setProperty("errors", errors);
+        return pd;
+    }
+}</code></pre>
+
+        <h3>6. Test du domaine — sans Spring, ultra-rapide</h3>
+<pre><code class="language-java">class BookTest {
+
+    @Test
+    void decrementStock_should_reduce_stock_by_one() {
+        Book book = new Book(UUID.randomUUID(), "Clean Code",
+                             "R. Martin", 5, "978-0-13-235088-4");
+        book.decrementStock();
+        assertThat(book.getStock()).isEqualTo(4);
+    }
+
+    @Test
+    void decrementStock_should_throw_when_stock_is_zero() {
+        Book book = new Book(UUID.randomUUID(), "Clean Code",
+                             "R. Martin", 0, "978-0-13-235088-4");
+        assertThatThrownBy(book::decrementStock)
+            .isInstanceOf(BookNotAvailableException.class);
+    }
+}</code></pre>
+
+        <div class="box best-practice">
+          <h4>✅ Règle mnémotechnique</h4>
+          <p><strong>Le contrôleur expose. Le service d'application orchestre. Le domaine décide. L'infrastructure exécute.</strong> Si vous trouvez de la logique <code>if/else</code> métier dans le contrôleur ou des annotations <code>@Autowired</code> dans le domaine, quelque chose ne va pas.</p>
+        </div>
+      </section>
+
+      <!-- ══════════════════════════════════
+           QUIZ
+      ══════════════════════════════════ -->
+      <section id="quiz">
+        <h2>Quiz de fin</h2>
+
+        <div class="quiz-item">
+          <p><strong>1.</strong> Pourquoi la séparation des responsabilités améliore-t-elle la maintenabilité ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Elle limite l'<strong>impact d'un changement</strong> à un seul composant. Si la logique de notification est isolée dans <code>LoanNotificationService</code>, changer de fournisseur email ne touche pas au service d'emprunt. Sans séparation, un changement anodin peut provoquer des régressions en cascade.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>2.</strong> Dans quel cas un monolithe reste-t-il un bon choix ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Pour une <strong>équipe réduite</strong> (< 10 dev), un <strong>domaine encore flou</strong> (on ne sait pas encore comment découper), ou un <strong>MVP</strong> où la vitesse est prioritaire. Un monolithe bien structuré (couches ou hexagonal) peut servir des millions d'utilisateurs — voir Shopify, Stack Overflow. Le problème n'est pas la taille, c'est le manque de structure.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>3.</strong> Quelle différence entre couplage fort et forte cohésion ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Le <strong>couplage fort</strong> (négatif) signifie que des composants <em>distincts</em> dépendent fortement les uns des autres — changer l'un force à changer l'autre. La <strong>forte cohésion</strong> (positif) signifie que les éléments <em>internes</em> à un composant travaillent tous au même but. On veut : faible couplage <em>entre</em> composants, forte cohésion <em>dans</em> chaque composant.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>4.</strong> Quel principe SOLID est violé si le domaine importe <code>javax.persistence.Entity</code> ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Le <strong>Dependency Inversion Principle (D)</strong> : le module de haut niveau (domaine) dépend d'un module de bas niveau (JPA/Hibernate). Et par extension, le <strong>Single Responsibility</strong> : l'entité domaine prend la responsabilité du mapping en base. Solution : avoir des entités JPA séparées dans la couche infrastructure, et un mapper entre domaine et infrastructure.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>5.</strong> Pourquoi tester le domaine sans Spring est-il une bonne pratique ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Démarrer le contexte Spring prend plusieurs secondes. Un test unitaire du domaine pur s'exécute en millisecondes. Sur des milliers de tests, la différence est de plusieurs minutes. De plus, si le domaine <em>nécessite</em> Spring pour être testé, c'est le signe qu'il est couplé à l'infrastructure — une violation d'architecture.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>6.</strong> Expliquez la différence entre l'architecture en couches et l'architecture hexagonale.</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Dans l'architecture en <strong>couches</strong>, les dépendances vont vers le bas (web → application → domaine → infra). Le domaine dépend encore indirectement de l'infrastructure via les abstractions. Dans l'<strong>hexagonale</strong>, le domaine est au <em>centre</em> et ne dépend de <em>rien</em> d'autre. L'infrastructure <em>implémente</em> les ports définis par le domaine — la dépendance est inversée. Le bénéfice principal : le domaine est testable en isolation totale et portable vers n'importe quelle infrastructure.</p>
+          </details>
+        </div>
+      </section>
+
+      <div class="footer-nav">
+        <a href="../pages/introduction.html">← Introduction</a>
+        <a href="../pages/jour-2-patterns-et-couches.html">Jour 2 →</a>
+      </div>
+    </article>
+  </div>
 </main>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-java.min.js"></script>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 </body>
 </html>

@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>TP2 — Passage en distribué</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-okaidia.min.css">
   <script defer src="../assets/js/main.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </head>
 <body>
 <header class="site-header">
@@ -92,19 +95,19 @@
 </section>
 <section id="structure">
   <h2>Structure de projet attendue</h2>
-  <pre><code>distributed-library/
+  <pre><code class="language-text">distributed-library/
 ├── api-gateway
 ├── catalog-service
 └── loan-service</code></pre>
 </section>
 <section id="code">
   <h2>Extraits de code commentés</h2>
-  <pre><code>@FeignClient(name = "catalog-service", url = "${catalog.url}")
+  <pre><code class="language-java">@FeignClient(name = "catalog-service", url = "${catalog.url}")
 public interface CatalogClient {{
     @GetMapping("/internal/books/{bookId}/availability")
     AvailabilityResponse getAvailability(@PathVariable UUID bookId);
 }}</code></pre>
-  <pre><code>public LoanResponse createLoan(CreateLoanRequest request) {{
+  <pre><code class="language-java">public LoanResponse createLoan(CreateLoanRequest request) {{
     AvailabilityResponse availability = catalogClient.getAvailability(request.bookId());
     if (!availability.available()) {{
         throw new BusinessException("Livre non disponible");

@@ -5,33 +5,36 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jour 5 — Résilience, observabilité, sécurité, fiabilité</title>
   <link rel="stylesheet" href="../assets/css/style.css">
-  <script defer src="../assets/js/main.js"></script>
+  <!-- PrismJS JS uniquement — thème géré par style-3.css (VS Code Dark+) -->
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </head>
 <body>
 <header class="site-header">
   <div class="nav-wrap">
-    <div class="brand">Architecture logicielle & systèmes distribués</div>
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
     <nav class="top-nav">
       <a href="../index.html">Accueil</a>
-<a href="../pages/introduction.html">Introduction</a>
-<a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-<a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-<a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-<a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-<a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-<a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-<a href="../pages/tp-1.html">TP1</a>
-<a href="../pages/tp-2.html">TP2</a>
-<a href="../pages/tp-3.html">TP3</a>
-<a href="../pages/exercices.html">Exercices</a>
-<a href="../pages/corriges.html">Corrigés</a>
-<a href="../pages/glossary.html">Glossaire</a>
-<a href="../pages/live-coding.html">Live Coding</a>
-<a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-<a href="../pages/faq.html">FAQ</a>
+      <a href="../pages/introduction.html">Introduction</a>
+      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+      <a href="../pages/tp-1.html">TP1</a>
+      <a href="../pages/tp-2.html">TP2</a>
+      <a href="../pages/tp-3.html">TP3</a>
+      <a href="../pages/exercices.html">Exercices</a>
+      <a href="../pages/corriges.html">Corrigés</a>
+      <a href="../pages/glossary.html">Glossaire</a>
+      <a href="../pages/live-coding.html">Live Coding</a>
+      <a href="../pages/architecture-dossier.html">Dossier Architecture</a>
+      <a href="../pages/faq.html">FAQ</a>
     </nav>
   </div>
 </header>
+
 <main>
   <div class="hero">
     <div class="badges">
@@ -41,107 +44,718 @@
       <span class="badge">3 TP progressifs</span>
       <span class="badge">Java / Spring Boot</span>
     </div>
-    <h1>Jour 5 — Résilience, observabilité, sécurité, fiabilité</h1>
+    <h1>Jour 5 — Résilience, observabilité, sécurité &amp; fiabilité</h1>
     <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Fiabiliser un système distribué avec des mécanismes concrets de résilience, de monitoring et de sécurité.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 4 acquis</p></div>
+      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Fiabiliser un système distribué : résilience Resilience4j, observabilité 3 pillars (ELK + Prometheus + Jaeger), sécurité JWT/OAuth2 et Zero Trust.</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos, live coding et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 4 acquis — microservices, communication inter-services</p></div>
     </div>
   </div>
+
   <div class="layout">
     <aside class="toc">
       <h2>Table des matières</h2>
-      <ul><li><a href="#resilience">Résilience</a></li>
-<li><a href="#observabilite">Observabilité</a></li>
-<li><a href="#healthchecks">Health checks</a></li>
-<li><a href="#securite">Sécurité</a></li>
-<li><a href="#zerotrust">Zero Trust & secrets</a></li>
-<li><a href="#quiz">Quiz</a></li></ul>
+      <ul>
+        <li><a href="#resilience">1. Résilience</a></li>
+        <li><a href="#timeout-retry">— Timeout &amp; Retry</a></li>
+        <li><a href="#circuit-breaker">— Circuit Breaker</a></li>
+        <li><a href="#bulkhead">— Bulkhead &amp; Rate Limiter</a></li>
+        <li><a href="#observabilite">2. Observabilité</a></li>
+        <li><a href="#logs">— Logs structurés</a></li>
+        <li><a href="#metriques">— Métriques Micrometer</a></li>
+        <li><a href="#traces">— Traces distribuées</a></li>
+        <li><a href="#healthchecks">3. Health Checks</a></li>
+        <li><a href="#securite">4. Sécurité JWT / OAuth2</a></li>
+        <li><a href="#zerotrust">5. Zero Trust &amp; Secrets</a></li>
+        <li><a href="#quiz">Quiz de fin</a></li>
+      </ul>
     </aside>
+
     <article class="content">
-      
+
+<!-- ═══ SECTION 1 — RÉSILIENCE ═══════════════════════════════ -->
 <section id="resilience">
-  <h2>Résilience : timeout, retry, circuit breaker, fallback, bulkhead</h2>
-  <p>La résilience consiste à empêcher qu’une panne locale devienne une panne globale.</p>
+  <h2>1. Résilience : empêcher la panne locale de devenir globale</h2>
+
+  <div class="box child-mode">
+    <h4>🧒 Mode enfant</h4>
+    <p>Imagine que la cantine ne réponde plus. Sans résilience, tous les élèves restent bloqués à attendre devant la porte fermée. Avec résilience, la cantine propose une alternative (fallback) ou dit "reviens dans 10 minutes" (circuit breaker). L'école continue de fonctionner.</p>
+  </div>
+
+  <p>Dans un système distribué, un seul service lent peut provoquer une <strong>cascade failure</strong> : ses appelants s'entassent sur des threads bloqués, ce qui bloque leurs propres appelants, et ainsi de suite jusqu'à l'indisponibilité totale.</p>
+
+  <div class="diagram">Client ──► Service A ──► Service B (lent/mort)
+                     │
+         threads bloqués en A s'accumulent
+                     │
+         Service A répond 503 à son tour
+                     │
+         Client : erreur générale</div>
+
   <table>
-    <thead><tr><th>Mécanisme</th><th>Rôle</th><th>Exemple</th></tr></thead>
+    <thead><tr><th>Mécanisme</th><th>Rôle</th><th>Analogie</th><th>Config typique</th></tr></thead>
     <tbody>
-      <tr><td>Timeout</td><td>Couper l’attente excessive</td><td>1 s pour un service de disponibilité</td></tr>
-      <tr><td>Retry</td><td>Retenter un échec transitoire</td><td>2 tentatives max avec backoff</td></tr>
-      <tr><td>Circuit Breaker</td><td>Stopper temporairement les appels vers un service malade</td><td>Ouvrir après 50% d’échecs</td></tr>
-      <tr><td>Fallback</td><td>Réponse dégradée</td><td>Message “service indisponible”</td></tr>
-      <tr><td>Bulkhead</td><td>Isoler les ressources</td><td>Pool séparé pour un appel externe lent</td></tr>
+      <tr><td><strong>Timeout</strong></td><td>Couper l'attente excessive</td><td>Minuterie de four</td><td>500ms – 2s</td></tr>
+      <tr><td><strong>Retry</strong></td><td>Retenter un échec transitoire</td><td>Rappeler après une mauvaise ligne</td><td>2–3 fois, backoff expo</td></tr>
+      <tr><td><strong>Circuit Breaker</strong></td><td>Stopper les appels vers un service malade</td><td>Disjoncteur électrique</td><td>Ouvrir après 50% d'échecs</td></tr>
+      <tr><td><strong>Fallback</strong></td><td>Réponse dégradée mais utile</td><td>Mode hors-ligne d'un GPS</td><td>Cache, valeur par défaut</td></tr>
+      <tr><td><strong>Bulkhead</strong></td><td>Isoler les ressources par service</td><td>Compartiments d'un sous-marin</td><td>Thread pool séparé</td></tr>
+      <tr><td><strong>Rate Limiter</strong></td><td>Limiter le débit entrant</td><td>Péage d'autoroute</td><td>100 req/s max</td></tr>
     </tbody>
   </table>
-  <pre><code>@Retry(name = "catalogService")
-@CircuitBreaker(name = "catalogService", fallbackMethod = "fallbackAvailability")
-public AvailabilityResponse getAvailability(UUID bookId) {{
-    return catalogClient.getAvailability(bookId);
-}}
 
-public AvailabilityResponse fallbackAvailability(UUID bookId, Throwable ex) {{
-    return new AvailabilityResponse(bookId, false, "Réponse dégradée");
-}}</code></pre>
-</section>
-<section id="observabilite">
-  <h2>Observabilité : logs, métriques, traces distribuées</h2>
-  <p>Dans un système distribué, “ça ne marche pas” ne suffit plus. Il faut pouvoir répondre à trois questions : <strong>quoi</strong>, <strong>combien</strong>, <strong>où</strong>.</p>
-  <div class="columns">
-    <div class="card"><h3>Logs</h3><p>Événements horodatés, corrélés, lisibles par humain ou machine.</p></div>
-    <div class="card"><h3>Métriques</h3><p>Volumes, latences, taux d’erreur, saturation.</p></div>
-    <div class="card"><h3>Traces</h3><p>Parcours complet d’une requête à travers plusieurs services.</p></div>
+  <h3 id="timeout-retry">1.1 Timeout &amp; Retry</h3>
+  <span class="level-badge junior">🟢 Junior</span>
+  <p>Le timeout abandonne l'attente d'une réponse après un délai défini. Le retry retente automatiquement en cas d'échec <em>transitoire</em>. <strong>Ne jamais configurer un retry sans timeout</strong>.</p>
+
+  <pre data-label="application.yml — Resilience4j"><code class="language-yaml">resilience4j:
+  timelimiter:
+    instances:
+      catalogService:
+        timeout-duration: 1500ms
+        cancel-running-future: true
+
+  retry:
+    instances:
+      catalogService:
+        max-attempts: 3
+        wait-duration: 200ms
+        enable-exponential-backoff: true   # 200ms, 400ms, 800ms
+        exponential-backoff-multiplier: 2
+        # Ne PAS retenter les erreurs métier (404, 400)
+        ignore-exceptions:
+          - com.example.exception.BookNotFoundException</code></pre>
+
+  <div class="box warning">
+    <h4>⚠️ Idempotence obligatoire avant tout retry</h4>
+    <p>Ne retenter que les opérations <strong>idempotentes</strong> (GET, PUT, DELETE). Un retry sur un POST de création peut créer plusieurs fois la même ressource. Toujours vérifier avant d'activer le retry sur une opération d'écriture.</p>
   </div>
-  <pre><code>// Exemple d'enrichissement de log
-log.info("loan-created loanId={} studentId={} correlationId={}",
-        loan.getId(), loan.getStudentId(), MDC.get("correlationId"));</code></pre>
-  <div class="box best-practice"><h4>Bonne pratique</h4><p>Adopter des logs structurés JSON en production, un identifiant de corrélation propagé entre services, et des dashboards métier + technique.</p></div>
+
+  <h3 id="circuit-breaker">1.2 Circuit Breaker — Les 3 états</h3>
+  <span class="level-badge mid">🟡 Intermédiaire</span>
+
+  <div class="diagram">      ┌────────────────────────────────┐
+      │         CLOSED (normal)        │
+      │  Appels passent normalement    │
+      │  On compte les erreurs         │
+      └────────────┬───────────────────┘
+                   │ taux erreur > seuil
+                   ▼
+      ┌────────────────────────────────┐
+      │         OPEN (déclenché)       │
+      │  Appels rejetés immédiatement  │
+      │  Fallback activé               │
+      └────────────┬───────────────────┘
+                   │ wait-duration écoulé
+                   ▼
+      ┌────────────────────────────────┐
+      │       HALF-OPEN (sonde)        │
+      │  X appels de test autorisés    │
+      │  Succès → CLOSED, Échec → OPEN │
+      └────────────────────────────────┘</div>
+
+  <pre data-label="application.yml — Circuit Breaker complet"><code class="language-yaml">resilience4j:
+  circuitbreaker:
+    instances:
+      catalogService:
+        sliding-window-type: COUNT_BASED
+        sliding-window-size: 10
+        failure-rate-threshold: 50          # Ouvrir si 50% d'échecs
+        slow-call-rate-threshold: 80        # Appels lents > seuil aussi = échec
+        slow-call-duration-threshold: 1000ms
+        wait-duration-in-open-state: 30s
+        permitted-number-of-calls-in-half-open-state: 3
+        register-health-indicator: true</code></pre>
+
+  <pre data-label="LoanService.java — Annotations combinées"><code class="language-java">@Service
+@Slf4j
+public class LoanService {
+
+    // Ordre d'exécution (externe → interne) :
+    // TimeLimiter → CircuitBreaker → Retry
+    @TimeLimiter(name = "catalogService")
+    @CircuitBreaker(name = "catalogService",
+                    fallbackMethod = "fallbackAvailability")
+    @Retry(name = "catalogService")
+    public CompletableFuture&lt;AvailabilityResponse&gt; getAvailability(UUID bookId) {
+        return CompletableFuture.supplyAsync(
+            () -> catalogClient.getAvailability(bookId)
+        );
+    }
+
+    // Même signature + Throwable en dernier
+    private CompletableFuture&lt;AvailabilityResponse&gt; fallbackAvailability(
+            UUID bookId, Throwable ex) {
+        log.warn("Fallback triggered bookId={} cause={}", bookId, ex.getMessage());
+        return CompletableFuture.completedFuture(
+            AvailabilityResponse.degraded(bookId)
+        );
+    }
+}</code></pre>
+
+  <h3 id="bulkhead">1.3 Bulkhead &amp; Rate Limiter</h3>
+  <span class="level-badge expert">🔴 Expert</span>
+  <p>Le Bulkhead isole les ressources : un service externe lent ne monopolise pas <strong>tous</strong> les threads. Deux modes possibles :</p>
+
+  <div class="columns">
+    <div>
+      <strong>Sémaphore</strong> (même thread, limite de concurrence)
+      <pre data-label="yml"><code class="language-yaml">resilience4j:
+  bulkhead:
+    instances:
+      catalogService:
+        max-concurrent-calls: 10
+        max-wait-duration: 10ms</code></pre>
+    </div>
+    <div>
+      <strong>Thread Pool</strong> (thread dédié, isolation totale)
+      <pre data-label="yml"><code class="language-yaml">resilience4j:
+  thread-pool-bulkhead:
+    instances:
+      paymentService:
+        core-thread-pool-size: 4
+        max-thread-pool-size: 8
+        queue-capacity: 20</code></pre>
+    </div>
+  </div>
+
+  <div class="box best-practice">
+    <h4>✅ Ordre recommandé des patterns</h4>
+    <p>De l'externe vers l'interne : <code>Retry → CircuitBreaker → RateLimiter → TimeLimiter → Bulkhead</code>. Jamais Retry à l'intérieur du CircuitBreaker : les retries gonfleraient artificiellement la fenêtre d'erreurs et ouvriraient le circuit trop tôt.</p>
+  </div>
+
+  <div class="box live-coding">
+    <h4>🖥️ Live Coding — Cascade failure</h4>
+    <ol>
+      <li>Démarrer un <code>slow-service</code> répondant après 3 secondes</li>
+      <li>Appeler depuis <code>loan-service</code> sans timeout → observer les threads bloqués via <code>/actuator/metrics/jvm.threads.live</code></li>
+      <li>Activer le TimeLimiter → les appels reviennent avec fallback en 1,5 s</li>
+      <li>Activer le CircuitBreaker → après 5 échecs, les appels sont court-circuités immédiatement</li>
+    </ol>
+  </div>
 </section>
+
+<!-- ═══ SECTION 2 — OBSERVABILITÉ ════════════════════════════ -->
+<section id="observabilite">
+  <h2>2. Observabilité : les 3 piliers</h2>
+
+  <p>L'observabilité répond à trois questions fondamentales en production :</p>
+  <div class="columns">
+    <div class="card">
+      <h3>📄 Logs</h3>
+      <p><strong>Quoi</strong> s'est passé, quand, dans quel contexte. Événements discrets horodatés.</p>
+      <p class="small">Logback → Elasticsearch → Kibana (ELK)</p>
+    </div>
+    <div class="card">
+      <h3>📊 Métriques</h3>
+      <p><strong>Combien</strong> d'événements, quelle latence, quel taux d'erreur. Agrégats dans le temps.</p>
+      <p class="small">Micrometer → Prometheus → Grafana</p>
+    </div>
+    <div class="card">
+      <h3>🔗 Traces</h3>
+      <p><strong>Où</strong> passe la requête entre services. Parcours complet d'une transaction.</p>
+      <p class="small">OpenTelemetry → Jaeger / Tempo / Zipkin</p>
+    </div>
+  </div>
+
+  <h3 id="logs">2.1 Logs structurés et corrélation MDC</h3>
+  <span class="level-badge junior">🟢 Junior</span>
+
+  <div class="box definition">
+    <h4>MDC — Mapped Diagnostic Context</h4>
+    <p>Dictionnaire thread-local de SLF4J. Chaque entrée est automatiquement ajoutée à <strong>tous les logs</strong> du thread courant, sans avoir à passer les métadonnées explicitement à chaque méthode.</p>
+  </div>
+
+  <div class="code-example bad">
+    <span class="code-label">❌ Log sans contexte</span>
+    <pre data-label="java"><code class="language-java">// Impossible de retrouver tous les logs d'un emprunt précis
+log.info("Emprunt créé");
+log.error("Erreur lors de la création");</code></pre>
+  </div>
+
+  <div class="code-example good">
+    <span class="code-label">✅ Log structuré avec corrélation</span>
+    <pre data-label="LoanController.java"><code class="language-java">@RestController
+@Slf4j
+public class LoanController {
+
+    @PostMapping("/api/loans")
+    public ResponseEntity&lt;LoanDto&gt; createLoan(
+            @RequestBody CreateLoanRequest req,
+            @RequestHeader("X-Correlation-Id") String correlationId) {
+
+        MDC.put("correlationId", correlationId);
+        MDC.put("studentId", req.getStudentId().toString());
+
+        try {
+            LoanDto loan = loanService.createLoan(req);
+            // correlationId et studentId apparaissent dans le log automatiquement
+            log.info("loan-created loanId={} bookId={}", loan.getId(), loan.getBookId());
+            return ResponseEntity.status(201).body(loan);
+        } finally {
+            MDC.clear(); // TOUJOURS nettoyer pour éviter les fuites
+        }
+    }
+}</code></pre>
+  </div>
+
+  <pre data-label="logback-spring.xml — Format JSON pour ELK"><code class="language-xml">&lt;configuration&gt;
+  &lt;appender name="JSON" class="ch.qos.logback.core.ConsoleAppender"&gt;
+    &lt;encoder class="net.logstash.logback.encoder.LogstashEncoder"&gt;
+      &lt;includeMdcKeyName&gt;correlationId&lt;/includeMdcKeyName&gt;
+      &lt;includeMdcKeyName&gt;studentId&lt;/includeMdcKeyName&gt;
+      &lt;customFields&gt;{"service":"loan-service","env":"prod"}&lt;/customFields&gt;
+    &lt;/encoder&gt;
+  &lt;/appender&gt;
+  &lt;root level="INFO"&gt;&lt;appender-ref ref="JSON"/&gt;&lt;/root&gt;
+&lt;/configuration&gt;</code></pre>
+
+  <h3 id="metriques">2.2 Métriques avec Micrometer</h3>
+  <span class="level-badge mid">🟡 Intermédiaire</span>
+
+  <table>
+    <thead><tr><th>Type</th><th>Usage</th><th>Exemple</th></tr></thead>
+    <tbody>
+      <tr><td><code>Counter</code></td><td>Événements monotones (compteur)</td><td>Prêts créés</td></tr>
+      <tr><td><code>Gauge</code></td><td>Valeur instantanée variable</td><td>Emprunts en cours</td></tr>
+      <tr><td><code>Timer</code></td><td>Durée + nombre d'opérations</td><td>Latence appel HTTP</td></tr>
+      <tr><td><code>DistributionSummary</code></td><td>Distribution de valeurs</td><td>Taille des payloads</td></tr>
+    </tbody>
+  </table>
+
+  <pre data-label="LoanService.java — Métriques métier"><code class="language-java">@Service
+public class LoanService {
+
+    private final Counter loansCreated;
+    private final Counter loansRejected;
+    private final Timer loanCreationTimer;
+
+    public LoanService(MeterRegistry registry) {
+        loansCreated = Counter.builder("loans.created")
+            .description("Prêts créés avec succès")
+            .register(registry);
+        loansRejected = Counter.builder("loans.rejected")
+            .description("Prêts refusés (quota, indisponibilité)")
+            .register(registry);
+        loanCreationTimer = Timer.builder("loans.creation.duration")
+            .description("Durée de création d'un prêt")
+            .publishPercentiles(0.5, 0.95, 0.99)   // p50, p95, p99
+            .register(registry);
+    }
+
+    public LoanDto createLoan(CreateLoanRequest req) {
+        return loanCreationTimer.record(() -> {
+            validateQuota(req.getStudentId());
+            LoanDto loan = LoanMapper.toDto(loanRepository.save(toLoan(req)));
+            loansCreated.increment();
+            return loan;
+        });
+    }
+}</code></pre>
+
+  <h3 id="traces">2.3 Traces distribuées avec OpenTelemetry</h3>
+  <span class="level-badge expert">🔴 Expert</span>
+
+  <div class="diagram">POST /api/loans  (200ms total)
+  ├── [loan-service]     span: validate-quota      (5ms)
+  ├── [catalog-service]  span: GET /availability   (80ms)  ← goulot !
+  └── [notif-service]    span: POST /notify        (15ms async)</div>
+
+  <p>Un <strong>span</strong> est une unité de travail. Une <strong>trace</strong> est l'arbre de spans partagés via un même <code>traceId</code>, propagé dans le header HTTP <code>traceparent</code> (standard W3C Trace Context).</p>
+
+  <pre data-label="pom.xml — OpenTelemetry + Zipkin"><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;io.micrometer&lt;/groupId&gt;
+  &lt;artifactId&gt;micrometer-tracing-bridge-otel&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.opentelemetry&lt;/groupId&gt;
+  &lt;artifactId&gt;opentelemetry-exporter-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+
+  <pre data-label="application.yml — Tracing"><code class="language-yaml">management:
+  tracing:
+    sampling:
+      probability: 1.0   # 100% en dev, 0.1 en prod (10%)
+spring:
+  zipkin:
+    base-url: http://zipkin:9411
+# Le traceId est automatiquement injecté dans les logs MDC</code></pre>
+
+  <pre data-label="LoanService.java — Span personnalisé"><code class="language-java">@Service
+public class LoanService {
+
+    @Autowired Tracer tracer;
+
+    public LoanDto createLoan(CreateLoanRequest req) {
+        Span span = tracer.nextSpan()
+            .name("loan.quota-check")
+            .tag("studentId", req.getStudentId().toString())
+            .start();
+
+        try (Tracer.SpanInScope ws = tracer.withSpan(span)) {
+            validateQuota(req.getStudentId());
+            return doCreateLoan(req);
+        } catch (QuotaExceededException e) {
+            span.tag("error", "quota-exceeded");
+            throw e;
+        } finally {
+            span.end(); // TOUJOURS finir le span
+        }
+    }
+}</code></pre>
+
+  <div class="box best-practice">
+    <h4>✅ Corrélation logs + traces</h4>
+    <p>Micrometer Tracing injecte automatiquement <code>traceId</code> et <code>spanId</code> dans le MDC Logback. Résultat : chaque ligne de log contient le traceId, permettant de passer de Kibana (logs) à Grafana Tempo (traces) d'un seul clic.</p>
+  </div>
+</section>
+
+<!-- ═══ SECTION 3 — HEALTH CHECKS ════════════════════════════ -->
 <section id="healthchecks">
-  <h2>Monitoring, health checks, centralisation des logs</h2>
-  <p>Un service n’est pas “vivant” seulement parce que le process tourne. Il faut distinguer liveness, readiness et dépendances.</p>
-  <pre><code>management:
+  <h2>3. Monitoring, Health Checks &amp; alerting</h2>
+
+  <div class="box child-mode">
+    <h4>🧒 Mode enfant</h4>
+    <p>Un service peut "tourner" (le process est vivant) mais être incapable de répondre (la base de données est coupée). Le health check c'est comme appuyer sur un bouton de test réel — il vérifie si tout fonctionne en profondeur, pas juste si le moteur tourne.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Sonde</th><th>Question</th><th>Réponse KO</th><th>Action Kubernetes</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Liveness</strong></td><td>Le process est-il vivant ?</td><td>Deadlock, corruption mémoire</td><td>Redémarre le pod</td></tr>
+      <tr><td><strong>Readiness</strong></td><td>Peut-il recevoir du trafic ?</td><td>DB coupée, warm-up en cours</td><td>Retire du load balancer</td></tr>
+      <tr><td><strong>Startup</strong></td><td>A-t-il fini de démarrer ?</td><td>Init longue (&gt; 30s)</td><td>Attend avant les autres sondes</td></tr>
+    </tbody>
+  </table>
+
+  <pre data-label="application.yml — Actuator complet"><code class="language-yaml">management:
   endpoints:
     web:
       exposure:
-        include: health,info,prometheus
+        include: health,info,prometheus,metrics,circuitbreakers
   endpoint:
     health:
       probes:
-        enabled: true</code></pre>
-</section>
-<section id="securite">
-  <h2>Sécurité inter-services : authentification, autorisation, JWT, OAuth2 / OIDC</h2>
-  <div class="box definition"><h4>Définition simple</h4><p>Authentifier = prouver qui on est. Autoriser = vérifier ce qu’on a le droit de faire.</p></div>
-  <div class="box child-mode"><h4>Mode enfant</h4><p>Le badge d’entrée dit qui tu es. Les zones autorisées disent où tu peux aller.</p></div>
-  <div class="box pro-mode"><h4>Mode pro</h4><p>Dans un SI distribué, l’identité et les droits doivent voyager de façon fiable entre services, sans faire confiance aveuglément au réseau interne.</p></div>
-  <pre><code>@Bean
-SecurityFilterChain security(HttpSecurity http) throws Exception {{
-    return http
-        .csrf(csrf -> csrf.disable())
-        .authorizeHttpRequests(auth -> auth
-            .requestMatchers("/actuator/health").permitAll()
-            .requestMatchers(HttpMethod.POST, "/api/loans/**").hasRole("LIBRARIAN")
-            .anyRequest().authenticated())
-        .oauth2ResourceServer(oauth -> oauth.jwt())
-        .build();
-}}</code></pre>
-</section>
-<section id="zerotrust">
-  <h2>Zero Trust et gestion des secrets</h2>
-  <p>Zero Trust signifie qu’aucun segment réseau n’est implicitement digne de confiance. On vérifie l’identité, le contexte et le droit d’accès à chaque étape sensible.</p>
-  <div class="box warning"><h4>Erreur fréquente</h4><p>Mettre des mots de passe, clés API ou secrets dans <code>application.yml</code> versionné.</p></div>
-  <div class="box best-practice"><h4>Bonne pratique</h4><p>Utiliser un gestionnaire de secrets, limiter les droits, faire tourner les clés, tracer les accès sensibles.</p></div>
-</section>
-<section id="quiz">
-  <h2>Quiz de fin</h2>
-  <ol>
-    <li>Pourquoi un retry sans timeout peut-il être dangereux ?</li>
-    <li>Quelle différence entre logs, métriques et traces ?</li>
-    <li>Pourquoi “le réseau interne est sûr” est-il une mauvaise hypothèse ?</li>
-  </ol>
+        enabled: true         # Active /actuator/health/liveness et /readiness
+      show-details: always    # Détail des composants (à restreindre en prod)
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: loan-service
+      env: ${SPRING_PROFILES_ACTIVE:dev}</code></pre>
+
+  <span class="level-badge mid">🟡 Intermédiaire</span>
+  <pre data-label="CatalogServiceHealthIndicator.java"><code class="language-java">@Component
+public class CatalogServiceHealthIndicator implements HealthIndicator {
+
+    private final CatalogClient catalogClient;
+    private final CircuitBreakerRegistry cbRegistry;
+
+    @Override
+    public Health health() {
+        CircuitBreaker cb = cbRegistry.circuitBreaker("catalogService");
+        if (cb.getState() == CircuitBreaker.State.OPEN) {
+            return Health.down()
+                .withDetail("circuit-breaker", "OPEN")
+                .withDetail("reason", "Trop d'échecs vers catalog-service")
+                .build();
+        }
+        try {
+            catalogClient.ping();
+            return Health.up()
+                .withDetail("circuit-breaker", cb.getState().name())
+                .build();
+        } catch (Exception e) {
+            return Health.down().withDetail("error", e.getMessage()).build();
+        }
+    }
+}</code></pre>
+
+  <div class="box best-practice">
+    <h4>✅ 4 Golden Signals (Google SRE)</h4>
+    <ul>
+      <li><strong>Latency</strong> — Temps de traitement (p95, p99)</li>
+      <li><strong>Traffic</strong> — Volume de requêtes (req/s)</li>
+      <li><strong>Errors</strong> — Taux d'erreurs 5xx</li>
+      <li><strong>Saturation</strong> — CPU, mémoire, threads, connexions DB</li>
+    </ul>
+    <p>Une alerte Prometheus sur chacun de ces 4 indicateurs est le minimum viable.</p>
+  </div>
+
+  <span class="level-badge expert">🔴 Expert</span>
+  <pre data-label="Prometheus alert rule — Taux d'erreur"><code class="language-yaml">- alert: HighErrorRate
+  expr: |
+    rate(http_server_requests_seconds_count{status=~"5.."}[5m])
+    /
+    rate(http_server_requests_seconds_count[5m]) > 0.05
+  for: 2m
+  labels:
+    severity: critical
+  annotations:
+    summary: "Taux d'erreur élevé sur {{ $labels.application }}"
+    description: "{{ $value | humanizePercentage }} d'erreurs 5xx détectées"</code></pre>
 </section>
 
-      <div class="footer-nav"><a href="../pages/jour-4-microservices-et-communication.html">← Jour 4</a><a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6 →</a></div>
+<!-- ═══ SECTION 4 — SÉCURITÉ ═════════════════════════════════ -->
+<section id="securite">
+  <h2>4. Sécurité inter-services : JWT, OAuth2 / OIDC, RBAC</h2>
+
+  <div class="box child-mode">
+    <h4>🧒 Mode enfant</h4>
+    <p>Le badge d'entrée (JWT) dit <em>qui tu es</em> et <em>ce que tu peux faire</em>. Authentification = prouver son identité. Autorisation = vérifier ses droits.</p>
+  </div>
+
+  <h3>4.1 Anatomie d'un JWT</h3>
+  <span class="level-badge junior">🟢 Junior</span>
+
+  <p>Un JWT est signé en <strong>3 parties séparées par des points</strong> : <code>header.payload.signature</code>. Chaque partie est encodée en Base64URL — lisible, <strong>pas chiffré</strong>.</p>
+
+  <div class="diagram">eyJhbGciOiJSUzI1NiJ9  .  eyJzdWIiOiJ1c2VyMTIzIn0  .  abc123sig...
+  ▲ Header                  ▲ Payload (claims)              ▲ Signature RSA
+{ alg: "RS256" }          { sub: "user123",              Vérifiée avec la clé
+{ typ: "JWT"  }             roles: ["LIBRARIAN"],         publique de l'IdP
+                            exp: 1735686000 }</div>
+
+  <div class="box warning">
+    <h4>⚠️ JWT ≠ chiffrement</h4>
+    <p>Le payload est lisible par n'importe qui. Ne jamais y mettre de données sensibles. La signature garantit l'<em>intégrité</em>, pas la confidentialité.</p>
+  </div>
+
+  <h3>4.2 Flux OAuth2 Authorization Code (OIDC)</h3>
+  <span class="level-badge mid">🟡 Intermédiaire</span>
+
+  <div class="diagram">Navigateur         Application          Keycloak (IdP)
+     │                   │                       │
+     │── GET /loans ────►│                       │
+     │                   │── Redirect ──────────►│
+     │◄─ redirect(login)─┤                       │
+     │──── login ───────────────────────────────►│
+     │◄─── authorization code ──────────────────┤
+     │── code ──────────►│                       │
+     │                   │── POST /token ────────►│
+     │                   │◄── access_token (JWT) ─┤
+     │◄─ page /loans ────┤</div>
+
+  <pre data-label="SecurityConfig.java — Resource Server"><code class="language-java">@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+public class SecurityConfig {
+
+    @Bean
+    SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        return http
+            .csrf(csrf -> csrf.disable())      // API stateless = pas de CSRF
+            .sessionManagement(s ->
+                s.sessionCreationPolicy(STATELESS))
+            .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/actuator/health/**").permitAll()
+                .requestMatchers(GET,  "/api/books/**").hasAnyRole("USER", "LIBRARIAN")
+                .requestMatchers(POST, "/api/loans/**").hasRole("LIBRARIAN")
+                .anyRequest().authenticated()
+            )
+            .oauth2ResourceServer(oauth ->
+                oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(
+                    jwtAuthenticationConverter()))
+            )
+            .build();
+    }
+
+    @Bean
+    JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter conv = new JwtGrantedAuthoritiesConverter();
+        conv.setAuthoritiesClaimName("roles");  // claim custom dans Keycloak
+        conv.setAuthorityPrefix("ROLE_");
+        JwtAuthenticationConverter jwtConv = new JwtAuthenticationConverter();
+        jwtConv.setJwtGrantedAuthoritiesConverter(conv);
+        return jwtConv;
+    }
+}</code></pre>
+
+  <pre data-label="LoanController.java — @PreAuthorize fin"><code class="language-java">@RestController
+@RequestMapping("/api/loans")
+public class LoanController {
+
+    // L'étudiant ne voit QUE ses propres emprunts
+    @GetMapping("/{loanId}")
+    @PreAuthorize("""
+        hasRole('LIBRARIAN') or
+        @loanService.isOwner(#loanId, authentication.name)
+    """)
+    public LoanDto getLoan(@PathVariable UUID loanId) {
+        return loanService.findById(loanId);
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('LIBRARIAN')")
+    public ResponseEntity&lt;LoanDto&gt; createLoan(
+            @RequestBody @Valid CreateLoanRequest req) {
+        return ResponseEntity.status(201).body(loanService.createLoan(req));
+    }
+}</code></pre>
+
+  <h3>4.3 mTLS — Authentification mutuelle inter-services</h3>
+  <span class="level-badge expert">🔴 Expert</span>
+
+  <div class="box pro-mode">
+    <h4>Mode pro — JWT vs mTLS</h4>
+    <ul>
+      <li><strong>JWT</strong> : identité de l'<em>utilisateur</em>, propagée dans le header <code>Authorization</code>. Validé au niveau applicatif.</li>
+      <li><strong>mTLS</strong> : identité du <em>service</em>, négociée au niveau TLS. Validé par le service mesh (Istio, Linkerd), transparent pour l'application.</li>
+      <li>En production on combine les deux : mTLS pour le service-to-service + JWT pour le contexte utilisateur.</li>
+    </ul>
+  </div>
+
+  <div class="box frequent-error">
+    <h4>❌ Erreur fréquente — Valider le JWT soi-même</h4>
+    <p>Ne jamais implémenter la validation JWT manuellement. Erreurs classiques : oublier de vérifier la signature, ne pas vérifier <code>exp</code>, accepter l'algorithme <code>none</code>. Utiliser une bibliothèque maintenue : <code>spring-security-oauth2-resource-server</code> ou <code>nimbus-jose-jwt</code>.</p>
+  </div>
+</section>
+
+<!-- ═══ SECTION 5 — ZERO TRUST & SECRETS ════════════════════ -->
+<section id="zerotrust">
+  <h2>5. Zero Trust &amp; gestion des secrets</h2>
+
+  <div class="box definition">
+    <h4>Zero Trust — "Never trust, always verify"</h4>
+    <p>Aucun segment réseau n'est implicitement fiable, même interne. Chaque accès sensible est vérifié : identité, contexte, droits minimaux. Un attaquant ayant pénétré le périmètre ne peut pas se déplacer librement.</p>
+  </div>
+
+  <h3>5.1 Les 3 règles fondamentales des secrets</h3>
+  <span class="level-badge junior">🟢 Junior</span>
+
+  <div class="code-example bad">
+    <span class="code-label">❌ Ne jamais faire — secret dans Git</span>
+    <pre data-label="application.yml versionné"><code class="language-yaml">spring:
+  datasource:
+    password: MonSuperMotDePasse123!   # visible dans l'historique Git pour toujours
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-secret: abc-def-secret  # même problème</code></pre>
+  </div>
+
+  <div class="code-example good">
+    <span class="code-label">✅ Variables d'environnement ou Vault</span>
+    <pre data-label="application.yml sécurisé"><code class="language-yaml">spring:
+  datasource:
+    url:      ${DATABASE_URL}
+    username: ${DATABASE_USER}
+    password: ${DATABASE_PASSWORD}
+  security:
+    oauth2:
+      client:
+        registration:
+          keycloak:
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}</code></pre>
+  </div>
+
+  <h3>5.2 HashiCorp Vault avec Spring Cloud Vault</h3>
+  <span class="level-badge mid">🟡 Intermédiaire</span>
+
+  <pre data-label="bootstrap.yml — Vault + auth Kubernetes"><code class="language-yaml">spring:
+  cloud:
+    vault:
+      host: vault.internal.company.com
+      port: 8200
+      scheme: https
+      authentication: KUBERNETES
+      kubernetes:
+        role: loan-service
+        service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token
+      kv:
+        enabled: true
+        backend: secret
+        default-context: loan-service</code></pre>
+
+  <h3>5.3 Dynamic Secrets — Credentials DB éphémères</h3>
+  <span class="level-badge expert">🔴 Expert</span>
+
+  <p>Vault génère des credentials PostgreSQL <strong>à la demande avec une TTL courte</strong> (ex. 1h). L'application ne connaît jamais le mot de passe permanent. En cas de compromission, le credential expire automatiquement.</p>
+
+  <pre data-label="bootstrap.yml — Dynamic secrets PostgreSQL"><code class="language-yaml">spring:
+  cloud:
+    vault:
+      database:
+        enabled: true
+        role: loan-service-role
+        backend: database
+        # Vault renouvelle automatiquement le lease avant expiration</code></pre>
+
+  <div class="box best-practice">
+    <h4>✅ Checklist Sécurité Production</h4>
+    <ul>
+      <li>Aucun secret dans Git (même un commit "révoqué" reste dans l'historique)</li>
+      <li>Rotation des clés JWT tous les 90 jours minimum</li>
+      <li>Moindre privilège : chaque service accède uniquement à ses secrets</li>
+      <li>Audit des accès aux secrets (Vault fournit un audit log)</li>
+      <li>mTLS en production via service mesh (Istio / Linkerd)</li>
+      <li>Scan des images Docker pour les CVE (<code>trivy</code>, <code>grype</code>)</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ═══ QUIZ ══════════════════════════════════════════════════ -->
+<section id="quiz">
+  <h2>Quiz de fin — Jour 5</h2>
+
+  <div class="quiz-item">
+    <p><strong>1.</strong> Pourquoi un retry sans timeout peut-il être dangereux ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>Un service lent bloque les threads de l'appelant indéfiniment. Les retries s'accumulent sur ces threads déjà bloqués, épuisant le pool et rendant l'appelant lui-même indisponible — c'est la cascade failure. Toujours combiner Retry + TimeLimiter.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p><strong>2.</strong> Quelle différence entre logs, métriques et traces ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p><strong>Logs</strong> : événements discrets textuels (ce qui s'est passé). <strong>Métriques</strong> : valeurs numériques agrégées dans le temps (combien, quelle durée). <strong>Traces</strong> : parcours d'une requête à travers les services (où et combien de temps dans chaque hop). Les trois sont complémentaires : métriques → alerte, logs → contexte, traces → localisation du goulot.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p><strong>3.</strong> Quelle différence entre liveness et readiness probe ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>La <strong>liveness probe</strong> détecte un état irrécupérable (deadlock) → Kubernetes redémarre le pod. La <strong>readiness probe</strong> détecte une indisponibilité temporaire (DB coupée, warm-up) → Kubernetes retire le pod du load balancer sans le redémarrer. Confondre les deux = redémarrages inutiles ou trafic envoyé à un pod non prêt.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p><strong>4.</strong> Pourquoi le réseau interne n'est pas sûr par défaut ? (Zero Trust)</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>Un attaquant ayant pénétré le périmètre (pod compromis, employé malveillant) peut accéder librement à toutes les ressources internes si on leur fait confiance implicitement. Zero Trust impose de vérifier identité et droits à chaque communication, même interne.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p><strong>5. (Expert)</strong> Pourquoi ne pas mettre le Retry à l'intérieur du Circuit Breaker ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>Si Retry est à l'intérieur du Circuit Breaker, chaque tentative de retry est comptée comme un appel dans la fenêtre glissante du CB. 3 retries sur 1 appel = 3 échecs dans la fenêtre, ce qui ouvre le circuit trop tôt. Le bon ordre : Retry enveloppe CircuitBreaker — les retries ne sont tentés que si le circuit est encore CLOSED.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p><strong>6. (Expert)</strong> Quelle propriété garantit qu'un JWT n'a pas été modifié en transit ?</p>
+    <details>
+      <summary>Voir la réponse</summary>
+      <p>La <strong>signature</strong> cryptographique (RS256 ou HS256). Elle est calculée sur <code>base64(header).base64(payload)</code> avec la clé privée de l'IdP. Le Resource Server la vérifie avec la clé publique. Toute modification du payload invalide la signature. En revanche, la signature ne chiffre pas : le payload reste lisible par tous.</p>
+    </details>
+  </div>
+</section>
+
+      <div class="footer-nav">
+        <a href="../pages/jour-4-microservices-et-communication.html">← Jour 4</a>
+        <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6 →</a>
+      </div>
+
     </article>
   </div>
 </main>

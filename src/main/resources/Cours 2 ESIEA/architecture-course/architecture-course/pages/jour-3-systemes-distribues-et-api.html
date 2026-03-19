@@ -4,37 +4,346 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jour 3 — Fondamentaux des systèmes distribués</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script defer src="../assets/js/main.js"></script>
+
+  <!-- Prism.js – thème VS Code Dark+ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+
+  <style>
+    /* ══════════════════════════════════════════════════
+       Variables & Reset
+    ══════════════════════════════════════════════════ */
+    :root {
+      --bg: #f7fafc;
+      --surface: #ffffff;
+      --surface-alt: #eef3ff;
+      --text: #1f2937;
+      --muted: #5b6575;
+      --border: #d8e2ee;
+      --blue: #5da9ff;
+      --blue-soft: #e8f3ff;
+      --green: #4ba37a;
+      --green-soft: #e9f8f0;
+      --orange: #ef9b53;
+      --orange-soft: #fff3e7;
+      --red: #c85d5d;
+      --red-soft: #fff0f0;
+      --purple: #8b7cf6;
+      --purple-soft: #f2efff;
+      --shadow: 0 8px 24px rgba(36,53,84,.08);
+      --radius: 18px;
+      --max: 1180px;
+
+      /* ── Tokens VS Code Dark+ (identiques à l'éditeur) ── */
+      --code-bg:        #1e1e1e;
+      --code-fg:        #d4d4d4;
+      --code-comment:   #6a9955;
+      --code-keyword:   #569cd6;
+      --code-string:    #ce9178;
+      --code-number:    #b5cea8;
+      --code-function:  #dcdcaa;
+      --code-class:     #4ec9b0;
+      --code-annotation:#c586c0;
+      --code-variable:  #9cdcfe;
+      --code-constant:  #4fc1ff;
+      --code-lineno:    #6e7681;
+      --code-operator:  #d4d4d4;
+      --code-type:      #4ec9b0;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: Inter, Segoe UI, Arial, sans-serif;
+      background: linear-gradient(180deg, #f9fbfd 0%, #f4f8fb 100%);
+      color: var(--text);
+      line-height: 1.65;
+    }
+    a { color: #1557b0; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ── Header ── */
+    header.site-header {
+      position: sticky; top: 0; z-index: 20;
+      background: rgba(255,255,255,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--border);
+    }
+    .nav-wrap {
+      max-width: var(--max); margin: auto;
+      display: flex; gap: 16px; align-items: center; padding: 12px 20px;
+    }
+    .brand { font-weight: 800; font-size: 1.05rem; color: #163b66; white-space: nowrap; }
+    nav.top-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    nav.top-nav a {
+      padding: 6px 11px; border-radius: 999px;
+      background: #fff; border: 1px solid var(--border); font-size: .88rem;
+    }
+
+    /* ── Layout ── */
+    main { max-width: var(--max); margin: 24px auto; padding: 0 20px 60px; }
+    .hero {
+      background: linear-gradient(135deg, var(--blue-soft), #fff 45%, var(--green-soft));
+      padding: 28px; border: 1px solid var(--border);
+      border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 22px;
+    }
+    .hero h1 { margin: .2rem 0 1rem; font-size: 2.2rem; }
+    .meta-grid, .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
+    }
+    .meta, .card {
+      background: var(--surface); padding: 16px 18px;
+      border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .meta h3, .card h3 { margin-top: 0; }
+    .layout { display: grid; grid-template-columns: 290px 1fr; gap: 22px; }
+    @media(max-width: 980px) { .layout { grid-template-columns: 1fr; } }
+    aside.toc {
+      align-self: start; position: sticky; top: 84px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
+    }
+    aside.toc h2 { font-size: 1rem; margin-top: 0; }
+    aside.toc ul { padding-left: 18px; margin: .2rem 0; }
+    aside.toc li { margin: .35rem 0; }
+    article.content section {
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); padding: 24px; margin-bottom: 18px; box-shadow: var(--shadow);
+    }
+
+    /* ── Typography ── */
+    h1, h2, h3, h4 { line-height: 1.2; }
+    h2 { margin-top: 0; color: #123f73; }
+    h3 { color: #244d7c; }
+    p, li { font-size: 1rem; }
+
+    /* ── Badges ── */
+    .badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 18px; }
+    .badge {
+      background: #fff; border: 1px solid var(--border);
+      padding: 6px 10px; border-radius: 999px; font-size: .88rem; color: var(--muted);
+    }
+
+    /* ── Boxes ── */
+    .box {
+      border-left: 6px solid var(--blue); padding: 14px 16px;
+      border-radius: 14px; background: var(--blue-soft); margin: 14px 0;
+    }
+    .box.definition { border-left-color: var(--blue); background: var(--blue-soft); }
+    .box.example    { border-left-color: var(--green); background: var(--green-soft); }
+    .box.warning    { border-left-color: var(--orange); background: var(--orange-soft); }
+    .box.best-practice  { border-left-color: var(--green); background: #effaf5; }
+    .box.frequent-error { border-left-color: var(--red); background: var(--red-soft); }
+    .box.child-mode { border-left-color: var(--purple); background: var(--purple-soft); }
+    .box.pro-mode   { border-left-color: #3857b0; background: #edf2ff; }
+    .box.live-coding{ border-left-color: #0f766e; background: #ecfeff; }
+    .box.tp         { border-left-color: #7c3aed; background: #f5f3ff; }
+    .box.checklist  { border-left-color: #475569; background: #f8fafc; }
+    .box.expert     { border-left-color: #b45309; background: #fffbeb; }
+    .box h4 { margin: 0 0 8px; }
+    .box h5 { margin: 12px 0 6px; font-size: .95rem; }
+
+    /* ══════════════════════════════════════════════════
+       CODE — thème VS Code Dark+ COMPLET
+    ══════════════════════════════════════════════════ */
+
+    /* Inline code */
+    :not(pre) > code {
+      font-family: "Fira Code", Consolas, Monaco, monospace;
+      font-size: .86em;
+      background: #2d2d2d;
+      color: #ce9178;
+      padding: 2px 7px;
+      border-radius: 5px;
+      border: 1px solid #444;
+    }
+
+    /* Bloc de code – conteneur */
+    pre {
+      position: relative;
+      margin: 1.4em 0;
+      padding: 0;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0,0,0,.45);
+      border: 1px solid #3c3c3c;
+      background: var(--code-bg);
+    }
+
+    /* Barre de titre façon éditeur */
+    pre::before {
+      content: "● ● ●";
+      display: block;
+      padding: 8px 14px;
+      background: #2d2d2d;
+      color: #858585;
+      font-size: .72rem;
+      letter-spacing: .08em;
+      border-bottom: 1px solid #3c3c3c;
+      font-family: sans-serif;
+    }
+
+    /* Zone de code */
+    pre > code {
+      display: block !important;
+      padding: 1.1em 1.4em !important;
+      background: var(--code-bg) !important;
+      color: var(--code-fg) !important;
+      font-family: "Fira Code", Consolas, "Courier New", monospace !important;
+      font-size: .875rem !important;
+      line-height: 1.8 !important;
+      overflow-x: auto !important;
+      border: none !important;
+      border-radius: 0 !important;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── Tokens Prism — palette VS Code Dark+ exacte ── */
+    .token.comment,
+    .token.prolog,
+    .token.doctype,
+    .token.cdata            { color: #6a9955; font-style: italic; }
+    .token.punctuation      { color: #d4d4d4; }
+    .token.namespace        { opacity: .75; }
+    /* Nombres & booléens */
+    .token.boolean,
+    .token.number           { color: #b5cea8; }
+    .token.constant,
+    .token.symbol,
+    .token.deleted          { color: #b5cea8; }
+    /* Propriétés / tags HTML */
+    .token.property,
+    .token.tag              { color: #569cd6; }
+    /* Chaînes */
+    .token.selector,
+    .token.attr-name,
+    .token.string,
+    .token.char,
+    .token.builtin,
+    .token.inserted         { color: #ce9178; }
+    /* Opérateurs */
+    .token.operator,
+    .token.entity,
+    .token.url              { color: #d4d4d4; }
+    /* Mots-clés (if, return, class…) */
+    .token.keyword          { color: #569cd6; }
+    .token.atrule           { color: #ce9178; }
+    .token.attr-value       { color: #ce9178; }
+    /* Règles @ CSS */
+    .token.rule             { color: #c586c0; }
+    /* Fonctions */
+    .token.function         { color: #dcdcaa; }
+    /* Classes / types */
+    .token.class-name       { color: #4ec9b0; }
+    /* Annotations Java (@Override, @Bean…) */
+    .token.annotation       { color: #c586c0; font-style: italic; }
+    /* Variables */
+    .token.variable         { color: #9cdcfe; }
+    /* Constantes */
+    .token.regex,
+    .token.important        { color: #4fc1ff; }
+    /* YAML keys */
+    .language-yaml .token.key { color: #9cdcfe; }
+    /* XML/HTML tag names */
+    .language-xml .token.tag > .token.tag { color: #569cd6; }
+    .language-xml .token.attr-name        { color: #9cdcfe; }
+    .language-xml .token.attr-value       { color: #ce9178; }
+
+    /* Numéros de ligne */
+    .line-numbers .line-numbers-rows { border-right: 1px solid #3c3c3c; }
+    .line-numbers-rows > span::before { color: #6e7681; }
+
+    /* ── Tables ── */
+    table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+    th, td {
+      border: 1px solid var(--border); padding: 10px 12px;
+      text-align: left; vertical-align: top;
+    }
+    th { background: #eff6ff; }
+
+    summary { cursor: pointer; font-weight: 600; }
+
+    /* ── Nav pied de page ── */
+    .footer-nav { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
+    .footer-nav a {
+      display: inline-block; padding: 12px 16px;
+      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+    }
+
+    /* ── Quiz ── */
+    .quiz-item {
+      margin-bottom: 20px; padding: 15px;
+      background: var(--surface); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: var(--shadow);
+    }
+    .quiz-item p { margin-top: 0; font-size: 1.05rem; }
+    .quiz-item details {
+      margin-top: 12px; background: var(--surface-alt);
+      border-radius: 12px; padding: 12px 15px;
+    }
+    .quiz-item summary { font-weight: 700; color: var(--blue); outline: none; }
+    .quiz-item summary:hover { text-decoration: underline; }
+    .quiz-item details[open] summary { margin-bottom: 10px; }
+    .quiz-item details p { margin: 0; padding-left: 10px; border-left: 3px solid var(--blue); }
+
+    /* ── Divers ── */
+    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media(max-width: 760px) { .columns { grid-template-columns: 1fr; } }
+    blockquote {
+      margin: 10px 0; padding: 12px 16px;
+      border-left: 4px solid var(--blue); background: #f8fbff; border-radius: 8px;
+    }
+    .code-example.good pre { border-left: 5px solid var(--green); }
+    .code-example.bad  pre { border-left: 5px solid var(--red); }
+
+    /* Badge de langage */
+    .code-block { position: relative; }
+    .code-lang {
+      position: absolute; top: 6px; right: 12px;
+      font-size: .7rem; font-family: sans-serif;
+      background: #3c3c3c; color: #aaa;
+      padding: 2px 8px; border-radius: 4px;
+      pointer-events: none; z-index: 2;
+    }
+
+    /* Indicateurs junior/expert */
+    .level-bar {
+      display: flex; gap: 8px; align-items: center; margin: 0 0 14px;
+    }
+    .level-pill {
+      padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700;
+    }
+    .level-pill.junior { background: #dcfce7; color: #15803d; }
+    .level-pill.mid    { background: #fef9c3; color: #854d0e; }
+    .level-pill.senior { background: #fce7f3; color: #9d174d; }
+    .level-pill.expert { background: #ede9fe; color: #5b21b6; }
+  </style>
 </head>
 <body>
 <header class="site-header">
-  <div class="nav-wrap">
-    <div class="brand">Architecture logicielle & systèmes distribués</div>
-    <nav class="top-nav">
-      <a href="../index.html">Accueil</a>
-      <a href="../pages/introduction.html">Introduction</a>
-      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-      <a href="../pages/jour-3-systemes-distribues-et-api.html" class="active">Jour 3</a>
-      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-      <a href="../pages/tp-1.html">TP1</a>
-      <a href="../pages/tp-2.html">TP2</a>
-      <a href="../pages/tp-3.html">TP3</a>
-      <a href="../pages/exercices.html">Exercices</a>
-      <a href="../pages/corriges.html">Corrigés</a>
-      <a href="../pages/glossary.html">Glossaire</a>
-      <a href="../pages/live-coding.html">Live Coding</a>
-      <a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-      <a href="../pages/faq.html">FAQ</a>
-    </nav>
-  </div>
+    <div class="nav-wrap">
+        <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
+        <nav class="top-nav">
+            <a href="../index.html">Accueil</a>
+            <a href="../pages/introduction.html">Introduction</a>
+            <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+            <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+            <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+            <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+            <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+            <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+            <a href="../pages/tp-1.html">TP1</a><a href="../pages/tp-2.html">TP2</a><a href="../pages/tp-3.html">TP3</a>
+            <a href="../pages/exercices.html">Exercices</a><a href="../pages/corriges.html">Corrigés</a>
+            <a href="../pages/glossary.html">Glossaire</a><a href="../pages/live-coding.html">Live Coding</a>
+            <a href="../pages/architecture-dossier.html">Dossier Architecture</a><a href="../pages/faq.html">FAQ</a>
+        </nav>
+    </div>
 </header>
 
 <main>
-  <section class="hero">
+  <div class="hero">
     <div class="badges">
       <span class="badge">Support HTML modulaire</span>
       <span class="badge">Master 2</span>
@@ -43,296 +352,1389 @@
       <span class="badge">Java / Spring Boot</span>
     </div>
     <h1>Jour 3 — Fondamentaux des systèmes distribués</h1>
-    <p class="lead">
-      Aujourd’hui, on change de monde : dès qu’un appel traverse le réseau, les hypothèses du code local ne tiennent plus.
-      Ce chapitre te donne les réflexes d’architecture à avoir pour concevoir des APIs et des échanges inter-services plus robustes.
-    </p>
     <div class="meta-grid">
       <div class="meta">
         <h3>Objectifs pédagogiques</h3>
-        <p>Comprendre latence, pannes partielles, cohérence, contrats d’échange et choix de communication.</p>
+        <p>Comprendre ce qui change quand le code traverse le réseau : latence, pannes, cohérence, protocoles, contrats et résilience.</p>
       </div>
-      <div class="meta">
-        <h3>Temps estimé</h3>
-        <p>≈ 6h avec démos, quiz, échanges et mini-cas d’architecture.</p>
-      </div>
-      <div class="meta">
-        <h3>Prérequis</h3>
-        <p>Jour 1 et Jour 2 acquis : couches, responsabilités, découpage logique et patterns de base.</p>
-      </div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6–7h incluant démos et quiz</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jours 1 et 2 acquis</p></div>
     </div>
-  </section>
+  </div>
 
   <div class="layout">
     <aside class="toc">
       <h2>Table des matières</h2>
       <ul>
-        <li><a href="#definition">Définition</a></li>
-        <li><a href="#reseau">Réseau & pannes</a></li>
-        <li><a href="#cap">CAP</a></li>
-        <li><a href="#idempotence">Idempotence / retries / timeouts</a></li>
-        <li><a href="#communication">Communication</a></li>
-        <li><a href="#serialisation">Sérialisation & versioning</a></li>
-        <li><a href="#quiz">Quiz</a></li>
+        <li><a href="#definition">1. Définition</a></li>
+        <li><a href="#reseau">2. Réseau &amp; pannes</a></li>
+        <li><a href="#cap">3. Théorème CAP / PACELC</a></li>
+        <li><a href="#idempotence">4. Idempotence / retries / timeouts</a></li>
+        <li><a href="#communication">5. Communication sync vs async</a></li>
+        <li><a href="#serialisation">6. Sérialisation et versioning</a></li>
+        <li><a href="#gateway">7. API Gateway</a></li>
+        <li><a href="#service-discovery">8. Service Discovery</a></li>
+        <li><a href="#rate-limiting">9. Rate Limiting</a></li>
+        <li><a href="#tracing">10. Distributed Tracing</a></li>
+        <li><a href="#event-sourcing">11. Event Sourcing</a></li>
+        <li><a href="#contract-testing">12. Contract Testing</a></li>
+        <li><a href="#quiz">13. Quiz</a></li>
       </ul>
     </aside>
 
     <article class="content">
+
+      <!-- ═══════════════════════════════
+           1. DÉFINITION
+      ═══════════════════════════════ -->
       <section id="definition">
-        <div class="mini-title">Concept clé</div>
-        <h2>Qu’est-ce qu’un système distribué ?</h2>
-        <p>
-          Un système distribué est un ensemble de composants exécutés sur plusieurs processus ou machines,
-          qui collaborent pour rendre un service unique à l’utilisateur.
-        </p>
-
-        <div class="duo">
-          <div class="box child-mode">
-            <h4>Mode enfant</h4>
-            <p>
-              Au lieu d’avoir une seule grosse boutique, tu ouvres plusieurs petits magasins spécialisés :
-              un pour les livres, un pour les prêts, un pour les notifications.
-              Le vrai défi, ce n’est pas seulement de les séparer, c’est de les faire travailler ensemble sans se tromper.
-            </p>
-          </div>
-
-          <div class="box pro-mode">
-            <h4>Mode pro</h4>
-            <p>
-              Le distribué apporte autonomie d’équipe, scalabilité ciblée et isolation fonctionnelle.
-              En échange, il introduit latence réseau, pannes partielles, cohérence asynchrone,
-              sécurité inter-services, observabilité complexe et coûts opérationnels plus élevés.
-            </p>
-          </div>
+        <h2>Qu'est-ce qu'un système distribué ?</h2>
+        <div class="level-bar">
+          <span class="level-pill junior">Junior</span>
+          <span>→</span>
+          <span class="level-pill expert">Expert</span>
         </div>
 
-        <div class="summary-grid">
-          <div class="summary-card">
-            <h4>Gain</h4>
-            <p>Découper par responsabilités, faire évoluer un service sans redéployer tout le système.</p>
-          </div>
-          <div class="summary-card">
-            <h4>Risque</h4>
-            <p>Multiplier les points de panne et compliquer le diagnostic si le découpage est mauvais.</p>
-          </div>
-          <div class="summary-card">
-            <h4>Réflexe</h4>
-            <p>Ne jamais distribuer “pour faire moderne”, mais pour résoudre un vrai besoin métier ou d’échelle.</p>
-          </div>
-        </div>
-      </section>
+        <p>Un système distribué est un ensemble de composants exécutés sur plusieurs processus ou machines qui <strong>collaborent pour rendre un service unique</strong> à l'utilisateur. Les processus communiquent uniquement par échange de messages à travers un réseau.</p>
 
-      <section id="reseau">
-        <div class="mini-title">Réflexe d’architecte</div>
-        <h2>Latence réseau et pannes partielles</h2>
-        <p>
-          Dans un monolithe, un appel de méthode reste local. Dans un système distribué, un appel réseau peut être lent,
-          perdu, dupliqué, expirer ou échouer après un traitement déjà commencé côté distant.
-        </p>
-
-        <div class="box warning">
-          <h4>Attention</h4>
-          <p>Le réseau n’est ni instantané, ni fiable, ni gratuit. Cette phrase doit devenir un réflexe permanent.</p>
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Au lieu d'avoir une seule grosse boutique qui vend tout, tu ouvres plusieurs petits magasins spécialisés (un pour les livres, un pour les DVD, un pour la livraison) qui doivent se parler correctement. Si l'un ferme, les autres continuent, mais ils doivent gérer l'absence de leur collègue.</p>
         </div>
 
-        <pre><code><span class="code-comment">// Exemple OpenFeign côté loan-service</span>
-<span class="code-annotation">@FeignClient</span>(name <span class="code-operator">=</span> <span class="code-string">"catalog-service"</span>)
-<span class="code-keyword">public interface</span> <span class="code-class">CatalogClient</span> {
-
-    <span class="code-annotation">@GetMapping</span>(<span class="code-string">"/internal/books/{bookId}/availability"</span>)
-    <span class="code-type">AvailabilityResponse</span> <span class="code-method">getAvailability</span>(<span class="code-annotation">@PathVariable</span> <span class="code-type">UUID</span> bookId);
-}</code></pre>
-
-        <div class="box frequent-error">
-          <h4>Erreur fréquente</h4>
-          <p>Appeler un service distant comme si c’était une simple méthode locale, sans timeout, sans fallback et sans stratégie d’erreur.</p>
+        <div class="box pro-mode">
+          <h4>Mode pro 🎓</h4>
+          <p>Le distribué introduit : <strong>latence non-nulle</strong>, <strong>pannes partielles</strong>, <strong>duplication de messages</strong>, <strong>cohérence asynchrone</strong>, sécurité réseau et complexité opérationnelle. En échange, il apporte autonomie de déploiement, scalabilité ciblée et alignement par domaine métier.</p>
         </div>
-
-        <div class="box example">
-          <h4>Exemple terrain</h4>
-          <p>
-            <strong>loan-service</strong> demande au <strong>catalog-service</strong> si un livre est disponible.
-            Si le catalogue répond en 40 ms, tout semble “normal”.
-            Si un jour il répond en 8 secondes, l’application peut geler, saturer ses threads HTTP, puis déclencher une cascade d’échecs.
-          </p>
-        </div>
-      </section>
-
-      <section id="cap">
-        <div class="mini-title">Choix d’architecture</div>
-        <h2>CAP : cohérence, disponibilité, partitionnement</h2>
-        <p>
-          Le théorème CAP rappelle qu’en présence d’une partition réseau, on ne peut pas garantir à la fois
-          une cohérence forte et une disponibilité totale.
-        </p>
-
-        <table>
-          <thead>
-            <tr>
-              <th>Choix</th>
-              <th>Conséquence</th>
-              <th>Exemple métier</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Favoriser la cohérence</td>
-              <td>On refuse ou bloque certaines requêtes si le doute existe.</td>
-              <td>Solde bancaire, paiement, réservation critique.</td>
-            </tr>
-            <tr>
-              <td>Favoriser la disponibilité</td>
-              <td>On accepte parfois une donnée un peu retardée ou approximative.</td>
-              <td>Catalogue de produits, suggestions, statistiques.</td>
-            </tr>
-          </tbody>
-        </table>
-
-        <div class="box example">
-          <h4>Exemple concret</h4>
-          <p>
-            Afficher un stock légèrement retardé sur un catalogue est souvent acceptable.
-            Débiter deux fois une carte bancaire ou créer deux prêts identiques ne l’est pas.
-          </p>
-        </div>
-      </section>
-
-      <section id="idempotence">
-        <div class="mini-title">Robustesse</div>
-        <h2>Idempotence, retries et timeouts</h2>
-        <p>
-          En distribué, on doit penser aux requêtes rejouées, aux réponses perdues et aux traitements partiellement terminés.
-          C’est là que l’idempotence devient centrale.
-        </p>
 
         <div class="box definition">
-          <h4>Définition simple</h4>
-          <p>Une opération idempotente peut être rejouée plusieurs fois sans produire d’effet supplémentaire indésirable.</p>
+          <h4>Les 8 fausses hypothèses du distribué (Fallacies of Distributed Computing)</h4>
+          <p>Peter Deutsch (Sun Microsystems, 1994) a listé 8 croyances erronées que font les développeurs :</p>
+          <ol>
+            <li>Le réseau est fiable.</li>
+            <li>La latence est nulle.</li>
+            <li>La bande passante est infinie.</li>
+            <li>Le réseau est sécurisé.</li>
+            <li>La topologie ne change pas.</li>
+            <li>Il n'y a qu'un seul administrateur réseau.</li>
+            <li>Le transport est sans coût.</li>
+            <li>Le réseau est homogène.</li>
+          </ol>
+          <p><strong>Chaque hypothèse fausse est une source potentielle de bugs de production.</strong></p>
         </div>
 
-        <pre><code><span class="code-comment">// Idée : un identifiant de requête empêche les doublons</span>
-<span class="code-annotation">@PostMapping</span>(<span class="code-string">"/loans"</span>)
-<span class="code-keyword">public</span> <span class="code-type">ResponseEntity</span><span class="code-generic">&lt;<span class="code-type">LoanResponse</span>&gt;</span> <span class="code-method">create</span>(
-        <span class="code-annotation">@RequestHeader</span>(<span class="code-string">"Idempotency-Key"</span>) <span class="code-type">String</span> idempotencyKey,
-        <span class="code-annotation">@Valid</span> <span class="code-annotation">@RequestBody</span> <span class="code-type">CreateLoanRequest</span> request) {
-    <span class="code-keyword">return</span> <span class="code-type">ResponseEntity</span>.<span class="code-method">status</span>(<span class="code-type">HttpStatus</span>.<span class="code-constant">CREATED</span>)
-            .<span class="code-method">body</span>(loanApplicationService.<span class="code-method">createLoan</span>(idempotencyKey, request));
-}</code></pre>
+        <div class="box expert">
+          <h4>⚙️ Expert — Latence p99 et percentiles</h4>
+          <p>La moyenne est un mensonge en systèmes distribués. Mesurez toujours les <strong>percentiles</strong> (p50, p95, p99, p999). Le p99 représente l'expérience des 1% d'utilisateurs les plus mal servis — souvent vos plus gros clients.</p>
+<pre><code class="language-java">// Avec Micrometer : enregistrer la latence d'un appel externe
+@Service
+public class CatalogClientMetered {
 
-        <div class="duo">
-          <div class="box best-practice">
-            <h4>Bonne pratique</h4>
-            <p>Utiliser les retries seulement sur des erreurs transitoires, avec backoff, jitter et préférence pour des opérations idempotentes.</p>
-          </div>
-          <div class="box frequent-error">
-            <h4>Mauvaise idée</h4>
-            <p>Relancer automatiquement une création de paiement ou de commande sans mécanisme anti-doublon.</p>
-          </div>
+    private final MeterRegistry registry;
+    private final CatalogClient client;
+
+    public AvailabilityResponse getAvailability(UUID bookId) {
+        return registry.timer("catalog.availability",
+                              "service", "catalog")
+                       .recordCallable(() -> client.getAvailability(bookId));
+    }
+}</code></pre>
+          <p>Dans Grafana, tracez <code>histogram_quantile(0.99, rate(catalog_availability_seconds_bucket[5m]))</code> pour voir le p99 en temps réel.</p>
         </div>
       </section>
 
-      <section id="communication">
-        <div class="mini-title">Contrats d’échange</div>
-        <h2>Communication synchrone vs asynchrone</h2>
-        <p>
-          Le bon mode de communication dépend du besoin métier : réponse immédiate, découplage temporel,
-          volume, performance, traçabilité ou tolérance à la latence.
-        </p>
+      <!-- ═══════════════════════════════
+           2. RÉSEAU & PANNES
+      ═══════════════════════════════ -->
+      <section id="reseau">
+        <h2>Latence réseau et pannes partielles</h2>
+        <div class="level-bar">
+          <span class="level-pill junior">Junior</span>
+          <span class="level-pill mid">Mid</span>
+        </div>
+
+        <p>Dans un monolithe, un appel de méthode échoue vite et localement. Dans un système distribué, un appel réseau peut être <strong>lent, se perdre, être dupliqué ou échouer après traitement partiel</strong>.</p>
+
+        <div class="box warning">
+          <h4>⚠️ Attention</h4>
+          <p>Le réseau n'est ni instantané ni fiable. Un timeout n'est pas une erreur — c'est de l'<strong>ambiguïté</strong> : on ne sait pas si la requête a été traitée ou non côté serveur.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Exemple OpenFeign côté <code>loan-service</code></h4>
+<pre><code class="language-java">@FeignClient(name = "catalog-service")
+public interface CatalogClient {
+
+    @GetMapping("/internal/books/{bookId}/availability")
+    AvailabilityResponse getAvailability(@PathVariable UUID bookId);
+}</code></pre>
+        </div>
+
+        <div class="box example">
+          <h4>Configurer timeout + retry avec Resilience4j</h4>
+<pre><code class="language-yaml"># application.yml
+resilience4j:
+  retry:
+    instances:
+      catalogClient:
+        maxAttempts: 3
+        waitDuration: 500ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2   # 500ms → 1s → 2s
+        retryExceptions:
+          - feign.RetryableException
+          - java.net.ConnectException
+        ignoreExceptions:
+          - com.example.BookNotFoundException  # 404 = ne pas retenter
+  timelimiter:
+    instances:
+      catalogClient:
+        timeoutDuration: 2s
+        cancelRunningFuture: true</code></pre>
+        </div>
+
+        <div class="box expert">
+          <h4>⚙️ Expert — Jitter pour éviter le Thundering Herd</h4>
+          <p>Sans jitter, 100 services retentent exactement au même instant et enfoncent encore plus un service déjà surchargé. Ajoutez du bruit aléatoire :</p>
+<pre><code class="language-java">resilience4j:
+  retry:
+    instances:
+      catalogClient:
+        maxAttempts: 4
+        waitDuration: 200ms
+        enableExponentialBackoff: true
+        exponentialBackoffMultiplier: 2
+        # Jitter : ajoute ±25% de délai aléatoire
+        randomizedWaitFactor: 0.25
+        # Résultat : 200ms±50ms → 400ms±100ms → 800ms±200ms</code></pre>
+          <p>C'est l'algorithme dit "Full Jitter" recommandé par AWS dans leur article de référence sur les retries.</p>
+        </div>
+
+        <div class="box frequent-error">
+          <h4>🔴 Erreur fréquente</h4>
+          <p>Appeler un service distant sans timeout ni gestion d'erreur. Un service qui ne répond jamais bloque indéfiniment le thread appelant et épuise le pool → votre service devient indisponible en cascade (<strong>Cascading Failure</strong>).</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           3. CAP
+      ═══════════════════════════════ -->
+      <section id="cap">
+        <h2>Théorème CAP — et au-delà avec PACELC</h2>
+        <div class="level-bar">
+          <span class="level-pill mid">Mid</span>
+          <span class="level-pill senior">Senior</span>
+        </div>
+
+        <p>Le théorème CAP (Brewer, 2000) rappelle qu'en présence d'une <strong>partition réseau</strong> (P), on ne peut pas garantir simultanément <strong>cohérence forte</strong> (C) et <strong>disponibilité totale</strong> (A).</p>
 
         <table>
-          <thead>
-            <tr>
-              <th>Mode</th>
-              <th>Avantage</th>
-              <th>Limite</th>
-              <th>Exemple</th>
-            </tr>
-          </thead>
+          <thead><tr><th>Choix</th><th>Conséquence</th><th>Exemple</th></tr></thead>
           <tbody>
             <tr>
-              <td>REST</td>
-              <td>Simple, universel, lisible</td>
-              <td>Couplage temporel fort</td>
-              <td>Consulter une disponibilité en temps réel</td>
+              <td><strong>CP</strong> — Favoriser cohérence</td>
+              <td>On refuse certaines requêtes si le doute existe</td>
+              <td>Solde bancaire, réservation de siège unique</td>
             </tr>
             <tr>
-              <td>gRPC</td>
-              <td>Rapide, contrats forts, efficace en interne</td>
-              <td>Moins naturel pour une API publique web</td>
-              <td>Appels internes performants</td>
-            </tr>
-            <tr>
-              <td>Messaging</td>
-              <td>Découplage temporel, absorption de pics</td>
-              <td>Debug et suivi plus difficiles</td>
-              <td>Publier un événement <code>loan-created</code></td>
+              <td><strong>AP</strong> — Favoriser disponibilité</td>
+              <td>On répond parfois avec une donnée pas encore fraîche</td>
+              <td>Catalogue de produits, fil d'actualité social</td>
             </tr>
           </tbody>
         </table>
 
-        <pre><code><span class="code-comment">// Événement simple publié vers Kafka/RabbitMQ</span>
-<span class="code-keyword">public record</span> <span class="code-class">LoanCreatedEvent</span>(
-        <span class="code-type">UUID</span> loanId,
-        <span class="code-type">UUID</span> studentId,
-        <span class="code-type">UUID</span> bookId,
-        <span class="code-type">Instant</span> createdAt
-) {}</code></pre>
+        <div class="box pro-mode">
+          <h4>Au-delà de CAP : le théorème PACELC</h4>
+          <p>Daniel Abadi (2012) étend CAP : <em>même sans partition</em>, on fait un arbitrage entre <strong>latence</strong> (L) et <strong>cohérence</strong> (C).</p>
+          <p>Formule : <code>IF Partition THEN {C ou A} ELSE {L ou C}</code></p>
+          <table>
+            <thead><tr><th>Système</th><th>En cas de partition</th><th>Cas normal</th><th>Cas d'usage</th></tr></thead>
+            <tbody>
+              <tr><td>DynamoDB</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Panier e-commerce, sessions</td></tr>
+              <tr><td>HBase / ZooKeeper</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Coordination distribuée</td></tr>
+              <tr><td>Cassandra</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Time-series, IoT</td></tr>
+              <tr><td>PostgreSQL synchrone</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Finance, inventaire</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box expert">
+          <h4>⚙️ Expert — Niveaux de cohérence Cassandra</h4>
+          <p>Cassandra expose le niveau de cohérence à l'application. On choisit le trade-off par requête :</p>
+<pre><code class="language-java">// Cassandra Driver Java — choisir le Consistency Level
+import com.datastax.oss.driver.api.core.ConsistencyLevel;
+
+SimpleStatement stmt = SimpleStatement
+    .builder("SELECT balance FROM accounts WHERE id = ?")
+    .setConsistencyLevel(ConsistencyLevel.QUORUM)  // Majorité de réplicas
+    // QUORUM = (N/2)+1 nœuds doivent répondre
+    // ONE   = 1 nœud suffit (plus rapide, moins cohérent)
+    // ALL   = tous les nœuds (max cohérence, min dispo)
+    .build();
+
+Row row = session.execute(stmt).one();</code></pre>
+          <p>Formule du quorum : si N=3 réplicas, QUORUM = 2. Écriture QUORUM + Lecture QUORUM garantit la lecture-after-write même en présence d'une panne.</p>
+        </div>
       </section>
 
-      <section id="serialisation">
-        <div class="mini-title">Compatibilité</div>
-        <h2>Sérialisation et versioning d’API</h2>
-        <p>
-          Quand un système est distribué, on ne partage pas juste du code : on partage des contrats.
-          Ces contrats doivent être stables, documentés, versionnés et compatibles dans le temps.
-        </p>
+      <!-- ═══════════════════════════════
+           4. IDEMPOTENCE
+      ═══════════════════════════════ -->
+      <section id="idempotence">
+        <h2>Idempotence, retries et timeouts</h2>
+        <div class="level-bar">
+          <span class="level-pill junior">Junior</span>
+          <span class="level-pill mid">Mid</span>
+          <span class="level-pill senior">Senior</span>
+        </div>
+
+        <div class="box definition">
+          <h4>Définition</h4>
+          <p>Une opération <strong>idempotente</strong> peut être exécutée plusieurs fois sans effet supplémentaire indésirable. Formellement : <code>f(f(x)) = f(x)</code>.</p>
+          <ul>
+            <li>✅ <strong>GET</strong>, <strong>PUT</strong>, <strong>DELETE</strong> — idempotents par convention REST.</li>
+            <li>❌ <strong>POST</strong> — ne l'est pas nativement → utiliser l'<code>Idempotency-Key</code>.</li>
+          </ul>
+        </div>
 
         <div class="box example">
-          <h4>Exemple de versioning</h4>
+          <h4>Côté client — JavaScript</h4>
+<pre><code class="language-javascript">const idempotencyKey = crypto.randomUUID(); // UUID v4 unique par intention
+
+const response = await fetch('/loans', {
+  method: 'POST',
+  headers: {
+    'Content-Type':   'application/json',
+    'Idempotency-Key': idempotencyKey   // transmis tel quel à chaque retry
+  },
+  body: JSON.stringify(loanRequestData)
+});</code></pre>
+        </div>
+
+        <div class="box example">
+          <h4>Côté serveur — Spring Boot avec Redis</h4>
+<pre><code class="language-java">@PostMapping("/loans")
+public ResponseEntity&lt;LoanResponse&gt; create(
+        @RequestHeader("Idempotency-Key") String idempotencyKey,
+        @Valid @RequestBody CreateLoanRequest request) {
+
+    // 1. Vérifier si la clé a déjà été traitée (Redis)
+    Optional&lt;LoanResponse&gt; cached =
+        idempotencyStore.findByKey(idempotencyKey);
+    if (cached.isPresent()) {
+        return ResponseEntity.ok(cached.get());   // même réponse idempotente
+    }
+
+    // 2. Verrouillage distribué pour éviter la double exécution concurrent
+    //    (race condition si deux retries arrivent en même temps)
+    String lockKey = "idempotency-lock:" + idempotencyKey;
+    boolean acquired = redisLock.tryLock(lockKey, 5, TimeUnit.SECONDS);
+    if (!acquired) {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .header("Retry-After", "1")
+            .build();
+    }
+
+    try {
+        // Re-check après lock (double-checked locking pattern)
+        cached = idempotencyStore.findByKey(idempotencyKey);
+        if (cached.isPresent()) return ResponseEntity.ok(cached.get());
+
+        // 3. Traiter la requête
+        LoanResponse loan = loanApplicationService.createLoan(request);
+
+        // 4. Persister la réponse pour les éventuels retries
+        idempotencyStore.save(idempotencyKey, loan, Duration.ofHours(24));
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(loan);
+    } finally {
+        redisLock.unlock(lockKey);
+    }
+}</code></pre>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Stratégie de retry recommandée (AWS Best Practices)</h4>
+          <ul>
+            <li><strong>Exponential backoff</strong> : attendre 100ms, 200ms, 400ms… pour ne pas aggraver une surcharge.</li>
+            <li><strong>Jitter</strong> : variation aléatoire ±25% pour éviter le <em>thundering herd</em>.</li>
+            <li><strong>Max retries limité</strong> : 3 à 5 maximum.</li>
+            <li>Ne retenter que sur des erreurs <strong>transitoires</strong> (timeout, 503) — <strong>jamais</strong> sur un 400 ou 422 (erreur du client).</li>
+            <li>Toujours associer retry + idempotency-key pour les opérations non idempotentes.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           5. COMMUNICATION
+      ═══════════════════════════════ -->
+      <section id="communication">
+        <h2>Communication synchrone vs asynchrone</h2>
+        <div class="level-bar">
+          <span class="level-pill junior">Junior</span>
+          <span class="level-pill mid">Mid</span>
+          <span class="level-pill senior">Senior</span>
+          <span class="level-pill expert">Expert</span>
+        </div>
+
+        <div class="columns">
+          <div class="box definition">
+            <h4>🔁 Synchrone</h4>
+            <p>L'appelant envoie et <strong>attend activement</strong>. Le thread est bloqué jusqu'au retour ou timeout.</p>
+            <p><strong>Exemples :</strong> REST/HTTP, gRPC.</p>
+            <p><strong>✅</strong> Simple, résultat immédiat.<br>
+            <strong>⚠️</strong> Couplage temporel — si le service cible est down, l'appelant échoue aussi.</p>
+          </div>
+          <div class="box definition">
+            <h4>📨 Asynchrone</h4>
+            <p>L'appelant publie dans un broker et <strong>continue immédiatement</strong>. Le consommateur traite quand il est prêt.</p>
+            <p><strong>Exemples :</strong> Kafka, RabbitMQ, AWS SQS.</p>
+            <p><strong>✅</strong> Découplage temporel, résilience, absorption des pics.<br>
+            <strong>⚠️</strong> Cohérence éventuelle, débogage plus complexe.</p>
+          </div>
+        </div>
+
+        <h3>REST (Representational State Transfer)</h3>
+
+        <div class="box definition">
+          <h4>Modèle de maturité REST (Richardson Maturity Model)</h4>
+          <table>
+            <thead><tr><th>Niveau</th><th>Description</th><th>Exemple</th></tr></thead>
+            <tbody>
+              <tr>
+                <td><strong>0</strong> — POX</td>
+                <td>HTTP est utilisé comme un simple tunnel de transport pour des appels de procédure distante (RPC) sans se soucier des ressources.</td>
+                <td><code>POST /service?action=getBook</code></td>
+              </tr>
+              <tr>
+                <td><strong>1</strong> — Ressources</td>
+                <td>Les API exposent des <strong>ressources distinctes</strong>, chacune identifiée par une URL unique. L'accent est mis sur l'identification des "choses" (les noms) plutôt que des "actions".</td>
+                <td><code>GET /books/123</code> (récupère la ressource "livre" avec l'ID 123)</td>
+              </tr>
+              <tr>
+                <td><strong>2</strong> — Verbes HTTP</td>
+                <td>Utilisation des méthodes HTTP standard (GET, POST, PUT, DELETE, PATCH) de manière <strong>sémantique</strong>. Chaque verbe a une intention claire et universellement comprise pour l'action à effectuer sur la ressource.</td>
+                <td><code>DELETE /books/123</code> (supprime le livre 123)<br><code>POST /books</code> (crée un nouveau livre)<br><code>PUT /books/123</code> (met à jour le livre 123)</td>
+              </tr>
+              <tr><td><strong>3</strong> — HATEOAS</td><td>Liens hypermédias dans la réponse</td><td>Voir ci-dessous</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box example">
+          <h4>Niveau 3 — HATEOAS avec Spring HATEOAS</h4>
+<pre><code class="language-java">// Réponse enrichie de liens hypermédias
+@GetMapping("/loans/{id}")
+public EntityModel&lt;LoanDto&gt; getLoan(@PathVariable UUID id) {
+    LoanDto loan = loanService.findById(id);
+
+    return EntityModel.of(loan,
+        linkTo(methodOn(LoanController.class).getLoan(id)).withSelfRel(),
+        linkTo(methodOn(LoanController.class).returnBook(id)).withRel("return"),
+        linkTo(methodOn(LoanController.class).renewLoan(id)).withRel("renew")
+    );
+}</code></pre>
+<pre><code class="language-json">// Réponse JSON — le client sait quelles actions sont disponibles
+{
+  "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
+  "status": "ACTIVE",
+  "dueDate": "2024-02-15",
+  "_links": {
+    "self":   { "href": "/loans/d290f1ee-..." },
+    "return": { "href": "/loans/d290f1ee-.../return", "method": "POST" },
+    "renew":  { "href": "/loans/d290f1ee-.../renew",  "method": "POST" }
+  }
+}</code></pre>
           <p>
-            Pour une API publique, on peut utiliser <code>/api/v1/books</code>.
-            Pour des cas plus avancés, on peut versionner par header.
-            Pour les événements, on versionne le schéma et on évite les ruptures brutales.
+            Le code HATEOAS ci-dessus utilise Spring HATEOAS pour enrichir la réponse d'une API REST avec des liens hypermédias.
+            <code>EntityModel.of(loan, ...)</code> crée un modèle d'entité qui encapsule l'objet <code>loan</code> et y ajoute des liens.
+            La méthode statique <code>linkTo(methodOn(LoanController.class).getLoan(id)).withSelfRel()</code> génère un lien vers la ressource elle-même (le "self" link), en se basant sur la méthode du contrôleur.
+            De même, <code>linkTo(...).withRel("return")</code> et <code>linkTo(...).withRel("renew")</code> ajoutent des liens pour les actions "return" et "renew", permettant au client de découvrir dynamiquement les opérations possibles sur cette ressource sans avoir de connaissance préalable des URLs.
+            Cela rend l'API plus auto-descriptive et facilite son évolution.
           </p>
+        </div>
+
+        <div class="box example">
+          <h4>Contrôleur REST complet — Spring Boot</h4>
+<pre><code class="language-java">@RestController
+@RequestMapping("/api/v1/books")
+@Validated
+public class BookController {
+
+    private final BookService bookService;
+
+    @GetMapping("/{id}")
+    public ResponseEntity&lt;BookDto&gt; getBook(@PathVariable UUID id) {
+        return bookService.findById(id)
+                          .map(ResponseEntity::ok)
+                          .orElseThrow(() -> new BookNotFoundException(id));
+    }
+
+    @PostMapping
+    public ResponseEntity&lt;BookDto&gt; createBook(
+            @Valid @RequestBody CreateBookRequest req) {
+        BookDto created = bookService.create(req);
+        URI location = URI.create("/api/v1/books/" + created.id());
+        return ResponseEntity.created(location).body(created);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity&lt;BookDto&gt; updateBook(
+            @PathVariable UUID id,
+            @Valid @RequestBody UpdateBookRequest req) {
+        return ResponseEntity.ok(bookService.update(id, req));
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity&lt;Void&gt; deleteBook(@PathVariable UUID id) {
+        bookService.delete(id);
+        return ResponseEntity.noContent().build();
+    }
+}</code></pre>
+        </div>
+
+        <h3>gRPC — Communication binaire haute performance</h3>
+        <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+        <div class="box definition">
+          <h4>Pourquoi gRPC ?</h4>
+          <ul>
+            <li><strong>Protobuf</strong> : sérialisation binaire 5-10x plus compacte que JSON.</li>
+            <li><strong>HTTP/2</strong> : multiplexage des connexions, server push, compression des headers.</li>
+            <li><strong>Contrat fort</strong> : le fichier <code>.proto</code> est la source de vérité partagée.</li>
+            <li><strong>Streaming</strong> : 4 modes (unary, server-stream, client-stream, bidirectionnel).</li>
+          </ul>
+        </div>
+
+        <div class="box example">
+          <h4>Définition du contrat Protobuf (<code>book.proto</code>)</h4>
+<pre><code class="language-protobuf">syntax = "proto3";
+package library;
+option java_package = "com.example.library.grpc";
+
+service BookService {
+  rpc GetBook        (GetBookRequest)    returns (Book);
+  rpc CreateBook     (CreateBookRequest) returns (Book);
+  // Streaming : liste paginée de livres
+  rpc ListBooks      (ListBooksRequest)  returns (stream Book);
+  // Streaming bidirectionnel : import en masse
+  rpc BulkImport     (stream CreateBookRequest) returns (stream Book);
+}
+
+message GetBookRequest    { string book_id = 1; }
+message ListBooksRequest  { int32 page_size = 1; string page_token = 2; }
+message CreateBookRequest {
+  string title     = 1;
+  string author    = 2;
+  string isbn      = 3;
+}
+message Book {
+  string id        = 1;
+  string title     = 2;
+  string author    = 3;
+  string isbn      = 4;
+  bool   available = 5;
+}</code></pre>
+
+          <h5>Implémentation serveur (streaming server)</h5>
+<pre><code class="language-java">@GrpcService
+public class BookGrpcService extends BookServiceGrpc.BookServiceImplBase {
+
+    private final BookRepository bookRepository;
+
+    @Override
+    public void getBook(GetBookRequest req,
+                        StreamObserver&lt;Book&gt; responseObserver) {
+        bookRepository.findById(UUID.fromString(req.getBookId()))
+            .map(this::toProto)
+            .ifPresentOrElse(
+                book -> {
+                    responseObserver.onNext(book);
+                    responseObserver.onCompleted();
+                },
+                () -> responseObserver.onError(
+                    Status.NOT_FOUND
+                        .withDescription("Book not found: " + req.getBookId())
+                        .asRuntimeException()
+                )
+            );
+    }
+
+    // Server-side streaming : envoie les livres un par un
+    @Override
+    public void listBooks(ListBooksRequest req,
+                          StreamObserver&lt;Book&gt; responseObserver) {
+        bookRepository.streamAll().forEach(book -> {
+            responseObserver.onNext(toProto(book));
+        });
+        responseObserver.onCompleted();
+    }
+
+    private Book toProto(BookEntity entity) {
+        return Book.newBuilder()
+            .setId(entity.getId().toString())
+            .setTitle(entity.getTitle())
+            .setAuthor(entity.getAuthor())
+            .setAvailable(entity.isAvailable())
+            .build();
+    }
+}</code></pre>
+        </div>
+
+        <h3>Messaging asynchrone (Kafka)</h3>
+        <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+        <div class="box example">
+          <h4>Publication d'un événement depuis <code>loan-service</code></h4>
+<pre><code class="language-java">// Événement — record immuable (Java 16+)
+public record LoanCreatedEvent(
+    UUID    loanId,
+    UUID    studentId,
+    UUID    bookId,
+    Instant createdAt
+) {}
+
+@Service
+@RequiredArgsConstructor
+public class LoanEventPublisher {
+
+    private final KafkaTemplate&lt;String, LoanCreatedEvent&gt; kafka;
+    private static final String TOPIC = "loan.created";
+
+    public CompletableFuture&lt;SendResult&lt;String, LoanCreatedEvent&gt;&gt; publishLoanCreated(
+            LoanCreatedEvent event) {
+        return kafka.send(TOPIC, event.loanId().toString(), event)
+            .whenComplete((result, ex) -> {
+                if (ex != null) {
+                    log.error("Failed to publish LoanCreatedEvent: {}", event.loanId(), ex);
+                } else {
+                    log.info("Published to partition {} offset {}",
+                        result.getRecordMetadata().partition(),
+                        result.getRecordMetadata().offset());
+                }
+            });
+    }
+}</code></pre>
+
+          <h5>Consommateur dans <code>notification-service</code></h5>
+<pre><code class="language-java">@Component
+@RequiredArgsConstructor
+public class LoanCreatedConsumer {
+
+    private final NotificationService notificationService;
+    private final MeterRegistry meterRegistry;
+
+    @KafkaListener(
+        topics         = "loan.created",
+        groupId        = "notification-service",
+        containerFactory = "loanEventListenerFactory"
+    )
+    public void onLoanCreated(
+            @Payload LoanCreatedEvent event,
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
+            @Header(KafkaHeaders.OFFSET) long offset) {
+
+        log.info("Processing LoanCreated [loanId={}, partition={}, offset={}]",
+            event.loanId(), partition, offset);
+
+        try {
+            notificationService.sendConfirmation(event.studentId(), event.loanId());
+            meterRegistry.counter("notifications.sent", "type", "loan-created").increment();
+        } catch (Exception e) {
+            // Kafka ne commit pas l'offset → retry automatique
+            throw new KafkaListenerException("Notification failed", e);
+        }
+    }
+}</code></pre>
+
+          <h5>Configuration Kafka</h5>
+<pre><code class="language-yaml"># application.yml
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all           # Attendre acknowledgement de tous les réplicas
+      retries: 3
+      properties:
+        enable.idempotence: true    # Producteur idempotent (pas de doublon)
+    consumer:
+      group-id: notification-service
+      auto-offset-reset: earliest
+      enable-auto-commit: false     # Commit manuel = meilleur contrôle
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.example.events"
+    listener:
+      ack-mode: MANUAL_IMMEDIATE</code></pre>
+        </div>
+
+        <table>
+          <thead>
+            <tr><th>Mode</th><th>Avantage</th><th>Limite</th><th>Cas d'usage</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>REST</strong></td><td>Simple, universel, CRUD naturel</td><td>Couplage temporel, JSON verbeux</td><td>API publique, ressources CRUD</td></tr>
+            <tr><td><strong>gRPC</strong></td><td>Binaire (rapide), contrats forts, streaming</td><td>Non natif navigateur, outillage spécifique</td><td>Appels internes haute fréquence</td></tr>
+            <tr><td><strong>Kafka</strong></td><td>Découplage total, résilience, replay d'events</td><td>Broker à opérer, cohérence éventuelle</td><td>Notifications, CQRS, audit</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ═══════════════════════════════
+           6. SÉRIALISATION & VERSIONING
+      ═══════════════════════════════ -->
+      <section id="serialisation">
+        <h2>Sérialisation et versioning d'API</h2>
+        <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill senior">Senior</span></div>
+
+        <p>Les composants d'un système distribué communiquent via des <strong>contrats</strong>. Ce contrat doit être stable, documenté et versionné car les services ne sont pas déployés au même rythme.</p>
+
+        <div class="box warning">
+          <h4>⚠️ Attention</h4>
+          <p>Renommer un champ JSON "innocent" peut casser un autre service déployé à un rythme différent. Toute modification doit être <strong>rétrocompatible ou versionnée explicitement</strong>.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Stratégies de versioning d'API REST</h4>
+          <table>
+            <thead><tr><th>Stratégie</th><th>Exemple</th><th>Avantage</th><th>Limite</th></tr></thead>
+            <tbody>
+              <tr><td>URI</td><td><code>/api/v1/books</code></td><td>Très visible, simple à cacher</td><td>URL encombrée</td></tr>
+              <tr><td>Header</td><td><code>Accept: application/vnd.api.v2+json</code></td><td>URL propre, sémantique</td><td>Moins découvrable</td></tr>
+              <tr><td>Query param</td><td><code>?version=2</code></td><td>Simple à tester</td><td>Non sémantique REST</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Règles d'évolution rétrocompatible</h4>
+          <ul>
+            <li><strong>Ajouter</strong> des champs optionnels → ✅ rétrocompatible.</li>
+            <li><strong>Renommer / supprimer</strong> un champ → ❌ rupture — période de dépréciation obligatoire.</li>
+            <li><strong>Changer le type</strong> d'un champ → ❌ rupture.</li>
+            <li>Pour les événements Kafka : utiliser <strong>Avro + Schema Registry</strong> pour valider les contrats à la publication et à la consommation.</li>
+          </ul>
+        </div>
+
+        <div class="box example">
+          <h4>Avro + Schema Registry — Kafka (niveau Senior)</h4>
+<pre><code class="language-json">// loan-created-event.avsc (Avro Schema)
+{
+  "type": "record",
+  "name": "LoanCreatedEvent",
+  "namespace": "com.example.events",
+  "fields": [
+    { "name": "loanId",    "type": "string" },
+    { "name": "studentId", "type": "string" },
+    { "name": "bookId",    "type": "string" },
+    { "name": "createdAt", "type": "long",   "logicalType": "timestamp-millis" },
+    { "name": "channel",   "type": ["null", "string"], "default": null }
+    // ↑ Nouveau champ optionnel = rétrocompatible (union avec null + default)
+  ]
+}</code></pre>
+<pre><code class="language-yaml"># application.yml — Avro + Confluent Schema Registry
+spring:
+  kafka:
+    bootstrap-servers: kafka:9092
+    producer:
+      value-serializer: io.confluent.kafka.serializers.KafkaAvroSerializer
+    consumer:
+      value-deserializer: io.confluent.kafka.serializers.KafkaAvroDeserializer
+    properties:
+      schema.registry.url: http://schema-registry:8081
+      # BACKWARD = les nouveaux consommateurs lisent les anciens messages
+      # FORWARD  = les anciens consommateurs lisent les nouveaux messages
+      # FULL     = les deux (recommandé en production)
+      avro.compatibility.type: FULL</code></pre>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           7. API GATEWAY
+      ═══════════════════════════════ -->
+      <section id="gateway">
+        <h2>API Gateway</h2>
+        <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+        <p>L'<strong>API Gateway</strong> est le point d'entrée unique de toutes les requêtes extérieures vers les microservices. Elle centralise les préoccupations transversales.</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>C'est comme le guichet d'accueil d'un grand hôpital : tu ne vas pas directement voir le chirurgien. Tu passes par l'accueil qui vérifie ta carte vitale, sait où t'envoyer, et garde une trace de ta visite.</p>
+        </div>
+
+        <div class="box definition">
+          <h4>Responsabilités typiques d'une API Gateway</h4>
+          <ul>
+            <li>🔀 <strong>Routage</strong> — achemine vers le bon microservice selon le path/host.</li>
+            <li>🔒 <strong>Authentification / Autorisation</strong> — validation JWT, OAuth2 / OIDC.</li>
+            <li>📊 <strong>Rate limiting</strong> — protection contre les abus (quotas par client).</li>
+            <li>🗜️ <strong>Transformation</strong> — agrégation, adaptation de format.</li>
+            <li>📋 <strong>Logging centralisé</strong> — corrélation de toutes les requêtes entrantes.</li>
+            <li>🔄 <strong>Circuit breaker</strong> au niveau gateway (Resilience4j).</li>
+          </ul>
+        </div>
+
+        <div class="box example">
+          <h4>Configuration Spring Cloud Gateway complète</h4>
+<pre><code class="language-yaml">spring:
+  cloud:
+    gateway:
+      default-filters:
+        - name: RequestRateLimiter
+          args:
+            redis-rate-limiter.replenishRate: 100    # requêtes/seconde
+            redis-rate-limiter.burstCapacity:  200   # pic autorisé
+            key-resolver: "#{@userKeyResolver}"
+
+      routes:
+        # ── loan-service ──
+        - id: loan-service
+          uri: lb://loan-service          # load-balanced via Eureka
+          predicates:
+            - Path=/api/v1/loans/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                name: loanServiceCB
+                fallbackUri: forward:/fallback/loans
+            - AddRequestHeader=X-Gateway-Time, "#{T(java.time.Instant).now()}"
+
+        # ── catalog-service ──
+        - id: catalog-service
+          uri: lb://catalog-service
+          predicates:
+            - Path=/api/v1/books/**
+          filters:
+            - StripPrefix=0
+            - RewritePath=/api/v1/books/(?&lt;segment&gt;.*), /books/${segment}
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          jwk-set-uri: http://keycloak:8080/realms/library/protocol/openid-connect/certs</code></pre>
+
+          <h5>Filter de sécurité JWT personnalisé</h5>
+<pre><code class="language-java">@Component
+public class JwtAuthFilter implements GlobalFilter, Ordered {
+
+    private final ReactiveJwtDecoder jwtDecoder;
+
+    @Override
+    public Mono&lt;Void&gt; filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        String authHeader = exchange.getRequest()
+                                    .getHeaders()
+                                    .getFirst(HttpHeaders.AUTHORIZATION);
+
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+            return exchange.getResponse().setComplete();
+        }
+
+        String token = authHeader.substring(7);
+        return jwtDecoder.decode(token)
+            .flatMap(jwt -> {
+                // Propager les claims vers les services downstream
+                ServerHttpRequest mutated = exchange.getRequest().mutate()
+                    .header("X-User-Id",    jwt.getSubject())
+                    .header("X-User-Roles", String.join(",", jwt.getClaimAsStringList("roles")))
+                    .build();
+                return chain.filter(exchange.mutate().request(mutated).build());
+            })
+            .onErrorResume(e -> {
+                exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
+                return exchange.getResponse().setComplete();
+            });
+    }
+
+    @Override public int getOrder() { return -1; }  // avant tous les autres filtres
+}</code></pre>
         </div>
 
         <div class="box warning">
-          <h4>Attention</h4>
-          <p>
-            Renommer un champ JSON qui paraît “inoffensif” peut casser un service déployé à un autre rythme.
-            En distribué, une petite modification locale peut avoir un impact global.
-          </p>
+          <h4>⚠️ Anti-pattern : la Gateway intelligente</h4>
+          <p>La gateway doit rester <strong>stupide</strong> (routage, sécurité, observabilité). Évitez d'y placer de la logique métier : vous recréeriez un monolithe distribué difficile à tester et à maintenir.</p>
         </div>
       </section>
 
-      <section id="quiz">
-        <div class="mini-title">Validation</div>
-        <h2>Quiz de fin</h2>
-        <ol>
-          <li>Pourquoi un retry peut-il empirer un incident déjà en cours ?</li>
-          <li>Dans quel cas le messaging est-il préférable à REST ?</li>
-          <li>Pourquoi le versioning devient-il central dans un système distribué ?</li>
-        </ol>
+      <!-- ═══════════════════════════════
+           8. SERVICE DISCOVERY
+      ═══════════════════════════════ -->
+      <section id="service-discovery">
+        <h2>Service Discovery</h2>
+        <div class="level-bar"><span class="level-pill mid">Mid</span></div>
 
-        <div class="quiz-answers">
-          <h3>Réponses</h3>
+        <p>Dans un système distribué, les instances de services démarrent et s'arrêtent dynamiquement. Il est impossible de coder en dur les adresses IP. Le <strong>Service Discovery</strong> résout ce problème en maintenant un registre dynamique.</p>
+
+        <div class="columns">
+          <div class="box definition">
+            <h4>Client-side Discovery</h4>
+            <p>Le client interroge le registre (Eureka) et choisit lui-même une instance. <strong>Ribbon / Spring Cloud LoadBalancer</strong> fait le load balancing localement.</p>
+            <p>✅ Logique de routage côté client<br>⚠️ Couplage au registre</p>
+          </div>
+          <div class="box definition">
+            <h4>Server-side Discovery</h4>
+            <p>Le client envoie la requête à un load balancer (AWS ALB, Nginx, Istio) qui interroge le registre et route. Client plus simple.</p>
+            <p>✅ Client léger et découplé<br>⚠️ Composant infra supplémentaire</p>
+          </div>
+        </div>
+
+        <div class="box example">
+          <h4>Configuration Eureka — pom.xml + application.yml</h4>
+<pre><code class="language-xml">&lt;!-- Serveur Eureka --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;
+&lt;/dependency&gt;
+
+&lt;!-- Client (dans chaque microservice) --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
+  &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+<pre><code class="language-yaml"># application.yml — dans chaque microservice client
+spring:
+  application:
+    name: loan-service      # identité dans le registre
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka/
+    fetch-registry: true
+    register-with-eureka: true
+  instance:
+    prefer-ip-address: true
+    lease-renewal-interval-in-seconds: 10    # heartbeat
+    lease-expiration-duration-in-seconds: 30 # TTL avant désenregistrement</code></pre>
+        </div>
+
+        <div class="box expert">
+          <h4>⚙️ Expert — Alternatives modernes à Eureka</h4>
+          <table>
+            <thead><tr><th>Solution</th><th>Contexte</th><th>Avantage clé</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Kubernetes DNS</strong></td><td>Déploiement K8s</td><td>Natif, pas de code Java requis</td></tr>
+              <tr><td><strong>Consul</strong></td><td>Multi-cloud, VM + containers</td><td>Health checks, KV store, multi-datacenter</td></tr>
+              <tr><td><strong>Istio Service Mesh</strong></td><td>K8s avancé</td><td>mTLS, circuit breaker, observabilité sans code</td></tr>
+            </tbody>
+          </table>
+          <p>En 2024+, si vous déployez sur Kubernetes, utilisez simplement les <strong>Services K8s</strong> et le DNS cluster interne (<code>catalog-service.default.svc.cluster.local</code>). Eureka devient superflu.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           9. RATE LIMITING  (nouveau)
+      ═══════════════════════════════ -->
+      <section id="rate-limiting">
+        <h2>Rate Limiting &amp; Throttling</h2>
+        <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
+
+        <p>Le <strong>Rate Limiting</strong> consiste à limiter le nombre de requêtes qu'un client peut effectuer dans une fenêtre de temps donnée. Il protège vos services des abus, des attaques DDoS et de l'utilisation excessive des ressources.</p>
+
+        <div class="box definition">
+          <h4>Algorithmes de Rate Limiting</h4>
+          <table>
+            <thead><tr><th>Algorithme</th><th>Description</th><th>Avantage</th><th>Limite</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Token Bucket</strong></td><td>Seau de jetons rempli à débit constant</td><td>Autorise les bursts</td><td>Complexe</td></tr>
+              <tr><td><strong>Fixed Window</strong></td><td>Compteur par fenêtre fixe (ex: 1 min)</td><td>Simple</td><td>Pic en bord de fenêtre</td></tr>
+              <tr><td><strong>Sliding Window</strong></td><td>Fenêtre glissante dans le temps</td><td>Plus lisse</td><td>Plus de mémoire</td></tr>
+              <tr><td><strong>Leaky Bucket</strong></td><td>Traitement à débit constant</td><td>Débit stable</td><td>Perd les bursts</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box example">
+          <h4>Rate Limiting avec Bucket4j (Spring Boot)</h4>
+<pre><code class="language-xml">&lt;dependency&gt;
+  &lt;groupId&gt;com.github.vladimir-bukhtoyarov&lt;/groupId&gt;
+  &lt;artifactId&gt;bucket4j-core&lt;/artifactId&gt;
+  &lt;version&gt;8.7.0&lt;/version&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;com.github.vladimir-bukhtoyarov&lt;/groupId&gt;
+  &lt;artifactId&gt;bucket4j-redis&lt;/artifactId&gt;
+  &lt;version&gt;8.7.0&lt;/version&gt;
+&lt;/dependency&gt;</code></pre>
+
+<pre><code class="language-java">@Component
+@RequiredArgsConstructor
+public class RateLimitFilter extends OncePerRequestFilter {
+
+    private final BucketProxyManager&lt;String&gt; bucketManager;
+
+    // Limite : 100 req/min par API key
+    private final Bandwidth bandwidth = Bandwidth.classic(
+        100, Refill.greedy(100, Duration.ofMinutes(1))
+    );
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain) throws IOException, ServletException {
+
+        String apiKey = request.getHeader("X-Api-Key");
+        if (apiKey == null) {
+            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            return;
+        }
+
+        // Bucket par API key — stocké dans Redis pour la distribution
+        Bucket bucket = bucketManager.builder()
+            .addLimit(bandwidth)
+            .build(apiKey);
+
+        ConsumptionProbe probe = bucket.tryConsumeAndReturnRemaining(1);
+
+        if (probe.isConsumed()) {
+            // Headers standards RFC 6585
+            response.addHeader("X-Rate-Limit-Remaining",
+                String.valueOf(probe.getRemainingTokens()));
+            chain.doFilter(request, response);
+        } else {
+            long waitSeconds = probe.getNanosToWaitForRefill() / 1_000_000_000;
+            response.addHeader("X-Rate-Limit-Retry-After-Seconds",
+                String.valueOf(waitSeconds));
+            response.setStatus(HttpStatus.TOO_MANY_REQUESTS.value());  // 429
+        }
+    }
+}</code></pre>
+        </div>
+
+        <div class="box expert">
+          <h4>⚙️ Expert — Rate Limiting distribué avec Redis (Sliding Window)</h4>
+<pre><code class="language-java">@Component
+public class SlidingWindowRateLimiter {
+
+    private final StringRedisTemplate redis;
+    private static final int MAX_REQUESTS = 100;
+    private static final int WINDOW_SECONDS = 60;
+
+    public boolean isAllowed(String clientId) {
+        long now = Instant.now().toEpochMilli();
+        long windowStart = now - (WINDOW_SECONDS * 1000L);
+        String key = "rate-limit:" + clientId;
+
+        // Script Lua atomique — pas de race condition
+        String luaScript = """
+            local key = KEYS[1]
+            local now = tonumber(ARGV[1])
+            local window_start = tonumber(ARGV[2])
+            local max_requests = tonumber(ARGV[3])
+            local window_ms = tonumber(ARGV[4])
+
+            -- Supprimer les entrées hors de la fenêtre
+            redis.call('ZREMRANGEBYSCORE', key, 0, window_start)
+
+            -- Compter les requêtes dans la fenêtre
+            local count = redis.call('ZCARD', key)
+
+            if count < max_requests then
+                redis.call('ZADD', key, now, now)
+                redis.call('EXPIRE', key, window_ms / 1000 + 1)
+                return 1
+            else
+                return 0
+            end
+            """;
+
+        Long result = redis.execute(
+            new DefaultRedisScript&lt;&gt;(luaScript, Long.class),
+            List.of(key),
+            String.valueOf(now),
+            String.valueOf(windowStart),
+            String.valueOf(MAX_REQUESTS),
+            String.valueOf(WINDOW_SECONDS * 1000)
+        );
+
+        return Long.valueOf(1L).equals(result);
+    }
+}</code></pre>
+          <p>Le script Lua est exécuté de manière <strong>atomique</strong> par Redis. Pas besoin de verrou distribué car Redis est mono-threadé pour l'exécution des scripts.</p>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Bonnes pratiques</h4>
+          <ul>
+            <li>Toujours retourner <strong>HTTP 429</strong> (Too Many Requests) avec un header <code>Retry-After</code>.</li>
+            <li>Segmentez les limites : par IP, par utilisateur authentifié, par API key — dans cet ordre croissant de granularité.</li>
+            <li>Exposez les headers : <code>X-Rate-Limit-Limit</code>, <code>X-Rate-Limit-Remaining</code>, <code>X-Rate-Limit-Reset</code>.</li>
+            <li>Utilisez un stockage distribué (Redis) si vous avez plusieurs instances de gateway.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           10. DISTRIBUTED TRACING
+      ═══════════════════════════════ -->
+      <section id="tracing">
+        <h2>Distributed Tracing</h2>
+        <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+        <p>Quand une requête traverse 5 services, comment savoir lequel est lent ? Le <strong>tracing distribué</strong> propage un identifiant unique (<strong>Trace ID</strong>) à travers tous les services pour reconstituer le chemin complet.</p>
+
+        <div class="box definition">
+          <h4>Concepts clés</h4>
+          <ul>
+            <li><strong>Trace ID</strong> : identifiant global de la requête utilisateur de bout en bout.</li>
+            <li><strong>Span</strong> : une étape dans le traitement (ex: appel BDD, appel HTTP distant). Possède un <em>span parent</em>.</li>
+            <li><strong>Baggage</strong> : données propagées dans les en-têtes entre services (ex: userId, tenantId).</li>
+            <li><strong>Sampling</strong> : on ne trace pas 100% des requêtes en prod (coût) — on échantillonne (5% à 10%).</li>
+          </ul>
+        </div>
+
+        <div class="box example">
+          <h4>Configuration Micrometer Tracing + OpenTelemetry + Zipkin</h4>
+<pre><code class="language-xml">&lt;!-- pom.xml --&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.micrometer&lt;/groupId&gt;
+  &lt;artifactId&gt;micrometer-tracing-bridge-otel&lt;/artifactId&gt;
+&lt;/dependency&gt;
+&lt;dependency&gt;
+  &lt;groupId&gt;io.opentelemetry&lt;/groupId&gt;
+  &lt;artifactId&gt;opentelemetry-exporter-zipkin&lt;/artifactId&gt;
+&lt;/dependency&gt;</code></pre>
+<pre><code class="language-yaml"># application.yml
+management:
+  tracing:
+    sampling:
+      probability: 1.0   # 100% en dev, ~5% en prod
+  zipkin:
+    tracing:
+      endpoint: http://zipkin:9411/api/v2/spans
+
+logging:
+  pattern:
+    level: "%5p [${spring.application.name},%X{traceId},%X{spanId}]"</code></pre>
+
+          <h5>Span personnalisé avec annotation</h5>
+<pre><code class="language-java">@Service
+public class LoanApplicationService {
+
+    private final Tracer tracer;
+
+    // @Observed crée automatiquement un span
+    @Observed(name = "loan.create",
+              contextualName = "creating-loan",
+              lowCardinalityKeyValues = {"service", "loan"})
+    public LoanDto createLoan(CreateLoanRequest request) {
+        // ... logique métier
+    }
+
+    // Span manuel pour plus de contrôle
+    public void processReturns(List&lt;UUID&gt; loanIds) {
+        Span span = tracer.nextSpan()
+            .name("process-returns")
+            .tag("count", String.valueOf(loanIds.size()))
+            .start();
+
+        try (Tracer.SpanInScope ignored = tracer.withSpan(span)) {
+            loanIds.forEach(this::processReturn);
+        } catch (Exception e) {
+            span.tag("error", e.getMessage());
+            throw e;
+        } finally {
+            span.end();
+        }
+    }
+}</code></pre>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Bonne pratique</h4>
+          <p>Toujours inclure le <code>traceId</code> dans les logs et dans les réponses d'erreur (header <code>X-Trace-Id</code>). C'est la clé pour déboguer un incident en production en <strong>5 minutes</strong> au lieu de 5 heures.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           11. EVENT SOURCING
+      ═══════════════════════════════ -->
+      <section id="event-sourcing">
+        <h2>Event Sourcing (introduction)</h2>
+        <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
+
+        <p>Au lieu de stocker <em>l'état actuel</em> d'une entité, on stocke la <strong>séquence de tous les événements</strong> qui ont conduit à cet état. L'état courant est reconstruit en rejouant les événements.</p>
+
+        <div class="box child-mode">
+          <h4>Mode enfant 🧸</h4>
+          <p>Plutôt que de noter "solde = 150€", tu notes toutes les opérations : "dépôt 200€", "retrait 50€". Tu peux retrouver le solde à n'importe quel moment dans le passé.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Modélisation en Java — Sealed interfaces + Records</h4>
+<pre><code class="language-java">// Les événements sont immuables et typés précisément
+public sealed interface LoanEvent permits
+    LoanRequestedEvent, LoanApprovedEvent, LoanReturnedEvent,
+    LoanRenewedEvent, LoanOverdueEvent {}
+
+public record LoanRequestedEvent(
+    UUID loanId, UUID studentId, UUID bookId, Instant at) implements LoanEvent {}
+
+public record LoanApprovedEvent(
+    UUID loanId, Instant dueDate, Instant at) implements LoanEvent {}
+
+public record LoanReturnedEvent(
+    UUID loanId, Instant returnedAt) implements LoanEvent {}
+
+// Agrégat reconstruit depuis les événements
+public class Loan {
+    private UUID id;
+    private LoanStatus status;
+    private Instant dueDate;
+    private List&lt;LoanEvent&gt; uncommittedEvents = new ArrayList&lt;&gt;();
+
+    // Factory — reconstruction depuis l'event store
+    public static Loan reconstitute(List&lt;LoanEvent&gt; events) {
+        Loan loan = new Loan();
+        events.forEach(loan::apply);
+        return loan;
+    }
+
+    // Commande — génère des événements
+    public void approve(Instant dueDate) {
+        if (status != LoanStatus.REQUESTED) {
+            throw new IllegalStateException("Loan is not in REQUESTED state");
+        }
+        LoanApprovedEvent event = new LoanApprovedEvent(id, dueDate, Instant.now());
+        apply(event);
+        uncommittedEvents.add(event);  // à persister dans l'event store
+    }
+
+    // Apply — état interne muté par l'événement
+    private void apply(LoanEvent event) {
+        switch (event) {
+            case LoanRequestedEvent r -> {
+                this.id     = r.loanId();
+                this.status = LoanStatus.REQUESTED;
+            }
+            case LoanApprovedEvent a -> {
+                this.status  = LoanStatus.APPROVED;
+                this.dueDate = a.dueDate();
+            }
+            case LoanReturnedEvent ignored -> this.status = LoanStatus.RETURNED;
+            case LoanRenewedEvent  r       -> this.dueDate = r.newDueDate();
+            case LoanOverdueEvent  ignored -> this.status = LoanStatus.OVERDUE;
+        }
+    }
+}</code></pre>
+        </div>
+
+        <div class="box expert">
+          <h4>⚙️ Expert — Snapshots pour éviter la reconstruction coûteuse</h4>
+<pre><code class="language-java">// Sans snapshot : rejouer 10 000 événements à chaque lecture = lent
+// Avec snapshot : rejouer depuis le dernier snapshot seulement
+
+@Component
+public class LoanRepository {
+
+    private final EventStore eventStore;
+    private final SnapshotStore snapshotStore;
+    private static final int SNAPSHOT_THRESHOLD = 50; // snapshot tous les 50 events
+
+    public Loan findById(UUID loanId) {
+        // 1. Charger le dernier snapshot (s'il existe)
+        Optional&lt;LoanSnapshot&gt; snapshot = snapshotStore.findLatest(loanId);
+
+        long fromVersion = snapshot.map(LoanSnapshot::version).orElse(0L);
+        Loan loan = snapshot.map(LoanSnapshot::toLoan).orElseGet(Loan::new);
+
+        // 2. Rejouer uniquement les événements après le snapshot
+        List&lt;LoanEvent&gt; events = eventStore.findEventsAfter(loanId, fromVersion);
+        events.forEach(loan::apply);
+
+        return loan;
+    }
+
+    public void save(Loan loan) {
+        long version = eventStore.appendEvents(loan.getId(), loan.getUncommittedEvents());
+
+        // 3. Créer un snapshot si le seuil est atteint
+        if (version % SNAPSHOT_THRESHOLD == 0) {
+            snapshotStore.save(new LoanSnapshot(loan.getId(), version, loan.toState()));
+        }
+
+        loan.clearUncommittedEvents();
+    }
+}</code></pre>
+        </div>
+
+        <div class="box warning">
+          <h4>⚠️ Quand utiliser Event Sourcing ?</h4>
+          <p>L'Event Sourcing est puissant mais complexe. À réserver aux <strong>domaines où l'audit et l'historique complet sont critiques</strong> (finance, compliance, logistique). Pour un CRUD simple, c'est un over-engineering qui complique tout.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           12. CONTRACT TESTING  (nouveau)
+      ═══════════════════════════════ -->
+      <section id="contract-testing">
+        <h2>Consumer-Driven Contract Testing</h2>
+        <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
+
+        <p>Dans un système distribué, comment s'assurer qu'un changement côté <em>provider</em> ne casse pas un <em>consumer</em> ?
+        Le <strong>Contract Testing</strong> (Pact / Spring Cloud Contract) formalise les attentes des consommateurs en contrats vérifiables automatiquement.</p>
+
+        <div class="box definition">
+          <h4>Principe</h4>
           <ol>
-            <li>
-              <strong>Un retry peut empirer un incident</strong> parce qu’il ajoute encore plus de trafic vers un service déjà lent ou en panne.
-              Résultat : on augmente la saturation, on consomme plus de threads, on propage l’incident à d’autres services
-              et on peut même créer des doublons si l’opération n’est pas idempotente.
-            </li>
-            <li>
-              <strong>Le messaging est préférable à REST</strong> quand on veut du découplage temporel,
-              absorber des pics de charge, traiter en arrière-plan, ou publier un événement à plusieurs consommateurs
-              sans exiger une réponse immédiate. Exemple : notification, audit, analytics, propagation d’un événement métier.
-            </li>
-            <li>
-              <strong>Le versioning devient central</strong> parce que les services d’un système distribué ne sont pas toujours déployés en même temps.
-              Si on casse le contrat d’API ou le schéma d’un événement sans stratégie de compatibilité,
-              certains consommateurs peuvent tomber en erreur alors que d’autres fonctionnent encore.
-            </li>
+            <li>Le <strong>consumer</strong> écrit les interactions attendues (requête → réponse).</li>
+            <li>Ces interactions génèrent un <strong>contrat Pact</strong> (JSON).</li>
+            <li>Le <strong>provider</strong> joue le contrat contre sa vraie implémentation — en CI.</li>
+            <li>Si le provider casse le contrat, le build échoue <strong>avant le déploiement</strong>.</li>
           </ol>
+        </div>
+
+        <div class="box example">
+          <h4>Côté Consumer — Test Pact (loan-service → catalog-service)</h4>
+<pre><code class="language-java">@ExtendWith(PactConsumerTestExt.class)
+@PactTestFor(providerName = "catalog-service", port = "8081")
+class CatalogClientContractTest {
+
+    @Pact(consumer = "loan-service")
+    public RequestResponsePact availabilityPact(PactDslWithProvider builder) {
+        return builder
+            .given("book d290f1ee exists and is available")
+            .uponReceiving("GET availability for book d290f1ee")
+                .path("/internal/books/d290f1ee-6c54-4b01-90e6-d701748f0851/availability")
+                .method("GET")
+            .willRespondWith()
+                .status(200)
+                .headers(Map.of("Content-Type", "application/json"))
+                .body(new PactDslJsonBody()
+                    .booleanValue("available", true)
+                    .integerType("copies", 3))
+            .toPact();
+    }
+
+    @Test
+    @PactTestFor(pactMethod = "availabilityPact")
+    void testGetAvailability(MockServer mockServer) {
+        CatalogClient client = new CatalogClient(mockServer.getUrl());
+        AvailabilityResponse response = client.getAvailability(
+            UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851")
+        );
+
+        assertThat(response.available()).isTrue();
+        assertThat(response.copies()).isEqualTo(3);
+    }
+}</code></pre>
+
+          <h5>Côté Provider — Vérification du contrat</h5>
+<pre><code class="language-java">@Provider("catalog-service")
+@PactBroker(url = "http://pact-broker:9292")
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+class CatalogServiceContractVerificationTest {
+
+    @LocalServerPort
+    private int port;
+
+    @BeforeEach
+    void setup(PactVerificationContext context) {
+        context.setTarget(new HttpTestTarget("localhost", port));
+    }
+
+    @TestTemplate
+    @ExtendWith(PactVerificationInvocationContextProvider.class)
+    void verifyPact(PactVerificationContext context) {
+        context.verifyInteraction(); // rejoue le contrat du consumer
+    }
+
+    // Setup des données de test pour l'état "book d290f1ee exists and is available"
+    @State("book d290f1ee exists and is available")
+    void bookExists() {
+        bookRepository.save(new Book(
+            UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851"),
+            "Clean Architecture", "Robert C. Martin", true, 3
+        ));
+    }
+}</code></pre>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Workflow recommandé en CI/CD</h4>
+          <ol>
+            <li>Consumer publie le contrat Pact dans le <strong>Pact Broker</strong>.</li>
+            <li>Le pipeline du Provider tire le contrat et joue la vérification.</li>
+            <li>Le Provider peut être déployé uniquement si <strong>can-i-deploy</strong> passe (<code>pact-broker can-i-deploy</code>).</li>
+          </ol>
+          <p>Résultat : vous pouvez déployer chaque service indépendamment avec la <strong>confiance</strong> que les contrats sont respectés.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════
+           13. QUIZ
+      ═══════════════════════════════ -->
+      <section id="quiz">
+        <h2>Quiz de fin — Jour 3</h2>
+
+        <div class="quiz-item">
+          <p><strong>1.</strong> Pourquoi un retry peut-il aggraver un incident ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Si un service est déjà en surcharge, des retries massifs et simultanés empirent la situation : c'est le <em>thundering herd problem</em>. Solution : backoff exponentiel avec jitter pour étaler la charge dans le temps.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>2.</strong> Dans quel cas le messaging asynchrone est-il préférable à REST ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Quand l'émetteur ne doit pas attendre le récepteur (fire-and-forget), pour absorber des pics de charge, ou quand plusieurs consommateurs doivent réagir au même événement (fan-out). Exemple : après création d'un prêt, déclencher notification + analytics + audit en parallèle.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>3.</strong> Pourquoi le versioning est-il central dans un système distribué ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Les services sont déployés indépendamment. À un instant T, plusieurs versions d'un même service peuvent coexister. Sans versioning des API et des événements, une mise à jour peut casser les consommateurs encore sur l'ancienne version.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>4.</strong> Quelle est la différence entre un Trace ID et un Span ID ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Le <strong>Trace ID</strong> est unique pour l'ensemble de la requête utilisateur, du début à la fin. Un <strong>Span ID</strong> identifie une étape précise dans cette trace (ex: appel HTTP vers catalog-service). Une trace est composée d'arbres de spans.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>5.</strong> Quelle "fallacy" du distribué explique qu'on oublie souvent de gérer les timeouts ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>La 1ère et la 2ème : <em>"Le réseau est fiable"</em> et <em>"La latence est nulle"</em>. En développement local tout fonctionne vite et sans erreur ; on oublie que sur un vrai réseau, les appels peuvent échouer ou prendre un temps arbitraire.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>6.</strong> Quelle est la différence entre PACELC et CAP ? Donnez un exemple d'application de chaque.</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>CAP raisonne uniquement en cas de <em>partition réseau</em>. PACELC dit que même <em>sans partition</em>, on fait un arbitrage entre latence (L) et cohérence (C). Exemple CAP : choisir CP pour un système bancaire (refuser plutôt que répondre faux). Exemple PACELC : DynamoDB sacrifie la cohérence (EL) pour la basse latence au quotidien.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>7.</strong> Qu'est-ce que le Consumer-Driven Contract Testing et quel problème résout-il ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Le Consumer-Driven Contract Testing (Pact) permet au consumer de définir les interactions attendues avec un provider sous forme de contrat JSON. Le provider vérifie ce contrat en CI. Cela résout le problème du couplage implicite entre services : on peut déployer indépendamment en ayant la garantie que les interfaces sont respectées.</p>
+          </details>
+        </div>
+
+        <div class="quiz-item">
+          <p><strong>8.</strong> <em>(Expert)</em> Pourquoi le script Lua est-il utilisé pour le Rate Limiting avec Redis ?</p>
+          <details>
+            <summary>Voir la réponse</summary>
+            <p>Redis exécute les scripts Lua de manière <strong>atomique</strong> — pas d'autre opération n'est exécutée pendant le script. Cela permet de lire le compteur, l'incrémenter et le comparer au seuil en une seule transaction, sans race condition, même avec plusieurs instances de votre service en parallèle.</p>
+          </details>
         </div>
       </section>
 
@@ -343,5 +1745,10 @@
     </article>
   </div>
 </main>
+
+<!-- Prism.js core + langages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
 </body>
 </html>

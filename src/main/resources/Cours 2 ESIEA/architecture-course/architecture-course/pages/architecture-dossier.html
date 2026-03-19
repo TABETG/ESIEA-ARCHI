@@ -5,7 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dossier d’architecture</title>
   <link rel="stylesheet" href="../assets/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism-okaidia.min.css">
   <script defer src="../assets/js/main.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/components/prism-core.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/plugins/autoloader/prism-autoloader.min.js"></script>
 </head>
 <body>
 <header class="site-header">
@@ -97,7 +100,7 @@
 </section>
 <section id="adr">
   <h2>Exemple d’ADR</h2>
-  <pre><code>ADR-001 — Choix d’une API Gateway
+  <pre><code class="language-text">ADR-001 — Choix d’une API Gateway
 Statut : accepté
 Contexte : plusieurs services exposés à des clients front
 Décision : introduire Spring Cloud Gateway
@@ -107,7 +110,7 @@ Alternatives rejetées : accès direct client → services</code></pre>
 </section>
 <section id="mini-dossier">
   <h2>Exemple complet de mini dossier d’architecture</h2>
-  <pre><code>Projet : Campus Library Flow
+  <pre><code class="language-text">Projet : Campus Library Flow
 
 1. Contexte métier
 Université multi-campus, 20 000 étudiants, consultation catalogue fréquente,
