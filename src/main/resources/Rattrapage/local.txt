@@ -1,0 +1,1949 @@
+# TEXT EXPORT OF PROJECT
+Root: C:\FORMATION\ESIEA-ARCHI\src\main\resources\Rattrapage
+Generated: 2026-04-01T14:08:24
+Files found: 33
+################################################################################
+
+===== FILE: project_to_txt (1).py =====
+--------------------------------------------------------------------------------
+# project_to_txt.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Concatène tous les fichiers texte d'un projet dans un seul fichier .txt.
+
+- Ajoute un en-tête clair avant chaque fichier :
+    ===== FILE: chemin/vers/fichier.py =====
+- Détecte (et ignore) les binaires et les très gros fichiers
+- Ignore les dossiers lourds (.git, node_modules, build, etc.)
+- Tolère les encodages (UTF-8 puis Latin-1 si besoin)
+- Options CLI: --toc, --include, --exclude-dirs, --max-bytes
+
+Usage minimal:
+    python project_to_txt.py
+    # -> parcourt le dossier du script et écrit ./local.txt
+
+Usage avec options :
+    python project_to_txt.py ./mon_projet export.txt --toc --max-bytes 2097152 \
+      --include "py,js,ts,tsx,jsx,html,css,md,txt,yml,yaml,json,ini,cfg,conf,sql,sh" \
+      --exclude-dirs ".git,node_modules,build,dist,.idea,.vscode,.venv,__pycache__"
+"""
+
+import argparse
+import os
+import sys
+import datetime
+import textwrap
+
+DEFAULT_EXCLUDE_DIRS = {
+    ".git", "target", "node_modules", "build", "dist", ".idea", ".vscode",
+    ".venv", "__pycache__", ".mvn", ".gradle", ".pytest_cache",
+    ".scannerwork", ".sonar", "coverage", "out", "jacoco-report"
+}
+
+DEFAULT_INCLUDE_EXT = {
+    "py","js","ts","tsx","jsx","html","css",
+    "md","markdown","txt","yml","yaml","json","xml","xsd",
+    "properties","ini","cfg","conf","sql","sh","bash","ksh","bat",
+    "groovy","kt","gradle","rb","go","c","cc","cpp","h","hpp","env","dockerfile","jenkinsfile"
+}
+
+SPECIAL_FILENAMES = {"dockerfile", "jenkinsfile"}  # sans extension mais utiles
+
+def parse_args():
+    p = argparse.ArgumentParser(
+        description="Concatène tous les fichiers texte d'un projet en un seul .txt"
+    )
+    p.add_argument("root", nargs="?", default=None,
+                   help="Racine à parcourir (défaut: dossier du script)")
+    p.add_argument("output", nargs="?", default=None,
+                   help="Fichier de sortie .txt (défaut: local.txt à côté du script)")
+    p.add_argument("--max-bytes", type=int, default=1_000_000,
+                   help="Taille max d'un fichier (défaut: 1 Mo)")
+    p.add_argument("--include", type=str, default="",
+                   help="Extensions à inclure, séparées par des virgules (ex: py,js,md)")
+    p.add_argument("--exclude-dirs", type=str, default="",
+                   help="Dossiers à exclure, séparés par des virgules")
+    p.add_argument("--toc", action="store_true",
+                   help="Ajoute une table des matières au début")
+    return p.parse_args()
+
+def looks_binary(path, sample_size=2048):
+    try:
+        with open(path, "rb") as f:
+            chunk = f.read(sample_size)
+        return b"\x00" in chunk
+    except Exception:
+        return True  # si doute, on évite
+
+def read_text_safely(path, max_bytes):
+    try:
+        size = os.path.getsize(path)
+        if size > max_bytes:
+            return None, f"IGNORED (size {size} > {max_bytes} bytes)"
+        if looks_binary(path):
+            return None, "IGNORED (binary file)"
+        with open(path, "rb") as f:
+            data = f.read()
+        try:
+            return data.decode("utf-8"), None
+        except UnicodeDecodeError:
+            return data.decode("latin-1", errors="replace"), "NOTE (decoded as latin-1 with replacements)"
+    except Exception as e:
+        return None, f"IGNORED (error reading: {e})"
+
+def should_include(filename, include_exts):
+    lower = filename.lower()
+    if lower in SPECIAL_FILENAMES:
+        return True
+    if "." in lower:
+        ext = lower.rsplit(".", 1)[-1]
+        return ext in include_exts
+    return False
+
+def gather_files(root, include_exts, exclude_dirs):
+    files = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in sorted(dirnames) if d not in exclude_dirs]
+        for fname in sorted(filenames):
+            if should_include(fname, include_exts):
+                files.append(os.path.join(dirpath, fname))
+    return files
+
+def write_header(out, root, files, add_toc):
+    now = datetime.datetime.now().isoformat(timespec="seconds")
+    out.write("# TEXT EXPORT OF PROJECT\n")
+    out.write(f"Root: {root}\n")
+    out.write(f"Generated: {now}\n")
+    out.write(f"Files found: {len(files)}\n")
+    out.write("#" * 80 + "\n\n")
+    if add_toc:
+        out.write("TABLE OF CONTENTS\n")
+        for i, fpath in enumerate(files, 1):
+            rel = os.path.relpath(fpath, root)
+            out.write(f"{i:04d}. {rel}\n")
+        out.write("\n" + "#" * 80 + "\n\n")
+
+def write_file_block(out, rel_path, text, note):
+    sep = "-" * 80
+    if text is None:
+        out.write(f"===== FILE: {rel_path} ({note}) =====\n")
+        out.write(sep + "\n\n")
+        return
+    out.write(f"===== FILE: {rel_path} =====\n")
+    out.write(sep + "\n")
+    wrapper = textwrap.TextWrapper(
+        width=500, replace_whitespace=False, drop_whitespace=False,
+        break_long_words=True, break_on_hyphens=False
+    )
+    for raw in text.splitlines():
+        wrapped = wrapper.wrap(raw)
+        out.write(("\n".join(wrapped) if wrapped else "") + "\n")
+    out.write(sep + "\n")
+    out.write(f"===== END FILE: {rel_path} =====\n\n")
+
+def main():
+    args = parse_args()
+    script_dir = os.path.abspath(os.path.dirname(__file__))
+    root = os.path.abspath(args.root or script_dir)
+    output = os.path.abspath(args.output or os.path.join(script_dir, "local.txt"))
+
+    if not os.path.isdir(root):
+        print(f"ERROR: directory not found: {root}", file=sys.stderr)
+        sys.exit(1)
+
+    include_exts = DEFAULT_INCLUDE_EXT.copy()
+    if args.include.strip():
+        include_exts = {x.strip().lower().lstrip(".") for x in args.include.split(",") if x.strip()}
+
+    exclude_dirs = DEFAULT_EXCLUDE_DIRS.copy()
+    if args.exclude_dirs.strip():
+        exclude_dirs |= {x.strip() for x in args.exclude_dirs.split(",") if x.strip()}
+
+    files = gather_files(root, include_exts, exclude_dirs)
+
+    os.makedirs(os.path.dirname(output), exist_ok=True)
+    written = 0
+    with open(output, "w", encoding="utf-8", newline="\n") as out:
+        write_header(out, root, files, args.toc)
+        for f in files:
+            rel = os.path.relpath(f, root)
+            text, note = read_text_safely(f, args.max_bytes)
+            write_file_block(out, rel, text, note)
+            if text is not None:
+                written += 1
+
+    print(f"Export complete: {output}")
+    print(f"Files successfully written: {written}/{len(files)}")
+
+if __name__ == "__main__":
+    main()
+--------------------------------------------------------------------------------
+===== END FILE: project_to_txt (1).py =====
+
+===== FILE: mlops-api-pipeline-main\project_to_txt (1).py =====
+--------------------------------------------------------------------------------
+# project_to_txt.py
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+
+"""
+Concatène tous les fichiers texte d'un projet dans un seul fichier .txt.
+
+- Ajoute un en-tête clair avant chaque fichier :
+    ===== FILE: chemin/vers/fichier.py =====
+- Détecte (et ignore) les binaires et les très gros fichiers
+- Ignore les dossiers lourds (.git, node_modules, build, etc.)
+- Tolère les encodages (UTF-8 puis Latin-1 si besoin)
+- Options CLI: --toc, --include, --exclude-dirs, --max-bytes
+
+Usage minimal:
+    python project_to_txt.py
+    # -> parcourt le dossier du script et écrit ./local.txt
+
+Usage avec options :
+    python project_to_txt.py ./mon_projet export.txt --toc --max-bytes 2097152 \
+      --include "py,js,ts,tsx,jsx,html,css,md,txt,yml,yaml,json,ini,cfg,conf,sql,sh" \
+      --exclude-dirs ".git,node_modules,build,dist,.idea,.vscode,.venv,__pycache__"
+"""
+
+import argparse
+import os
+import sys
+import datetime
+import textwrap
+
+DEFAULT_EXCLUDE_DIRS = {
+    ".git", "target", "node_modules", "build", "dist", ".idea", ".vscode",
+    ".venv", "__pycache__", ".mvn", ".gradle", ".pytest_cache",
+    ".scannerwork", ".sonar", "coverage", "out", "jacoco-report"
+}
+
+DEFAULT_INCLUDE_EXT = {
+    "py","js","ts","tsx","jsx","html","css",
+    "md","markdown","txt","yml","yaml","json","xml","xsd",
+    "properties","ini","cfg","conf","sql","sh","bash","ksh","bat",
+    "groovy","kt","gradle","rb","go","c","cc","cpp","h","hpp","env","dockerfile","jenkinsfile"
+}
+
+SPECIAL_FILENAMES = {"dockerfile", "jenkinsfile"}  # sans extension mais utiles
+
+def parse_args():
+    p = argparse.ArgumentParser(
+        description="Concatène tous les fichiers texte d'un projet en un seul .txt"
+    )
+    p.add_argument("root", nargs="?", default=None,
+                   help="Racine à parcourir (défaut: dossier du script)")
+    p.add_argument("output", nargs="?", default=None,
+                   help="Fichier de sortie .txt (défaut: local.txt à côté du script)")
+    p.add_argument("--max-bytes", type=int, default=1_000_000,
+                   help="Taille max d'un fichier (défaut: 1 Mo)")
+    p.add_argument("--include", type=str, default="",
+                   help="Extensions à inclure, séparées par des virgules (ex: py,js,md)")
+    p.add_argument("--exclude-dirs", type=str, default="",
+                   help="Dossiers à exclure, séparés par des virgules")
+    p.add_argument("--toc", action="store_true",
+                   help="Ajoute une table des matières au début")
+    return p.parse_args()
+
+def looks_binary(path, sample_size=2048):
+    try:
+        with open(path, "rb") as f:
+            chunk = f.read(sample_size)
+        return b"\x00" in chunk
+    except Exception:
+        return True  # si doute, on évite
+
+def read_text_safely(path, max_bytes):
+    try:
+        size = os.path.getsize(path)
+        if size > max_bytes:
+            return None, f"IGNORED (size {size} > {max_bytes} bytes)"
+        if looks_binary(path):
+            return None, "IGNORED (binary file)"
+        with open(path, "rb") as f:
+            data = f.read()
+        try:
+            return data.decode("utf-8"), None
+        except UnicodeDecodeError:
+            return data.decode("latin-1", errors="replace"), "NOTE (decoded as latin-1 with replacements)"
+    except Exception as e:
+        return None, f"IGNORED (error reading: {e})"
+
+def should_include(filename, include_exts):
+    lower = filename.lower()
+    if lower in SPECIAL_FILENAMES:
+        return True
+    if "." in lower:
+        ext = lower.rsplit(".", 1)[-1]
+        return ext in include_exts
+    return False
+
+def gather_files(root, include_exts, exclude_dirs):
+    files = []
+    for dirpath, dirnames, filenames in os.walk(root):
+        dirnames[:] = [d for d in sorted(dirnames) if d not in exclude_dirs]
+        for fname in sorted(filenames):
+            if should_include(fname, include_exts):
+                files.append(os.path.join(dirpath, fname))
+    return files
+
+def write_header(out, root, files, add_toc):
+    now = datetime.datetime.now().isoformat(timespec="seconds")
+    out.write("# TEXT EXPORT OF PROJECT\n")
+    out.write(f"Root: {root}\n")
+    out.write(f"Generated: {now}\n")
+    out.write(f"Files found: {len(files)}\n")
+    out.write("#" * 80 + "\n\n")
+    if add_toc:
+        out.write("TABLE OF CONTENTS\n")
+        for i, fpath in enumerate(files, 1):
+            rel = os.path.relpath(fpath, root)
+            out.write(f"{i:04d}. {rel}\n")
+        out.write("\n" + "#" * 80 + "\n\n")
+
+def write_file_block(out, rel_path, text, note):
+    sep = "-" * 80
+    if text is None:
+        out.write(f"===== FILE: {rel_path} ({note}) =====\n")
+        out.write(sep + "\n\n")
+        return
+    out.write(f"===== FILE: {rel_path} =====\n")
+    out.write(sep + "\n")
+    wrapper = textwrap.TextWrapper(
+        width=500, replace_whitespace=False, drop_whitespace=False,
+        break_long_words=True, break_on_hyphens=False
+    )
+    for raw in text.splitlines():
+        wrapped = wrapper.wrap(raw)
+        out.write(("\n".join(wrapped) if wrapped else "") + "\n")
+    out.write(sep + "\n")
+    out.write(f"===== END FILE: {rel_path} =====\n\n")
+
+def main():
+    args = parse_args()
+    script_dir = os.path.abspath(os.path.dirname(__file__))
+    root = os.path.abspath(args.root or script_dir)
+    output = os.path.abspath(args.output or os.path.join(script_dir, "local.txt"))
+
+    if not os.path.isdir(root):
+        print(f"ERROR: directory not found: {root}", file=sys.stderr)
+        sys.exit(1)
+
+    include_exts = DEFAULT_INCLUDE_EXT.copy()
+    if args.include.strip():
+        include_exts = {x.strip().lower().lstrip(".") for x in args.include.split(",") if x.strip()}
+
+    exclude_dirs = DEFAULT_EXCLUDE_DIRS.copy()
+    if args.exclude_dirs.strip():
+        exclude_dirs |= {x.strip() for x in args.exclude_dirs.split(",") if x.strip()}
+
+    files = gather_files(root, include_exts, exclude_dirs)
+
+    os.makedirs(os.path.dirname(output), exist_ok=True)
+    written = 0
+    with open(output, "w", encoding="utf-8", newline="\n") as out:
+        write_header(out, root, files, args.toc)
+        for f in files:
+            rel = os.path.relpath(f, root)
+            text, note = read_text_safely(f, args.max_bytes)
+            write_file_block(out, rel, text, note)
+            if text is not None:
+                written += 1
+
+    print(f"Export complete: {output}")
+    print(f"Files successfully written: {written}/{len(files)}")
+
+if __name__ == "__main__":
+    main()
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\project_to_txt (1).py =====
+
+===== FILE: mlops-api-pipeline-main\sujet_rattrapage_devops_mlops ESIEA.html =====
+--------------------------------------------------------------------------------
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sujet de Rattrapage — DevOps / MLOps</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0f1f3d;
+    --navy-mid: #1a3260;
+    --accent: #b8860b;
+    --accent-light: #d4a017;
+    --bg: #f8f6f1;
+    --surface: #ffffff;
+    --border: #ddd8cc;
+    --text: #1a1a2e;
+    --text-muted: #5a5a72;
+    --code-bg: #0f1f3d;
+    --badge-0: #c0392b;
+    --badge-1: #d68910;
+    --badge-2: #1e8449;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Source Serif 4', Georgia, serif;
+    font-weight: 300;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.75;
+    font-size: 16px;
+  }
+
+  /* ── Header ───────────────────────────────── */
+  header {
+    background: var(--navy);
+    color: #fff;
+    padding: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 40px,
+      rgba(255,255,255,.018) 40px,
+      rgba(255,255,255,.018) 80px
+    );
+  }
+  .header-inner {
+    position: relative;
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 52px 40px 44px;
+    border-left: 4px solid var(--accent);
+  }
+  .header-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--accent-light);
+    margin-bottom: 18px;
+  }
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(26px, 4vw, 40px);
+    font-weight: 700;
+    line-height: 1.2;
+    color: #fff;
+    margin-bottom: 10px;
+  }
+  header h2 {
+    font-family: 'Source Serif 4', serif;
+    font-weight: 300;
+    font-style: italic;
+    font-size: clamp(15px, 2.2vw, 20px);
+    color: rgba(255,255,255,.7);
+  }
+  .header-tags {
+    margin-top: 28px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 4px 12px;
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 2px;
+    color: rgba(255,255,255,.75);
+    letter-spacing: .06em;
+  }
+
+  /* ── Layout ───────────────────────────────── */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 48px 40px 80px;
+  }
+
+  /* ── Context banner ───────────────────────── */
+  .context-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 4px solid var(--accent);
+    padding: 28px 32px;
+    margin-bottom: 44px;
+    border-radius: 0 4px 4px 0;
+  }
+  .context-box p {
+    color: var(--text-muted);
+    font-size: 15px;
+  }
+
+  /* ── Section ──────────────────────────────── */
+  section { margin-bottom: 52px; }
+
+  .section-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--navy);
+  }
+  .section-number {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--navy);
+    line-height: 1;
+    opacity: .15;
+    min-width: 36px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  /* ── Cards ────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+  }
+  .card-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--accent);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+
+  /* ── List ─────────────────────────────────── */
+  ul.req {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  ul.req li {
+    padding-left: 20px;
+    position: relative;
+    font-size: 15px;
+    color: var(--text);
+  }
+  ul.req li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 10px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+
+  /* ── Notice ───────────────────────────────── */
+  .notice {
+    background: #fdf8ee;
+    border: 1px solid #e8d5a0;
+    border-radius: 4px;
+    padding: 14px 18px;
+    margin-top: 16px;
+    font-size: 14px;
+    color: #7a5c00;
+    font-style: italic;
+  }
+
+  /* ── Code block ───────────────────────────── */
+  .code-block {
+    background: var(--code-bg);
+    border-radius: 4px;
+    padding: 20px 24px;
+    margin-top: 16px;
+    overflow-x: auto;
+  }
+  .code-block pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: #a8d8a8;
+    line-height: 1.6;
+    white-space: pre;
+  }
+  .code-block .comment { color: #6a8a6a; }
+  .code-block .keyword { color: #79a6dc; }
+  .code-block .string  { color: #e8c07a; }
+
+  /* ── Deliverables grid ────────────────────── */
+  .deliverables-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+  .deliverable-item {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-top: 3px solid var(--navy);
+    padding: 18px 20px;
+    border-radius: 0 0 4px 4px;
+  }
+  .deliverable-item .d-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .deliverable-item .d-value {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--navy);
+  }
+
+  /* ── Eval table ───────────────────────────── */
+  .eval-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .eval-table thead tr {
+    background: var(--navy);
+    color: #fff;
+  }
+  .eval-table thead th {
+    padding: 14px 16px;
+    text-align: left;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    font-weight: 500;
+  }
+  .eval-table tbody tr {
+    border-bottom: 1px solid var(--border);
+  }
+  .eval-table tbody tr:nth-child(even) { background: #fafaf7; }
+  .eval-table tbody td {
+    padding: 14px 16px;
+    vertical-align: top;
+  }
+  .competence-name {
+    font-weight: 600;
+    color: var(--navy);
+    font-family: 'Source Serif 4', serif;
+    font-size: 14px;
+  }
+  .competence-detail {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 2px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    margin: 2px;
+  }
+  .badge-0 { background: #fdecea; color: var(--badge-0); border: 1px solid #f5c6c3; }
+  .badge-1 { background: #fef9e7; color: var(--badge-1); border: 1px solid #f0d98b; }
+  .badge-2 { background: #eafaf1; color: var(--badge-2); border: 1px solid #a9dfbf; }
+
+  /* ── Bonus ────────────────────────────────── */
+  .bonus-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+  }
+  .bonus-item {
+    border: 1px dashed var(--border);
+    border-radius: 4px;
+    padding: 14px 18px;
+    font-size: 14px;
+    color: var(--text-muted);
+    background: var(--surface);
+  }
+
+  /* ── Constraints ──────────────────────────── */
+  .constraints {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 14px;
+  }
+  .constraint-item {
+    background: var(--navy);
+    color: rgba(255,255,255,.85);
+    padding: 16px 18px;
+    border-radius: 4px;
+    font-size: 14px;
+  }
+  .constraint-item strong {
+    display: block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: .1em;
+    color: var(--accent-light);
+    margin-bottom: 4px;
+  }
+
+  /* ── Final note ───────────────────────────── */
+  .final-note {
+    background: var(--navy);
+    color: rgba(255,255,255,.8);
+    border-radius: 4px;
+    padding: 28px 32px;
+    font-style: italic;
+    font-size: 15px;
+    line-height: 1.8;
+    border-left: 4px solid var(--accent);
+  }
+
+  /* ── Footer ───────────────────────────────── */
+  footer {
+    background: var(--navy);
+    color: rgba(255,255,255,.4);
+    text-align: center;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: .06em;
+  }
+
+  /* ── Print ────────────────────────────────── */
+  @media print {
+    body { background: #fff; }
+    header { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .eval-table thead tr { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .constraint-item { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .code-block { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .final-note { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+
+  @media (max-width: 600px) {
+    main { padding: 32px 20px 60px; }
+    .header-inner { padding: 36px 20px 32px; }
+    .eval-table { font-size: 13px; }
+    .eval-table thead th, .eval-table tbody td { padding: 10px 10px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-meta">Examen de rattrapage &nbsp;|&nbsp; Module DevOps / MLOps</div>
+    <h1>Pipeline complet d'une API IA</h1>
+    <h2>Mini-projet individuel &mdash; 3 jours</h2>
+    <div class="header-tags">
+      <span class="tag">Niveau Master</span>
+      <span class="tag">Docker</span>
+      <span class="tag">FastAPI</span>
+      <span class="tag">MLflow</span>
+      <span class="tag">CI/CD</span>
+      <span class="tag">Monitoring</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- Contexte -->
+  <div class="context-box">
+    <p>
+      Vous devez mettre en place une application simple de Machine Learning exposée via une API REST.
+      L'objectif est de démontrer votre capacité à intégrer des pratiques DevOps et MLOps dans un projet
+      fonctionnel, conteneuris&eacute; et supervis&eacute;.
+    </p>
+  </div>
+
+  <!-- Competences -->
+  <section>
+    <div class="section-header">
+      <span class="section-number">01</span>
+      <span class="section-title">Comp&eacute;tences &eacute;valu&eacute;es</span>
+    </div>
+    <div class="card">
+      <ul class="req">
+        <li>Cr&eacute;er un pipeline DevOps</li>
+        <li>Cr&eacute;er un pipeline MLOps</li>
+        <li>Conteneuriser et monitorer une IA en production</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- Travail demande -->
+  <section>
+    <div class="section-header">
+      <span class="section-number">02</span>
+      <span class="section-title">Travail demand&eacute;</span>
+    </div>
+
+    <!-- 2.1 MLOps -->
+    <div class="card">
+      <div class="card-title">2.1 &mdash; Pipeline MLOps</div>
+      <p style="font-size:15px;color:var(--text-muted);margin-bottom:14px;">
+        Cr&eacute;er un mod&egrave;le de Machine Learning simple avec <strong>scikit-learn</strong>.
+      </p>
+      <ul class="req">
+        <li>Utiliser un dataset simple (CSV ou dataset int&eacute;gr&eacute; &agrave; sklearn)</li>
+        <li>Cr&eacute;er un mod&egrave;le basique (LogisticRegression, RandomForest ou &eacute;quivalent)</li>
+        <li>Sauvegarder le mod&egrave;le entra&icirc;n&eacute; au format <code>.pkl</code></li>
+        <li>Pr&eacute;voir un m&eacute;canisme de chargement du mod&egrave;le pour l&rsquo;inf&eacute;rence</li>
+      </ul>
+      <div class="notice">
+        Le mod&egrave;le doit rester simple. L&rsquo;&eacute;valuation porte principalement sur la mise en place du pipeline,
+        non sur la performance du mod&egrave;le.
+      </div>
+    </div>
+
+    <!-- 2.2 API -->
+    <div class="card">
+      <div class="card-title">2.2 &mdash; API REST</div>
+      <p style="font-size:15px;color:var(--text-muted);margin-bottom:14px;">
+        Exposer le mod&egrave;le via une API d&eacute;velopp&eacute;e avec <strong>FastAPI</strong> (recommand&eacute;) ou Flask.
+      </p>
+      <ul class="req">
+        <li><code>POST /predict</code> &mdash; retourne une pr&eacute;diction &agrave; partir de donn&eacute;es fournies en JSON</li>
+        <li><code>GET /health</code> &mdash; v&eacute;rifie que l&rsquo;application est op&eacute;rationnelle</li>
+      </ul>
+      <div class="notice">Format attendu : entr&eacute;e JSON &mdash; sortie JSON.</div>
+    </div>
+
+    <!-- 2.3 DevOps -->
+    <div class="card">
+      <div class="card-title">2.3 &mdash; Pipeline DevOps (CI/CD)</div>
+      <p style="font-size:15px;color:var(--text-muted);margin-bottom:14px;">
+        Mettre en place un pipeline CI/CD simple avec <strong>GitHub Actions</strong> ou <strong>GitLab CI</strong>.
+      </p>
+      <ul class="req">
+        <li>Installation des d&eacute;pendances</li>
+        <li>Ex&eacute;cution d&rsquo;un test simple</li>
+        <li>Construction de l&rsquo;image Docker</li>
+      </ul>
+      <div class="notice">Aucun d&eacute;ploiement cloud ni registry Docker n&rsquo;est exig&eacute;.</div>
+    </div>
+
+    <!-- 2.4 Docker -->
+    <div class="card">
+      <div class="card-title">2.4 &mdash; Conteneurisation</div>
+      <p style="font-size:15px;color:var(--text-muted);margin-bottom:14px;">
+        Conteneuriser l&rsquo;application avec <strong>Docker</strong>.
+      </p>
+      <ul class="req">
+        <li>Cr&eacute;er un fichier <code>Dockerfile</code></li>
+        <li>Construire l&rsquo;image</li>
+        <li>Lancer le conteneur localement</li>
+      </ul>
+      <div class="code-block">
+        <pre><span class="comment"># Construction de l'image</span>
+<span class="keyword">docker</span> build -t ml-api .
+
+<span class="comment"># Lancement du conteneur</span>
+<span class="keyword">docker</span> run -p 8000:8000 ml-api</pre>
+      </div>
+    </div>
+
+    <!-- 2.5 Monitoring -->
+    <div class="card">
+      <div class="card-title">2.5 &mdash; Monitoring</div>
+      <p style="font-size:15px;color:var(--text-muted);margin-bottom:14px;">
+        Mettre en place un monitoring minimal de l&rsquo;application.
+      </p>
+      <ul class="req">
+        <li>Logs des requ&ecirc;tes (entr&eacute;e et sortie)</li>
+        <li>Compteur de pr&eacute;dictions</li>
+        <li>Nombre total de requ&ecirc;tes</li>
+      </ul>
+      <div class="notice">L&rsquo;utilisation de Prometheus ou d&rsquo;un outil &eacute;quivalent est facultative.</div>
+    </div>
+  </section>
+
+  <!-- Livrables -->
+  <section>
+    <div class="section-header">
+      <span class="section-number">03</span>
+      <span class="section-title">Livrables attendus</span>
+    </div>
+    <div class="deliverables-grid">
+      <div class="deliverable-item">
+        <div class="d-label">D&eacute;p&ocirc;t</div>
+        <div class="d-value">Repository Git complet</div>
+      </div>
+      <div class="deliverable-item">
+        <div class="d-label">Application</div>
+        <div class="d-value">API fonctionnelle</div>
+      </div>
+      <div class="deliverable-item">
+        <div class="d-label">Conteneur</div>
+        <div class="d-value">Dockerfile valid&eacute;</div>
+      </div>
+      <div class="deliverable-item">
+        <div class="d-label">Pipeline</div>
+        <div class="d-value">CI/CD configur&eacute;</div>
+      </div>
+      <div class="deliverable-item">
+        <div class="d-label">Documentation</div>
+        <div class="d-value">README.md obligatoire</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contraintes -->
+  <section>
+    <div class="section-header">
+      <span class="section-number">04</span>
+      <span class="section-title">Contraintes</span>
+    </div>
+    <div class="constraints">
+      <div class="constraint-item">
+        <strong>Format</strong>
+        Projet individuel
+      </div>
+      <div class="constraint-item">
+        <strong>Dur&eacute;e</strong>
+        3 jours maximum
+      </div>
+      <div class="constraint-item">
+        <strong>Code</strong>
+        Clair, structur&eacute; et ex&eacute;cutable
+      </div>
+      <div class="constraint-item">
+        <strong>Documentation</strong>
+        README obligatoire
+      </div>
+    </div>
+  </section>
+
+  <!-- Grille evaluation -->
+  <section>
+    <div class="section-header">
+      <span class="section-number">05</span>
+      <span class="section-title">Grille d&rsquo;&eacute;valuation</span>
+    </div>
+    <table class="eval-table">
+      <thead>
+        <tr>
+          <th style="width:35%">Comp&eacute;tence</th>
+          <th>El&eacute;ments &eacute;valu&eacute;s</th>
+          <th style="width:28%">Niveaux d&rsquo;acquisition</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="competence-name">Pipeline DevOps</div>
+            <div class="competence-detail">Comp&eacute;tence 1</div>
+          </td>
+          <td>
+            <ul class="req">
+              <li>Pipeline CI/CD fonctionnel</li>
+              <li>Construction de l&rsquo;image Docker automatis&eacute;e</li>
+            </ul>
+          </td>
+          <td>
+            <span class="badge badge-0">0 &mdash; Non acquis</span>
+            <span class="badge badge-1">1 &mdash; En cours</span>
+            <span class="badge badge-2">2 &mdash; Acquis</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="competence-name">Pipeline MLOps</div>
+            <div class="competence-detail">Comp&eacute;tence 2</div>
+          </td>
+          <td>
+            <ul class="req">
+              <li>Mod&egrave;le entra&icirc;n&eacute; et sauvegard&eacute;</li>
+              <li>Mod&egrave;le expos&eacute; via l&rsquo;API</li>
+              <li>Logs MLOps pr&eacute;sents</li>
+            </ul>
+          </td>
+          <td>
+            <span class="badge badge-0">0 &mdash; Non acquis</span>
+            <span class="badge badge-1">1 &mdash; En cours</span>
+            <span class="badge badge-2">2 &mdash; Acquis</span>
+          </td>
+        </tr>
+        <tr>
+          <td>
+            <div class="competence-name">Conteneurisation &amp; Monitoring</div>
+            <div class="competence-detail">Comp&eacute;tence 3</div>
+          </td>
+          <td>
+            <ul class="req">
+              <li>Application Dockeris&eacute;e et fonctionnelle</li>
+              <li>Logs des requ&ecirc;tes pr&eacute;sents</li>
+              <li>Compteur de pr&eacute;dictions impl&eacute;ment&eacute;</li>
+            </ul>
+          </td>
+          <td>
+            <span class="badge badge-0">0 &mdash; Non acquis</span>
+            <span class="badge badge-1">1 &mdash; En cours</span>
+            <span class="badge badge-2">2 &mdash; Acquis</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- Bonus -->
+  <section>
+    <div class="section-header">
+      <span class="section-number">06</span>
+      <span class="section-title">Bonus facultatifs</span>
+    </div>
+    <div class="bonus-grid">
+      <div class="bonus-item">Tests unitaires suppl&eacute;mentaires</div>
+      <div class="bonus-item">Utilisation de docker-compose</div>
+      <div class="bonus-item">Interface de test (Swagger UI)</div>
+      <div class="bonus-item">Monitoring avanc&eacute; (Prometheus, Grafana)</div>
+    </div>
+  </section>
+
+  <!-- Note finale -->
+  <section>
+    <div class="final-note">
+      La priorit&eacute; est donn&eacute;e &agrave; la coh&eacute;rence du pipeline, &agrave; la qualit&eacute; de l&rsquo;int&eacute;gration
+      et au bon fonctionnement global du projet. Un mod&egrave;le simple mais correctement int&eacute;gr&eacute;
+      dans une cha&icirc;ne DevOps/MLOps fonctionnelle sera toujours mieux &eacute;valu&eacute; qu&rsquo;un mod&egrave;le complexe
+      mal d&eacute;ploy&eacute;.
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  Module DevOps / MLOps &nbsp;&mdash;&nbsp; Sujet de rattrapage &nbsp;&mdash;&nbsp; Document officiel
+</footer>
+
+</body>
+</html>
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\sujet_rattrapage_devops_mlops ESIEA.html =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\Dockerfile =====
+--------------------------------------------------------------------------------
+FROM python:3.12-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+
+COPY requirements.txt requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . .
+
+EXPOSE 8000
+
+CMD ["uvicorn", "mlops_api.main:app", "--host", "0.0.0.0", "--port", "8000", "--app-dir", "apps/api"]
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\Dockerfile =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\README.md =====
+--------------------------------------------------------------------------------
+# mlops-api-pipeline
+
+Python monorepo for a DevOps/MLOps mini-project with:
+
+- MLOps pipeline (scikit-learn training + `.pkl` artifact + MLflow tracking)
+- FastAPI REST API with Swagger UI
+- minimal monitoring (logs + counters)
+- Docker containerization
+- GitHub Actions CI
+
+## Requirements
+
+- Python 3.12+
+- Docker
+
+## Local setup (venv)
+
+### Windows (Git Bash)
+
+```bash
+python -m venv .venv
+source .venv/Scripts/activate
+python -m pip install --upgrade pip
+pip install -r requirements-dev.txt
+cp .env.example .env
+```
+
+### PowerShell
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install --upgrade pip
+pip install -r requirements-dev.txt
+Copy-Item .env.example .env
+```
+
+## Pipeline MLOps
+
+Train and save the model:
+
+```bash
+python scripts/train.py
+```
+
+The model is stored in `artifacts/model.pkl`.
+
+## Run the API
+
+```bash
+python scripts/run_api.py
+```
+
+Alternative command:
+
+```bash
+PYTHONPATH=. uvicorn mlops_api.main:app --app-dir apps/api --host 0.0.0.0 --port 8000
+```
+
+Endpoints:
+
+- `GET /health`
+- `GET /version`
+- `POST /predict`
+- `GET /metrics`
+
+Swagger UI:
+
+- `http://localhost:8000/docs`
+
+Example `POST /predict` payload:
+
+```json
+{
+  "sepal_length": 5.1,
+  "sepal_width": 3.5,
+  "petal_length": 1.4,
+  "petal_width": 0.2
+}
+```
+
+## Monitoring
+
+- HTTP request logs via middleware
+- input/output logs on `/predict`
+- counters:
+  - total requests
+  - total predictions
+
+## Tests
+
+```bash
+pytest
+```
+
+## Docker
+
+Build image:
+
+```bash
+docker build -t ml-api .
+```
+
+Run container:
+
+```bash
+docker run --rm -p 8000:8000 ml-api
+```
+
+With compose:
+
+```bash
+docker compose up --build
+```
+
+## CI/CD
+
+The GitHub Actions workflow (`.github/workflows/ci.yml`) runs:
+
+- dependency installation
+- test execution
+- model training and upload as GitHub artifact (`trained-model`)
+- Docker image build
+- Docker image push to GHCR on pushes to `main`
+
+## Releases
+
+On tag push (for example `v1.0.0`), the release workflow (`.github/workflows/release.yml`) will:
+
+- train the model
+- create a checksum file
+- create/update the GitHub Release
+- upload release assets:
+  - `artifacts/model.pkl`
+  - `artifacts/model.pkl.sha256`
+
+Create a release tag:
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0
+```
+
+Published Docker image tags:
+
+- `ghcr.io/<owner>/mlops-api-pipeline:latest`
+- `ghcr.io/<owner>/mlops-api-pipeline:<commit-sha>`
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\README.md =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\docker-compose.yml =====
+--------------------------------------------------------------------------------
+services:
+  api:
+    build: .
+    container_name: mlops-api
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\docker-compose.yml =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\pytest.ini =====
+--------------------------------------------------------------------------------
+[pytest]
+pythonpath = . apps/api
+testpaths = apps/api/tests
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\pytest.ini =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\requirements-dev.txt =====
+--------------------------------------------------------------------------------
+-r requirements.txt
+ruff==0.12.7
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\requirements-dev.txt =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\requirements.txt =====
+--------------------------------------------------------------------------------
+fastapi==0.116.1
+uvicorn==0.35.0
+scikit-learn==1.7.1
+joblib==1.5.1
+mlflow==3.1.1
+pydantic==2.11.7
+pydantic-settings==2.10.1
+pytest==8.4.1
+httpx==0.28.1
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\requirements.txt =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\.github\workflows\ci.yml =====
+--------------------------------------------------------------------------------
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  test-and-build:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_NAME: ghcr.io/${{ github.repository_owner }}/mlops-api-pipeline
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: pytest
+
+      - name: Train model artifact
+        run: PYTHONPATH=. python scripts/train.py
+
+      - name: Upload model artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: trained-model
+          path: artifacts/model.pkl
+          if-no-files-found: error
+
+      - name: Set up Docker Buildx
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GHCR
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: |
+            ${{ env.IMAGE_NAME }}:latest
+            ${{ env.IMAGE_NAME }}:${{ github.sha }}
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\.github\workflows\ci.yml =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\.github\workflows\release.yml =====
+--------------------------------------------------------------------------------
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  release-model:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Train model
+        run: PYTHONPATH=. python scripts/train.py
+
+      - name: Create checksum
+        run: sha256sum artifacts/model.pkl > artifacts/model.pkl.sha256
+
+      - name: Create GitHub release and upload assets
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            artifacts/model.pkl
+            artifacts/model.pkl.sha256
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\.github\workflows\release.yml =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\__init__.py =====
+--------------------------------------------------------------------------------
+__all__ = ["__version__"]
+
+__version__ = "0.1.0"
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\__init__.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\main.py =====
+--------------------------------------------------------------------------------
+import logging
+import time
+
+from fastapi import FastAPI, Request
+
+from mlops_api.api.routes import router
+from mlops_api.core.logging import configure_logging
+from mlops_api.core.monitoring import MonitoringStore
+from mlops_api.core.settings import ApiSettings
+from mlops_api.services.predictor import PredictorService
+
+settings = ApiSettings()
+configure_logging(settings.log_level)
+logger = logging.getLogger("mlops_api")
+
+app = FastAPI(
+    title=settings.app_name,
+    version=settings.app_version,
+    docs_url="/docs",
+    redoc_url="/redoc",
+)
+
+app.state.monitoring = MonitoringStore()
+app.state.predictor = PredictorService()
+
+
+@app.middleware("http")
+async def track_requests(request: Request, call_next):
+    started_at = time.perf_counter()
+    request_count = request.app.state.monitoring.increment_requests()
+    response = await call_next(request)
+    duration_ms = (time.perf_counter() - started_at) * 1000
+    logger.info(
+        "request method=%s path=%s status=%s duration_ms=%.2f total_requests=%s",
+        request.method,
+        request.url.path,
+        response.status_code,
+        duration_ms,
+        request_count,
+    )
+    return response
+
+
+app.include_router(router)
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\main.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\api\__init__.py =====
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\api\__init__.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\api\dependencies.py =====
+--------------------------------------------------------------------------------
+from fastapi import Request
+
+from mlops_api.core.monitoring import MonitoringStore
+from mlops_api.services.predictor import PredictorService
+
+
+def get_predictor(request: Request) -> PredictorService:
+    return request.app.state.predictor
+
+
+def get_monitoring(request: Request) -> MonitoringStore:
+    return request.app.state.monitoring
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\api\dependencies.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\api\routes.py =====
+--------------------------------------------------------------------------------
+import logging
+
+from fastapi import APIRouter, Depends
+
+from mlops_api.api.dependencies import get_monitoring, get_predictor
+from mlops_api.core.monitoring import MonitoringStore
+from mlops_api.core.settings import ApiSettings
+from mlops_api.core.version import get_version_info
+from mlops_api.schemas.prediction import (
+    HealthResponse,
+    MetricsResponse,
+    PredictionRequest,
+    PredictionResponse,
+    VersionResponse,
+)
+from mlops_api.services.predictor import PredictorService
+
+router = APIRouter()
+logger = logging.getLogger("mlops_api")
+settings = ApiSettings()
+
+
+@router.get("/health", response_model=HealthResponse)
+def health() -> HealthResponse:
+    return HealthResponse(status="ok")
+
+
+@router.get("/version", response_model=VersionResponse)
+def version() -> VersionResponse:
+    info = get_version_info(settings.app_version)
+    return VersionResponse(
+        app_version=info.app_version,
+        git_commit=info.git_commit,
+        git_branch=info.git_branch,
+    )
+
+
+@router.get("/metrics", response_model=MetricsResponse)
+def metrics(monitoring: MonitoringStore = Depends(get_monitoring)) -> MetricsResponse:
+    counters = monitoring.snapshot()
+    return MetricsResponse(
+        total_requests=counters.total_requests,
+        total_predictions=counters.total_predictions,
+    )
+
+
+@router.post("/predict", response_model=PredictionResponse)
+def predict(
+    payload: PredictionRequest,
+    predictor: PredictorService = Depends(get_predictor),
+    monitoring: MonitoringStore = Depends(get_monitoring),
+) -> PredictionResponse:
+    features = [
+        payload.sepal_length,
+        payload.sepal_width,
+        payload.petal_length,
+        payload.petal_width,
+    ]
+    result = predictor.predict(features)
+    prediction_count = monitoring.increment_predictions()
+
+    logger.info(
+        "prediction_request features=%s prediction=%s class_name=%s",
+        features,
+        result.prediction,
+        result.class_name,
+    )
+
+    return PredictionResponse(
+        prediction=result.prediction,
+        class_name=result.class_name,
+        prediction_count=prediction_count,
+    )
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\api\routes.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\__init__.py =====
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\__init__.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\logging.py =====
+--------------------------------------------------------------------------------
+import logging
+
+
+def configure_logging(level: str) -> None:
+    logging.basicConfig(
+        level=level.upper(),
+        format="%(asctime)s %(levelname)s %(name)s %(message)s",
+    )
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\logging.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\monitoring.py =====
+--------------------------------------------------------------------------------
+from dataclasses import dataclass
+from threading import Lock
+
+
+@dataclass
+class Counters:
+    total_requests: int = 0
+    total_predictions: int = 0
+
+
+class MonitoringStore:
+    def __init__(self) -> None:
+        self._lock = Lock()
+        self._counters = Counters()
+
+    def increment_requests(self) -> int:
+        with self._lock:
+            self._counters.total_requests += 1
+            return self._counters.total_requests
+
+    def increment_predictions(self) -> int:
+        with self._lock:
+            self._counters.total_predictions += 1
+            return self._counters.total_predictions
+
+    def snapshot(self) -> Counters:
+        with self._lock:
+            return Counters(
+                total_requests=self._counters.total_requests,
+                total_predictions=self._counters.total_predictions,
+            )
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\monitoring.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\settings.py =====
+--------------------------------------------------------------------------------
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class ApiSettings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    app_name: str = Field(default="MLOps API Pipeline", alias="APP_NAME")
+    app_version: str = Field(default="0.1.0", alias="APP_VERSION")
+    log_level: str = Field(default="INFO", alias="LOG_LEVEL")
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\settings.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\version.py =====
+--------------------------------------------------------------------------------
+import os
+import subprocess
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class VersionInfo:
+    app_version: str
+    git_commit: str
+    git_branch: str
+
+
+def _read_git_value(args: list[str]) -> str | None:
+    try:
+        completed = subprocess.run(
+            ["git", *args],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=2,
+        )
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        return None
+
+    value = completed.stdout.strip()
+    return value or None
+
+
+def get_version_info(app_version: str) -> VersionInfo:
+    git_commit = (
+        os.getenv("APP_GIT_COMMIT")
+        or os.getenv("GITHUB_SHA")
+        or _read_git_value(["rev-parse", "--short", "HEAD"])
+        or "unknown"
+    )
+    git_branch = (
+        os.getenv("APP_GIT_BRANCH")
+        or os.getenv("GITHUB_REF_NAME")
+        or _read_git_value(["rev-parse", "--abbrev-ref", "HEAD"])
+        or "unknown"
+    )
+
+    return VersionInfo(
+        app_version=app_version,
+        git_commit=git_commit,
+        git_branch=git_branch,
+    )
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\core\version.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\schemas\__init__.py =====
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\schemas\__init__.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\schemas\prediction.py =====
+--------------------------------------------------------------------------------
+from pydantic import BaseModel, Field
+
+
+class PredictionRequest(BaseModel):
+    sepal_length: float = Field(..., ge=0)
+    sepal_width: float = Field(..., ge=0)
+    petal_length: float = Field(..., ge=0)
+    petal_width: float = Field(..., ge=0)
+
+
+class PredictionResponse(BaseModel):
+    prediction: int
+    class_name: str
+    prediction_count: int
+
+
+class HealthResponse(BaseModel):
+    status: str
+
+
+class MetricsResponse(BaseModel):
+    total_requests: int
+    total_predictions: int
+
+
+class VersionResponse(BaseModel):
+    app_version: str
+    git_commit: str
+    git_branch: str
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\schemas\prediction.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\services\__init__.py =====
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\services\__init__.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\services\predictor.py =====
+--------------------------------------------------------------------------------
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Any
+
+from packages.mlops_ml.config import Settings as MlSettings
+from packages.mlops_ml.registry import load_model
+from packages.mlops_ml.trainer import train_and_log
+
+
+CLASS_MAPPING = {0: "setosa", 1: "versicolor", 2: "virginica"}
+
+
+@dataclass
+class PredictionResult:
+    prediction: int
+    class_name: str
+
+
+class PredictorService:
+    def __init__(self, model_path: Path | None = None) -> None:
+        settings = MlSettings()
+        self._model_path = model_path or settings.model_path
+        self._model = self._load_or_train()
+
+    def _load_or_train(self) -> Any:
+        if self._model_path.exists():
+            return load_model(self._model_path)
+
+        settings = MlSettings(model_path=self._model_path)
+        train_and_log(settings)
+        return load_model(self._model_path)
+
+    def predict(self, features: list[float]) -> PredictionResult:
+        pred = int(self._model.predict([features])[0])
+        return PredictionResult(prediction=pred, class_name=CLASS_MAPPING[pred])
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\mlops_api\services\predictor.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\tests\test_api.py =====
+--------------------------------------------------------------------------------
+from fastapi.testclient import TestClient
+
+from mlops_api.main import app
+
+client = TestClient(app)
+
+
+def test_health() -> None:
+    response = client.get("/health")
+    assert response.status_code == 200
+    assert response.json() == {"status": "ok"}
+
+
+def test_version() -> None:
+    response = client.get("/version")
+    assert response.status_code == 200
+    body = response.json()
+    assert set(body.keys()) == {"app_version", "git_commit", "git_branch"}
+    assert isinstance(body["app_version"], str)
+    assert isinstance(body["git_commit"], str)
+    assert isinstance(body["git_branch"], str)
+
+
+def test_predict_and_metrics() -> None:
+    payload = {
+        "sepal_length": 5.1,
+        "sepal_width": 3.5,
+        "petal_length": 1.4,
+        "petal_width": 0.2,
+    }
+
+    prediction_response = client.post("/predict", json=payload)
+    assert prediction_response.status_code == 200
+
+    body = prediction_response.json()
+    assert set(body.keys()) == {"prediction", "class_name", "prediction_count"}
+    assert body["class_name"] in {"setosa", "versicolor", "virginica"}
+
+    metrics_response = client.get("/metrics")
+    assert metrics_response.status_code == 200
+    metrics = metrics_response.json()
+    assert metrics["total_requests"] >= 3
+    assert metrics["total_predictions"] >= 1
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\apps\api\tests\test_api.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\__init__.py =====
+--------------------------------------------------------------------------------
+from .config import Settings
+from .registry import load_model, save_model
+from .trainer import train_and_log
+
+__all__ = ["Settings", "load_model", "save_model", "train_and_log"]
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\__init__.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\config.py =====
+--------------------------------------------------------------------------------
+from pathlib import Path
+
+from pydantic import Field
+from pydantic_settings import BaseSettings, SettingsConfigDict
+
+
+class Settings(BaseSettings):
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+
+    model_path: Path = Field(default=Path("artifacts/model.pkl"), alias="MODEL_PATH")
+    mlflow_tracking_uri: str = Field(default="file:./mlruns", alias="MLFLOW_TRACKING_URI")
+    mlflow_experiment_name: str = Field(default="mlops-api-pipeline", alias="MLFLOW_EXPERIMENT_NAME")
+    random_state: int = Field(default=42, alias="RANDOM_STATE")
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\config.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\dataset.py =====
+--------------------------------------------------------------------------------
+from sklearn.datasets import load_iris
+
+
+FEATURE_NAMES = [
+    "sepal_length",
+    "sepal_width",
+    "petal_length",
+    "petal_width",
+]
+
+
+def load_training_data() -> tuple[list[list[float]], list[int]]:
+    dataset = load_iris()
+    return dataset.data.tolist(), dataset.target.tolist()
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\dataset.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\registry.py =====
+--------------------------------------------------------------------------------
+from pathlib import Path
+from typing import Any
+
+import joblib
+
+
+ModelType = Any
+
+
+def save_model(model: ModelType, model_path: Path) -> None:
+    model_path.parent.mkdir(parents=True, exist_ok=True)
+    joblib.dump(model, model_path)
+
+
+def load_model(model_path: Path) -> ModelType:
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model file not found: {model_path}")
+    return joblib.load(model_path)
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\registry.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\trainer.py =====
+--------------------------------------------------------------------------------
+from dataclasses import dataclass
+
+import mlflow
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import accuracy_score
+from sklearn.model_selection import train_test_split
+
+from .config import Settings
+from .dataset import FEATURE_NAMES, load_training_data
+from .registry import save_model
+
+
+@dataclass(frozen=True)
+class TrainingResult:
+    accuracy: float
+    model_path: str
+
+
+def train_and_log(settings: Settings) -> TrainingResult:
+    x, y = load_training_data()
+
+    x_train, x_test, y_train, y_test = train_test_split(
+        x,
+        y,
+        test_size=0.2,
+        random_state=settings.random_state,
+        stratify=y,
+    )
+
+    model = RandomForestClassifier(n_estimators=200, random_state=settings.random_state)
+    model.fit(x_train, y_train)
+
+    y_pred = model.predict(x_test)
+    accuracy = accuracy_score(y_test, y_pred)
+
+    mlflow.set_tracking_uri(settings.mlflow_tracking_uri)
+    mlflow.set_experiment(settings.mlflow_experiment_name)
+
+    with mlflow.start_run(run_name="train-random-forest"):
+        mlflow.log_param("model_type", "RandomForestClassifier")
+        mlflow.log_param("n_estimators", 200)
+        mlflow.log_param("random_state", settings.random_state)
+        mlflow.log_metric("accuracy", accuracy)
+        mlflow.log_dict({"features": FEATURE_NAMES}, "feature_schema.json")
+
+    save_model(model, settings.model_path)
+    return TrainingResult(accuracy=accuracy, model_path=str(settings.model_path))
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\packages\mlops_ml\trainer.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\scripts\run_api.py =====
+--------------------------------------------------------------------------------
+from pathlib import Path
+import sys
+
+import uvicorn
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+
+def main() -> None:
+    uvicorn.run(
+        "mlops_api.main:app",
+        host="0.0.0.0",
+        port=8000,
+        app_dir=str(ROOT_DIR / "apps" / "api"),
+    )
+
+
+if __name__ == "__main__":
+    main()
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\scripts\run_api.py =====
+
+===== FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\scripts\train.py =====
+--------------------------------------------------------------------------------
+from pathlib import Path
+import sys
+
+ROOT_DIR = Path(__file__).resolve().parents[1]
+if str(ROOT_DIR) not in sys.path:
+    sys.path.insert(0, str(ROOT_DIR))
+
+from packages.mlops_ml.config import Settings
+from packages.mlops_ml.trainer import train_and_log
+
+
+def main() -> None:
+    settings = Settings()
+    result = train_and_log(settings)
+    print({"accuracy": result.accuracy, "model_path": result.model_path})
+
+
+if __name__ == "__main__":
+    main()
+--------------------------------------------------------------------------------
+===== END FILE: mlops-api-pipeline-main\mlops-api-pipeline-main\scripts\train.py =====
+

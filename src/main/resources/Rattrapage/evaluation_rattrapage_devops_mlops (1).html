@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Évaluation du rattrapage — DevOps / MLOps</title>
+  <style>
+    :root{
+      --bg:#f6f8fb;
+      --surface:#ffffff;
+      --primary:#1f3c88;
+      --primary-dark:#14295f;
+      --accent:#d4a017;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#dbe3ef;
+      --success-bg:#ecfdf5;
+      --success-text:#166534;
+    }
+
+    *{box-sizing:border-box}
+
+    body{
+      margin:0;
+      font-family: Arial, Helvetica, sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      line-height:1.65;
+    }
+
+    .container{
+      max-width:1000px;
+      margin:0 auto;
+      padding:40px 20px 60px;
+    }
+
+    .header{
+      background:linear-gradient(135deg,var(--primary-dark),var(--primary));
+      color:#fff;
+      border-radius:18px;
+      padding:36px 32px;
+      box-shadow:0 12px 30px rgba(20,41,95,.18);
+      margin-bottom:28px;
+    }
+
+    .eyebrow{
+      display:inline-block;
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:#e5e7eb;
+      margin-bottom:10px;
+    }
+
+    h1{
+      margin:0 0 10px;
+      font-size:34px;
+      line-height:1.2;
+    }
+
+    .subtitle{
+      margin:0;
+      font-size:17px;
+      color:rgba(255,255,255,.88);
+    }
+
+    .card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      border-radius:16px;
+      padding:28px;
+      margin-bottom:20px;
+      box-shadow:0 6px 18px rgba(31,60,136,.06);
+    }
+
+    h2{
+      margin:0 0 16px;
+      font-size:24px;
+      color:var(--primary-dark);
+      border-left:5px solid var(--accent);
+      padding-left:12px;
+    }
+
+    h3{
+      margin:24px 0 10px;
+      font-size:19px;
+      color:var(--primary);
+    }
+
+    p{
+      margin:0 0 14px;
+    }
+
+    ul{
+      margin:8px 0 14px 22px;
+      padding:0;
+    }
+
+    li{
+      margin-bottom:8px;
+    }
+
+    .skills{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:14px;
+      margin-top:8px;
+    }
+
+    .skill{
+      border:1px solid var(--border);
+      border-radius:12px;
+      padding:16px 18px;
+      background:#fafcff;
+    }
+
+    .skill-title{
+      font-weight:700;
+      color:var(--primary-dark);
+      margin-bottom:6px;
+    }
+
+    .badge{
+      display:inline-block;
+      padding:6px 12px;
+      border-radius:999px;
+      font-size:13px;
+      font-weight:700;
+      background:var(--success-bg);
+      color:var(--success-text);
+    }
+
+    .footer-box{
+      background:var(--success-bg);
+      border:1px solid #bbf7d0;
+      border-radius:16px;
+      padding:22px 24px;
+    }
+
+    .footer-box h2{
+      margin-bottom:12px;
+    }
+
+    @media print{
+      body{
+        background:#fff;
+      }
+      .container{
+        max-width:none;
+        padding:0;
+      }
+      .header,.card,.footer-box{
+        box-shadow:none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <section class="header">
+      <div class="eyebrow">Module DevOps / MLOps</div>
+      <h1>Évaluation du rattrapage</h1>
+      <p class="subtitle">Analyse de la solution rendue par l’étudiant</p>
+    </section>
+
+    <section class="card">
+      <h2>Appréciation générale</h2>
+      <p>
+        Le projet répond globalement aux attendus du sujet de rattrapage. L’étudiant a mis en place
+        une API FastAPI fonctionnelle exposant un modèle de Machine Learning simple, avec sauvegarde
+        du modèle, chargement pour l’inférence, conteneurisation Docker, pipeline CI/CD, monitoring
+        minimal et documentation. L’ensemble est cohérent, structuré et exécutable.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Analyse par critère</h2>
+
+      <h3>1. Pipeline MLOps</h3>
+      <p>
+        <strong>La compétence est acquise.</strong>
+      </p>
+      <p>
+        L’étudiant utilise un dataset simple (<code>iris</code>), entraîne un modèle
+        <code>RandomForestClassifier</code>, sauvegarde le modèle au format <code>.pkl</code> et prévoit
+        son chargement pour l’inférence. La logique de chargement automatique du modèle, avec
+        entraînement si nécessaire, répond bien à l’objectif attendu.
+      </p>
+
+      <h3>2. API REST</h3>
+      <p>
+        <strong>La compétence est acquise.</strong>
+      </p>
+      <p>
+        L’API implémente les endpoints demandés dans le sujet :
+      </p>
+      <ul>
+        <li><code>GET /health</code></li>
+        <li><code>POST /predict</code></li>
+      </ul>
+      <p>
+        L’entrée et la sortie sont bien gérées en JSON.
+        Des endpoints supplémentaires (<code>/version</code>, <code>/metrics</code>) ont également été ajoutés,
+        ce qui enrichit le projet.
+      </p>
+
+      <h3>3. Pipeline DevOps / CI-CD</h3>
+      <p>
+        <strong>La compétence est acquise.</strong>
+      </p>
+      <p>
+        Le pipeline GitHub Actions permet :
+      </p>
+      <ul>
+        <li>l’installation des dépendances,</li>
+        <li>l’exécution des tests,</li>
+        <li>l’entraînement du modèle,</li>
+        <li>la construction de l’image Docker.</li>
+      </ul>
+      <p>
+        Le besoin demandé par le sujet est donc couvert. L’étudiant va même au-delà avec l’upload
+        de l’artefact modèle et la préparation du push d’image Docker.
+      </p>
+
+      <h3>4. Conteneurisation</h3>
+      <p>
+        <strong>La compétence est acquise.</strong>
+      </p>
+      <p>
+        Le projet contient un <code>Dockerfile</code> valide, un fichier <code>docker-compose.yml</code>,
+        ainsi qu’une configuration permettant l’exécution locale du conteneur sur le port
+        <code>8000</code>. Le README documente correctement les commandes de build et d’exécution.
+      </p>
+
+      <h3>5. Monitoring</h3>
+      <p>
+        <strong>La compétence est acquise.</strong>
+      </p>
+      <p>
+        Le projet met en place :
+      </p>
+      <ul>
+        <li>des logs de requêtes,</li>
+        <li>des logs sur les prédictions,</li>
+        <li>un compteur du nombre total de requêtes,</li>
+        <li>un compteur du nombre de prédictions.</li>
+      </ul>
+      <p>
+        Cela correspond bien au monitoring minimal attendu dans le sujet.
+      </p>
+    </section>
+
+    <section class="card">
+      <h2>Points forts</h2>
+      <ul>
+        <li>Projet propre et bien structuré</li>
+        <li>Respect des exigences principales du sujet</li>
+        <li>Présence de tests automatisés</li>
+        <li>Documentation claire</li>
+        <li>Bonus intéressants : Swagger UI, MLflow, docker-compose, workflow de release</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Axes d’amélioration</h2>
+      <ul>
+        <li>Les tests restent simples et pourraient être approfondis</li>
+        <li>Le monitoring repose sur des compteurs en mémoire, non persistants</li>
+        <li>La séparation entre phase d’entraînement et phase d’inférence pourrait être encore mieux isolée dans une approche plus industrielle</li>
+      </ul>
+    </section>
+
+    <section class="card">
+      <h2>Évaluation des compétences</h2>
+      <div class="skills">
+        <div class="skill">
+          <div class="skill-title">Pipeline DevOps</div>
+          <span class="badge">Acquis</span>
+        </div>
+        <div class="skill">
+          <div class="skill-title">Pipeline MLOps</div>
+          <span class="badge">Acquis</span>
+        </div>
+        <div class="skill">
+          <div class="skill-title">Conteneurisation et monitoring</div>
+          <span class="badge">Acquis</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="footer-box">
+      <h2>Rattrapage validé</h2>
+      <p>
+        Le projet est sérieux, cohérent et conforme aux attentes du rattrapage. L’étudiant ne s’est
+        pas contenté du minimum demandé et a ajouté plusieurs éléments pertinents qui renforcent la
+        qualité globale de la réalisation. Les compétences visées dans le sujet sont acquises.
+      </p>
+    </section>
+  </div>
+</body>
+</html>
