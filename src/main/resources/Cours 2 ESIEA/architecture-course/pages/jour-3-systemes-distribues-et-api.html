@@ -319,12 +319,53 @@
     .level-pill.mid    { background: #fef9c3; color: #854d0e; }
     .level-pill.senior { background: #fce7f3; color: #9d174d; }
     .level-pill.expert { background: #ede9fe; color: #5b21b6; }
+
+    /* ── Diagrams ── */
+    .diagram-wrap{margin:20px 0;overflow-x:auto;-webkit-overflow-scrolling:touch}
+    .diagram-wrap svg{display:block;margin:0 auto;max-width:100%;height:auto}
+
+    /* ── Hamburger ── */
+    .menu-toggle{display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:1.3rem;cursor:pointer;color:var(--text);flex-shrink:0}
+
+    /* ── Retenir ── */
+    .retenir-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:18px 0}
+    .retenir-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:4px solid var(--blue)}
+    .retenir-card h4{margin:0 0 10px;font-size:1rem}
+    .retenir-card ul{margin:0;padding-left:18px}
+    .retenir-card li{margin:.4rem 0;font-size:.9rem}
+    .key-rule{background:linear-gradient(135deg,#edf2ff,#f0fdf4);border:2px solid var(--blue);border-radius:14px;padding:20px;margin:18px 0;text-align:center}
+    .key-rule p{font-size:1.05rem;margin:0;font-weight:600;color:#123f73}
+
+    /* ── Mobile ≤768px ── */
+    @media(max-width:768px){
+      .menu-toggle{display:flex;align-items:center;justify-content:center}
+      .brand{font-size:.9rem}
+      nav.top-nav{display:none;width:100%;flex-direction:row;flex-wrap:wrap;gap:6px;padding-top:10px}
+      nav.top-nav.open{display:flex}
+      .nav-wrap{flex-wrap:wrap}
+      .hero h1{font-size:1.4rem}
+      .hero{padding:18px}
+      article.content section{padding:16px 14px}
+      aside.toc{position:static;margin-bottom:16px}
+      pre>code{font-size:.76rem !important;line-height:1.55}
+      table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
+      .columns{grid-template-columns:1fr}
+      .footer-nav{flex-direction:column}
+      .footer-nav a{text-align:center}
+      .diagram-wrap svg{min-width:500px}
+      .retenir-grid{grid-template-columns:1fr}
+    }
+    @media(max-width:480px){
+      body{font-size:.92rem}
+      .hero h1{font-size:1.15rem}
+    }
   </style>
 </head>
 <body>
 <header class="site-header">
     <div class="nav-wrap">
         <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
+        <button class="menu-toggle" onclick="document.querySelector('.top-nav').classList.toggle('open')" aria-label="Menu">☰</button>
         <nav class="top-nav">
             <a href="../index.html">Accueil</a>
             <a href="../pages/introduction.html">Introduction</a>
@@ -400,6 +441,65 @@
         <div class="box child-mode">
           <h4>Mode enfant 🧸</h4>
           <p>Au lieu d'avoir une seule grosse boutique qui vend tout, tu ouvres plusieurs petits magasins spécialisés (un pour les livres, un pour les DVD, un pour la livraison) qui doivent se parler correctement. Si l'un ferme, les autres continuent, mais ils doivent gérer l'absence de leur collègue.</p>
+        </div>
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 780 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+            <defs>
+              <filter id="sh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
+              <marker id="aNet" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"/></marker>
+            </defs>
+            <rect width="780" height="320" fill="#f8fafc" rx="14"/>
+            <!-- Client -->
+            <g filter="url(#sh)"><rect x="15" y="120" width="120" height="80" rx="12" fill="#fff" stroke="#64748b" stroke-width="2"/>
+            <text x="75" y="155" text-anchor="middle" font-size="20">👤</text>
+            <text x="75" y="178" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">Client</text>
+            <text x="75" y="193" text-anchor="middle" font-size="9" fill="#64748b">navigateur / app</text></g>
+            <!-- Gateway -->
+            <g filter="url(#sh)"><rect x="195" y="110" width="120" height="100" rx="12" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+            <text x="255" y="145" text-anchor="middle" font-size="18">🚪</text>
+            <text x="255" y="168" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a5f">API Gateway</text>
+            <text x="255" y="183" text-anchor="middle" font-size="9" fill="#475569">auth · routing</text>
+            <text x="255" y="198" text-anchor="middle" font-size="9" fill="#475569">rate limit</text></g>
+            <!-- Services -->
+            <g filter="url(#sh)"><rect x="385" y="25" width="150" height="70" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
+            <text x="460" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="#14532d">📚 Catalog Service</text>
+            <text x="460" y="72" text-anchor="middle" font-size="9" fill="#475569">livres, ISBN, stock</text></g>
+            <g filter="url(#sh)"><rect x="385" y="125" width="150" height="70" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
+            <text x="460" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">🔄 Loan Service</text>
+            <text x="460" y="172" text-anchor="middle" font-size="9" fill="#475569">emprunts, retours</text></g>
+            <g filter="url(#sh)"><rect x="385" y="225" width="150" height="70" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/>
+            <text x="460" y="255" text-anchor="middle" font-size="12" font-weight="700" fill="#581c87">🔐 Identity Service</text>
+            <text x="460" y="272" text-anchor="middle" font-size="9" fill="#475569">auth, JWT, rôles</text></g>
+            <!-- Databases -->
+            <g filter="url(#sh)"><rect x="610" y="35" width="80" height="50" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="650" y="60" text-anchor="middle" font-size="10" fill="#16a34a">💾 DB</text>
+            <text x="650" y="74" text-anchor="middle" font-size="8" fill="#64748b">PostgreSQL</text></g>
+            <g filter="url(#sh)"><rect x="610" y="135" width="80" height="50" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.5"/>
+            <text x="650" y="160" text-anchor="middle" font-size="10" fill="#d97706">💾 DB</text>
+            <text x="650" y="174" text-anchor="middle" font-size="8" fill="#64748b">PostgreSQL</text></g>
+            <g filter="url(#sh)"><rect x="610" y="235" width="80" height="50" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.5"/>
+            <text x="650" y="260" text-anchor="middle" font-size="10" fill="#7c3aed">💾 DB</text>
+            <text x="650" y="274" text-anchor="middle" font-size="8" fill="#64748b">PostgreSQL</text></g>
+            <!-- Kafka -->
+            <g filter="url(#sh)"><rect x="720" y="120" width="50" height="80" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+            <text x="745" y="155" text-anchor="middle" font-size="14" fill="#fff">📨</text>
+            <text x="745" y="174" text-anchor="middle" font-size="8" fill="#94a3b8">Kafka</text>
+            <text x="745" y="186" text-anchor="middle" font-size="7" fill="#64748b">events</text></g>
+            <!-- Arrows -->
+            <path d="M135,160 L195,160" stroke="#3b82f6" stroke-width="2" marker-end="url(#aNet)"/>
+            <path d="M315,140 L385,60" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#aNet)"/>
+            <path d="M315,160 L385,160" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#aNet)"/>
+            <path d="M315,180 L385,260" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#aNet)"/>
+            <path d="M535,60 L610,60" stroke="#16a34a" stroke-width="1.5" marker-end="url(#aNet)"/>
+            <path d="M535,160 L610,160" stroke="#d97706" stroke-width="1.5" marker-end="url(#aNet)"/>
+            <path d="M535,260 L610,260" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#aNet)"/>
+            <path d="M535,155 L720,155" stroke="#475569" stroke-width="1" stroke-dasharray="5,3"/>
+            <path d="M535,165 L720,165" stroke="#475569" stroke-width="1" stroke-dasharray="5,3"/>
+            <!-- Legend -->
+            <rect x="155" y="280" width="470" height="28" rx="14" fill="#e2e8f0"/>
+            <text x="390" y="299" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">3 services · 3 bases · 1 broker · 1 gateway — chaque service est autonome</text>
+          </svg>
         </div>
 
         <div class="box pro-mode">
@@ -524,6 +624,43 @@ resilience4j:
         <div class="level-bar">
           <span class="level-pill mid">Mid</span>
           <span class="level-pill senior">Senior</span>
+        </div>
+
+        
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+            <defs><filter id="cSh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter></defs>
+            <rect width="600" height="380" fill="#f8fafc" rx="14"/>
+            <!-- Triangle -->
+            <polygon points="300,40 80,310 520,310" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8,4"/>
+            <!-- C vertex -->
+            <g filter="url(#cSh)"><circle cx="300" cy="40" r="42" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>
+            <text x="300" y="36" text-anchor="middle" font-size="22" font-weight="800" fill="#1e40af">C</text>
+            <text x="300" y="54" text-anchor="middle" font-size="9" fill="#3b82f6">Consistency</text></g>
+            <!-- A vertex -->
+            <g filter="url(#cSh)"><circle cx="80" cy="310" r="42" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
+            <text x="80" y="306" text-anchor="middle" font-size="22" font-weight="800" fill="#15803d">A</text>
+            <text x="80" y="324" text-anchor="middle" font-size="9" fill="#16a34a">Availability</text></g>
+            <!-- P vertex -->
+            <g filter="url(#cSh)"><circle cx="520" cy="310" r="42" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
+            <text x="520" y="306" text-anchor="middle" font-size="22" font-weight="800" fill="#92400e">P</text>
+            <text x="520" y="324" text-anchor="middle" font-size="9" fill="#d97706">Partition</text></g>
+            <!-- CP edge -->
+            <rect x="370" y="140" width="110" height="50" rx="10" fill="#fff" stroke="#3b82f6" stroke-width="1.5" filter="url(#cSh)"/>
+            <text x="425" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">CP</text>
+            <text x="425" y="178" text-anchor="middle" font-size="8.5" fill="#475569">HBase, ZooKeeper</text>
+            <!-- AP edge -->
+            <rect x="215" y="280" width="170" height="50" rx="10" fill="#fff" stroke="#16a34a" stroke-width="1.5" filter="url(#cSh)"/>
+            <text x="300" y="300" text-anchor="middle" font-size="11" font-weight="700" fill="#15803d">AP</text>
+            <text x="300" y="318" text-anchor="middle" font-size="8.5" fill="#475569">DynamoDB, Cassandra</text>
+            <!-- CA edge -->
+            <rect x="120" y="140" width="110" height="50" rx="10" fill="#fff" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2" filter="url(#cSh)"/>
+            <text x="175" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">CA</text>
+            <text x="175" y="178" text-anchor="middle" font-size="8.5" fill="#dc2626">⚠️ impossible en réseau</text>
+            <!-- Bottom note -->
+            <rect x="115" y="348" width="370" height="24" rx="12" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+            <text x="300" y="365" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="600">En réseau réel, P est inévitable → choix entre C ou A</text>
+          </svg>
         </div>
 
         <p>Le théorème CAP (Brewer, 2000) rappelle qu'en présence d'une <strong>partition réseau</strong> (P), on ne peut pas garantir simultanément <strong>cohérence forte</strong> (C) et <strong>disponibilité totale</strong> (A).</p>
@@ -676,6 +813,52 @@ public ResponseEntity&lt;LoanResponse&gt; create(
           <span class="level-pill mid">Mid</span>
           <span class="level-pill senior">Senior</span>
           <span class="level-pill expert">Expert</span>
+        </div>
+
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 780 240" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+            <defs>
+              <filter id="cmSh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
+              <marker id="cmA" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"/></marker>
+              <marker id="cmB" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#16a34a"/></marker>
+            </defs>
+            <rect width="780" height="240" fill="#f8fafc" rx="14"/>
+            <!-- SYNC side -->
+            <rect x="10" y="10" width="370" height="220" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
+            <text x="195" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">🔁 Synchrone (REST / gRPC)</text>
+            <g filter="url(#cmSh)"><rect x="30" y="55" width="100" height="40" rx="8" fill="#fff" stroke="#3b82f6" stroke-width="1.5"/>
+            <text x="80" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Service A</text></g>
+            <g filter="url(#cmSh)"><rect x="250" y="55" width="110" height="40" rx="8" fill="#fff" stroke="#3b82f6" stroke-width="1.5"/>
+            <text x="305" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Service B</text></g>
+            <path d="M130,68 L250,68" stroke="#3b82f6" stroke-width="2" marker-end="url(#cmA)"/>
+            <text x="190" y="62" text-anchor="middle" font-size="9" fill="#3b82f6">requête →</text>
+            <path d="M250,82 L130,82" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#cmA)"/>
+            <text x="190" y="96" text-anchor="middle" font-size="9" fill="#94a3b8">← réponse</text>
+            <rect x="30" y="115" width="330" height="24" rx="6" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
+            <text x="195" y="132" text-anchor="middle" font-size="10" fill="#dc2626">⏳ A est bloqué en attendant B</text>
+            <text x="195" y="164" text-anchor="middle" font-size="10" fill="#475569">✅ Simple · résultat immédiat</text>
+            <text x="195" y="182" text-anchor="middle" font-size="10" fill="#475569">❌ Couplage temporel · cascade de pannes</text>
+            <!-- ASYNC side -->
+            <rect x="400" y="10" width="370" height="220" rx="12" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
+            <text x="585" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">📨 Asynchrone (Kafka / RabbitMQ)</text>
+            <g filter="url(#cmSh)"><rect x="420" y="55" width="100" height="40" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="470" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Producer</text></g>
+            <g filter="url(#cmSh)"><rect x="570" y="50" width="60" height="50" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
+            <text x="600" y="72" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Broker</text>
+            <text x="600" y="88" text-anchor="middle" font-size="8" fill="#94a3b8">📨</text></g>
+            <g filter="url(#cmSh)"><rect x="680" y="42" width="80" height="30" rx="6" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="720" y="62" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Consumer 1</text></g>
+            <g filter="url(#cmSh)"><rect x="680" y="82" width="80" height="30" rx="6" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="720" y="102" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Consumer 2</text></g>
+            <path d="M520,75 L570,75" stroke="#16a34a" stroke-width="2" marker-end="url(#cmB)"/>
+            <path d="M630,63 L680,57" stroke="#16a34a" stroke-width="1.5" marker-end="url(#cmB)"/>
+            <path d="M630,82 L680,97" stroke="#16a34a" stroke-width="1.5" marker-end="url(#cmB)"/>
+            <rect x="420" y="115" width="330" height="24" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
+            <text x="585" y="132" text-anchor="middle" font-size="10" fill="#16a34a">🚀 Producer continue immédiatement</text>
+            <text x="585" y="164" text-anchor="middle" font-size="10" fill="#475569">✅ Découplé · résilient · fan-out</text>
+            <text x="585" y="182" text-anchor="middle" font-size="10" fill="#475569">❌ Cohérence éventuelle · debug complexe</text>
+          </svg>
         </div>
 
         <div class="columns">
@@ -1061,6 +1244,64 @@ spring:
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
 
         <p>L'<strong>API Gateway</strong> est le point d'entrée unique de toutes les requêtes extérieures vers les microservices. Elle centralise les préoccupations transversales.</p>
+
+
+        <div class="diagram-wrap">
+          <svg viewBox="0 0 780 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+            <defs>
+              <filter id="gwSh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
+              <marker id="gwA" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"/></marker>
+            </defs>
+            <rect width="780" height="280" fill="#f8fafc" rx="14"/>
+            <!-- Clients -->
+            <g filter="url(#gwSh)"><rect x="15" y="40" width="95" height="55" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
+            <text x="62" y="65" text-anchor="middle" font-size="16">🌐</text>
+            <text x="62" y="84" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Web App</text></g>
+            <g filter="url(#gwSh)"><rect x="15" y="115" width="95" height="55" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
+            <text x="62" y="140" text-anchor="middle" font-size="16">📱</text>
+            <text x="62" y="159" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Mobile App</text></g>
+            <g filter="url(#gwSh)"><rect x="15" y="190" width="95" height="55" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
+            <text x="62" y="215" text-anchor="middle" font-size="16">🤖</text>
+            <text x="62" y="234" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">API Client</text></g>
+            <!-- Gateway -->
+            <g filter="url(#gwSh)">
+              <rect x="195" y="20" width="180" height="240" rx="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>
+              <rect x="195" y="20" width="180" height="32" rx="14" fill="#3b82f6"/>
+              <rect x="195" y="38" width="180" height="14" fill="#3b82f6"/>
+              <text x="285" y="42" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">🚪 API Gateway</text>
+              <text x="285" y="78" text-anchor="middle" font-size="10" fill="#1e40af">🔒 JWT / OAuth2</text>
+              <text x="285" y="100" text-anchor="middle" font-size="10" fill="#1e40af">📊 Rate Limiting</text>
+              <text x="285" y="122" text-anchor="middle" font-size="10" fill="#1e40af">🔀 Routage</text>
+              <text x="285" y="144" text-anchor="middle" font-size="10" fill="#1e40af">📋 Logging</text>
+              <text x="285" y="166" text-anchor="middle" font-size="10" fill="#1e40af">🔄 Circuit Breaker</text>
+              <text x="285" y="188" text-anchor="middle" font-size="10" fill="#1e40af">🗜️ Transformation</text>
+              <text x="285" y="218" text-anchor="middle" font-size="9" fill="#475569" font-style="italic">Spring Cloud Gateway</text>
+              <text x="285" y="234" text-anchor="middle" font-size="9" fill="#475569" font-style="italic">Kong · Envoy · Nginx</text>
+            </g>
+            <!-- Services -->
+            <g filter="url(#gwSh)"><rect x="470" y="30" width="140" height="50" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
+            <text x="540" y="55" text-anchor="middle" font-size="11" font-weight="600" fill="#14532d">📚 /api/books</text>
+            <text x="540" y="72" text-anchor="middle" font-size="9" fill="#475569">Catalog Service</text></g>
+            <g filter="url(#gwSh)"><rect x="470" y="105" width="140" height="50" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
+            <text x="540" y="130" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e">🔄 /api/loans</text>
+            <text x="540" y="147" text-anchor="middle" font-size="9" fill="#475569">Loan Service</text></g>
+            <g filter="url(#gwSh)"><rect x="470" y="180" width="140" height="50" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
+            <text x="540" y="205" text-anchor="middle" font-size="11" font-weight="600" fill="#581c87">🔐 /api/auth</text>
+            <text x="540" y="222" text-anchor="middle" font-size="9" fill="#475569">Identity Service</text></g>
+            <!-- Discovery -->
+            <g filter="url(#gwSh)"><rect x="640" y="100" width="130" height="60" rx="10" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
+            <text x="705" y="125" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">🔍 Service Registry</text>
+            <text x="705" y="145" text-anchor="middle" font-size="9" fill="#64748b">Eureka / Consul</text></g>
+            <!-- Arrows -->
+            <path d="M110,67 L195,67" stroke="#64748b" stroke-width="1.5" marker-end="url(#gwA)"/>
+            <path d="M110,142 L195,142" stroke="#64748b" stroke-width="1.5" marker-end="url(#gwA)"/>
+            <path d="M110,217 L195,217" stroke="#64748b" stroke-width="1.5" marker-end="url(#gwA)"/>
+            <path d="M375,55 L470,55" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gwA)"/>
+            <path d="M375,130 L470,130" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gwA)"/>
+            <path d="M375,205 L470,205" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gwA)"/>
+            <path d="M375,140 Q420,130 640,130" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3"/>
+          </svg>
+        </div>
 
         <div class="box child-mode">
           <h4>Mode enfant 🧸</h4>
@@ -1667,6 +1908,60 @@ class CatalogServiceContractVerificationTest {
         </div>
       </section>
 
+
+      <!-- ═══════════════════════════════
+           CE QU'IL FAUT RETENIR
+      ═══════════════════════════════ -->
+      <section id="retenir">
+        <h2>Ce qu'il faut retenir — Jour 3</h2>
+
+        <div class="key-rule">
+          <p>🎯 Le distribué n'est pas un choix gratuit — chaque appel réseau est une source potentielle de panne, de latence et d'incohérence.</p>
+        </div>
+
+        <div class="retenir-grid">
+          <div class="retenir-card" style="border-top-color:#dc2626">
+            <h4>⚠️ Les pièges du distribué</h4>
+            <ul>
+              <li>Les <strong>8 fallacies</strong> : le réseau n'est ni fiable, ni rapide, ni gratuit.</li>
+              <li><strong>CAP</strong> : en cas de partition, on choisit cohérence OU disponibilité.</li>
+              <li><strong>PACELC</strong> : même sans partition, latence vs cohérence.</li>
+              <li>Un retry sans <strong>backoff + jitter</strong> aggrave les pannes.</li>
+            </ul>
+          </div>
+
+          <div class="retenir-card" style="border-top-color:#3b82f6">
+            <h4>🔗 Communication</h4>
+            <ul>
+              <li><strong>REST</strong> : simple, standard, niveaux de maturité Richardson.</li>
+              <li><strong>gRPC</strong> : binaire, performant, streaming, contract-first.</li>
+              <li><strong>Kafka</strong> : asynchrone, fan-out, absorption de pics, résilience.</li>
+              <li><strong>Idempotence</strong> : clé pour les retries sûrs (Idempotency-Key header).</li>
+            </ul>
+          </div>
+
+          <div class="retenir-card" style="border-top-color:#16a34a">
+            <h4>🏗️ Infrastructure</h4>
+            <ul>
+              <li><strong>API Gateway</strong> : point d'entrée unique (auth, routing, rate limit).</li>
+              <li><strong>Service Discovery</strong> : Eureka/Consul pour le routage dynamique.</li>
+              <li><strong>Rate Limiting</strong> : Token Bucket + Redis pour la protection.</li>
+              <li><strong>Distributed Tracing</strong> : Trace ID + Span ID pour le debug.</li>
+            </ul>
+          </div>
+
+          <div class="retenir-card" style="border-top-color:#7c3aed">
+            <h4>📋 Bonnes pratiques</h4>
+            <ul>
+              <li><strong>Versioning d'API</strong> : URL path (<code>/v1/</code>) ou header.</li>
+              <li><strong>Contract Testing</strong> (Pact) : vérifier les interfaces en CI.</li>
+              <li><strong>Event Sourcing</strong> : stocker les événements, pas l'état.</li>
+              <li>Mesurer en <strong>percentiles</strong> (p99), jamais en moyenne.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
       <!-- ═══════════════════════════════
            13. QUIZ
       ═══════════════════════════════ -->
@@ -1750,5 +2045,16 @@ class CatalogServiceContractVerificationTest {
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+<script>
+(function(){
+  const nav = document.querySelector('.top-nav');
+  if(!nav) return;
+  nav.querySelectorAll('a').forEach(a =>
+    a.addEventListener('click', () => nav.classList.remove('open'))
+  );
+  window.addEventListener('scroll', () => nav.classList.remove('open'), {passive:true});
+})();
+</script>
 </body>
 </html>
