@@ -728,8 +728,107 @@
           </div>
         </div>
         <div class="box expert">
-          <h4>⚙️ Expert — Latence p99 et percentiles</h4>
-          <p>La moyenne est un mensonge en systèmes distribués. Mesurez toujours les <strong>percentiles</strong> (p50, p95, p99, p999). Le p99 représente l'expérience des 1% d'utilisateurs les plus mal servis — souvent vos plus gros clients.</p>
+          <h4>⚙️ Expert — Latence p50, p95, p99, p999</h4>
+          <p>La moyenne cache les pics. En distribué, on regarde les <strong>percentiles</strong> pour voir ce que vivent les utilisateurs rapides, les utilisateurs lents et les cas extrêmes.</p>
+
+          <div class="compare-grid">
+            <div class="compare-card">
+              <h4>p50</h4>
+              <ul class="tight-list">
+                <li><strong>Médiane</strong> : 50% des requêtes sont plus rapides</li>
+                <li>Montre l'expérience “normale”</li>
+                <li>Utile pour voir le comportement courant</li>
+              </ul>
+            </div>
+            <div class="compare-card">
+              <h4>p95</h4>
+              <ul class="tight-list">
+                <li>95% des requêtes sont plus rapides</li>
+                <li>Montre les lenteurs visibles en production</li>
+                <li>Très utile pour les SLO</li>
+              </ul>
+            </div>
+            <div class="compare-card">
+              <h4>p99</h4>
+              <ul class="tight-list">
+                <li>99% des requêtes sont plus rapides</li>
+                <li>Expose les “queues de distribution”</li>
+                <li>Montre les utilisateurs mal servis</li>
+              </ul>
+            </div>
+            <div class="compare-card">
+              <h4>p999</h4>
+              <ul class="tight-list">
+                <li>99,9% des requêtes sont plus rapides</li>
+                <li>Montre les cas extrêmes</li>
+                <li>Très sensible au bruit et aux incidents rares</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="box definition">
+            <h4>Que veut dire “queue de distribution” ?</h4>
+            <p>La <strong>queue de distribution</strong>, c’est la <strong>fin de la courbe</strong> des temps de réponse : la petite partie des requêtes qui sont <strong>beaucoup plus lentes que la majorité</strong>.</p>
+            <ul>
+              <li><strong>Le centre de la distribution</strong> = la majorité des requêtes, souvent visible avec <code>p50</code>.</li>
+              <li><strong>La queue</strong> = les requêtes rares mais lentes, visibles avec <code>p95</code>, <code>p99</code> et <code>p999</code>.</li>
+            </ul>
+            <p>En pratique, on peut avoir un système qui semble rapide pour la plupart des utilisateurs, mais avec une <strong>queue très mauvaise</strong> à cause de quelques requêtes qui explosent en temps de réponse.</p>
+          </div>
+
+          <div class="diagram-card">
+            <h3 style="margin-top:0">Image mentale</h3>
+            <table>
+              <thead><tr><th>Zone</th><th>Ce qu’elle représente</th><th>Ce qu’on regarde</th></tr></thead>
+              <tbody>
+              <tr><td><strong>Début / milieu</strong></td><td>La majorité des requêtes</td><td><code>p50</code></td></tr>
+              <tr><td><strong>Fin de courbe</strong></td><td>Les requêtes rares mais lentes</td><td><code>p95</code>, <code>p99</code>, <code>p999</code></td></tr>
+              </tbody>
+            </table>
+            <p><strong>Exemple :</strong> si 990 requêtes répondent entre 80 et 200 ms, mais 10 requêtes prennent 3 secondes, alors la <strong>queue</strong> est mauvaise, même si la moyenne paraît correcte.</p>
+          </div>
+
+          <div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“La queue de distribution, c’est la zone des cas rares mais douloureux. Ce sont eux qui dégradent le p99. Donc quand on parle de latence de queue, on parle des utilisateurs qui attendent anormalement longtemps.”</p></div>
+
+          <div class="box best-practice">
+            <h4>Pourquoi la queue se dégrade ?</h4>
+            <ul>
+              <li>garbage collection ou pause JVM</li>
+              <li>appel HTTP externe lent</li>
+              <li>verrou ou contention sur une ressource</li>
+              <li>requête SQL exceptionnelle</li>
+              <li>pic de charge ou saturation réseau</li>
+              <li>retry en cascade</li>
+            </ul>
+            <p><strong>Idée clé :</strong> le <code>p99</code> sert justement à rendre visible cette queue.</p>
+          </div>
+
+          <div class="box definition">
+            <h4>Lecture simple</h4>
+            <ul>
+              <li><strong>p50 = cas habituel</strong></li>
+              <li><strong>p95 = ça commence à devenir lent</strong></li>
+              <li><strong>p99 = les utilisateurs mal servis</strong></li>
+              <li><strong>p999 = les très mauvais cas / incidents rares</strong></li>
+            </ul>
+          </div>
+
+          <div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“Si mon p50 est bon, ça veut juste dire que la moitié des utilisateurs va bien. Mais mon p99 peut être catastrophique. Donc je peux avoir une moyenne correcte et pourtant une vraie souffrance côté production.”</p></div>
+
+          <div class="diagram-card">
+            <h3 style="margin-top:0">Exemple concret</h3>
+            <table>
+              <thead><tr><th>Percentile</th><th>Valeur</th><th>Interprétation</th></tr></thead>
+              <tbody>
+              <tr><td><strong>p50</strong></td><td>120 ms</td><td>La moitié des requêtes répondent en moins de 120 ms</td></tr>
+              <tr><td><strong>p95</strong></td><td>450 ms</td><td>95% des requêtes répondent en moins de 450 ms</td></tr>
+              <tr><td><strong>p99</strong></td><td>1,8 s</td><td>1% des requêtes dépassent 1,8 seconde</td></tr>
+              <tr><td><strong>p999</strong></td><td>6,2 s</td><td>Quelques cas extrêmes restent très lents</td></tr>
+              </tbody>
+            </table>
+            <p><strong>Conclusion :</strong> le système semble rapide pour la majorité, mais il a un vrai problème de latence de queue.</p>
+          </div>
+
           <pre><code class="language-java">// Avec Micrometer : enregistrer la latence d'un appel externe
 @Service
 public class CatalogClientMetered {
@@ -743,7 +842,36 @@ public class CatalogClientMetered {
                        .recordCallable(() -&gt; client.getAvailability(bookId));
     }
 }</code></pre>
-          <p>Dans Grafana, tracez <code>histogram_quantile(0.99, rate(catalog_availability_seconds_bucket[5m]))</code> pour voir le p99 en temps réel.</p>
+          <p>Dans Grafana, tu peux calculer chaque niveau séparément :</p>
+          <pre><code class="language-promql">histogram_quantile(0.50, rate(catalog_availability_seconds_bucket[5m]))  // p50
+histogram_quantile(0.95, rate(catalog_availability_seconds_bucket[5m]))  // p95
+histogram_quantile(0.99, rate(catalog_availability_seconds_bucket[5m]))  // p99
+histogram_quantile(0.999, rate(catalog_availability_seconds_bucket[5m])) // p999</code></pre>
+          <p><strong>Réflexe pratique :</strong> en démo tu commentes surtout <code>p50</code>, <code>p95</code> et <code>p99</code>. Le <code>p999</code> sert surtout à repérer des incidents rares, des GC pauses, des timeouts ou des appels externes très instables.</p>
+
+          <div class="box best-practice">
+            <h4>🎯 SLI, SLO, SLA — le lien avec les percentiles</h4>
+            <ul>
+              <li><strong>SLI</strong> = ce que l'on mesure. Exemple : la latence de l'API <code>/books</code>.</li>
+              <li><strong>SLO</strong> = l'objectif chiffré à atteindre. Exemple : <code>p95 &lt; 300 ms</code> sur 30 jours.</li>
+              <li><strong>SLA</strong> = l'engagement contractuel vis-à-vis d'un client. Exemple : pénalité si la disponibilité passe sous 99,5%.</li>
+            </ul>
+            <p><strong>Important :</strong> un SLO n'est pas une mesure, c'est une <strong>cible</strong>.</p>
+          </div>
+
+          <div class="diagram-card">
+            <h3 style="margin-top:0">Exemples simples de SLO</h3>
+            <table>
+              <thead><tr><th>Type</th><th>Exemple de SLI</th><th>Exemple de SLO</th></tr></thead>
+              <tbody>
+              <tr><td><strong>Latence</strong></td><td>Temps de réponse de <code>/api/books</code></td><td><code>p95 &lt; 300 ms</code></td></tr>
+              <tr><td><strong>Disponibilité</strong></td><td>Taux de requêtes HTTP réussies</td><td><code>99.9%</code> de succès sur 30 jours</td></tr>
+              <tr><td><strong>Erreurs</strong></td><td>Taux de réponses 5xx</td><td><code>&lt; 0.1%</code> d'erreurs</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“Les percentiles servent à mesurer. Le SLO sert à dire ce qu'on veut garantir. Par exemple : je mesure mon p95, puis je décide que mon objectif est p95 inférieur à 300 ms.”</p></div>
         </div>
       </section>
       <!-- ═══════════════════════════════
