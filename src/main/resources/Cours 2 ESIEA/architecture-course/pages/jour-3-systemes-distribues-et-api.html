@@ -1,14 +1,13 @@
 <!DOCTYPE html>
+
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8"/>
+  <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
   <title>Jour 3 — Fondamentaux des systèmes distribués</title>
-
   <!-- Prism.js – thème VS Code Dark+ -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
-
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css" rel="stylesheet"/>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css" rel="stylesheet"/>
   <style>
     /* ══════════════════════════════════════════════════
        Variables & Reset
@@ -72,14 +71,18 @@
     }
     .nav-wrap {
       max-width: var(--max); margin: auto;
-      display: flex; gap: 16px; align-items: center; padding: 12px 20px;
+      display: flex; gap: 16px; align-items: center; padding: 12px 20px; position: relative;
     }
     .brand { font-weight: 800; font-size: 1.05rem; color: #163b66; white-space: nowrap; }
-    nav.top-nav { display: flex; gap: 8px; flex-wrap: wrap; }
+    .nav-scroll-zone{display:flex;flex:1;min-width:0}
+    nav.top-nav { display: flex; gap: 8px; flex-wrap: wrap; align-items:center; }
     nav.top-nav a {
       padding: 6px 11px; border-radius: 999px;
       background: #fff; border: 1px solid var(--border); font-size: .88rem;
     }
+    nav.top-nav a.current{background:#dbeafe;border-color:#93c5fd;color:#123f73;font-weight:700}
+    .nav-sep{display:inline-block;width:1px;height:22px;background:var(--border);margin:0 4px}
+    .nav-group-label{display:none}
 
     /* ── Layout ── */
     main { max-width: var(--max); margin: 24px auto; padding: 0 20px 60px; }
@@ -105,9 +108,12 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
     }
-    aside.toc h2 { font-size: 1rem; margin-top: 0; }
-    aside.toc ul { padding-left: 18px; margin: .2rem 0; }
+    aside.toc details{margin:0}
+    aside.toc summary{font-size:1rem;font-weight:800;color:#123f73;cursor:pointer;list-style:none}
+    aside.toc summary::-webkit-details-marker{display:none}
+    aside.toc ul { padding-left: 18px; margin: .6rem 0 0; }
     aside.toc li { margin: .35rem 0; }
+    aside.toc a{font-size:.92rem}
     article.content section {
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 24px; margin-bottom: 18px; box-shadow: var(--shadow);
@@ -336,53 +342,146 @@
     .key-rule{background:linear-gradient(135deg,#edf2ff,#f0fdf4);border:2px solid var(--blue);border-radius:14px;padding:20px;margin:18px 0;text-align:center}
     .key-rule p{font-size:1.05rem;margin:0;font-weight:600;color:#123f73}
 
+    /* ── Quick tools ── */
+    .quick-tools{
+      position:sticky;top:64px;z-index:15;display:flex;gap:10px;flex-wrap:wrap;
+      margin:14px 0 18px;padding:10px 12px;background:rgba(255,255,255,.92);
+      backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow)
+    }
+    .quick-tools a,.quick-tools button{
+      appearance:none;border:1px solid var(--border);background:#fff;color:#163b66;padding:8px 12px;
+      border-radius:999px;font-weight:600;font-size:.88rem;cursor:pointer;text-decoration:none;display:inline-block
+    }
+    .quick-tools a:hover,.quick-tools button:hover{background:var(--blue-soft);border-color:var(--blue);text-decoration:none}
+    .mini-summary{
+      display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0 0
+    }
+    .mini-summary .card-lite{
+      background:#f8fbff;border:1px solid var(--border);border-radius:14px;padding:14px 16px
+    }
+    .mini-summary .card-lite h4{margin:0 0 6px;font-size:.96rem;color:#123f73}
+    .diagram-card{background:#fbfdff;border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:var(--shadow);margin:14px 0}
+    .section-intro{font-size:1.03rem;color:#334155}
+
+    /* ── Tablet ≤980px ── */
+    @media(max-width:980px){
+      .layout{grid-template-columns:1fr}
+      aside.toc{position:static;margin-bottom:16px}
+      .retenir-grid{grid-template-columns:1fr 1fr}
+    }
+
     /* ── Mobile ≤768px ── */
     @media(max-width:768px){
       .menu-toggle{display:flex;align-items:center;justify-content:center}
-      .brand{font-size:.9rem}
-      nav.top-nav{display:none;width:100%;flex-direction:row;flex-wrap:wrap;gap:6px;padding-top:10px}
-      nav.top-nav.open{display:flex}
-      .nav-wrap{flex-wrap:wrap}
+      .brand{font-size:.9rem;max-width:calc(100% - 60px);white-space:normal;line-height:1.2}
+      .nav-wrap{flex-wrap:nowrap}
+      .nav-scroll-zone{display:none;position:absolute;top:100%;left:0;right:0;background:rgba(255,255,255,.98);border-bottom:1px solid var(--border);box-shadow:0 12px 28px rgba(36,53,84,.12)}
+      .nav-scroll-zone.open{display:block}
+      nav.top-nav{display:flex;width:100%;flex-direction:row;flex-wrap:wrap;gap:6px;padding:14px 18px 18px}
+      .nav-sep{display:none}
+      .nav-group-label{display:block;width:100%;font-size:.68rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);padding:8px 0 2px}
       .hero h1{font-size:1.4rem}
-      .hero{padding:18px}
+      .hero{padding:18px;border-radius:16px}
       article.content section{padding:16px 14px}
-      aside.toc{position:static;margin-bottom:16px}
+      aside.toc{padding:14px 16px}
       pre>code{font-size:.76rem !important;line-height:1.55}
       table{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch}
-      .columns{grid-template-columns:1fr}
+      .columns,.mini-summary{grid-template-columns:1fr}
       .footer-nav{flex-direction:column}
       .footer-nav a{text-align:center}
-      .diagram-wrap svg{min-width:500px}
+      .diagram-wrap svg{min-width:360px}
       .retenir-grid{grid-template-columns:1fr}
+      .quick-tools{top:56px;padding:8px 10px;gap:6px}
+      .quick-tools a,.quick-tools button{font-size:.82rem;padding:6px 10px}
     }
     @media(max-width:480px){
       body{font-size:.92rem}
+      main{padding:0 10px 40px}
       .hero h1{font-size:1.15rem}
+      .hero{border-radius:12px}
+      article.content section{border-radius:12px}
+      .box,.retenir-card{border-radius:12px}
+      pre>code{font-size:.7rem !important}
     }
+
+
+    /* ── Aides pédagogiques ── */
+    .section-kicker{display:inline-block;margin:0 0 10px;padding:5px 10px;border-radius:999px;background:#eef6ff;border:1px solid #cfe1f7;color:#214d7a;font-size:.78rem;font-weight:800;letter-spacing:.02em;text-transform:uppercase}
+    .fast-track{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0 18px}
+    .fast-card{background:#f8fbff;border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+    .fast-card strong{display:block;margin-bottom:6px;color:#123f73;font-size:.9rem}
+    .fast-card p{margin:0;font-size:.93rem;line-height:1.5}
+    .section-intro{font-size:1.02rem;color:#24364d}
+    .mini-summary{margin:12px 0 16px;padding:12px 14px;border-radius:12px;background:#f9fbff;border:1px dashed #bcd2ea}
+    .mini-summary ul{margin:.2rem 0 0;padding-left:18px}
+    .mini-summary li{margin:.3rem 0;font-size:.96rem}
+
+    /* ── Pédagogie express / oral ── */
+    .course-compass{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin:18px 0 22px}
+    .compass-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+    .compass-card h3{margin:0 0 8px;font-size:1rem}
+    .compass-card p,.compass-card li{font-size:.93rem;margin:.25rem 0}
+    .section-kickoff{display:grid;grid-template-columns:1.2fr .9fr .9fr .9fr;gap:12px;margin:14px 0 18px}
+    .flash-card{background:linear-gradient(180deg,#fff,#f8fbff);border:1px solid var(--border);border-radius:14px;padding:12px 14px}
+    .flash-card strong{display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.04em;color:#3b82f6;margin-bottom:6px}
+    .flash-card p{margin:0;font-size:.93rem;line-height:1.5}
+    .flash-card.oral{background:linear-gradient(180deg,#fff7ed,#fff)}
+    .flash-card.problem{background:linear-gradient(180deg,#fff1f2,#fff)}
+    .flash-card.keyword{background:linear-gradient(180deg,#f0fdf4,#fff)}
+    .mini-schema{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin:14px 0}
+    .schema-node{background:#fff;border:1px solid var(--border);border-radius:14px;padding:14px;box-shadow:var(--shadow);position:relative}
+    .schema-node::after{content:"→";position:absolute;right:-12px;top:50%;transform:translateY(-50%);background:#fff;color:#94a3b8;padding:0 2px;font-weight:800}
+    .mini-schema .schema-node:last-child::after{display:none}
+    .schema-node h4{margin:0 0 6px;font-size:.95rem;color:#123f73}
+    .schema-node p{margin:0;font-size:.9rem}
+    .compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin:16px 0}
+    .compare-card{background:#fff;border:1px solid var(--border);border-radius:16px;padding:14px 16px;box-shadow:var(--shadow)}
+    .compare-card h4{margin:0 0 8px}
+    .compare-card ul{margin:0;padding-left:18px}
+    .compare-card li{font-size:.93rem;margin:.3rem 0}
+    .oral-script{background:#0f172a;color:#eef2ff;border-radius:16px;padding:16px 18px;margin:16px 0;box-shadow:0 10px 26px rgba(15,23,42,.18)}
+    .oral-script h4{margin:0 0 8px;color:#fff}
+    .oral-script p{margin:.35rem 0;font-size:.95rem}
+    .oral-script code{background:rgba(255,255,255,.08)!important;color:#fff!important;border-color:rgba(255,255,255,.14)!important}
+    .tight-list li{margin:.2rem 0}
+    @media(max-width:900px){.section-kickoff{grid-template-columns:1fr 1fr}.schema-node::after{display:none}}
+    @media(max-width:640px){.section-kickoff,.course-compass,.compare-grid,.mini-schema{grid-template-columns:1fr}.flash-card p,.compare-card li,.schema-node p{font-size:.92rem}}
   </style>
 </head>
 <body>
 <header class="site-header">
-    <div class="nav-wrap">
-        <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
-        <button class="menu-toggle" onclick="document.querySelector('.top-nav').classList.toggle('open')" aria-label="Menu">☰</button>
-        <nav class="top-nav">
-            <a href="../index.html">Accueil</a>
-            <a href="../pages/introduction.html">Introduction</a>
-            <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-            <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-            <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-            <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-            <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-            <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-            <a href="../pages/tp-1.html">TP1</a><a href="../pages/tp-2.html">TP2</a><a href="../pages/tp-3.html">TP3</a>
-            <a href="../pages/exercices.html">Exercices</a><a href="../pages/corriges.html">Corrigés</a>
-            <a href="../pages/glossary.html">Glossaire</a><a href="../pages/live-coding.html">Live Coding</a>
-            <a href="../pages/architecture-dossier.html">Dossier Architecture</a><a href="../pages/faq.html">FAQ</a>
-        </nav>
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
+    <button aria-label="Menu" class="menu-toggle" onclick="document.querySelector('.nav-scroll-zone').classList.toggle('open')">☰</button>
+    <div class="nav-scroll-zone">
+      <nav class="top-nav">
+        <a href="../index.html">Accueil</a>
+        <a href="../pages/introduction.html">Intro</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">Cours</span>
+        <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+        <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+        <a class="current" href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+        <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+        <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">Pratique</span>
+        <a href="../pages/tp-1.html">TP1</a>
+        <a href="../pages/tp-2.html">TP2</a>
+        <a href="../pages/tp-3.html">TP3</a>
+        <a href="../pages/exercices.html">Exercices</a>
+        <a href="../pages/corriges.html">Corrigés</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">Ressources</span>
+        <a href="../pages/glossary.html">Glossaire</a>
+        <a href="../pages/live-coding.html">Live Coding</a>
+        <a href="../pages/architecture-dossier.html">Dossier Archi</a>
+        <a href="../pages/faq.html">FAQ</a>
+      </nav>
     </div>
+  </div>
 </header>
-
 <main>
   <div class="hero">
     <div class="badges">
@@ -392,121 +491,213 @@
       <span class="badge">3 TP progressifs</span>
       <span class="badge">Java / Spring Boot</span>
     </div>
-    <h1>Jour 3 — Fondamentaux des systèmes distribués</h1>
+    <h1>Jour 3 — Systèmes distribués : comprendre l’essentiel vite</h1><p class="section-intro">Objectif de la journée : comprendre rapidement ce qui rend un système distribué plus puissant, mais aussi plus risqué qu’un monolithe.</p>
     <div class="meta-grid">
       <div class="meta">
         <h3>Objectifs pédagogiques</h3>
-        <p>Comprendre ce qui change quand le code traverse le réseau : latence, pannes, cohérence, protocoles, contrats et résilience.</p>
+        <p>Comprendre vite : réseau, pannes, CAP, retries, contrats, gateway et tracing.</p>
       </div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6–7h incluant démos et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>Jours 1 et 2 acquis</p></div>
+      <div class="meta"><h3>Temps estimé</h3><p>≈ 6–7h avec schémas, quiz et démos</p></div>
+      <div class="meta"><h3>Prérequis</h3><p>Jour 1 + Jour 2</p></div>
+    </div>
+  </div>
+  <div class="course-compass">
+    <div class="compass-card">
+      <h3>1. Idée simple</h3>
+      <p>Un système distribué = plusieurs applications qui se parlent par le réseau.</p>
+    </div>
+    <div class="compass-card">
+      <h3>2. Le vrai problème</h3>
+      <p>Le réseau ajoute trois risques : lenteur, panne, doublon.</p>
+    </div>
+    <div class="compass-card">
+      <h3>3. Les réflexes</h3>
+      <ul class="tight-list"><li>timeout</li><li>retry maîtrisé</li><li>idempotence</li><li>tracing</li></ul>
+    </div>
+    <div class="compass-card">
+      <h3>4. À dire en cours</h3>
+      <p>“En distribué, on échange un peu de simplicité contre de la scalabilité et de l’autonomie.”</p>
     </div>
   </div>
 
+  <div aria-label="Accès rapides" class="quick-tools">
+    <a href="#reseau">Réseau &amp; pannes</a>
+    <a href="#cap">CAP / PACELC</a>
+    <a href="#communication">Sync vs Async</a>
+    <a href="#gateway">Gateway</a>
+    <a href="#tracing">Tracing</a>
+    <a href="#retenir">Synthèse</a>
+  </div>
   <div class="layout">
-    <aside class="toc">
-      <h2>Table des matières</h2>
-      <ul>
-        <li><a href="#definition">1. Définition</a></li>
-        <li><a href="#reseau">2. Réseau &amp; pannes</a></li>
-        <li><a href="#cap">3. Théorème CAP / PACELC</a></li>
-        <li><a href="#idempotence">4. Idempotence / retries / timeouts</a></li>
-        <li><a href="#communication">5. Communication sync vs async</a></li>
-        <li><a href="#serialisation">6. Sérialisation et versioning</a></li>
-        <li><a href="#gateway">7. API Gateway</a></li>
-        <li><a href="#service-discovery">8. Service Discovery</a></li>
-        <li><a href="#rate-limiting">9. Rate Limiting</a></li>
-        <li><a href="#tracing">10. Distributed Tracing</a></li>
-        <li><a href="#event-sourcing">11. Event Sourcing</a></li>
-        <li><a href="#contract-testing">12. Contract Testing</a></li>
-        <li><a href="#quiz">13. Quiz</a></li>
-      </ul>
+    <aside class="toc" id="toc-aside">
+      <details open="">
+        <summary>📑 Table des matières</summary>
+        <ul>
+          <li><a href="#definition">1. Définition</a></li>
+          <li><a href="#reseau">2. Réseau &amp; pannes</a></li>
+          <li><a href="#cap">3. Théorème CAP / PACELC</a></li>
+          <li><a href="#idempotence">4. Idempotence / retries</a></li>
+          <li><a href="#communication">5. Communication sync vs async</a></li>
+          <li><a href="#serialisation">6. Sérialisation &amp; versioning</a></li>
+          <li><a href="#gateway">7. API Gateway</a></li>
+          <li><a href="#service-discovery">8. Service Discovery</a></li>
+          <li><a href="#rate-limiting">9. Rate Limiting</a></li>
+          <li><a href="#tracing">10. Distributed Tracing</a></li>
+          <li><a href="#event-sourcing">11. Event Sourcing</a></li>
+          <li><a href="#contract-testing">12. Contract Testing</a></li>
+          <li><a href="#retenir">Ce qu'il faut retenir</a></li>
+          <li><a href="#quiz">Quiz</a></li>
+        </ul>
+      </details>
     </aside>
-
     <article class="content">
-
       <!-- ═══════════════════════════════
-           1. DÉFINITION
-      ═══════════════════════════════ -->
+                 1. DÉFINITION
+            ═══════════════════════════════ -->
       <section id="definition">
         <h2>Qu'est-ce qu'un système distribué ?</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Un système distribué = plusieurs services séparés qui coopèrent.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Le réseau remplace l'appel local.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Ici, le mot clé, c'est <b>réseau</b> : dès qu'on sort du processus local, tout devient plus incertain.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>latence / panne / message</p></div>
+        </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“Retenez juste ça : un monolithe fait surtout des appels mémoire, un système distribué fait des appels réseau. Et le réseau, lui, peut être lent, tomber, ou répondre en double.”</p></div>
+        <div class="section-kicker">Idée clé</div><div class="fast-track"><div class="fast-card"><strong>En une phrase</strong><p>Plusieurs services ou machines coopèrent pour fournir un seul service à l’utilisateur.</p></div><div class="fast-card"><strong>Ce qui change</strong><p>Les appels ne sont plus locaux : il faut gérer le réseau, la latence et les pannes.</p></div><div class="fast-card"><strong>Réflexe à avoir</strong><p>Penser messages, contrats, timeout et observabilité dès la conception.</p></div></div>
+        <p class="section-intro">Cette section pose le vocabulaire de base : plusieurs processus, plusieurs machines, échanges réseau, autonomie de services et nouveaux types de pannes.</p>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
           <span>→</span>
           <span class="level-pill expert">Expert</span>
         </div>
-
         <p>Un système distribué est un ensemble de composants exécutés sur plusieurs processus ou machines qui <strong>collaborent pour rendre un service unique</strong> à l'utilisateur. Les processus communiquent uniquement par échange de messages à travers un réseau.</p>
-
         <div class="box child-mode">
           <h4>Mode enfant 🧸</h4>
           <p>Au lieu d'avoir une seule grosse boutique qui vend tout, tu ouvres plusieurs petits magasins spécialisés (un pour les livres, un pour les DVD, un pour la livraison) qui doivent se parler correctement. Si l'un ferme, les autres continuent, mais ils doivent gérer l'absence de leur collègue.</p>
         </div>
-
         <div class="diagram-wrap">
-          <svg viewBox="0 0 780 320" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+          <svg font-family="Inter,Segoe UI,sans-serif" viewBox="0 0 980 420" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <filter id="sh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
-              <marker id="aNet" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"/></marker>
+              <filter id="sh2" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
+              <marker id="arrBlue" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8Z" fill="#3b82f6"/></marker>
+              <marker id="arrGreen" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8Z" fill="#16a34a"/></marker>
+              <marker id="arrOrange" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto"><path d="M0,0 L10,4 L0,8Z" fill="#d97706"/></marker>
             </defs>
-            <rect width="780" height="320" fill="#f8fafc" rx="14"/>
+            <rect width="980" height="420" rx="18" fill="#f8fafc"/>
+
             <!-- Client -->
-            <g filter="url(#sh)"><rect x="15" y="120" width="120" height="80" rx="12" fill="#fff" stroke="#64748b" stroke-width="2"/>
-            <text x="75" y="155" text-anchor="middle" font-size="20">👤</text>
-            <text x="75" y="178" text-anchor="middle" font-size="12" font-weight="700" fill="#1e293b">Client</text>
-            <text x="75" y="193" text-anchor="middle" font-size="9" fill="#64748b">navigateur / app</text></g>
+            <g filter="url(#sh2)">
+              <rect x="20" y="165" width="140" height="90" rx="16" fill="#fff" stroke="#64748b" stroke-width="2.5"/>
+              <text x="90" y="205" text-anchor="middle" font-size="24">👤</text>
+              <text x="90" y="232" text-anchor="middle" font-size="14" font-weight="800" fill="#1e293b">Client</text>
+              <text x="90" y="250" text-anchor="middle" font-size="10.5" fill="#64748b">navigateur / app</text>
+            </g>
+
             <!-- Gateway -->
-            <g filter="url(#sh)"><rect x="195" y="110" width="120" height="100" rx="12" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
-            <text x="255" y="145" text-anchor="middle" font-size="18">🚪</text>
-            <text x="255" y="168" text-anchor="middle" font-size="12" font-weight="700" fill="#1e3a5f">API Gateway</text>
-            <text x="255" y="183" text-anchor="middle" font-size="9" fill="#475569">auth · routing</text>
-            <text x="255" y="198" text-anchor="middle" font-size="9" fill="#475569">rate limit</text></g>
+            <g filter="url(#sh2)">
+              <rect x="235" y="150" width="170" height="120" rx="18" fill="#dbeafe" stroke="#3b82f6" stroke-width="3"/>
+              <text x="320" y="190" text-anchor="middle" font-size="24">🚪</text>
+              <text x="320" y="220" text-anchor="middle" font-size="15" font-weight="800" fill="#1e3a5f">API Gateway</text>
+              <text x="320" y="242" text-anchor="middle" font-size="11" fill="#475569">auth · routing · rate limit</text>
+            </g>
+
             <!-- Services -->
-            <g filter="url(#sh)"><rect x="385" y="25" width="150" height="70" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="2"/>
-            <text x="460" y="55" text-anchor="middle" font-size="12" font-weight="700" fill="#14532d">📚 Catalog Service</text>
-            <text x="460" y="72" text-anchor="middle" font-size="9" fill="#475569">livres, ISBN, stock</text></g>
-            <g filter="url(#sh)"><rect x="385" y="125" width="150" height="70" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="2"/>
-            <text x="460" y="155" text-anchor="middle" font-size="12" font-weight="700" fill="#92400e">🔄 Loan Service</text>
-            <text x="460" y="172" text-anchor="middle" font-size="9" fill="#475569">emprunts, retours</text></g>
-            <g filter="url(#sh)"><rect x="385" y="225" width="150" height="70" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="2"/>
-            <text x="460" y="255" text-anchor="middle" font-size="12" font-weight="700" fill="#581c87">🔐 Identity Service</text>
-            <text x="460" y="272" text-anchor="middle" font-size="9" fill="#475569">auth, JWT, rôles</text></g>
-            <!-- Databases -->
-            <g filter="url(#sh)"><rect x="610" y="35" width="80" height="50" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
-            <text x="650" y="60" text-anchor="middle" font-size="10" fill="#16a34a">💾 DB</text>
-            <text x="650" y="74" text-anchor="middle" font-size="8" fill="#64748b">PostgreSQL</text></g>
-            <g filter="url(#sh)"><rect x="610" y="135" width="80" height="50" rx="8" fill="#fff" stroke="#d97706" stroke-width="1.5"/>
-            <text x="650" y="160" text-anchor="middle" font-size="10" fill="#d97706">💾 DB</text>
-            <text x="650" y="174" text-anchor="middle" font-size="8" fill="#64748b">PostgreSQL</text></g>
-            <g filter="url(#sh)"><rect x="610" y="235" width="80" height="50" rx="8" fill="#fff" stroke="#7c3aed" stroke-width="1.5"/>
-            <text x="650" y="260" text-anchor="middle" font-size="10" fill="#7c3aed">💾 DB</text>
-            <text x="650" y="274" text-anchor="middle" font-size="8" fill="#64748b">PostgreSQL</text></g>
-            <!-- Kafka -->
-            <g filter="url(#sh)"><rect x="720" y="120" width="50" height="80" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-            <text x="745" y="155" text-anchor="middle" font-size="14" fill="#fff">📨</text>
-            <text x="745" y="174" text-anchor="middle" font-size="8" fill="#94a3b8">Kafka</text>
-            <text x="745" y="186" text-anchor="middle" font-size="7" fill="#64748b">events</text></g>
-            <!-- Arrows -->
-            <path d="M135,160 L195,160" stroke="#3b82f6" stroke-width="2" marker-end="url(#aNet)"/>
-            <path d="M315,140 L385,60" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#aNet)"/>
-            <path d="M315,160 L385,160" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#aNet)"/>
-            <path d="M315,180 L385,260" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#aNet)"/>
-            <path d="M535,60 L610,60" stroke="#16a34a" stroke-width="1.5" marker-end="url(#aNet)"/>
-            <path d="M535,160 L610,160" stroke="#d97706" stroke-width="1.5" marker-end="url(#aNet)"/>
-            <path d="M535,260 L610,260" stroke="#7c3aed" stroke-width="1.5" marker-end="url(#aNet)"/>
-            <path d="M535,155 L720,155" stroke="#475569" stroke-width="1" stroke-dasharray="5,3"/>
-            <path d="M535,165 L720,165" stroke="#475569" stroke-width="1" stroke-dasharray="5,3"/>
+            <g filter="url(#sh2)">
+              <rect x="500" y="40" width="190" height="80" rx="14" fill="#f0fdf4" stroke="#16a34a" stroke-width="3"/>
+              <text x="595" y="73" text-anchor="middle" font-size="14" font-weight="800" fill="#14532d">📚 Catalog Service</text>
+              <text x="595" y="96" text-anchor="middle" font-size="11" fill="#475569">livres, ISBN, stock</text>
+            </g>
+            <g filter="url(#sh2)">
+              <rect x="500" y="170" width="190" height="80" rx="14" fill="#fef3c7" stroke="#d97706" stroke-width="3"/>
+              <text x="595" y="203" text-anchor="middle" font-size="14" font-weight="800" fill="#92400e">🔄 Loan Service</text>
+              <text x="595" y="226" text-anchor="middle" font-size="11" fill="#475569">emprunts, retours</text>
+            </g>
+            <g filter="url(#sh2)">
+              <rect x="500" y="300" width="190" height="80" rx="14" fill="#faf5ff" stroke="#7c3aed" stroke-width="3"/>
+              <text x="595" y="333" text-anchor="middle" font-size="14" font-weight="800" fill="#581c87">🔐 Identity Service</text>
+              <text x="595" y="356" text-anchor="middle" font-size="11" fill="#475569">auth, JWT, rôles</text>
+            </g>
+
+            <!-- DBs -->
+            <g filter="url(#sh2)">
+              <rect x="790" y="52" width="110" height="55" rx="10" fill="#fff" stroke="#16a34a" stroke-width="2"/>
+              <text x="845" y="75" text-anchor="middle" font-size="11" font-weight="700" fill="#16a34a">💾 DB</text>
+              <text x="845" y="92" text-anchor="middle" font-size="9.5" fill="#64748b">PostgreSQL</text>
+            </g>
+            <g filter="url(#sh2)">
+              <rect x="790" y="182" width="110" height="55" rx="10" fill="#fff" stroke="#d97706" stroke-width="2"/>
+              <text x="845" y="205" text-anchor="middle" font-size="11" font-weight="700" fill="#d97706">💾 DB</text>
+              <text x="845" y="222" text-anchor="middle" font-size="9.5" fill="#64748b">PostgreSQL</text>
+            </g>
+            <g filter="url(#sh2)">
+              <rect x="790" y="312" width="110" height="55" rx="10" fill="#fff" stroke="#7c3aed" stroke-width="2"/>
+              <text x="845" y="335" text-anchor="middle" font-size="11" font-weight="700" fill="#7c3aed">💾 DB</text>
+              <text x="845" y="352" text-anchor="middle" font-size="9.5" fill="#64748b">PostgreSQL</text>
+            </g>
+
+            <!-- BROKER -->
+            <g filter="url(#sh2)">
+              <rect x="735" y="140" width="185" height="130" rx="18" fill="#0f172a" stroke="#38bdf8" stroke-width="3.5"/>
+              <text x="827" y="176" text-anchor="middle" font-size="26">📨</text>
+              <text x="827" y="205" text-anchor="middle" font-size="18" font-weight="900" fill="#ffffff">BROKER</text>
+              <text x="827" y="227" text-anchor="middle" font-size="14" font-weight="700" fill="#7dd3fc">Kafka</text>
+              <text x="827" y="247" text-anchor="middle" font-size="10.5" fill="#cbd5e1">stocke et distribue</text>
+              <text x="827" y="263" text-anchor="middle" font-size="10.5" fill="#cbd5e1">les événements</text>
+            </g>
+
+            <!-- Consumers -->
+            <g filter="url(#sh2)">
+              <rect x="760" y="292" width="140" height="36" rx="10" fill="#ecfeff" stroke="#0891b2" stroke-width="2"/>
+              <text x="830" y="315" text-anchor="middle" font-size="11" font-weight="700" fill="#0f766e">📣 Notification Service</text>
+            </g>
+            <g filter="url(#sh2)">
+              <rect x="760" y="338" width="140" height="36" rx="10" fill="#f8fafc" stroke="#475569" stroke-width="2"/>
+              <text x="830" y="361" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">🧾 Audit Service</text>
+            </g>
+
+            <!-- arrows -->
+            <path d="M160,210 L235,210" stroke="#3b82f6" stroke-width="3" marker-end="url(#arrBlue)"/>
+            <path d="M405,180 L500,80" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+            <path d="M405,210 L500,210" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+            <path d="M405,240 L500,340" stroke="#3b82f6" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+
+            <path d="M690,80 L790,80" stroke="#16a34a" stroke-width="2.5" marker-end="url(#arrGreen)"/>
+            <path d="M690,210 L790,210" stroke="#d97706" stroke-width="2.5" marker-end="url(#arrOrange)"/>
+            <path d="M690,340 L790,340" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrBlue)"/>
+
+            <!-- explicit broker arrows -->
+            <path d="M690,210 L735,210" stroke="#0ea5e9" stroke-width="4" marker-end="url(#arrBlue)"/>
+            <text x="713" y="196" text-anchor="middle" font-size="10.5" font-weight="700" fill="#0369a1">publish event</text>
+
+            <path d="M827,270 L827,292" stroke="#16a34a" stroke-width="3" marker-end="url(#arrGreen)"/>
+            <path d="M827,270 L827,338" stroke="#475569" stroke-width="3" marker-end="url(#arrBlue)"/>
+            <text x="925" y="308" font-size="10.5" fill="#0f766e">consume</text>
+            <text x="925" y="354" font-size="10.5" fill="#334155">consume</text>
+
+            <!-- Highlight label -->
+            <g filter="url(#sh2)">
+              <rect x="708" y="104" width="220" height="26" rx="13" fill="#e0f2fe" stroke="#38bdf8" stroke-width="1.5"/>
+              <text x="818" y="121" text-anchor="middle" font-size="11" font-weight="800" fill="#075985">ICI : le broker Kafka reçoit puis redistribue les events</text>
+            </g>
+
             <!-- Legend -->
-            <rect x="155" y="280" width="470" height="28" rx="14" fill="#e2e8f0"/>
-            <text x="390" y="299" text-anchor="middle" font-size="11" font-weight="600" fill="#334155">3 services · 3 bases · 1 broker · 1 gateway — chaque service est autonome</text>
+            <rect x="175" y="388" width="630" height="22" rx="11" fill="#e2e8f0"/>
+            <text x="490" y="403" text-anchor="middle" font-size="11" font-weight="700" fill="#334155">Le broker n’est pas une base métier : c’est un intermédiaire de messages entre producteurs et consommateurs</text>
           </svg>
         </div>
-
+        <div class="box best-practice">
+          <h4>📌 Où est le broker dans ce schéma ?</h4>
+          <p><strong>Le broker est le grand bloc sombre “BROKER / Kafka”, à droite.</strong> Le <code>Loan Service</code> y <strong>publie</strong> un événement, puis d’autres services le <strong>consomment</strong> ensuite.</p>
+          <ul>
+            <li><strong>Producer</strong> : service qui envoie un message au broker.</li>
+            <li><strong>Broker</strong> : composant intermédiaire qui reçoit, stocke temporairement et redistribue les messages.</li>
+            <li><strong>Consumer</strong> : service qui lit ces messages pour agir ensuite.</li>
+          </ul>
+          <p>À dire à l’oral : <em>“Le broker n’est pas une base de données métier. C’est la poste des événements.”</em></p>
+        </div>
         <div class="box pro-mode">
           <h4>Mode pro 🎓</h4>
           <p>Le distribué introduit : <strong>latence non-nulle</strong>, <strong>pannes partielles</strong>, <strong>duplication de messages</strong>, <strong>cohérence asynchrone</strong>, sécurité réseau et complexité opérationnelle. En échange, il apporte autonomie de déploiement, scalabilité ciblée et alignement par domaine métier.</p>
         </div>
-
         <div class="box definition">
           <h4>Les 8 fausses hypothèses du distribué (Fallacies of Distributed Computing)</h4>
           <p>Peter Deutsch (Sun Microsystems, 1994) a listé 8 croyances erronées que font les développeurs :</p>
@@ -522,11 +713,24 @@
           </ol>
           <p><strong>Chaque hypothèse fausse est une source potentielle de bugs de production.</strong></p>
         </div>
-
+        <div class="mini-summary">
+          <div class="card-lite">
+            <h4>À retenir</h4>
+            <p>Passer de local à distribué change la nature des erreurs : on ne gère plus seulement des bugs métiers, mais aussi des incertitudes réseau.</p>
+          </div>
+          <div class="card-lite">
+            <h4>Question utile</h4>
+            <p>Pour chaque appel distant, demande-toi : que se passe-t-il s'il répond lentement, deux fois, ou pas du tout ?</p>
+          </div>
+          <div class="card-lite">
+            <h4>Bonne pratique</h4>
+            <p>Définis explicitement timeouts, retries, logs corrélés et comportement de repli avant la mise en production.</p>
+          </div>
+        </div>
         <div class="box expert">
           <h4>⚙️ Expert — Latence p99 et percentiles</h4>
           <p>La moyenne est un mensonge en systèmes distribués. Mesurez toujours les <strong>percentiles</strong> (p50, p95, p99, p999). Le p99 représente l'expérience des 1% d'utilisateurs les plus mal servis — souvent vos plus gros clients.</p>
-<pre><code class="language-java">// Avec Micrometer : enregistrer la latence d'un appel externe
+          <pre><code class="language-java">// Avec Micrometer : enregistrer la latence d'un appel externe
 @Service
 public class CatalogClientMetered {
 
@@ -536,43 +740,46 @@ public class CatalogClientMetered {
     public AvailabilityResponse getAvailability(UUID bookId) {
         return registry.timer("catalog.availability",
                               "service", "catalog")
-                       .recordCallable(() -> client.getAvailability(bookId));
+                       .recordCallable(() -&gt; client.getAvailability(bookId));
     }
 }</code></pre>
           <p>Dans Grafana, tracez <code>histogram_quantile(0.99, rate(catalog_availability_seconds_bucket[5m]))</code> pour voir le p99 en temps réel.</p>
         </div>
       </section>
-
       <!-- ═══════════════════════════════
-           2. RÉSEAU & PANNES
-      ═══════════════════════════════ -->
+                 2. RÉSEAU & PANNES
+            ═══════════════════════════════ -->
       <section id="reseau">
         <h2>Latence réseau et pannes partielles</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Un appel réseau peut être lent, perdu ou dupliqué.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Un timeout ne dit pas si le serveur a travaillé ou non.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Le danger n'est pas juste l'erreur : c'est surtout <b>l'ambiguïté</b>.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>timeout / retry / jitter</p></div>
+        </div>
+        <div class="section-kicker">À comprendre vite</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Un timeout ne veut pas toujours dire “rien ne s’est passé”.</p></div><div class="fast-card"><strong>Risque</strong><p>Les retries mal réglés peuvent empirer une panne.</p></div><div class="fast-card"><strong>Réponse</strong><p>Toujours définir timeout, retry limité, backoff et jitter.</p></div></div>
+        <p class="section-intro">Le point clé à comprendre : un timeout ne veut pas dire “le serveur n’a rien fait”. Il veut souvent dire “je ne sais pas ce qu’il s’est passé”.</p>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
           <span class="level-pill mid">Mid</span>
         </div>
-
         <p>Dans un monolithe, un appel de méthode échoue vite et localement. Dans un système distribué, un appel réseau peut être <strong>lent, se perdre, être dupliqué ou échouer après traitement partiel</strong>.</p>
-
         <div class="box warning">
           <h4>⚠️ Attention</h4>
           <p>Le réseau n'est ni instantané ni fiable. Un timeout n'est pas une erreur — c'est de l'<strong>ambiguïté</strong> : on ne sait pas si la requête a été traitée ou non côté serveur.</p>
         </div>
-
         <div class="box example">
           <h4>Exemple OpenFeign côté <code>loan-service</code></h4>
-<pre><code class="language-java">@FeignClient(name = "catalog-service")
+          <pre><code class="language-java">@FeignClient(name = "catalog-service")
 public interface CatalogClient {
 
     @GetMapping("/internal/books/{bookId}/availability")
     AvailabilityResponse getAvailability(@PathVariable UUID bookId);
 }</code></pre>
         </div>
-
         <div class="box example">
           <h4>Configurer timeout + retry avec Resilience4j</h4>
-<pre><code class="language-yaml"># application.yml
+          <pre><code class="language-yaml"># application.yml
 resilience4j:
   retry:
     instances:
@@ -592,11 +799,10 @@ resilience4j:
         timeoutDuration: 2s
         cancelRunningFuture: true</code></pre>
         </div>
-
         <div class="box expert">
           <h4>⚙️ Expert — Jitter pour éviter le Thundering Herd</h4>
           <p>Sans jitter, 100 services retentent exactement au même instant et enfoncent encore plus un service déjà surchargé. Ajoutez du bruit aléatoire :</p>
-<pre><code class="language-java">resilience4j:
+          <pre><code class="language-java">resilience4j:
   retry:
     instances:
       catalogClient:
@@ -609,78 +815,78 @@ resilience4j:
         # Résultat : 200ms±50ms → 400ms±100ms → 800ms±200ms</code></pre>
           <p>C'est l'algorithme dit "Full Jitter" recommandé par AWS dans leur article de référence sur les retries.</p>
         </div>
-
         <div class="box frequent-error">
           <h4>🔴 Erreur fréquente</h4>
           <p>Appeler un service distant sans timeout ni gestion d'erreur. Un service qui ne répond jamais bloque indéfiniment le thread appelant et épuise le pool → votre service devient indisponible en cascade (<strong>Cascading Failure</strong>).</p>
         </div>
       </section>
-
       <!-- ═══════════════════════════════
-           3. CAP
-      ═══════════════════════════════ -->
+                 3. CAP
+            ═══════════════════════════════ -->
       <section id="cap">
         <h2>Théorème CAP — et au-delà avec PACELC</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>En cas de partition réseau, on ne peut pas avoir cohérence forte et disponibilité totale.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Quand le réseau coupe, il faut choisir quoi sacrifier.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>CAP ne dit pas “tout est impossible”, il dit <b>qu'il faut arbitrer</b>.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>CP vs AP</p></div>
+        </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“CAP est un arbitrage de crise. Quand le réseau se coupe, je ne peux pas tout garder en même temps. Je choisis soit la vérité, soit la disponibilité.”</p></div>
+        <div class="section-kicker">Le bon réflexe</div><div class="fast-track"><div class="fast-card"><strong>Question à se poser</strong><p>Quand le réseau se coupe, préfère-t-on bloquer ou répondre quand même ?</p></div><div class="fast-card"><strong>CAP</strong><p>Sous partition réseau, on arbitre entre cohérence et disponibilité.</p></div><div class="fast-card"><strong>PACELC</strong><p>Même sans panne, on arbitre souvent entre latence et cohérence.</p></div></div>
         <div class="level-bar">
           <span class="level-pill mid">Mid</span>
           <span class="level-pill senior">Senior</span>
         </div>
-
-        
         <div class="diagram-wrap">
-          <svg viewBox="0 0 600 380" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
-            <defs><filter id="cSh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter></defs>
-            <rect width="600" height="380" fill="#f8fafc" rx="14"/>
+          <svg font-family="Inter,Segoe UI,sans-serif" viewbox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
+            <defs><filter height="116%" id="cSh" width="108%" x="-4%" y="-4%"><fedropshadow dx="0" dy="2" flood-color="#0f172a" flood-opacity=".1" stddeviation="3"></fedropshadow></filter></defs>
+            <rect fill="#f8fafc" height="380" rx="14" width="600"></rect>
             <!-- Triangle -->
-            <polygon points="300,40 80,310 520,310" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="8,4"/>
+            <polygon fill="none" points="300,40 80,310 520,310" stroke="#94a3b8" stroke-dasharray="8,4" stroke-width="2"></polygon>
             <!-- C vertex -->
-            <g filter="url(#cSh)"><circle cx="300" cy="40" r="42" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>
-            <text x="300" y="36" text-anchor="middle" font-size="22" font-weight="800" fill="#1e40af">C</text>
-            <text x="300" y="54" text-anchor="middle" font-size="9" fill="#3b82f6">Consistency</text></g>
+            <g filter="url(#cSh)"><circle cx="300" cy="40" fill="#dbeafe" r="42" stroke="#3b82f6" stroke-width="2.5"></circle>
+              <text fill="#1e40af" font-size="22" font-weight="800" text-anchor="middle" x="300" y="36">C</text>
+              <text fill="#3b82f6" font-size="9" text-anchor="middle" x="300" y="54">Consistency</text></g>
             <!-- A vertex -->
-            <g filter="url(#cSh)"><circle cx="80" cy="310" r="42" fill="#dcfce7" stroke="#16a34a" stroke-width="2.5"/>
-            <text x="80" y="306" text-anchor="middle" font-size="22" font-weight="800" fill="#15803d">A</text>
-            <text x="80" y="324" text-anchor="middle" font-size="9" fill="#16a34a">Availability</text></g>
+            <g filter="url(#cSh)"><circle cx="80" cy="310" fill="#dcfce7" r="42" stroke="#16a34a" stroke-width="2.5"></circle>
+              <text fill="#15803d" font-size="22" font-weight="800" text-anchor="middle" x="80" y="306">A</text>
+              <text fill="#16a34a" font-size="9" text-anchor="middle" x="80" y="324">Availability</text></g>
             <!-- P vertex -->
-            <g filter="url(#cSh)"><circle cx="520" cy="310" r="42" fill="#fef3c7" stroke="#d97706" stroke-width="2.5"/>
-            <text x="520" y="306" text-anchor="middle" font-size="22" font-weight="800" fill="#92400e">P</text>
-            <text x="520" y="324" text-anchor="middle" font-size="9" fill="#d97706">Partition</text></g>
+            <g filter="url(#cSh)"><circle cx="520" cy="310" fill="#fef3c7" r="42" stroke="#d97706" stroke-width="2.5"></circle>
+              <text fill="#92400e" font-size="22" font-weight="800" text-anchor="middle" x="520" y="306">P</text>
+              <text fill="#d97706" font-size="9" text-anchor="middle" x="520" y="324">Partition</text></g>
             <!-- CP edge -->
-            <rect x="370" y="140" width="110" height="50" rx="10" fill="#fff" stroke="#3b82f6" stroke-width="1.5" filter="url(#cSh)"/>
-            <text x="425" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">CP</text>
-            <text x="425" y="178" text-anchor="middle" font-size="8.5" fill="#475569">HBase, ZooKeeper</text>
+            <rect fill="#fff" filter="url(#cSh)" height="50" rx="10" stroke="#3b82f6" stroke-width="1.5" width="110" x="370" y="140"></rect>
+            <text fill="#1e40af" font-size="11" font-weight="700" text-anchor="middle" x="425" y="160">CP</text>
+            <text fill="#475569" font-size="8.5" text-anchor="middle" x="425" y="178">HBase, ZooKeeper</text>
             <!-- AP edge -->
-            <rect x="215" y="280" width="170" height="50" rx="10" fill="#fff" stroke="#16a34a" stroke-width="1.5" filter="url(#cSh)"/>
-            <text x="300" y="300" text-anchor="middle" font-size="11" font-weight="700" fill="#15803d">AP</text>
-            <text x="300" y="318" text-anchor="middle" font-size="8.5" fill="#475569">DynamoDB, Cassandra</text>
+            <rect fill="#fff" filter="url(#cSh)" height="50" rx="10" stroke="#16a34a" stroke-width="1.5" width="170" x="215" y="280"></rect>
+            <text fill="#15803d" font-size="11" font-weight="700" text-anchor="middle" x="300" y="300">AP</text>
+            <text fill="#475569" font-size="8.5" text-anchor="middle" x="300" y="318">DynamoDB, Cassandra</text>
             <!-- CA edge -->
-            <rect x="120" y="140" width="110" height="50" rx="10" fill="#fff" stroke="#dc2626" stroke-width="1.5" stroke-dasharray="4,2" filter="url(#cSh)"/>
-            <text x="175" y="160" text-anchor="middle" font-size="11" font-weight="700" fill="#dc2626">CA</text>
-            <text x="175" y="178" text-anchor="middle" font-size="8.5" fill="#dc2626">⚠️ impossible en réseau</text>
+            <rect fill="#fff" filter="url(#cSh)" height="50" rx="10" stroke="#dc2626" stroke-dasharray="4,2" stroke-width="1.5" width="110" x="120" y="140"></rect>
+            <text fill="#dc2626" font-size="11" font-weight="700" text-anchor="middle" x="175" y="160">CA</text>
+            <text fill="#dc2626" font-size="8.5" text-anchor="middle" x="175" y="178">⚠️ impossible en réseau</text>
             <!-- Bottom note -->
-            <rect x="115" y="348" width="370" height="24" rx="12" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
-            <text x="300" y="365" text-anchor="middle" font-size="10" fill="#dc2626" font-weight="600">En réseau réel, P est inévitable → choix entre C ou A</text>
+            <rect fill="#fef2f2" height="24" rx="12" stroke="#fca5a5" stroke-width="1" width="370" x="115" y="348"></rect>
+            <text fill="#dc2626" font-size="10" font-weight="600" text-anchor="middle" x="300" y="365">En réseau réel, P est inévitable → choix entre C ou A</text>
           </svg>
         </div>
-
         <p>Le théorème CAP (Brewer, 2000) rappelle qu'en présence d'une <strong>partition réseau</strong> (P), on ne peut pas garantir simultanément <strong>cohérence forte</strong> (C) et <strong>disponibilité totale</strong> (A).</p>
-
         <table>
           <thead><tr><th>Choix</th><th>Conséquence</th><th>Exemple</th></tr></thead>
           <tbody>
-            <tr>
-              <td><strong>CP</strong> — Favoriser cohérence</td>
-              <td>On refuse certaines requêtes si le doute existe</td>
-              <td>Solde bancaire, réservation de siège unique</td>
-            </tr>
-            <tr>
-              <td><strong>AP</strong> — Favoriser disponibilité</td>
-              <td>On répond parfois avec une donnée pas encore fraîche</td>
-              <td>Catalogue de produits, fil d'actualité social</td>
-            </tr>
+          <tr>
+            <td><strong>CP</strong> — Favoriser cohérence</td>
+            <td>On refuse certaines requêtes si le doute existe</td>
+            <td>Solde bancaire, réservation de siège unique</td>
+          </tr>
+          <tr>
+            <td><strong>AP</strong> — Favoriser disponibilité</td>
+            <td>On répond parfois avec une donnée pas encore fraîche</td>
+            <td>Catalogue de produits, fil d'actualité social</td>
+          </tr>
           </tbody>
         </table>
-
         <div class="box pro-mode">
           <h4>Au-delà de CAP : le théorème PACELC</h4>
           <p>Daniel Abadi (2012) étend CAP : <em>même sans partition</em>, on fait un arbitrage entre <strong>latence</strong> (L) et <strong>cohérence</strong> (C).</p>
@@ -688,18 +894,17 @@ resilience4j:
           <table>
             <thead><tr><th>Système</th><th>En cas de partition</th><th>Cas normal</th><th>Cas d'usage</th></tr></thead>
             <tbody>
-              <tr><td>DynamoDB</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Panier e-commerce, sessions</td></tr>
-              <tr><td>HBase / ZooKeeper</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Coordination distribuée</td></tr>
-              <tr><td>Cassandra</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Time-series, IoT</td></tr>
-              <tr><td>PostgreSQL synchrone</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Finance, inventaire</td></tr>
+            <tr><td>DynamoDB</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Panier e-commerce, sessions</td></tr>
+            <tr><td>HBase / ZooKeeper</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Coordination distribuée</td></tr>
+            <tr><td>Cassandra</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Time-series, IoT</td></tr>
+            <tr><td>PostgreSQL synchrone</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Finance, inventaire</td></tr>
             </tbody>
           </table>
         </div>
-
         <div class="box expert">
           <h4>⚙️ Expert — Niveaux de cohérence Cassandra</h4>
           <p>Cassandra expose le niveau de cohérence à l'application. On choisit le trade-off par requête :</p>
-<pre><code class="language-java">// Cassandra Driver Java — choisir le Consistency Level
+          <pre><code class="language-java">// Cassandra Driver Java — choisir le Consistency Level
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
 
 SimpleStatement stmt = SimpleStatement
@@ -713,19 +918,43 @@ SimpleStatement stmt = SimpleStatement
 Row row = session.execute(stmt).one();</code></pre>
           <p>Formule du quorum : si N=3 réplicas, QUORUM = 2. Écriture QUORUM + Lecture QUORUM garantit la lecture-after-write même en présence d'une panne.</p>
         </div>
-      </section>
 
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>CP</h4>
+            <ul class="tight-list">
+              <li>je préfère refuser que mentir</li>
+              <li>utile pour banque, stock, réservation</li>
+              <li>moins disponible pendant une partition</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>AP</h4>
+            <ul class="tight-list">
+              <li>je préfère répondre même si ce n'est pas tout à fait à jour</li>
+              <li>utile pour catalogue, fil d’actualité</li>
+              <li>données parfois pas fraîches</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <!-- ═══════════════════════════════
-           4. IDEMPOTENCE
-      ═══════════════════════════════ -->
+                 4. IDEMPOTENCE
+            ═══════════════════════════════ -->
       <section id="idempotence">
         <h2>Idempotence, retries et timeouts</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Refaire la même demande ne doit pas créer deux effets métier.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Les retries peuvent créer des doublons.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Si on retente un POST, on doit avoir une <b>clé d'idempotence</b>.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>Idempotency-Key</p></div>
+        </div>
+        <div class="section-kicker">Le piège classique</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Un POST relancé deux fois peut créer deux fois la même action.</p></div><div class="fast-card"><strong>Solution</strong><p>Associer les retries à une Idempotency-Key.</p></div><div class="fast-card"><strong>But</strong><p>Garantir qu’une même intention métier ne produit qu’un seul effet.</p></div></div>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
           <span class="level-pill mid">Mid</span>
           <span class="level-pill senior">Senior</span>
         </div>
-
         <div class="box definition">
           <h4>Définition</h4>
           <p>Une opération <strong>idempotente</strong> peut être exécutée plusieurs fois sans effet supplémentaire indésirable. Formellement : <code>f(f(x)) = f(x)</code>.</p>
@@ -734,10 +963,9 @@ Row row = session.execute(stmt).one();</code></pre>
             <li>❌ <strong>POST</strong> — ne l'est pas nativement → utiliser l'<code>Idempotency-Key</code>.</li>
           </ul>
         </div>
-
         <div class="box example">
           <h4>Côté client — JavaScript</h4>
-<pre><code class="language-javascript">const idempotencyKey = crypto.randomUUID(); // UUID v4 unique par intention
+          <pre><code class="language-javascript">const idempotencyKey = crypto.randomUUID(); // UUID v4 unique par intention
 
 const response = await fetch('/loans', {
   method: 'POST',
@@ -748,10 +976,9 @@ const response = await fetch('/loans', {
   body: JSON.stringify(loanRequestData)
 });</code></pre>
         </div>
-
         <div class="box example">
           <h4>Côté serveur — Spring Boot avec Redis</h4>
-<pre><code class="language-java">@PostMapping("/loans")
+          <pre><code class="language-java">@PostMapping("/loans")
 public ResponseEntity&lt;LoanResponse&gt; create(
         @RequestHeader("Idempotency-Key") String idempotencyKey,
         @Valid @RequestBody CreateLoanRequest request) {
@@ -790,7 +1017,6 @@ public ResponseEntity&lt;LoanResponse&gt; create(
     }
 }</code></pre>
         </div>
-
         <div class="box best-practice">
           <h4>✅ Stratégie de retry recommandée (AWS Best Practices)</h4>
           <ul>
@@ -801,113 +1027,132 @@ public ResponseEntity&lt;LoanResponse&gt; create(
             <li>Toujours associer retry + idempotency-key pour les opérations non idempotentes.</li>
           </ul>
         </div>
-      </section>
 
+        <div class="mini-schema">
+          <div class="schema-node"><h4>Client</h4><p>envoie <code>POST</code> + clé</p></div>
+          <div class="schema-node"><h4>Serveur</h4><p>regarde si la clé existe déjà</p></div>
+          <div class="schema-node"><h4>Si oui</h4><p>renvoie la même réponse</p></div>
+          <div class="schema-node"><h4>Si non</h4><p>traite puis mémorise</p></div>
+        </div>
+      </section>
       <!-- ═══════════════════════════════
-           5. COMMUNICATION
-      ═══════════════════════════════ -->
+                 5. COMMUNICATION
+            ═══════════════════════════════ -->
       <section id="communication">
         <h2>Communication synchrone vs asynchrone</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Synchrone = j'attends. Asynchrone = je publie puis je continue.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Le synchrone couple le temps de réponse des services.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>REST pour la simplicité, messaging pour le découplage.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>REST / gRPC / Kafka</p></div>
+        </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“Quand j’ai besoin d’une réponse tout de suite, je prends du synchrone. Quand je veux découpler et absorber de la charge, je passe en asynchrone.”</p></div>
+        <div class="section-kicker">Choisir le bon mode</div><div class="fast-track"><div class="fast-card"><strong>Synchrone</strong><p>Simple à lire, mais l’appelant attend et subit la panne du service distant.</p></div><div class="fast-card"><strong>Asynchrone</strong><p>Plus résilient, mais plus complexe à suivre et à déboguer.</p></div><div class="fast-card"><strong>Règle simple</strong><p>Besoin d’une réponse immédiate : sync. Travail différé ou multi-consommateurs : async.</p></div></div>
+        <p class="section-intro">Choisir entre synchrone et asynchrone n’est pas qu’une question technique : cela change la latence perçue, la robustesse du système, la traçabilité et la manière de raisonner sur la cohérence.</p>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
           <span class="level-pill mid">Mid</span>
           <span class="level-pill senior">Senior</span>
           <span class="level-pill expert">Expert</span>
         </div>
-
-
         <div class="diagram-wrap">
-          <svg viewBox="0 0 780 240" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+          <svg font-family="Inter,Segoe UI,sans-serif" viewbox="0 0 780 240" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <filter id="cmSh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
-              <marker id="cmA" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"/></marker>
-              <marker id="cmB" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#16a34a"/></marker>
+              <filter height="116%" id="cmSh" width="108%" x="-4%" y="-4%"><fedropshadow dx="0" dy="2" flood-color="#0f172a" flood-opacity=".1" stddeviation="3"></fedropshadow></filter>
+              <marker id="cmA" markerheight="6" markerwidth="8" orient="auto" refx="7" refy="3"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"></path></marker>
+              <marker id="cmB" markerheight="6" markerwidth="8" orient="auto" refx="7" refy="3"><path d="M0,0 L8,3 L0,6Z" fill="#16a34a"></path></marker>
             </defs>
-            <rect width="780" height="240" fill="#f8fafc" rx="14"/>
+            <rect fill="#f8fafc" height="240" rx="14" width="780"></rect>
             <!-- SYNC side -->
-            <rect x="10" y="10" width="370" height="220" rx="12" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1.5"/>
-            <text x="195" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#1e40af">🔁 Synchrone (REST / gRPC)</text>
-            <g filter="url(#cmSh)"><rect x="30" y="55" width="100" height="40" rx="8" fill="#fff" stroke="#3b82f6" stroke-width="1.5"/>
-            <text x="80" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Service A</text></g>
-            <g filter="url(#cmSh)"><rect x="250" y="55" width="110" height="40" rx="8" fill="#fff" stroke="#3b82f6" stroke-width="1.5"/>
-            <text x="305" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Service B</text></g>
-            <path d="M130,68 L250,68" stroke="#3b82f6" stroke-width="2" marker-end="url(#cmA)"/>
-            <text x="190" y="62" text-anchor="middle" font-size="9" fill="#3b82f6">requête →</text>
-            <path d="M250,82 L130,82" stroke="#94a3b8" stroke-width="1.5" stroke-dasharray="4,3" marker-end="url(#cmA)"/>
-            <text x="190" y="96" text-anchor="middle" font-size="9" fill="#94a3b8">← réponse</text>
-            <rect x="30" y="115" width="330" height="24" rx="6" fill="#fef2f2" stroke="#fca5a5" stroke-width="1"/>
-            <text x="195" y="132" text-anchor="middle" font-size="10" fill="#dc2626">⏳ A est bloqué en attendant B</text>
-            <text x="195" y="164" text-anchor="middle" font-size="10" fill="#475569">✅ Simple · résultat immédiat</text>
-            <text x="195" y="182" text-anchor="middle" font-size="10" fill="#475569">❌ Couplage temporel · cascade de pannes</text>
+            <rect fill="#eff6ff" height="220" rx="12" stroke="#bfdbfe" stroke-width="1.5" width="370" x="10" y="10"></rect>
+            <text fill="#1e40af" font-size="13" font-weight="700" text-anchor="middle" x="195" y="36">🔁 Synchrone (REST / gRPC)</text>
+            <g filter="url(#cmSh)"><rect fill="#fff" height="40" rx="8" stroke="#3b82f6" stroke-width="1.5" width="100" x="30" y="55"></rect>
+              <text fill="#1e293b" font-size="11" font-weight="600" text-anchor="middle" x="80" y="80">Service A</text></g>
+            <g filter="url(#cmSh)"><rect fill="#fff" height="40" rx="8" stroke="#3b82f6" stroke-width="1.5" width="110" x="250" y="55"></rect>
+              <text fill="#1e293b" font-size="11" font-weight="600" text-anchor="middle" x="305" y="80">Service B</text></g>
+            <path d="M130,68 L250,68" marker-end="url(#cmA)" stroke="#3b82f6" stroke-width="2"></path>
+            <text fill="#3b82f6" font-size="9" text-anchor="middle" x="190" y="62">requête →</text>
+            <path d="M250,82 L130,82" marker-end="url(#cmA)" stroke="#94a3b8" stroke-dasharray="4,3" stroke-width="1.5"></path>
+            <text fill="#94a3b8" font-size="9" text-anchor="middle" x="190" y="96">← réponse</text>
+            <rect fill="#fef2f2" height="24" rx="6" stroke="#fca5a5" stroke-width="1" width="330" x="30" y="115"></rect>
+            <text fill="#dc2626" font-size="10" text-anchor="middle" x="195" y="132">⏳ A est bloqué en attendant B</text>
+            <text fill="#475569" font-size="10" text-anchor="middle" x="195" y="164">✅ Simple · résultat immédiat</text>
+            <text fill="#475569" font-size="10" text-anchor="middle" x="195" y="182">❌ Couplage temporel · cascade de pannes</text>
             <!-- ASYNC side -->
-            <rect x="400" y="10" width="370" height="220" rx="12" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1.5"/>
-            <text x="585" y="36" text-anchor="middle" font-size="13" font-weight="700" fill="#15803d">📨 Asynchrone (Kafka / RabbitMQ)</text>
-            <g filter="url(#cmSh)"><rect x="420" y="55" width="100" height="40" rx="8" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
-            <text x="470" y="80" text-anchor="middle" font-size="11" font-weight="600" fill="#1e293b">Producer</text></g>
-            <g filter="url(#cmSh)"><rect x="570" y="50" width="60" height="50" rx="8" fill="#1e293b" stroke="#475569" stroke-width="1.5"/>
-            <text x="600" y="72" text-anchor="middle" font-size="10" fill="#fff" font-weight="600">Broker</text>
-            <text x="600" y="88" text-anchor="middle" font-size="8" fill="#94a3b8">📨</text></g>
-            <g filter="url(#cmSh)"><rect x="680" y="42" width="80" height="30" rx="6" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
-            <text x="720" y="62" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Consumer 1</text></g>
-            <g filter="url(#cmSh)"><rect x="680" y="82" width="80" height="30" rx="6" fill="#fff" stroke="#16a34a" stroke-width="1.5"/>
-            <text x="720" y="102" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Consumer 2</text></g>
-            <path d="M520,75 L570,75" stroke="#16a34a" stroke-width="2" marker-end="url(#cmB)"/>
-            <path d="M630,63 L680,57" stroke="#16a34a" stroke-width="1.5" marker-end="url(#cmB)"/>
-            <path d="M630,82 L680,97" stroke="#16a34a" stroke-width="1.5" marker-end="url(#cmB)"/>
-            <rect x="420" y="115" width="330" height="24" rx="6" fill="#f0fdf4" stroke="#86efac" stroke-width="1"/>
-            <text x="585" y="132" text-anchor="middle" font-size="10" fill="#16a34a">🚀 Producer continue immédiatement</text>
-            <text x="585" y="164" text-anchor="middle" font-size="10" fill="#475569">✅ Découplé · résilient · fan-out</text>
-            <text x="585" y="182" text-anchor="middle" font-size="10" fill="#475569">❌ Cohérence éventuelle · debug complexe</text>
+            <rect fill="#f0fdf4" height="220" rx="12" stroke="#bbf7d0" stroke-width="1.5" width="370" x="400" y="10"></rect>
+            <text fill="#15803d" font-size="13" font-weight="700" text-anchor="middle" x="585" y="36">📨 Asynchrone (Kafka / RabbitMQ)</text>
+            <g filter="url(#cmSh)"><rect fill="#fff" height="40" rx="8" stroke="#16a34a" stroke-width="1.5" width="100" x="420" y="55"></rect>
+              <text fill="#1e293b" font-size="11" font-weight="600" text-anchor="middle" x="470" y="80">Producer</text></g>
+            <g filter="url(#cmSh)"><rect fill="#1e293b" height="50" rx="8" stroke="#475569" stroke-width="1.5" width="60" x="570" y="50"></rect>
+              <text fill="#fff" font-size="10" font-weight="600" text-anchor="middle" x="600" y="72">Broker</text>
+              <text fill="#94a3b8" font-size="8" text-anchor="middle" x="600" y="88">📨</text></g>
+            <g filter="url(#cmSh)"><rect fill="#fff" height="30" rx="6" stroke="#16a34a" stroke-width="1.5" width="80" x="680" y="42"></rect>
+              <text fill="#1e293b" font-size="9" font-weight="600" text-anchor="middle" x="720" y="62">Consumer 1</text></g>
+            <g filter="url(#cmSh)"><rect fill="#fff" height="30" rx="6" stroke="#16a34a" stroke-width="1.5" width="80" x="680" y="82"></rect>
+              <text fill="#1e293b" font-size="9" font-weight="600" text-anchor="middle" x="720" y="102">Consumer 2</text></g>
+            <path d="M520,75 L570,75" marker-end="url(#cmB)" stroke="#16a34a" stroke-width="2"></path>
+            <path d="M630,63 L680,57" marker-end="url(#cmB)" stroke="#16a34a" stroke-width="1.5"></path>
+            <path d="M630,82 L680,97" marker-end="url(#cmB)" stroke="#16a34a" stroke-width="1.5"></path>
+            <rect fill="#f0fdf4" height="24" rx="6" stroke="#86efac" stroke-width="1" width="330" x="420" y="115"></rect>
+            <text fill="#16a34a" font-size="10" text-anchor="middle" x="585" y="132">🚀 Producer continue immédiatement</text>
+            <text fill="#475569" font-size="10" text-anchor="middle" x="585" y="164">✅ Découplé · résilient · fan-out</text>
+            <text fill="#475569" font-size="10" text-anchor="middle" x="585" y="182">❌ Cohérence éventuelle · debug complexe</text>
           </svg>
         </div>
-
         <div class="columns">
           <div class="box definition">
             <h4>🔁 Synchrone</h4>
             <p>L'appelant envoie et <strong>attend activement</strong>. Le thread est bloqué jusqu'au retour ou timeout.</p>
             <p><strong>Exemples :</strong> REST/HTTP, gRPC.</p>
-            <p><strong>✅</strong> Simple, résultat immédiat.<br>
-            <strong>⚠️</strong> Couplage temporel — si le service cible est down, l'appelant échoue aussi.</p>
+            <p><strong>✅</strong> Simple, résultat immédiat.<br/>
+              <strong>⚠️</strong> Couplage temporel — si le service cible est down, l'appelant échoue aussi.</p>
           </div>
           <div class="box definition">
             <h4>📨 Asynchrone</h4>
             <p>L'appelant publie dans un broker et <strong>continue immédiatement</strong>. Le consommateur traite quand il est prêt.</p>
             <p><strong>Exemples :</strong> Kafka, RabbitMQ, AWS SQS.</p>
-            <p><strong>✅</strong> Découplage temporel, résilience, absorption des pics.<br>
-            <strong>⚠️</strong> Cohérence éventuelle, débogage plus complexe.</p>
+            <p><strong>✅</strong> Découplage temporel, résilience, absorption des pics.<br/>
+              <strong>⚠️</strong> Cohérence éventuelle, débogage plus complexe.</p>
           </div>
         </div>
-
+        <div class="diagram-card">
+          <h3 style="margin-top:0">Comment choisir rapidement ?</h3>
+          <table>
+            <thead><tr><th>Besoin</th><th>Choix recommandé</th><th>Pourquoi</th></tr></thead>
+            <tbody>
+            <tr><td>Lecture/écriture simple, API exposée à des frontends</td><td><strong>REST</strong></td><td>Très lisible, universel, facile à tester</td></tr>
+            <tr><td>Appels internes très fréquents avec contrat fort</td><td><strong>gRPC</strong></td><td>Compact, rapide, excellent pour service à service</td></tr>
+            <tr><td>Découplage, fan-out, traitement différé</td><td><strong>Kafka / messaging</strong></td><td>Le producteur continue sans attendre les consommateurs</td></tr>
+            </tbody>
+          </table>
+        </div>
         <h3>REST (Representational State Transfer)</h3>
-
         <div class="box definition">
           <h4>Modèle de maturité REST (Richardson Maturity Model)</h4>
           <table>
             <thead><tr><th>Niveau</th><th>Description</th><th>Exemple</th></tr></thead>
             <tbody>
-              <tr>
-                <td><strong>0</strong> — POX</td>
-                <td>HTTP est utilisé comme un simple tunnel de transport pour des appels de procédure distante (RPC) sans se soucier des ressources.</td>
-                <td><code>POST /service?action=getBook</code></td>
-              </tr>
-              <tr>
-                <td><strong>1</strong> — Ressources</td>
-                <td>Les API exposent des <strong>ressources distinctes</strong>, chacune identifiée par une URL unique. L'accent est mis sur l'identification des "choses" (les noms) plutôt que des "actions".</td>
-                <td><code>GET /books/123</code> (récupère la ressource "livre" avec l'ID 123)</td>
-              </tr>
-              <tr>
-                <td><strong>2</strong> — Verbes HTTP</td>
-                <td>Utilisation des méthodes HTTP standard (GET, POST, PUT, DELETE, PATCH) de manière <strong>sémantique</strong>. Chaque verbe a une intention claire et universellement comprise pour l'action à effectuer sur la ressource.</td>
-                <td><code>DELETE /books/123</code> (supprime le livre 123)<br><code>POST /books</code> (crée un nouveau livre)<br><code>PUT /books/123</code> (met à jour le livre 123)</td>
-              </tr>
-              <tr><td><strong>3</strong> — HATEOAS</td><td>Liens hypermédias dans la réponse</td><td>Voir ci-dessous</td></tr>
+            <tr>
+              <td><strong>0</strong> — POX</td>
+              <td>HTTP est utilisé comme un simple tunnel de transport pour des appels de procédure distante (RPC) sans se soucier des ressources.</td>
+              <td><code>POST /service?action=getBook</code></td>
+            </tr>
+            <tr>
+              <td><strong>1</strong> — Ressources</td>
+              <td>Les API exposent des <strong>ressources distinctes</strong>, chacune identifiée par une URL unique. L'accent est mis sur l'identification des "choses" (les noms) plutôt que des "actions".</td>
+              <td><code>GET /books/123</code> (récupère la ressource "livre" avec l'ID 123)</td>
+            </tr>
+            <tr>
+              <td><strong>2</strong> — Verbes HTTP</td>
+              <td>Utilisation des méthodes HTTP standard (GET, POST, PUT, DELETE, PATCH) de manière <strong>sémantique</strong>. Chaque verbe a une intention claire et universellement comprise pour l'action à effectuer sur la ressource.</td>
+              <td><code>DELETE /books/123</code> (supprime le livre 123)<br/><code>POST /books</code> (crée un nouveau livre)<br/><code>PUT /books/123</code> (met à jour le livre 123)</td>
+            </tr>
+            <tr><td><strong>3</strong> — HATEOAS</td><td>Liens hypermédias dans la réponse</td><td>Voir ci-dessous</td></tr>
             </tbody>
           </table>
         </div>
-
         <div class="box example">
           <h4>Niveau 3 — HATEOAS avec Spring HATEOAS</h4>
-<pre><code class="language-java">// Réponse enrichie de liens hypermédias
+          <pre><code class="language-java">// Réponse enrichie de liens hypermédias
 @GetMapping("/loans/{id}")
 public EntityModel&lt;LoanDto&gt; getLoan(@PathVariable UUID id) {
     LoanDto loan = loanService.findById(id);
@@ -918,7 +1163,7 @@ public EntityModel&lt;LoanDto&gt; getLoan(@PathVariable UUID id) {
         linkTo(methodOn(LoanController.class).renewLoan(id)).withRel("renew")
     );
 }</code></pre>
-<pre><code class="language-json">// Réponse JSON — le client sait quelles actions sont disponibles
+          <pre><code class="language-json">// Réponse JSON — le client sait quelles actions sont disponibles
 {
   "id": "d290f1ee-6c54-4b01-90e6-d701748f0851",
   "status": "ACTIVE",
@@ -937,10 +1182,9 @@ public EntityModel&lt;LoanDto&gt; getLoan(@PathVariable UUID id) {
             Cela rend l'API plus auto-descriptive et facilite son évolution.
           </p>
         </div>
-
         <div class="box example">
           <h4>Contrôleur REST complet — Spring Boot</h4>
-<pre><code class="language-java">@RestController
+          <pre><code class="language-java">@RestController
 @RequestMapping("/api/v1/books")
 @Validated
 public class BookController {
@@ -951,7 +1195,7 @@ public class BookController {
     public ResponseEntity&lt;BookDto&gt; getBook(@PathVariable UUID id) {
         return bookService.findById(id)
                           .map(ResponseEntity::ok)
-                          .orElseThrow(() -> new BookNotFoundException(id));
+                          .orElseThrow(() -&gt; new BookNotFoundException(id));
     }
 
     @PostMapping
@@ -976,10 +1220,8 @@ public class BookController {
     }
 }</code></pre>
         </div>
-
         <h3>gRPC — Communication binaire haute performance</h3>
         <div class="level-bar"><span class="level-pill senior">Senior</span></div>
-
         <div class="box definition">
           <h4>Pourquoi gRPC ?</h4>
           <ul>
@@ -989,10 +1231,9 @@ public class BookController {
             <li><strong>Streaming</strong> : 4 modes (unary, server-stream, client-stream, bidirectionnel).</li>
           </ul>
         </div>
-
         <div class="box example">
           <h4>Définition du contrat Protobuf (<code>book.proto</code>)</h4>
-<pre><code class="language-protobuf">syntax = "proto3";
+          <pre><code class="language-protobuf">syntax = "proto3";
 package library;
 option java_package = "com.example.library.grpc";
 
@@ -1019,9 +1260,8 @@ message Book {
   string isbn      = 4;
   bool   available = 5;
 }</code></pre>
-
           <h5>Implémentation serveur (streaming server)</h5>
-<pre><code class="language-java">@GrpcService
+          <pre><code class="language-java">@GrpcService
 public class BookGrpcService extends BookServiceGrpc.BookServiceImplBase {
 
     private final BookRepository bookRepository;
@@ -1032,11 +1272,11 @@ public class BookGrpcService extends BookServiceGrpc.BookServiceImplBase {
         bookRepository.findById(UUID.fromString(req.getBookId()))
             .map(this::toProto)
             .ifPresentOrElse(
-                book -> {
+                book -&gt; {
                     responseObserver.onNext(book);
                     responseObserver.onCompleted();
                 },
-                () -> responseObserver.onError(
+                () -&gt; responseObserver.onError(
                     Status.NOT_FOUND
                         .withDescription("Book not found: " + req.getBookId())
                         .asRuntimeException()
@@ -1048,7 +1288,7 @@ public class BookGrpcService extends BookServiceGrpc.BookServiceImplBase {
     @Override
     public void listBooks(ListBooksRequest req,
                           StreamObserver&lt;Book&gt; responseObserver) {
-        bookRepository.streamAll().forEach(book -> {
+        bookRepository.streamAll().forEach(book -&gt; {
             responseObserver.onNext(toProto(book));
         });
         responseObserver.onCompleted();
@@ -1064,13 +1304,11 @@ public class BookGrpcService extends BookServiceGrpc.BookServiceImplBase {
     }
 }</code></pre>
         </div>
-
         <h3>Messaging asynchrone (Kafka)</h3>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
-
         <div class="box example">
           <h4>Publication d'un événement depuis <code>loan-service</code></h4>
-<pre><code class="language-java">// Événement — record immuable (Java 16+)
+          <pre><code class="language-java">// Événement — record immuable (Java 16+)
 public record LoanCreatedEvent(
     UUID    loanId,
     UUID    studentId,
@@ -1088,7 +1326,7 @@ public class LoanEventPublisher {
     public CompletableFuture&lt;SendResult&lt;String, LoanCreatedEvent&gt;&gt; publishLoanCreated(
             LoanCreatedEvent event) {
         return kafka.send(TOPIC, event.loanId().toString(), event)
-            .whenComplete((result, ex) -> {
+            .whenComplete((result, ex) -&gt; {
                 if (ex != null) {
                     log.error("Failed to publish LoanCreatedEvent: {}", event.loanId(), ex);
                 } else {
@@ -1099,9 +1337,8 @@ public class LoanEventPublisher {
             });
     }
 }</code></pre>
-
           <h5>Consommateur dans <code>notification-service</code></h5>
-<pre><code class="language-java">@Component
+          <pre><code class="language-java">@Component
 @RequiredArgsConstructor
 public class LoanCreatedConsumer {
 
@@ -1130,9 +1367,8 @@ public class LoanCreatedConsumer {
         }
     }
 }</code></pre>
-
           <h5>Configuration Kafka</h5>
-<pre><code class="language-yaml"># application.yml
+          <pre><code class="language-yaml"># application.yml
 spring:
   kafka:
     bootstrap-servers: kafka:9092
@@ -1154,45 +1390,76 @@ spring:
     listener:
       ack-mode: MANUAL_IMMEDIATE</code></pre>
         </div>
-
         <table>
           <thead>
-            <tr><th>Mode</th><th>Avantage</th><th>Limite</th><th>Cas d'usage</th></tr>
+          <tr><th>Mode</th><th>Avantage</th><th>Limite</th><th>Cas d'usage</th></tr>
           </thead>
           <tbody>
-            <tr><td><strong>REST</strong></td><td>Simple, universel, CRUD naturel</td><td>Couplage temporel, JSON verbeux</td><td>API publique, ressources CRUD</td></tr>
-            <tr><td><strong>gRPC</strong></td><td>Binaire (rapide), contrats forts, streaming</td><td>Non natif navigateur, outillage spécifique</td><td>Appels internes haute fréquence</td></tr>
-            <tr><td><strong>Kafka</strong></td><td>Découplage total, résilience, replay d'events</td><td>Broker à opérer, cohérence éventuelle</td><td>Notifications, CQRS, audit</td></tr>
+          <tr><td><strong>REST</strong></td><td>Simple, universel, CRUD naturel</td><td>Couplage temporel, JSON verbeux</td><td>API publique, ressources CRUD</td></tr>
+          <tr><td><strong>gRPC</strong></td><td>Binaire (rapide), contrats forts, streaming</td><td>Non natif navigateur, outillage spécifique</td><td>Appels internes haute fréquence</td></tr>
+          <tr><td><strong>Kafka</strong></td><td>Découplage total, résilience, replay d'events</td><td>Broker à opérer, cohérence éventuelle</td><td>Notifications, CQRS, audit</td></tr>
           </tbody>
         </table>
-      </section>
 
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>REST</h4>
+            <ul class="tight-list">
+              <li>à comprendre vite</li>
+              <li>bon pour CRUD</li>
+              <li>réponse immédiate</li>
+              <li>plus fragile en cascade</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>gRPC</h4>
+            <ul class="tight-list">
+              <li>plus rapide que JSON</li>
+              <li>contrat fort avec <code>.proto</code></li>
+              <li>très bon en interne</li>
+              <li>moins naturel côté navigateur</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>Kafka</h4>
+            <ul class="tight-list">
+              <li>publier puis continuer</li>
+              <li>absorbe mieux les pics</li>
+              <li>excellent pour fan-out</li>
+              <li>debug plus complexe</li>
+            </ul>
+          </div>
+        </div>
+      </section>
       <!-- ═══════════════════════════════
-           6. SÉRIALISATION & VERSIONING
-      ═══════════════════════════════ -->
+                 6. SÉRIALISATION & VERSIONING
+            ═══════════════════════════════ -->
       <section id="serialisation">
         <h2>Sérialisation et versioning d'API</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Le contrat d'échange doit survivre à des déploiements décalés.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Un champ renommé peut casser un autre service.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Dans le distribué, on versionne pour <b>ne pas casser les autres</b>.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>contrat / version</p></div>
+        </div>
+        <div class="section-kicker">À ne pas oublier</div><div class="fast-track"><div class="fast-card"><strong>Danger</strong><p>Modifier un champ peut casser un autre service déjà déployé.</p></div><div class="fast-card"><strong>Bonne pratique</strong><p>Ajouter des champs optionnels est généralement sûr.</p></div><div class="fast-card"><strong>Objectif</strong><p>Faire évoluer les contrats sans casser les consommateurs.</p></div></div>
         <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill senior">Senior</span></div>
-
         <p>Les composants d'un système distribué communiquent via des <strong>contrats</strong>. Ce contrat doit être stable, documenté et versionné car les services ne sont pas déployés au même rythme.</p>
-
         <div class="box warning">
           <h4>⚠️ Attention</h4>
           <p>Renommer un champ JSON "innocent" peut casser un autre service déployé à un rythme différent. Toute modification doit être <strong>rétrocompatible ou versionnée explicitement</strong>.</p>
         </div>
-
         <div class="box example">
           <h4>Stratégies de versioning d'API REST</h4>
           <table>
             <thead><tr><th>Stratégie</th><th>Exemple</th><th>Avantage</th><th>Limite</th></tr></thead>
             <tbody>
-              <tr><td>URI</td><td><code>/api/v1/books</code></td><td>Très visible, simple à cacher</td><td>URL encombrée</td></tr>
-              <tr><td>Header</td><td><code>Accept: application/vnd.api.v2+json</code></td><td>URL propre, sémantique</td><td>Moins découvrable</td></tr>
-              <tr><td>Query param</td><td><code>?version=2</code></td><td>Simple à tester</td><td>Non sémantique REST</td></tr>
+            <tr><td>URI</td><td><code>/api/v1/books</code></td><td>Très visible, simple à cacher</td><td>URL encombrée</td></tr>
+            <tr><td>Header</td><td><code>Accept: application/vnd.api.v2+json</code></td><td>URL propre, sémantique</td><td>Moins découvrable</td></tr>
+            <tr><td>Query param</td><td><code>?version=2</code></td><td>Simple à tester</td><td>Non sémantique REST</td></tr>
             </tbody>
           </table>
         </div>
-
         <div class="box best-practice">
           <h4>✅ Règles d'évolution rétrocompatible</h4>
           <ul>
@@ -1202,10 +1469,9 @@ spring:
             <li>Pour les événements Kafka : utiliser <strong>Avro + Schema Registry</strong> pour valider les contrats à la publication et à la consommation.</li>
           </ul>
         </div>
-
         <div class="box example">
           <h4>Avro + Schema Registry — Kafka (niveau Senior)</h4>
-<pre><code class="language-json">// loan-created-event.avsc (Avro Schema)
+          <pre><code class="language-json">// loan-created-event.avsc (Avro Schema)
 {
   "type": "record",
   "name": "LoanCreatedEvent",
@@ -1219,7 +1485,7 @@ spring:
     // ↑ Nouveau champ optionnel = rétrocompatible (union avec null + default)
   ]
 }</code></pre>
-<pre><code class="language-yaml"># application.yml — Avro + Confluent Schema Registry
+          <pre><code class="language-yaml"># application.yml — Avro + Confluent Schema Registry
 spring:
   kafka:
     bootstrap-servers: kafka:9092
@@ -1235,79 +1501,80 @@ spring:
       avro.compatibility.type: FULL</code></pre>
         </div>
       </section>
-
       <!-- ═══════════════════════════════
-           7. API GATEWAY
-      ═══════════════════════════════ -->
+                 7. API GATEWAY
+            ═══════════════════════════════ -->
       <section id="gateway">
         <h2>API Gateway</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>La gateway est la porte d'entrée commune.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Sans point d'entrée unique, sécurité et routage se dispersent.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>La gateway gère le transversal, pas le métier.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>auth / route / limit</p></div>
+        </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“La gateway, ce n’est pas le cerveau métier. C’est la porte d’entrée : elle contrôle, elle protège, elle redirige.”</p></div>
+        <div class="section-kicker">Rôle exact</div><div class="fast-track"><div class="fast-card"><strong>Mission</strong><p>Centraliser auth, routage, quotas et logs.</p></div><div class="fast-card"><strong>À éviter</strong><p>Ne pas mettre la logique métier dans la gateway.</p></div><div class="fast-card"><strong>Image mentale</strong><p>La gateway est un portier, pas un cerveau métier.</p></div></div>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
-
         <p>L'<strong>API Gateway</strong> est le point d'entrée unique de toutes les requêtes extérieures vers les microservices. Elle centralise les préoccupations transversales.</p>
-
-
         <div class="diagram-wrap">
-          <svg viewBox="0 0 780 280" xmlns="http://www.w3.org/2000/svg" font-family="Inter,Segoe UI,sans-serif">
+          <svg font-family="Inter,Segoe UI,sans-serif" viewbox="0 0 780 280" xmlns="http://www.w3.org/2000/svg">
             <defs>
-              <filter id="gwSh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
-              <marker id="gwA" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"/></marker>
+              <filter height="116%" id="gwSh" width="108%" x="-4%" y="-4%"><fedropshadow dx="0" dy="2" flood-color="#0f172a" flood-opacity=".1" stddeviation="3"></fedropshadow></filter>
+              <marker id="gwA" markerheight="6" markerwidth="8" orient="auto" refx="7" refy="3"><path d="M0,0 L8,3 L0,6Z" fill="#3b82f6"></path></marker>
             </defs>
-            <rect width="780" height="280" fill="#f8fafc" rx="14"/>
+            <rect fill="#f8fafc" height="280" rx="14" width="780"></rect>
             <!-- Clients -->
-            <g filter="url(#gwSh)"><rect x="15" y="40" width="95" height="55" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
-            <text x="62" y="65" text-anchor="middle" font-size="16">🌐</text>
-            <text x="62" y="84" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Web App</text></g>
-            <g filter="url(#gwSh)"><rect x="15" y="115" width="95" height="55" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
-            <text x="62" y="140" text-anchor="middle" font-size="16">📱</text>
-            <text x="62" y="159" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">Mobile App</text></g>
-            <g filter="url(#gwSh)"><rect x="15" y="190" width="95" height="55" rx="10" fill="#fff" stroke="#64748b" stroke-width="1.5"/>
-            <text x="62" y="215" text-anchor="middle" font-size="16">🤖</text>
-            <text x="62" y="234" text-anchor="middle" font-size="9" font-weight="600" fill="#1e293b">API Client</text></g>
+            <g filter="url(#gwSh)"><rect fill="#fff" height="55" rx="10" stroke="#64748b" stroke-width="1.5" width="95" x="15" y="40"></rect>
+              <text font-size="16" text-anchor="middle" x="62" y="65">🌐</text>
+              <text fill="#1e293b" font-size="9" font-weight="600" text-anchor="middle" x="62" y="84">Web App</text></g>
+            <g filter="url(#gwSh)"><rect fill="#fff" height="55" rx="10" stroke="#64748b" stroke-width="1.5" width="95" x="15" y="115"></rect>
+              <text font-size="16" text-anchor="middle" x="62" y="140">📱</text>
+              <text fill="#1e293b" font-size="9" font-weight="600" text-anchor="middle" x="62" y="159">Mobile App</text></g>
+            <g filter="url(#gwSh)"><rect fill="#fff" height="55" rx="10" stroke="#64748b" stroke-width="1.5" width="95" x="15" y="190"></rect>
+              <text font-size="16" text-anchor="middle" x="62" y="215">🤖</text>
+              <text fill="#1e293b" font-size="9" font-weight="600" text-anchor="middle" x="62" y="234">API Client</text></g>
             <!-- Gateway -->
             <g filter="url(#gwSh)">
-              <rect x="195" y="20" width="180" height="240" rx="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="2.5"/>
-              <rect x="195" y="20" width="180" height="32" rx="14" fill="#3b82f6"/>
-              <rect x="195" y="38" width="180" height="14" fill="#3b82f6"/>
-              <text x="285" y="42" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">🚪 API Gateway</text>
-              <text x="285" y="78" text-anchor="middle" font-size="10" fill="#1e40af">🔒 JWT / OAuth2</text>
-              <text x="285" y="100" text-anchor="middle" font-size="10" fill="#1e40af">📊 Rate Limiting</text>
-              <text x="285" y="122" text-anchor="middle" font-size="10" fill="#1e40af">🔀 Routage</text>
-              <text x="285" y="144" text-anchor="middle" font-size="10" fill="#1e40af">📋 Logging</text>
-              <text x="285" y="166" text-anchor="middle" font-size="10" fill="#1e40af">🔄 Circuit Breaker</text>
-              <text x="285" y="188" text-anchor="middle" font-size="10" fill="#1e40af">🗜️ Transformation</text>
-              <text x="285" y="218" text-anchor="middle" font-size="9" fill="#475569" font-style="italic">Spring Cloud Gateway</text>
-              <text x="285" y="234" text-anchor="middle" font-size="9" fill="#475569" font-style="italic">Kong · Envoy · Nginx</text>
+              <rect fill="#dbeafe" height="240" rx="14" stroke="#3b82f6" stroke-width="2.5" width="180" x="195" y="20"></rect>
+              <rect fill="#3b82f6" height="32" rx="14" width="180" x="195" y="20"></rect>
+              <rect fill="#3b82f6" height="14" width="180" x="195" y="38"></rect>
+              <text fill="#fff" font-size="12" font-weight="700" text-anchor="middle" x="285" y="42">🚪 API Gateway</text>
+              <text fill="#1e40af" font-size="10" text-anchor="middle" x="285" y="78">🔒 JWT / OAuth2</text>
+              <text fill="#1e40af" font-size="10" text-anchor="middle" x="285" y="100">📊 Rate Limiting</text>
+              <text fill="#1e40af" font-size="10" text-anchor="middle" x="285" y="122">🔀 Routage</text>
+              <text fill="#1e40af" font-size="10" text-anchor="middle" x="285" y="144">📋 Logging</text>
+              <text fill="#1e40af" font-size="10" text-anchor="middle" x="285" y="166">🔄 Circuit Breaker</text>
+              <text fill="#1e40af" font-size="10" text-anchor="middle" x="285" y="188">🗜️ Transformation</text>
+              <text fill="#475569" font-size="9" font-style="italic" text-anchor="middle" x="285" y="218">Spring Cloud Gateway</text>
+              <text fill="#475569" font-size="9" font-style="italic" text-anchor="middle" x="285" y="234">Kong · Envoy · Nginx</text>
             </g>
             <!-- Services -->
-            <g filter="url(#gwSh)"><rect x="470" y="30" width="140" height="50" rx="10" fill="#f0fdf4" stroke="#16a34a" stroke-width="1.5"/>
-            <text x="540" y="55" text-anchor="middle" font-size="11" font-weight="600" fill="#14532d">📚 /api/books</text>
-            <text x="540" y="72" text-anchor="middle" font-size="9" fill="#475569">Catalog Service</text></g>
-            <g filter="url(#gwSh)"><rect x="470" y="105" width="140" height="50" rx="10" fill="#fef3c7" stroke="#d97706" stroke-width="1.5"/>
-            <text x="540" y="130" text-anchor="middle" font-size="11" font-weight="600" fill="#92400e">🔄 /api/loans</text>
-            <text x="540" y="147" text-anchor="middle" font-size="9" fill="#475569">Loan Service</text></g>
-            <g filter="url(#gwSh)"><rect x="470" y="180" width="140" height="50" rx="10" fill="#faf5ff" stroke="#7c3aed" stroke-width="1.5"/>
-            <text x="540" y="205" text-anchor="middle" font-size="11" font-weight="600" fill="#581c87">🔐 /api/auth</text>
-            <text x="540" y="222" text-anchor="middle" font-size="9" fill="#475569">Identity Service</text></g>
+            <g filter="url(#gwSh)"><rect fill="#f0fdf4" height="50" rx="10" stroke="#16a34a" stroke-width="1.5" width="140" x="470" y="30"></rect>
+              <text fill="#14532d" font-size="11" font-weight="600" text-anchor="middle" x="540" y="55">📚 /api/books</text>
+              <text fill="#475569" font-size="9" text-anchor="middle" x="540" y="72">Catalog Service</text></g>
+            <g filter="url(#gwSh)"><rect fill="#fef3c7" height="50" rx="10" stroke="#d97706" stroke-width="1.5" width="140" x="470" y="105"></rect>
+              <text fill="#92400e" font-size="11" font-weight="600" text-anchor="middle" x="540" y="130">🔄 /api/loans</text>
+              <text fill="#475569" font-size="9" text-anchor="middle" x="540" y="147">Loan Service</text></g>
+            <g filter="url(#gwSh)"><rect fill="#faf5ff" height="50" rx="10" stroke="#7c3aed" stroke-width="1.5" width="140" x="470" y="180"></rect>
+              <text fill="#581c87" font-size="11" font-weight="600" text-anchor="middle" x="540" y="205">🔐 /api/auth</text>
+              <text fill="#475569" font-size="9" text-anchor="middle" x="540" y="222">Identity Service</text></g>
             <!-- Discovery -->
-            <g filter="url(#gwSh)"><rect x="640" y="100" width="130" height="60" rx="10" fill="#e2e8f0" stroke="#64748b" stroke-width="1.5"/>
-            <text x="705" y="125" text-anchor="middle" font-size="10" font-weight="600" fill="#334155">🔍 Service Registry</text>
-            <text x="705" y="145" text-anchor="middle" font-size="9" fill="#64748b">Eureka / Consul</text></g>
+            <g filter="url(#gwSh)"><rect fill="#e2e8f0" height="60" rx="10" stroke="#64748b" stroke-width="1.5" width="130" x="640" y="100"></rect>
+              <text fill="#334155" font-size="10" font-weight="600" text-anchor="middle" x="705" y="125">🔍 Service Registry</text>
+              <text fill="#64748b" font-size="9" text-anchor="middle" x="705" y="145">Eureka / Consul</text></g>
             <!-- Arrows -->
-            <path d="M110,67 L195,67" stroke="#64748b" stroke-width="1.5" marker-end="url(#gwA)"/>
-            <path d="M110,142 L195,142" stroke="#64748b" stroke-width="1.5" marker-end="url(#gwA)"/>
-            <path d="M110,217 L195,217" stroke="#64748b" stroke-width="1.5" marker-end="url(#gwA)"/>
-            <path d="M375,55 L470,55" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gwA)"/>
-            <path d="M375,130 L470,130" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gwA)"/>
-            <path d="M375,205 L470,205" stroke="#3b82f6" stroke-width="1.5" marker-end="url(#gwA)"/>
-            <path d="M375,140 Q420,130 640,130" stroke="#64748b" stroke-width="1" stroke-dasharray="4,3"/>
+            <path d="M110,67 L195,67" marker-end="url(#gwA)" stroke="#64748b" stroke-width="1.5"></path>
+            <path d="M110,142 L195,142" marker-end="url(#gwA)" stroke="#64748b" stroke-width="1.5"></path>
+            <path d="M110,217 L195,217" marker-end="url(#gwA)" stroke="#64748b" stroke-width="1.5"></path>
+            <path d="M375,55 L470,55" marker-end="url(#gwA)" stroke="#3b82f6" stroke-width="1.5"></path>
+            <path d="M375,130 L470,130" marker-end="url(#gwA)" stroke="#3b82f6" stroke-width="1.5"></path>
+            <path d="M375,205 L470,205" marker-end="url(#gwA)" stroke="#3b82f6" stroke-width="1.5"></path>
+            <path d="M375,140 Q420,130 640,130" stroke="#64748b" stroke-dasharray="4,3" stroke-width="1"></path>
           </svg>
         </div>
-
         <div class="box child-mode">
           <h4>Mode enfant 🧸</h4>
           <p>C'est comme le guichet d'accueil d'un grand hôpital : tu ne vas pas directement voir le chirurgien. Tu passes par l'accueil qui vérifie ta carte vitale, sait où t'envoyer, et garde une trace de ta visite.</p>
         </div>
-
         <div class="box definition">
           <h4>Responsabilités typiques d'une API Gateway</h4>
           <ul>
@@ -1319,10 +1586,9 @@ spring:
             <li>🔄 <strong>Circuit breaker</strong> au niveau gateway (Resilience4j).</li>
           </ul>
         </div>
-
         <div class="box example">
           <h4>Configuration Spring Cloud Gateway complète</h4>
-<pre><code class="language-yaml">spring:
+          <pre><code class="language-yaml">spring:
   cloud:
     gateway:
       default-filters:
@@ -1359,9 +1625,8 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://keycloak:8080/realms/library/protocol/openid-connect/certs</code></pre>
-
           <h5>Filter de sécurité JWT personnalisé</h5>
-<pre><code class="language-java">@Component
+          <pre><code class="language-java">@Component
 public class JwtAuthFilter implements GlobalFilter, Ordered {
 
     private final ReactiveJwtDecoder jwtDecoder;
@@ -1379,7 +1644,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
 
         String token = authHeader.substring(7);
         return jwtDecoder.decode(token)
-            .flatMap(jwt -> {
+            .flatMap(jwt -&gt; {
                 // Propager les claims vers les services downstream
                 ServerHttpRequest mutated = exchange.getRequest().mutate()
                     .header("X-User-Id",    jwt.getSubject())
@@ -1387,7 +1652,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
                     .build();
                 return chain.filter(exchange.mutate().request(mutated).build());
             })
-            .onErrorResume(e -> {
+            .onErrorResume(e -&gt; {
                 exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
                 return exchange.getResponse().setComplete();
             });
@@ -1396,38 +1661,47 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
     @Override public int getOrder() { return -1; }  // avant tous les autres filtres
 }</code></pre>
         </div>
-
         <div class="box warning">
           <h4>⚠️ Anti-pattern : la Gateway intelligente</h4>
           <p>La gateway doit rester <strong>stupide</strong> (routage, sécurité, observabilité). Évitez d'y placer de la logique métier : vous recréeriez un monolithe distribué difficile à tester et à maintenir.</p>
         </div>
-      </section>
 
+        <div class="mini-schema">
+          <div class="schema-node"><h4>Client</h4><p>envoie une requête</p></div>
+          <div class="schema-node"><h4>Gateway</h4><p>vérifie, limite, route</p></div>
+          <div class="schema-node"><h4>Service</h4><p>exécute le métier</p></div>
+          <div class="schema-node"><h4>Logs/trace</h4><p>gardent la preuve</p></div>
+        </div>
+      </section>
       <!-- ═══════════════════════════════
-           8. SERVICE DISCOVERY
-      ═══════════════════════════════ -->
+                 8. SERVICE DISCOVERY
+            ═══════════════════════════════ -->
       <section id="service-discovery">
         <h2>Service Discovery</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Les adresses des services changent, il faut les retrouver dynamiquement.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>On ne hardcode pas des IP dans les microservices.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Discovery = savoir <b>où</b> appeler sans connaître l'IP.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>Eureka / DNS</p></div>
+        </div>
+        <div class="section-kicker">Pourquoi c’est utile</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Les adresses des services changent quand les instances montent ou descendent.</p></div><div class="fast-card"><strong>Solution</strong><p>Un registre permet de retrouver dynamiquement les bonnes instances.</p></div><div class="fast-card"><strong>Repère moderne</strong><p>Sur Kubernetes, le DNS interne remplace souvent Eureka.</p></div></div>
         <div class="level-bar"><span class="level-pill mid">Mid</span></div>
-
         <p>Dans un système distribué, les instances de services démarrent et s'arrêtent dynamiquement. Il est impossible de coder en dur les adresses IP. Le <strong>Service Discovery</strong> résout ce problème en maintenant un registre dynamique.</p>
-
         <div class="columns">
           <div class="box definition">
             <h4>Client-side Discovery</h4>
             <p>Le client interroge le registre (Eureka) et choisit lui-même une instance. <strong>Ribbon / Spring Cloud LoadBalancer</strong> fait le load balancing localement.</p>
-            <p>✅ Logique de routage côté client<br>⚠️ Couplage au registre</p>
+            <p>✅ Logique de routage côté client<br/>⚠️ Couplage au registre</p>
           </div>
           <div class="box definition">
             <h4>Server-side Discovery</h4>
             <p>Le client envoie la requête à un load balancer (AWS ALB, Nginx, Istio) qui interroge le registre et route. Client plus simple.</p>
-            <p>✅ Client léger et découplé<br>⚠️ Composant infra supplémentaire</p>
+            <p>✅ Client léger et découplé<br/>⚠️ Composant infra supplémentaire</p>
           </div>
         </div>
-
         <div class="box example">
           <h4>Configuration Eureka — pom.xml + application.yml</h4>
-<pre><code class="language-xml">&lt;!-- Serveur Eureka --&gt;
+          <pre><code class="language-xml">&lt;!-- Serveur Eureka --&gt;
 &lt;dependency&gt;
   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
   &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-server&lt;/artifactId&gt;
@@ -1438,7 +1712,7 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
   &lt;artifactId&gt;spring-cloud-starter-netflix-eureka-client&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
-<pre><code class="language-yaml"># application.yml — dans chaque microservice client
+          <pre><code class="language-yaml"># application.yml — dans chaque microservice client
 spring:
   application:
     name: loan-service      # identité dans le registre
@@ -1454,46 +1728,48 @@ eureka:
     lease-renewal-interval-in-seconds: 10    # heartbeat
     lease-expiration-duration-in-seconds: 30 # TTL avant désenregistrement</code></pre>
         </div>
-
         <div class="box expert">
           <h4>⚙️ Expert — Alternatives modernes à Eureka</h4>
           <table>
             <thead><tr><th>Solution</th><th>Contexte</th><th>Avantage clé</th></tr></thead>
             <tbody>
-              <tr><td><strong>Kubernetes DNS</strong></td><td>Déploiement K8s</td><td>Natif, pas de code Java requis</td></tr>
-              <tr><td><strong>Consul</strong></td><td>Multi-cloud, VM + containers</td><td>Health checks, KV store, multi-datacenter</td></tr>
-              <tr><td><strong>Istio Service Mesh</strong></td><td>K8s avancé</td><td>mTLS, circuit breaker, observabilité sans code</td></tr>
+            <tr><td><strong>Kubernetes DNS</strong></td><td>Déploiement K8s</td><td>Natif, pas de code Java requis</td></tr>
+            <tr><td><strong>Consul</strong></td><td>Multi-cloud, VM + containers</td><td>Health checks, KV store, multi-datacenter</td></tr>
+            <tr><td><strong>Istio Service Mesh</strong></td><td>K8s avancé</td><td>mTLS, circuit breaker, observabilité sans code</td></tr>
             </tbody>
           </table>
           <p>En 2024+, si vous déployez sur Kubernetes, utilisez simplement les <strong>Services K8s</strong> et le DNS cluster interne (<code>catalog-service.default.svc.cluster.local</code>). Eureka devient superflu.</p>
         </div>
       </section>
-
       <!-- ═══════════════════════════════
-           9. RATE LIMITING  (nouveau)
-      ═══════════════════════════════ -->
+                 9. RATE LIMITING  (nouveau)
+            ═══════════════════════════════ -->
       <section id="rate-limiting">
         <h2>Rate Limiting &amp; Throttling</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>On limite le débit pour protéger le système.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Un client trop bavard peut dégrader tout le monde.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Le bon code HTTP ici, c'est <b>429</b>.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>quota / 429</p></div>
+        </div>
+        <div class="section-kicker">Protection</div><div class="fast-track"><div class="fast-card"><strong>But</strong><p>Empêcher qu’un client consomme trop de ressources.</p></div><div class="fast-card"><strong>Réponse HTTP</strong><p>Quand la limite est dépassée, on renvoie 429.</p></div><div class="fast-card"><strong>En distribué</strong><p>Redis permet de partager la même limite entre plusieurs instances.</p></div></div>
         <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
-
         <p>Le <strong>Rate Limiting</strong> consiste à limiter le nombre de requêtes qu'un client peut effectuer dans une fenêtre de temps donnée. Il protège vos services des abus, des attaques DDoS et de l'utilisation excessive des ressources.</p>
-
         <div class="box definition">
           <h4>Algorithmes de Rate Limiting</h4>
           <table>
             <thead><tr><th>Algorithme</th><th>Description</th><th>Avantage</th><th>Limite</th></tr></thead>
             <tbody>
-              <tr><td><strong>Token Bucket</strong></td><td>Seau de jetons rempli à débit constant</td><td>Autorise les bursts</td><td>Complexe</td></tr>
-              <tr><td><strong>Fixed Window</strong></td><td>Compteur par fenêtre fixe (ex: 1 min)</td><td>Simple</td><td>Pic en bord de fenêtre</td></tr>
-              <tr><td><strong>Sliding Window</strong></td><td>Fenêtre glissante dans le temps</td><td>Plus lisse</td><td>Plus de mémoire</td></tr>
-              <tr><td><strong>Leaky Bucket</strong></td><td>Traitement à débit constant</td><td>Débit stable</td><td>Perd les bursts</td></tr>
+            <tr><td><strong>Token Bucket</strong></td><td>Seau de jetons rempli à débit constant</td><td>Autorise les bursts</td><td>Complexe</td></tr>
+            <tr><td><strong>Fixed Window</strong></td><td>Compteur par fenêtre fixe (ex: 1 min)</td><td>Simple</td><td>Pic en bord de fenêtre</td></tr>
+            <tr><td><strong>Sliding Window</strong></td><td>Fenêtre glissante dans le temps</td><td>Plus lisse</td><td>Plus de mémoire</td></tr>
+            <tr><td><strong>Leaky Bucket</strong></td><td>Traitement à débit constant</td><td>Débit stable</td><td>Perd les bursts</td></tr>
             </tbody>
           </table>
         </div>
-
         <div class="box example">
           <h4>Rate Limiting avec Bucket4j (Spring Boot)</h4>
-<pre><code class="language-xml">&lt;dependency&gt;
+          <pre><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;com.github.vladimir-bukhtoyarov&lt;/groupId&gt;
   &lt;artifactId&gt;bucket4j-core&lt;/artifactId&gt;
   &lt;version&gt;8.7.0&lt;/version&gt;
@@ -1503,8 +1779,7 @@ eureka:
   &lt;artifactId&gt;bucket4j-redis&lt;/artifactId&gt;
   &lt;version&gt;8.7.0&lt;/version&gt;
 &lt;/dependency&gt;</code></pre>
-
-<pre><code class="language-java">@Component
+          <pre><code class="language-java">@Component
 @RequiredArgsConstructor
 public class RateLimitFilter extends OncePerRequestFilter {
 
@@ -1547,10 +1822,9 @@ public class RateLimitFilter extends OncePerRequestFilter {
     }
 }</code></pre>
         </div>
-
         <div class="box expert">
           <h4>⚙️ Expert — Rate Limiting distribué avec Redis (Sliding Window)</h4>
-<pre><code class="language-java">@Component
+          <pre><code class="language-java">@Component
 public class SlidingWindowRateLimiter {
 
     private final StringRedisTemplate redis;
@@ -1576,7 +1850,7 @@ public class SlidingWindowRateLimiter {
             -- Compter les requêtes dans la fenêtre
             local count = redis.call('ZCARD', key)
 
-            if count < max_requests then
+            if count &lt; max_requests then
                 redis.call('ZADD', key, now, now)
                 redis.call('EXPIRE', key, window_ms / 1000 + 1)
                 return 1
@@ -1599,7 +1873,6 @@ public class SlidingWindowRateLimiter {
 }</code></pre>
           <p>Le script Lua est exécuté de manière <strong>atomique</strong> par Redis. Pas besoin de verrou distribué car Redis est mono-threadé pour l'exécution des scripts.</p>
         </div>
-
         <div class="box best-practice">
           <h4>✅ Bonnes pratiques</h4>
           <ul>
@@ -1610,16 +1883,20 @@ public class SlidingWindowRateLimiter {
           </ul>
         </div>
       </section>
-
       <!-- ═══════════════════════════════
-           10. DISTRIBUTED TRACING
-      ═══════════════════════════════ -->
+                 10. DISTRIBUTED TRACING
+            ═══════════════════════════════ -->
       <section id="tracing">
         <h2>Distributed Tracing</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Le tracing reconstitue le trajet d'une requête entre plusieurs services.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Sans trace ID, on ne sait pas où ça a ralenti.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Une requête = une trace, chaque étape = un span.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>traceId / spanId</p></div>
+        </div>
+        <div class="section-kicker">Debug production</div><div class="fast-track"><div class="fast-card"><strong>Trace ID</strong><p>Identifie tout le parcours d’une requête.</p></div><div class="fast-card"><strong>Span</strong><p>Représente une étape précise dans ce parcours.</p></div><div class="fast-card"><strong>Gain</strong><p>On voit vite quel service ou appel est lent.</p></div></div>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
-
         <p>Quand une requête traverse 5 services, comment savoir lequel est lent ? Le <strong>tracing distribué</strong> propage un identifiant unique (<strong>Trace ID</strong>) à travers tous les services pour reconstituer le chemin complet.</p>
-
         <div class="box definition">
           <h4>Concepts clés</h4>
           <ul>
@@ -1629,10 +1906,9 @@ public class SlidingWindowRateLimiter {
             <li><strong>Sampling</strong> : on ne trace pas 100% des requêtes en prod (coût) — on échantillonne (5% à 10%).</li>
           </ul>
         </div>
-
         <div class="box example">
           <h4>Configuration Micrometer Tracing + OpenTelemetry + Zipkin</h4>
-<pre><code class="language-xml">&lt;!-- pom.xml --&gt;
+          <pre><code class="language-xml">&lt;!-- pom.xml --&gt;
 &lt;dependency&gt;
   &lt;groupId&gt;io.micrometer&lt;/groupId&gt;
   &lt;artifactId&gt;micrometer-tracing-bridge-otel&lt;/artifactId&gt;
@@ -1641,7 +1917,7 @@ public class SlidingWindowRateLimiter {
   &lt;groupId&gt;io.opentelemetry&lt;/groupId&gt;
   &lt;artifactId&gt;opentelemetry-exporter-zipkin&lt;/artifactId&gt;
 &lt;/dependency&gt;</code></pre>
-<pre><code class="language-yaml"># application.yml
+          <pre><code class="language-yaml"># application.yml
 management:
   tracing:
     sampling:
@@ -1653,9 +1929,8 @@ management:
 logging:
   pattern:
     level: "%5p [${spring.application.name},%X{traceId},%X{spanId}]"</code></pre>
-
           <h5>Span personnalisé avec annotation</h5>
-<pre><code class="language-java">@Service
+          <pre><code class="language-java">@Service
 public class LoanApplicationService {
 
     private final Tracer tracer;
@@ -1686,30 +1961,39 @@ public class LoanApplicationService {
     }
 }</code></pre>
         </div>
-
         <div class="box best-practice">
           <h4>✅ Bonne pratique</h4>
           <p>Toujours inclure le <code>traceId</code> dans les logs et dans les réponses d'erreur (header <code>X-Trace-Id</code>). C'est la clé pour déboguer un incident en production en <strong>5 minutes</strong> au lieu de 5 heures.</p>
         </div>
-      </section>
 
+        <div class="mini-schema">
+          <div class="schema-node"><h4>Gateway</h4><p>crée un traceId</p></div>
+          <div class="schema-node"><h4>Service A</h4><p>ajoute un span</p></div>
+          <div class="schema-node"><h4>Service B</h4><p>ajoute un span</p></div>
+          <div class="schema-node"><h4>Zipkin</h4><p>reconstruit l’histoire</p></div>
+        </div>
+      </section>
       <!-- ═══════════════════════════════
-           11. EVENT SOURCING
-      ═══════════════════════════════ -->
+                 11. EVENT SOURCING
+            ═══════════════════════════════ -->
       <section id="event-sourcing">
         <h2>Event Sourcing (introduction)</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>On stocke l'histoire des changements, pas juste l'état final.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>L'état seul fait perdre l'historique métier.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>C'est puissant pour l'audit, lourd pour un simple CRUD.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>events / replay</p></div>
+        </div>
+        <div class="section-kicker">À réserver aux bons cas</div><div class="fast-track"><div class="fast-card"><strong>Principe</strong><p>On stocke l’historique des événements, pas seulement l’état final.</p></div><div class="fast-card"><strong>Atout</strong><p>Audit complet et reconstruction du passé.</p></div><div class="fast-card"><strong>Limite</strong><p>Plus puissant mais plus complexe qu’un CRUD classique.</p></div></div>
         <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
-
         <p>Au lieu de stocker <em>l'état actuel</em> d'une entité, on stocke la <strong>séquence de tous les événements</strong> qui ont conduit à cet état. L'état courant est reconstruit en rejouant les événements.</p>
-
         <div class="box child-mode">
           <h4>Mode enfant 🧸</h4>
           <p>Plutôt que de noter "solde = 150€", tu notes toutes les opérations : "dépôt 200€", "retrait 50€". Tu peux retrouver le solde à n'importe quel moment dans le passé.</p>
         </div>
-
         <div class="box example">
           <h4>Modélisation en Java — Sealed interfaces + Records</h4>
-<pre><code class="language-java">// Les événements sont immuables et typés précisément
+          <pre><code class="language-java">// Les événements sont immuables et typés précisément
 public sealed interface LoanEvent permits
     LoanRequestedEvent, LoanApprovedEvent, LoanReturnedEvent,
     LoanRenewedEvent, LoanOverdueEvent {}
@@ -1750,25 +2034,24 @@ public class Loan {
     // Apply — état interne muté par l'événement
     private void apply(LoanEvent event) {
         switch (event) {
-            case LoanRequestedEvent r -> {
+            case LoanRequestedEvent r -&gt; {
                 this.id     = r.loanId();
                 this.status = LoanStatus.REQUESTED;
             }
-            case LoanApprovedEvent a -> {
+            case LoanApprovedEvent a -&gt; {
                 this.status  = LoanStatus.APPROVED;
                 this.dueDate = a.dueDate();
             }
-            case LoanReturnedEvent ignored -> this.status = LoanStatus.RETURNED;
-            case LoanRenewedEvent  r       -> this.dueDate = r.newDueDate();
-            case LoanOverdueEvent  ignored -> this.status = LoanStatus.OVERDUE;
+            case LoanReturnedEvent ignored -&gt; this.status = LoanStatus.RETURNED;
+            case LoanRenewedEvent  r       -&gt; this.dueDate = r.newDueDate();
+            case LoanOverdueEvent  ignored -&gt; this.status = LoanStatus.OVERDUE;
         }
     }
 }</code></pre>
         </div>
-
         <div class="box expert">
           <h4>⚙️ Expert — Snapshots pour éviter la reconstruction coûteuse</h4>
-<pre><code class="language-java">// Sans snapshot : rejouer 10 000 événements à chaque lecture = lent
+          <pre><code class="language-java">// Sans snapshot : rejouer 10 000 événements à chaque lecture = lent
 // Avec snapshot : rejouer depuis le dernier snapshot seulement
 
 @Component
@@ -1804,23 +2087,26 @@ public class LoanRepository {
     }
 }</code></pre>
         </div>
-
         <div class="box warning">
           <h4>⚠️ Quand utiliser Event Sourcing ?</h4>
           <p>L'Event Sourcing est puissant mais complexe. À réserver aux <strong>domaines où l'audit et l'historique complet sont critiques</strong> (finance, compliance, logistique). Pour un CRUD simple, c'est un over-engineering qui complique tout.</p>
         </div>
       </section>
-
       <!-- ═══════════════════════════════
-           12. CONTRACT TESTING  (nouveau)
-      ═══════════════════════════════ -->
+                 12. CONTRACT TESTING  (nouveau)
+            ═══════════════════════════════ -->
       <section id="contract-testing">
         <h2>Consumer-Driven Contract Testing</h2>
+        <div class="section-kickoff">
+          <div class="flash-card"><strong>En une phrase</strong><p>Le consumer décrit ce qu'il attend ; le provider le vérifie.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>Un service peut casser un autre sans le voir.</p></div>
+          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Le contrat rend les dépendances <b>explicites et testables</b>.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>Pact / contrat</p></div>
+        </div>
+        <div class="section-kicker">Sécurité de changement</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Un provider change son API et casse un consumer sans le savoir.</p></div><div class="fast-card"><strong>Solution</strong><p>Le consumer formalise ses attentes dans un contrat vérifiable.</p></div><div class="fast-card"><strong>Résultat</strong><p>On détecte la casse en CI avant la production.</p></div></div>
         <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
-
         <p>Dans un système distribué, comment s'assurer qu'un changement côté <em>provider</em> ne casse pas un <em>consumer</em> ?
-        Le <strong>Contract Testing</strong> (Pact / Spring Cloud Contract) formalise les attentes des consommateurs en contrats vérifiables automatiquement.</p>
-
+          Le <strong>Contract Testing</strong> (Pact / Spring Cloud Contract) formalise les attentes des consommateurs en contrats vérifiables automatiquement.</p>
         <div class="box definition">
           <h4>Principe</h4>
           <ol>
@@ -1830,10 +2116,9 @@ public class LoanRepository {
             <li>Si le provider casse le contrat, le build échoue <strong>avant le déploiement</strong>.</li>
           </ol>
         </div>
-
         <div class="box example">
           <h4>Côté Consumer — Test Pact (loan-service → catalog-service)</h4>
-<pre><code class="language-java">@ExtendWith(PactConsumerTestExt.class)
+          <pre><code class="language-java">@ExtendWith(PactConsumerTestExt.class)
 @PactTestFor(providerName = "catalog-service", port = "8081")
 class CatalogClientContractTest {
 
@@ -1865,9 +2150,8 @@ class CatalogClientContractTest {
         assertThat(response.copies()).isEqualTo(3);
     }
 }</code></pre>
-
           <h5>Côté Provider — Vérification du contrat</h5>
-<pre><code class="language-java">@Provider("catalog-service")
+          <pre><code class="language-java">@Provider("catalog-service")
 @PactBroker(url = "http://pact-broker:9292")
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class CatalogServiceContractVerificationTest {
@@ -1896,7 +2180,6 @@ class CatalogServiceContractVerificationTest {
     }
 }</code></pre>
         </div>
-
         <div class="box best-practice">
           <h4>✅ Workflow recommandé en CI/CD</h4>
           <ol>
@@ -1906,19 +2189,29 @@ class CatalogServiceContractVerificationTest {
           </ol>
           <p>Résultat : vous pouvez déployer chaque service indépendamment avec la <strong>confiance</strong> que les contrats sont respectés.</p>
         </div>
+        <div class="mini-summary">
+          <div class="card-lite">
+            <h4>En pratique</h4>
+            <p>Un système distribué fiable n’est pas celui qui “n’échoue jamais”, mais celui qui rend les échecs visibles, bornés et récupérables.</p>
+          </div>
+          <div class="card-lite">
+            <h4>Checklist architecture</h4>
+            <p>Timeouts, retries contrôlés, idempotence, tracing, contrats, versioning et observabilité doivent être pensés ensemble.</p>
+          </div>
+          <div class="card-lite">
+            <h4>Erreur classique</h4>
+            <p>Multiplier les technos de communication sans raison. Commence simple, puis introduis gRPC ou Kafka quand le besoin est réel.</p>
+          </div>
+        </div>
       </section>
-
-
       <!-- ═══════════════════════════════
-           CE QU'IL FAUT RETENIR
-      ═══════════════════════════════ -->
+                 CE QU'IL FAUT RETENIR
+            ═══════════════════════════════ -->
       <section id="retenir">
-        <h2>Ce qu'il faut retenir — Jour 3</h2>
-
+        <h2>Ce qu'il faut retenir — Jour 3</h2><div class="mini-summary"><ul><li>Chaque appel réseau peut échouer, ralentir ou être dupliqué.</li><li>Le distribué impose des choix : cohérence, disponibilité, latence.</li><li>La résilience repose sur timeout, retry maîtrisé, idempotence et observabilité.</li><li>Le bon choix dépend toujours du besoin métier, pas de la mode technique.</li></ul></div>
         <div class="key-rule">
           <p>🎯 Le distribué n'est pas un choix gratuit — chaque appel réseau est une source potentielle de panne, de latence et d'incohérence.</p>
         </div>
-
         <div class="retenir-grid">
           <div class="retenir-card" style="border-top-color:#dc2626">
             <h4>⚠️ Les pièges du distribué</h4>
@@ -1929,7 +2222,6 @@ class CatalogServiceContractVerificationTest {
               <li>Un retry sans <strong>backoff + jitter</strong> aggrave les pannes.</li>
             </ul>
           </div>
-
           <div class="retenir-card" style="border-top-color:#3b82f6">
             <h4>🔗 Communication</h4>
             <ul>
@@ -1939,7 +2231,6 @@ class CatalogServiceContractVerificationTest {
               <li><strong>Idempotence</strong> : clé pour les retries sûrs (Idempotency-Key header).</li>
             </ul>
           </div>
-
           <div class="retenir-card" style="border-top-color:#16a34a">
             <h4>🏗️ Infrastructure</h4>
             <ul>
@@ -1949,7 +2240,6 @@ class CatalogServiceContractVerificationTest {
               <li><strong>Distributed Tracing</strong> : Trace ID + Span ID pour le debug.</li>
             </ul>
           </div>
-
           <div class="retenir-card" style="border-top-color:#7c3aed">
             <h4>📋 Bonnes pratiques</h4>
             <ul>
@@ -1961,13 +2251,11 @@ class CatalogServiceContractVerificationTest {
           </div>
         </div>
       </section>
-
       <!-- ═══════════════════════════════
-           13. QUIZ
-      ═══════════════════════════════ -->
+                 13. QUIZ
+            ═══════════════════════════════ -->
       <section id="quiz">
         <h2>Quiz de fin — Jour 3</h2>
-
         <div class="quiz-item">
           <p><strong>1.</strong> Pourquoi un retry peut-il aggraver un incident ?</p>
           <details>
@@ -1975,7 +2263,6 @@ class CatalogServiceContractVerificationTest {
             <p>Si un service est déjà en surcharge, des retries massifs et simultanés empirent la situation : c'est le <em>thundering herd problem</em>. Solution : backoff exponentiel avec jitter pour étaler la charge dans le temps.</p>
           </details>
         </div>
-
         <div class="quiz-item">
           <p><strong>2.</strong> Dans quel cas le messaging asynchrone est-il préférable à REST ?</p>
           <details>
@@ -1983,7 +2270,6 @@ class CatalogServiceContractVerificationTest {
             <p>Quand l'émetteur ne doit pas attendre le récepteur (fire-and-forget), pour absorber des pics de charge, ou quand plusieurs consommateurs doivent réagir au même événement (fan-out). Exemple : après création d'un prêt, déclencher notification + analytics + audit en parallèle.</p>
           </details>
         </div>
-
         <div class="quiz-item">
           <p><strong>3.</strong> Pourquoi le versioning est-il central dans un système distribué ?</p>
           <details>
@@ -1991,7 +2277,6 @@ class CatalogServiceContractVerificationTest {
             <p>Les services sont déployés indépendamment. À un instant T, plusieurs versions d'un même service peuvent coexister. Sans versioning des API et des événements, une mise à jour peut casser les consommateurs encore sur l'ancienne version.</p>
           </details>
         </div>
-
         <div class="quiz-item">
           <p><strong>4.</strong> Quelle est la différence entre un Trace ID et un Span ID ?</p>
           <details>
@@ -1999,7 +2284,6 @@ class CatalogServiceContractVerificationTest {
             <p>Le <strong>Trace ID</strong> est unique pour l'ensemble de la requête utilisateur, du début à la fin. Un <strong>Span ID</strong> identifie une étape précise dans cette trace (ex: appel HTTP vers catalog-service). Une trace est composée d'arbres de spans.</p>
           </details>
         </div>
-
         <div class="quiz-item">
           <p><strong>5.</strong> Quelle "fallacy" du distribué explique qu'on oublie souvent de gérer les timeouts ?</p>
           <details>
@@ -2007,7 +2291,6 @@ class CatalogServiceContractVerificationTest {
             <p>La 1ère et la 2ème : <em>"Le réseau est fiable"</em> et <em>"La latence est nulle"</em>. En développement local tout fonctionne vite et sans erreur ; on oublie que sur un vrai réseau, les appels peuvent échouer ou prendre un temps arbitraire.</p>
           </details>
         </div>
-
         <div class="quiz-item">
           <p><strong>6.</strong> Quelle est la différence entre PACELC et CAP ? Donnez un exemple d'application de chaque.</p>
           <details>
@@ -2015,7 +2298,6 @@ class CatalogServiceContractVerificationTest {
             <p>CAP raisonne uniquement en cas de <em>partition réseau</em>. PACELC dit que même <em>sans partition</em>, on fait un arbitrage entre latence (L) et cohérence (C). Exemple CAP : choisir CP pour un système bancaire (refuser plutôt que répondre faux). Exemple PACELC : DynamoDB sacrifie la cohérence (EL) pour la basse latence au quotidien.</p>
           </details>
         </div>
-
         <div class="quiz-item">
           <p><strong>7.</strong> Qu'est-ce que le Consumer-Driven Contract Testing et quel problème résout-il ?</p>
           <details>
@@ -2023,7 +2305,6 @@ class CatalogServiceContractVerificationTest {
             <p>Le Consumer-Driven Contract Testing (Pact) permet au consumer de définir les interactions attendues avec un provider sous forme de contrat JSON. Le provider vérifie ce contrat en CI. Cela résout le problème du couplage implicite entre services : on peut déployer indépendamment en ayant la garantie que les interfaces sont respectées.</p>
           </details>
         </div>
-
         <div class="quiz-item">
           <p><strong>8.</strong> <em>(Expert)</em> Pourquoi le script Lua est-il utilisé pour le Rate Limiting avec Redis ?</p>
           <details>
@@ -2032,7 +2313,6 @@ class CatalogServiceContractVerificationTest {
           </details>
         </div>
       </section>
-
       <div class="footer-nav">
         <a href="../pages/jour-2-patterns-et-couches.html">← Jour 2</a>
         <a href="../pages/jour-4-microservices-et-communication.html">Jour 4 →</a>
@@ -2040,21 +2320,32 @@ class CatalogServiceContractVerificationTest {
     </article>
   </div>
 </main>
-
 <!-- Prism.js core + langages -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
-
 <script>
-(function(){
-  const nav = document.querySelector('.top-nav');
-  if(!nav) return;
-  nav.querySelectorAll('a').forEach(a =>
-    a.addEventListener('click', () => nav.classList.remove('open'))
-  );
-  window.addEventListener('scroll', () => nav.classList.remove('open'), {passive:true});
-})();
+  (function(){
+    const navZone = document.querySelector('.nav-scroll-zone');
+    const nav = document.querySelector('.top-nav');
+    if(!nav) return;
+
+    nav.querySelectorAll('a').forEach(a =>
+            a.addEventListener('click', () => navZone && navZone.classList.remove('open'))
+    );
+
+    window.addEventListener('scroll', () => navZone && navZone.classList.remove('open'), {passive:true});
+
+    // Réduction auto de la TOC sur petit écran après clic
+    const tocDetails = document.querySelector('#toc-aside details');
+    if(tocDetails){
+      document.querySelectorAll('#toc-aside a').forEach(a => {
+        a.addEventListener('click', () => {
+          if(window.innerWidth <= 768) tocDetails.removeAttribute('open');
+        });
+      });
+    }
+  })();
 </script>
 </body>
 </html>
