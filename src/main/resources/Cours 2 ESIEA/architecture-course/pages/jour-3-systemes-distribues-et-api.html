@@ -83,12 +83,20 @@
   </div>
 
   <div aria-label="Accès rapides" class="quick-tools">
+    <a href="#definition">Définition</a>
     <a href="#reseau">Réseau &amp; pannes</a>
     <a href="#cap">CAP / PACELC</a>
+    <a href="#idempotence">Idempotence</a>
     <a href="#communication">Sync vs Async</a>
+    <a href="#serialisation">Sérialisation</a>
     <a href="#gateway">Gateway</a>
+    <a href="#service-discovery">Discovery</a>
+    <a href="#rate-limiting">Rate Limiting</a>
     <a href="#tracing">Tracing</a>
+    <a href="#event-sourcing">Event Sourcing</a>
+    <a href="#contract-testing">Contract Testing</a>
     <a href="#retenir">Synthèse</a>
+    <a href="#quiz">Quiz</a>
   </div>
   <div class="layout">
     <aside class="toc" id="toc-aside">
@@ -2714,7 +2722,46 @@ class CatalogServiceContractVerificationTest {
 
     window.addEventListener('scroll', () => navZone && navZone.classList.remove('open'), {passive:true});
 
-    // Réduction auto de la TOC sur petit écran après clic
+    // Scroll spy — met en surbrillance la section visible dans le fil d'Ariane
+    const qtLinks = document.querySelectorAll('.quick-tools a[href^="#"]');
+    const sections = [];
+    qtLinks.forEach(a => {
+      const id = a.getAttribute('href').slice(1);
+      const el = document.getElementById(id);
+      if (el) sections.push({ id, el, link: a });
+    });
+
+    if (sections.length) {
+      const qt = document.querySelector('.quick-tools');
+      let currentId = null;
+
+      const activate = (id) => {
+        if (id === currentId) return;
+        currentId = id;
+        qtLinks.forEach(a => a.classList.remove('active'));
+        const active = qt.querySelector('a[href="#' + id + '"]');
+        if (active) {
+          active.classList.add('active');
+          // Auto-scroll horizontal du fil d'Ariane sur mobile
+          if (qt.scrollWidth > qt.clientWidth) {
+            const left = active.offsetLeft - qt.offsetLeft - qt.clientWidth / 2 + active.offsetWidth / 2;
+            qt.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
+          }
+        }
+      };
+
+      const onScroll = () => {
+        const scrollY = window.scrollY + 160;
+        let found = null;
+        for (let i = sections.length - 1; i >= 0; i--) {
+          if (sections[i].el.offsetTop <= scrollY) { found = sections[i].id; break; }
+        }
+        if (found) activate(found);
+      };
+
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    }
     const tocDetails = document.querySelector('#toc-aside details');
     if(tocDetails){
       document.querySelectorAll('#toc-aside a').forEach(a => {
