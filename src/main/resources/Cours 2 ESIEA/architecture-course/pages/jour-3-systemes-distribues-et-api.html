@@ -124,7 +124,6 @@
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Ici, le mot clé, c'est <b>réseau</b> : dès qu'on sort du processus local, tout devient plus incertain.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>latence / panne / message</p></div>
         </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“Retenez juste ça : un monolithe fait surtout des appels mémoire, un système distribué fait des appels réseau. Et le réseau, lui, peut être lent, tomber, ou répondre en double.”</p></div>
-        <div class="section-kicker">Idée clé</div><div class="fast-track"><div class="fast-card"><strong>En une phrase</strong><p>Plusieurs services ou machines coopèrent pour fournir un seul service à l’utilisateur.</p></div><div class="fast-card"><strong>Ce qui change</strong><p>Les appels ne sont plus locaux : il faut gérer le réseau, la latence et les pannes.</p></div><div class="fast-card"><strong>Réflexe à avoir</strong><p>Penser messages, contrats, timeout et observabilité dès la conception.</p></div></div>
         <p class="section-intro">Cette section pose le vocabulaire de base : plusieurs processus, plusieurs machines, échanges réseau, autonomie de services et nouveaux types de pannes.</p>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
@@ -412,40 +411,6 @@
                 <li><strong>La queue de distribution</strong> = la partie rare mais très lente des requêtes.</li>
               </ul>
             </div>
-            <div class="compare-grid">
-              <div class="compare-card">
-                <h4>p50</h4>
-                <ul class="tight-list">
-                  <li>cas habituel</li>
-                  <li>la moitié des requêtes est plus rapide</li>
-                  <li>ne suffit pas pour juger la qualité réelle</li>
-                </ul>
-              </div>
-              <div class="compare-card">
-                <h4>p95</h4>
-                <ul class="tight-list">
-                  <li>montre les lenteurs visibles</li>
-                  <li>souvent utilisé pour un SLO</li>
-                  <li>bon indicateur produit</li>
-                </ul>
-              </div>
-              <div class="compare-card">
-                <h4>p99</h4>
-                <ul class="tight-list">
-                  <li>montre les 1% les plus lents</li>
-                  <li>très utile pour diagnostiquer la prod</li>
-                  <li>révèle la “queue de distribution”</li>
-                </ul>
-              </div>
-              <div class="compare-card">
-                <h4>p999</h4>
-                <ul class="tight-list">
-                  <li>cas extrêmes</li>
-                  <li>sensible aux incidents rares</li>
-                  <li>utile pour plateforme critique</li>
-                </ul>
-              </div>
-            </div>
 
             <div class="diagram-card">
               <h3 style="margin-top:0">Exemple réel à commenter en cours</h3>
@@ -463,107 +428,6 @@
             </div>
 
             <div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“Ici, la majorité va bien. Mais une petite partie des utilisateurs attend plus de 2 secondes. Donc le système n’est pas vraiment sain. Le p99 nous montre ce que la moyenne et le p50 cachent.”</p></div>
-
-            <div class="box definition">
-              <h4>À quoi ressemble ce problème dans Grafana ?</h4>
-              <p>Sur un graphe de latence, on voit souvent :</p>
-              <ul>
-                <li>une courbe <strong>p50</strong> assez plate</li>
-                <li>une courbe <strong>p95</strong> un peu plus haute</li>
-                <li>une courbe <strong>p99</strong> avec des <strong>pics brutaux</strong></li>
-              </ul>
-              <p>Quand <strong>p50 reste stable</strong> mais que <strong>p99 monte fort</strong>, cela veut dire : <strong>la majorité des requêtes va bien, mais certaines tombent sur une ressource lente ou saturée</strong>.</p>
-            </div>
-
-            <div class="diagram-card">
-              <h3 style="margin-top:0">Version “jeu d’enfant” — 10 petits chats qui courent</h3>
-              <p style="margin-top:0"><strong>Image mentale :</strong> imagine 10 petits chats qui courent vers leur gamelle. <strong>8 chats</strong> arrivent presque ensemble. <strong>1 chat</strong> arrive un peu plus tard. <strong>1 dernier chat</strong> arrive très loin derrière. <strong>La queue de distribution</strong>, c’est justement <strong>ce petit groupe tout à droite</strong> qui arrive beaucoup plus tard que les autres.</p>
-
-              <svg viewBox="0 0 1100 440" xmlns="http://www.w3.org/2000/svg" style="max-width:100%;height:auto;display:block;margin:auto">
-                <defs>
-                  <filter id="catShadow" x="-5%" y="-5%" width="110%" height="110%">
-                    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".10"/>
-                  </filter>
-                  <marker id="softArrowKid" markerWidth="10" markerHeight="8" refX="9" refY="4" orient="auto">
-                    <path d="M0,0 L10,4 L0,8Z" fill="#f97316"/>
-                  </marker>
-                  <g id="pawBlue">
-                    <circle cx="0" cy="0" r="14" fill="#60a5fa"/>
-                    <circle cx="-18" cy="-18" r="6.5" fill="#60a5fa"/>
-                    <circle cx="-5" cy="-24" r="6.5" fill="#60a5fa"/>
-                    <circle cx="8" cy="-24" r="6.5" fill="#60a5fa"/>
-                    <circle cx="21" cy="-18" r="6.5" fill="#60a5fa"/>
-                  </g>
-                  <g id="pawOrange">
-                    <circle cx="0" cy="0" r="14" fill="#f59e0b"/>
-                    <circle cx="-18" cy="-18" r="6.5" fill="#f59e0b"/>
-                    <circle cx="-5" cy="-24" r="6.5" fill="#f59e0b"/>
-                    <circle cx="8" cy="-24" r="6.5" fill="#f59e0b"/>
-                    <circle cx="21" cy="-18" r="6.5" fill="#f59e0b"/>
-                  </g>
-                  <g id="pawRed">
-                    <circle cx="0" cy="0" r="14" fill="#ef4444"/>
-                    <circle cx="-18" cy="-18" r="6.5" fill="#ef4444"/>
-                    <circle cx="-5" cy="-24" r="6.5" fill="#ef4444"/>
-                    <circle cx="8" cy="-24" r="6.5" fill="#ef4444"/>
-                    <circle cx="21" cy="-18" r="6.5" fill="#ef4444"/>
-                  </g>
-                </defs>
-
-                <text x="40" y="42" font-size="22" font-weight="800" fill="#123f73">Même idée, mais en version très visuelle</text>
-                <line x1="70" y1="240" x2="1030" y2="240" stroke="#cbd5e1" stroke-width="4"/>
-                <text x="980" y="215" font-size="18" font-weight="700" fill="#475569">temps →</text>
-
-                <use href="#pawBlue" x="150" y="220" filter="url(#catShadow)"/>
-                <use href="#pawBlue" x="215" y="220" filter="url(#catShadow)"/>
-                <use href="#pawBlue" x="280" y="220" filter="url(#catShadow)"/>
-                <use href="#pawBlue" x="345" y="220" filter="url(#catShadow)"/>
-                <use href="#pawBlue" x="410" y="220" filter="url(#catShadow)"/>
-                <use href="#pawBlue" x="475" y="220" filter="url(#catShadow)"/>
-                <use href="#pawBlue" x="540" y="220" filter="url(#catShadow)"/>
-                <use href="#pawBlue" x="605" y="220" filter="url(#catShadow)"/>
-                <use href="#pawOrange" x="790" y="220" filter="url(#catShadow)"/>
-                <use href="#pawRed" x="965" y="220" filter="url(#catShadow)"/>
-
-                <rect x="115" y="285" width="560" height="56" rx="16" fill="#eff6ff" stroke="#93c5fd"/>
-                <text x="395" y="320" text-anchor="middle" font-size="24" font-weight="800" fill="#2563eb">8 chats arrivent presque ensemble = zone normale</text>
-
-                <rect x="710" y="285" width="160" height="56" rx="16" fill="#fff7ed" stroke="#fdba74"/>
-                <text x="790" y="319" text-anchor="middle" font-size="22" font-weight="800" fill="#d97706">1 chat un peu lent</text>
-
-                <rect x="885" y="285" width="170" height="56" rx="16" fill="#fef2f2" stroke="#fca5a5"/>
-                <text x="970" y="319" text-anchor="middle" font-size="22" font-weight="800" fill="#dc2626">1 chat très lent</text>
-
-                <path d="M860,180 C890,150 920,145 955,165" fill="none" stroke="#f97316" stroke-width="5" marker-end="url(#softArrowKid)"/>
-                <text x="785" y="155" font-size="22" font-weight="800" fill="#ea580c">Ici commence la queue</text>
-
-                <text x="120" y="390" font-size="24" font-weight="700" fill="#0f172a">Lecture :</text>
-                <text x="230" y="390" font-size="22" fill="#334155">si presque tout le monde est groupé et que quelques points partent loin à droite,</text>
-                <text x="120" y="420" font-size="22" fill="#334155">alors le système paraît rapide pour la majorité, mais quelques requêtes souffrent beaucoup.</text>
-              </svg>
-
-              <div class="box child-mode" style="margin-top:14px">
-                <h4>Version ultra simple</h4>
-                <p><strong>La queue de distribution</strong> = les <strong>quelques cas qui partent loin à droite</strong>. En production, ce sont souvent des requêtes bloquées par la base, un appel externe lent, un timeout ou une saturation.</p>
-              </div>
-            </div>
-
-            <pre><code class="language-java">// Spring Boot + Micrometer : un Timer pour mesurer la latence d'un appel
-@Service
-@RequiredArgsConstructor
-public class CatalogClientMetered {
-
-    private final MeterRegistry registry;
-    private final CatalogClient client;
-
-    public AvailabilityResponse getAvailability(UUID bookId) {
-        return registry.timer(
-                "catalog.availability",
-                "service", "catalog",
-                "operation", "getAvailability"
-        ).recordCallable(() -> client.getAvailability(bookId));
-    }
-}</code></pre>
 
             <div class="box example">
               <h4>Ce qu’on attend dans Actuator / Prometheus</h4>
@@ -668,37 +532,6 @@ public class CatalogClientMetered {
 
             </div>
 
-            <div class="box example">
-              <h4>Requêtes Grafana / Prometheus</h4>
-              <pre><code class="language-promql">histogram_quantile(
-  0.50,
-  sum(rate(catalog_availability_seconds_bucket[5m])) by (le)
-)
-
-histogram_quantile(
-  0.95,
-  sum(rate(catalog_availability_seconds_bucket[5m])) by (le)
-)
-
-histogram_quantile(
-  0.99,
-  sum(rate(catalog_availability_seconds_bucket[5m])) by (le)
-)</code></pre>
-            </div>
-
-            <div class="diagram-card">
-              <h3 style="margin-top:0">Exemple de résultat attendu dans Grafana</h3>
-              <table>
-                <thead><tr><th>Courbe</th><th>Valeur moyenne observée</th><th>Lecture</th></tr></thead>
-                <tbody>
-                <tr><td>p50</td><td>0,12 s</td><td>la majorité des appels est fluide</td></tr>
-                <tr><td>p95</td><td>0,40 s</td><td>ça reste acceptable</td></tr>
-                <tr><td>p99</td><td>2,20 s avec pics à 4 s</td><td>quelques requêtes rencontrent un vrai problème</td></tr>
-                </tbody>
-              </table>
-              <p><strong>Conclusion à tirer :</strong> le service est globalement bon, mais il existe une dépendance lente ou une saturation ponctuelle qui touche une minorité de requêtes.</p>
-            </div>
-
             <div class="box best-practice">
               <h4>🎯 SLI, SLO, SLA — lien avec les percentiles</h4>
               <ul>
@@ -718,29 +551,6 @@ histogram_quantile(
                 <tr><td>Erreur</td><td><code>&lt; 0.1%</code> de 5xx</td></tr>
                 </tbody>
               </table>
-            </div>
-
-            <div class="box warning">
-              <h4>Pourquoi la queue devient mauvaise ?</h4>
-              <ul>
-                <li>requêtes SQL sans index</li>
-                <li>appel HTTP externe parfois lent</li>
-                <li>pool de threads saturé</li>
-                <li>GC pause</li>
-                <li>retry mal réglé</li>
-                <li>cache absent</li>
-              </ul>
-            </div>
-
-            <div class="box best-practice">
-              <h4>Comment réduire la queue de latence ?</h4>
-              <ol>
-                <li><strong>Tracer</strong> la requête lente avec traceId / spanId</li>
-                <li><strong>Mesurer séparément</strong> HTTP, SQL, cache, broker, appel externe</li>
-                <li><strong>Corriger la vraie cause</strong> : index SQL, cache, timeout, pool, circuit breaker</li>
-                <li><strong>Limiter les retries</strong> et ajouter du jitter</li>
-                <li><strong>Réduire les appels synchrones en cascade</strong></li>
-              </ol>
             </div>
 
             <div class="diagram-card" style="border:2px solid #cfe1f7;background:#fcfeff">
@@ -814,16 +624,6 @@ histogram_quantile(
                   <li><strong>4.</strong> corriger avant / après sur p95 et p99</li>
                 </ul>
               </div>
-            </div>
-
-            <div class="box definition">
-              <h4>Méthode simple à suivre</h4>
-              <ol>
-                <li><strong>Identifier</strong> où ça bloque avec les traces et les métriques.</li>
-                <li><strong>Isoler</strong> la ressource lente : SQL, HTTP, cache, pool, broker, mémoire.</li>
-                <li><strong>Corriger</strong> la vraie cause au lieu d’ajouter juste des retries.</li>
-                <li><strong>Comparer</strong> avant / après sur <code>p95</code> et <code>p99</code>.</li>
-              </ol>
             </div>
 
             <div class="box warning">
@@ -1238,7 +1038,6 @@ public class CheckoutService {
               </div>
             </div>
 
-
             <div class="box warning">
               <h4>Cas 8 — Tracing trop pauvre</h4>
               <p><strong>Pourquoi ça pose problème :</strong> si les logs n'ont pas de <code>traceId</code> ni de <code>spanId</code>, tu vois qu'une requête est lente, mais tu ne sais pas <strong>où</strong> elle bloque.</p>
@@ -1361,236 +1160,6 @@ public class OrderService {
               <p><strong>Image mentale :</strong> sans jitter, 100 personnes se ruent à nouveau à la même porte au même moment ; avec jitter, elles reviennent un peu décalées et le service respire mieux.</p>
             </div>
 
-            <div class="columns">
-              <div class="box warning">
-                <h4>Retry mal réglé — mauvais exemple</h4>
-                <pre><code class="language-yaml">resilience4j:
-  retry:
-    instances:
-      paymentClient:
-        maxAttempts: 10
-        waitDuration: 100ms
-        enableExponentialBackoff: false
-        # Tout le monde retente vite et ensemble</code></pre>
-                <p>Problème : si le service distant est déjà lent, on l'écrase encore plus.</p>
-              </div>
-              <div class="box best-practice">
-                <h4>Retry limité + jitter — bon exemple</h4>
-                <pre><code class="language-yaml">resilience4j:
-  retry:
-    instances:
-      paymentClient:
-        maxAttempts: 3
-        waitDuration: 200ms
-        enableExponentialBackoff: true
-        exponentialBackoffMultiplier: 2
-        randomizedWaitFactor: 0.25
-        # 200ms±50ms, puis 400ms±100ms</code></pre>
-                <p>Ici, on limite les tentatives et on étale les retries dans le temps.</p>
-              </div>
-            </div>
-
-            <div class="box definition">
-              <h4>Exemple très concret</h4>
-              <ul>
-                <li><strong>5 000 TPS</strong> = 5 000 opérations par seconde.</li>
-                <li>Si seulement <strong>1%</strong> est très lent, cela fait déjà <strong>50 requêtes lentes par seconde</strong>.</li>
-                <li>En <strong>1 minute</strong>, cela représente <strong>3 000 requêtes lentes</strong>.</li>
-              </ul>
-              <p>Donc un “petit” pourcentage peut devenir un très gros problème utilisateur quand le trafic est élevé.</p>
-            </div>
-
-            <div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“TPS mesure le volume. TTFB mesure le début de la réponse perçue par l'utilisateur. Jitter sert à éviter que tous les retries repartent ensemble. Quand le p99 monte, je cherche quel goulot d'étranglement touche seulement une minorité de requêtes.”</p></div>
-
-            <div class="diagram-card" style="margin-top:18px">
-              <h3 style="margin-top:0">4) Exemples de grands sites / gros systèmes — lecture “à l’échelle réelle”</h3>
-              <p><strong>À comprendre :</strong> quand on parle de <code>p99</code>, on ne parle pas d’un cas “rare donc négligeable”. Sur un gros trafic, <strong>1% peut représenter énormément d’utilisateurs</strong>.</p>
-
-              <div class="compare-grid">
-                <div class="compare-card">
-                  <h4>Cas AWS / Amazon-like : gros système de paiement</h4>
-                  <ul class="tight-list">
-                    <li>Capacité de pic testée : <strong>5 000 TPS</strong></li>
-                    <li>Le <strong>p95</strong> était acceptable</li>
-                    <li>Mais le <strong>p99/p999</strong> restaient trop élevés</li>
-                    <li>La correction choisie : <strong>request hedging</strong></li>
-                    <li>Gain publié : <strong>30% de réduction du p99</strong></li>
-                  </ul>
-                </div>
-                <div class="compare-card">
-                  <h4>Cas Cloudflare : très gros trafic web</h4>
-                  <ul class="tight-list">
-                    <li><strong>www.cloudflare.com</strong> ≈ <strong>30 000 requêtes/s</strong></li>
-                    <li>Exemple publié : <strong>p99 = 500 ms</strong></li>
-                    <li>Incident 2024 : <strong>p99 TTFB ×3</strong></li>
-                    <li>Et jusqu’à <strong>1,4 à 2,1%</strong> de requêtes en erreur pendant 30 min au plus fort</li>
-                  </ul>
-                </div>
-              </div>
-
-              <div class="mini-summary">
-                <div class="card-lite">
-                  <h4>5 000 TPS</h4>
-                  <p>Si <strong>1%</strong> des requêtes sont très lentes, cela fait <strong>50 requêtes lentes chaque seconde</strong>.</p>
-                </div>
-                <div class="card-lite">
-                  <h4>30 000 req/s</h4>
-                  <p>Si <strong>1%</strong> des requêtes sont très lentes, cela fait <strong>300 requêtes lentes chaque seconde</strong>.</p>
-                </div>
-                <div class="card-lite">
-                  <h4>Conclusion</h4>
-                  <p>À grande échelle, un “petit” <strong>1%</strong> devient un vrai problème utilisateur et business.</p>
-                </div>
-              </div>
-
-              <h4 style="margin-top:16px">Graphe simplifié — lecture d’un jour de pic</h4>
-              <svg viewBox="0 0 920 300" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:auto;display:block;background:#0b1733;border-radius:16px">
-                <rect x="0" y="0" width="920" height="300" rx="16" fill="#0b1733"/>
-                <text x="30" y="34" fill="#dbeafe" font-size="20" font-weight="700">Pic de trafic : la majorité reste correcte, la queue explose</text>
-
-                <line x1="80" y1="245" x2="870" y2="245" stroke="#334155" />
-                <line x1="80" y1="195" x2="870" y2="195" stroke="#334155" />
-                <line x1="80" y1="145" x2="870" y2="145" stroke="#334155" />
-                <line x1="80" y1="95"  x2="870" y2="95"  stroke="#334155" />
-
-                <text x="28" y="248" fill="#94a3b8" font-size="12">0 ms</text>
-                <text x="18" y="198" fill="#94a3b8" font-size="12">200</text>
-                <text x="18" y="148" fill="#94a3b8" font-size="12">400</text>
-                <text x="18" y="98"  fill="#94a3b8" font-size="12">600</text>
-
-                <polyline fill="none" stroke="#60a5fa" stroke-width="5" points="100,220 180,219 260,220 340,219 420,218 500,219 580,220 660,219 740,219 820,218"/>
-                <polyline fill="none" stroke="#fcd34d" stroke-width="5" points="100,202 180,201 260,202 340,200 420,199 500,197 580,194 660,196 740,195 820,194"/>
-                <polyline fill="none" stroke="#f87171" stroke-width="6" points="100,188 180,186 260,185 340,180 420,172 500,152 580,118 660,88 740,84 820,86"/>
-
-                <text x="98" y="272" fill="#cbd5e1" font-size="12">début</text>
-                <text x="430" y="272" fill="#cbd5e1" font-size="12">montée de charge</text>
-                <text x="730" y="272" fill="#cbd5e1" font-size="12">plein pic</text>
-
-                <text x="110" y="65" fill="#60a5fa" font-size="15" font-weight="700">p50</text>
-                <text x="165" y="65" fill="#fcd34d" font-size="15" font-weight="700">p95</text>
-                <text x="220" y="65" fill="#f87171" font-size="15" font-weight="700">p99</text>
-
-                <path d="M620 105 L705 86" stroke="#f87171" stroke-width="3" marker-end="url(#arrowPeak)"/>
-                <text x="520" y="107" fill="#fca5a5" font-size="14" font-weight="700">ici la queue part très haut</text>
-
-                <defs>
-                  <marker id="arrowPeak" markerWidth="10" markerHeight="8" refX="8" refY="4" orient="auto">
-                    <path d="M0,0 L10,4 L0,8Z" fill="#f87171"/>
-                  </marker>
-                </defs>
-              </svg>
-
-              <table style="margin-top:16px">
-                <thead><tr><th>Moment</th><th>p50</th><th>p95</th><th>p99</th><th>Ce que ça veut dire</th></tr></thead>
-                <tbody>
-                <tr><td>Trafic normal</td><td>100 ms</td><td>170 ms</td><td>230 ms</td><td>Courbes proches, système sain</td></tr>
-                <tr><td>Montée de charge</td><td>105 ms</td><td>190 ms</td><td>430 ms</td><td>La majorité va bien, mais la queue commence à gonfler</td></tr>
-                <tr><td>Plein pic</td><td>108 ms</td><td>195 ms</td><td>620 ms</td><td>La douleur se concentre sur une minorité d’utilisateurs</td></tr>
-                </tbody>
-              </table>
-
-              <div class="box warning">
-                <h4>Comment corriger ce type de pic ?</h4>
-                <ul>
-                  <li><strong>Limiter la saturation</strong> : autoscaling, plus de workers, pools bien réglés.</li>
-                  <li><strong>Raccourcir le chemin critique</strong> : cache, index SQL, éviter les appels synchrones inutiles.</li>
-                  <li><strong>Éviter l’effet domino</strong> : timeout, retry limité, backoff + jitter, circuit breaker.</li>
-                  <li><strong>Isoler la vraie cause</strong> : mesurer p50/p95/p99 par endpoint, base, cache, API externe.</li>
-                  <li><strong>Améliorer la queue</strong> : request hedging sur lectures très sensibles quand c’est pertinent.</li>
-                </ul>
-              </div>
-
-              <div class="oral-script">
-                <h4>Ce que tu peux dire à l’oral</h4>
-                <p>“Sur un gros site, 1% de requêtes lentes n’est pas petit. À 30 000 requêtes par seconde, ça fait déjà 300 personnes touchées chaque seconde.”</p>
-                <p>“Le p50 me dit que la majorité va bien. Le p99 me dit combien de monde souffre pendant le pic.”</p>
-              </div>
-            </div>
-            <div class="oral-script"><h4>Version ultra simple à dire</h4><p>“Le p50 me dit comment va la majorité. Le p99 me dit si une minorité souffre. Si le p99 explose, je cherche d’abord une dépendance lente : base, réseau, service externe, saturation ou retry.”</p></div>
-          </div>
-
-          <div class="diagram-card">
-            <h3 style="margin-top:0">Problématiques typiques vues sur les percentiles — et comment les résoudre</h3>
-            <table>
-              <thead>
-              <tr>
-                <th>Ce qu’on observe</th>
-                <th>Ce que ça veut souvent dire</th>
-                <th>Causes probables</th>
-                <th>Actions correctives</th>
-              </tr>
-              </thead>
-              <tbody>
-              <tr>
-                <td><strong>p50, p95 et p99 montent tous</strong></td>
-                <td>Le système entier ralentit, pas seulement une minorité.</td>
-                <td>CPU saturé, base saturée, manque d’instances, code lent sur le chemin principal.</td>
-                <td>Autoscaling, optimisation SQL, cache, profiling, réduire le travail effectué à chaque requête.</td>
-              </tr>
-              <tr>
-                <td><strong>p50 reste bon, p99 explose</strong></td>
-                <td>La majorité va bien, mais quelques requêtes partent très loin à droite.</td>
-                <td>Appel externe instable, lock, GC pause, requête SQL rare mais très coûteuse, retry mal réglé.</td>
-                <td>Timeouts courts, circuit breaker, index, isolation des appels lents, hedging ciblé, supprimer les retries agressifs.</td>
-              </tr>
-              <tr>
-                <td><strong>p95 monte progressivement aux heures de pointe</strong></td>
-                <td>Le système tient encore, mais commence à se dégrader sous charge.</td>
-                <td>Pools trop petits, file d’attente qui se remplit, saturation I/O, contention progressive.</td>
-                <td>Ajuster threads/connexions, augmenter la capacité, lisser la charge, préchauffer le cache.</td>
-              </tr>
-              <tr>
-                <td><strong>p999 très haut, mais p99 correct</strong></td>
-                <td>Les incidents sont rares mais très douloureux quand ils arrivent.</td>
-                <td>Timeout exceptionnel, failover, cold start, DNS lent, pause JVM, panne d’un nœud.</td>
-                <td>Analyser les traces rares, chaos testing, warmup, tuning JVM, réduire le temps de failover.</td>
-              </tr>
-              <tr>
-                <td><strong>p99 monte après ajout de retries</strong></td>
-                <td>On a masqué des erreurs transitoires, mais on a allongé la queue de latence.</td>
-                <td>Backoff absent, jitter absent, trop de tentatives, retries en cascade entre services.</td>
-                <td>Limiter à 2–3 tentatives max, ajouter backoff + jitter, ne retry que les erreurs transitoires.</td>
-              </tr>
-              </tbody>
-            </table>
-          </div>
-
-          <div class="compare-grid">
-            <div class="compare-card">
-              <h4>Cas 1 — p50 bon, p99 mauvais</h4>
-              <ul class="tight-list">
-                <li><strong>Symptôme :</strong> la majorité répond vite, quelques utilisateurs attendent très longtemps.</li>
-                <li><strong>Image mentale :</strong> 99 clients passent en caisse normale, 1 client reste bloqué.</li>
-                <li><strong>Réflexe :</strong> chercher une cause rare mais très coûteuse.</li>
-                <li><strong>À mesurer :</strong> endpoint précis, requête SQL lente, span externe, logs avec traceId.</li>
-              </ul>
-            </div>
-            <div class="compare-card">
-              <h4>Cas 2 — tout monte pendant un pic</h4>
-              <ul class="tight-list">
-                <li><strong>Symptôme :</strong> p50, p95 et p99 se dégradent en même temps.</li>
-                <li><strong>Image mentale :</strong> tout le supermarché ralentit, pas juste une seule caisse.</li>
-                <li><strong>Réflexe :</strong> suspecter la saturation globale.</li>
-                <li><strong>À mesurer :</strong> CPU, mémoire, saturation DB, nombre de requêtes, files d’attente.</li>
-              </ul>
-            </div>
-          </div>
-
-          <div class="box best-practice">
-            <h4>Plan simple de diagnostic en production</h4>
-            <ol>
-              <li><strong>Regarde la forme :</strong> est-ce que seul <code>p99</code> monte, ou est-ce que <code>p50</code> monte aussi ?</li>
-              <li><strong>Découpe par endpoint :</strong> ne regarde jamais uniquement la moyenne globale du service.</li>
-              <li><strong>Découpe par dépendance :</strong> base, cache, broker, API externe, DNS, filesystem.</li>
-              <li><strong>Corrèle avec les traces :</strong> le span le plus long donne souvent la vraie cause.</li>
-              <li><strong>Vérifie les protections :</strong> timeout, retry, backoff, jitter, circuit breaker.</li>
-              <li><strong>Valide après correction :</strong> compare avant / après sur <code>p95</code> et <code>p99</code>, pas seulement sur la moyenne.</li>
-            </ol>
-          </div>
-
-          <div class="box warning">
-            <h4>Erreur classique</h4>
-            <p>Corriger uniquement le <strong>p50</strong> en disant “la majorité va bien”. En production, le vrai coût métier se cache souvent dans le <strong>p99</strong> : abandons panier, timeout mobile, erreurs support, file d’attente interne, saturation de workers.</p>
           </div>
 
       </section>
@@ -1606,7 +1175,6 @@ public class OrderService {
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Le danger n'est pas juste l'erreur : c'est surtout <b>l'ambiguïté</b>.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>timeout / retry / jitter</p></div>
         </div>
-        <div class="section-kicker">À comprendre vite</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Un timeout ne veut pas toujours dire “rien ne s’est passé”.</p></div><div class="fast-card"><strong>Risque</strong><p>Les retries mal réglés peuvent empirer une panne.</p></div><div class="fast-card"><strong>Réponse</strong><p>Toujours définir timeout, retry limité, backoff et jitter.</p></div></div>
         <p class="section-intro">Le point clé à comprendre : un timeout ne veut pas dire “le serveur n’a rien fait”. Il veut souvent dire “je ne sais pas ce qu’il s’est passé”.</p>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
@@ -1680,7 +1248,6 @@ resilience4j:
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>CAP ne dit pas “tout est impossible”, il dit <b>qu'il faut arbitrer</b>.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>CP vs AP</p></div>
         </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“CAP est un arbitrage de crise. Quand le réseau se coupe, je ne peux pas tout garder en même temps. Je choisis soit la vérité, soit la disponibilité.”</p></div>
-        <div class="section-kicker">Le bon réflexe</div><div class="fast-track"><div class="fast-card"><strong>Question à se poser</strong><p>Quand le réseau se coupe, préfère-t-on bloquer ou répondre quand même ?</p></div><div class="fast-card"><strong>CAP</strong><p>Sous partition réseau, on arbitre entre cohérence et disponibilité.</p></div><div class="fast-card"><strong>PACELC</strong><p>Même sans panne, on arbitre souvent entre latence et cohérence.</p></div></div>
         <div class="level-bar">
           <span class="level-pill mid">Mid</span>
           <span class="level-pill senior">Senior</span>
@@ -1798,7 +1365,6 @@ Row row = session.execute(stmt).one();</code></pre>
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Si on retente un POST, on doit avoir une <b>clé d'idempotence</b>.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>Idempotency-Key</p></div>
         </div>
-        <div class="section-kicker">Le piège classique</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Un POST relancé deux fois peut créer deux fois la même action.</p></div><div class="fast-card"><strong>Solution</strong><p>Associer les retries à une Idempotency-Key.</p></div><div class="fast-card"><strong>But</strong><p>Garantir qu’une même intention métier ne produit qu’un seul effet.</p></div></div>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
           <span class="level-pill mid">Mid</span>
@@ -1895,7 +1461,6 @@ public ResponseEntity&lt;LoanResponse&gt; create(
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>REST pour la simplicité, messaging pour le découplage.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>REST / gRPC / Kafka</p></div>
         </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“Quand j’ai besoin d’une réponse tout de suite, je prends du synchrone. Quand je veux découpler et absorber de la charge, je passe en asynchrone.”</p></div>
-        <div class="section-kicker">Choisir le bon mode</div><div class="fast-track"><div class="fast-card"><strong>Synchrone</strong><p>Simple à lire, mais l’appelant attend et subit la panne du service distant.</p></div><div class="fast-card"><strong>Asynchrone</strong><p>Plus résilient, mais plus complexe à suivre et à déboguer.</p></div><div class="fast-card"><strong>Règle simple</strong><p>Besoin d’une réponse immédiate : sync. Travail différé ou multi-consommateurs : async.</p></div></div>
         <p class="section-intro">Choisir entre synchrone et asynchrone n’est pas qu’une question technique : cela change la latence perçue, la robustesse du système, la traçabilité et la manière de raisonner sur la cohérence.</p>
         <div class="level-bar">
           <span class="level-pill junior">Junior</span>
@@ -2250,35 +1815,6 @@ spring:
           </tbody>
         </table>
 
-        <div class="compare-grid">
-          <div class="compare-card">
-            <h4>REST</h4>
-            <ul class="tight-list">
-              <li>à comprendre vite</li>
-              <li>bon pour CRUD</li>
-              <li>réponse immédiate</li>
-              <li>plus fragile en cascade</li>
-            </ul>
-          </div>
-          <div class="compare-card">
-            <h4>gRPC</h4>
-            <ul class="tight-list">
-              <li>plus rapide que JSON</li>
-              <li>contrat fort avec <code>.proto</code></li>
-              <li>très bon en interne</li>
-              <li>moins naturel côté navigateur</li>
-            </ul>
-          </div>
-          <div class="compare-card">
-            <h4>Kafka</h4>
-            <ul class="tight-list">
-              <li>publier puis continuer</li>
-              <li>absorbe mieux les pics</li>
-              <li>excellent pour fan-out</li>
-              <li>debug plus complexe</li>
-            </ul>
-          </div>
-        </div>
       </section>
       <!-- ═══════════════════════════════
                  6. SÉRIALISATION & VERSIONING
@@ -2291,7 +1827,6 @@ spring:
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Dans le distribué, on versionne pour <b>ne pas casser les autres</b>.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>contrat / version</p></div>
         </div>
-        <div class="section-kicker">À ne pas oublier</div><div class="fast-track"><div class="fast-card"><strong>Danger</strong><p>Modifier un champ peut casser un autre service déjà déployé.</p></div><div class="fast-card"><strong>Bonne pratique</strong><p>Ajouter des champs optionnels est généralement sûr.</p></div><div class="fast-card"><strong>Objectif</strong><p>Faire évoluer les contrats sans casser les consommateurs.</p></div></div>
         <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill senior">Senior</span></div>
         <p>Les composants d'un système distribué communiquent via des <strong>contrats</strong>. Ce contrat doit être stable, documenté et versionné car les services ne sont pas déployés au même rythme.</p>
         <div class="box warning">
@@ -2361,7 +1896,6 @@ spring:
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>La gateway gère le transversal, pas le métier.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>auth / route / limit</p></div>
         </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“La gateway, ce n’est pas le cerveau métier. C’est la porte d’entrée : elle contrôle, elle protège, elle redirige.”</p></div>
-        <div class="section-kicker">Rôle exact</div><div class="fast-track"><div class="fast-card"><strong>Mission</strong><p>Centraliser auth, routage, quotas et logs.</p></div><div class="fast-card"><strong>À éviter</strong><p>Ne pas mettre la logique métier dans la gateway.</p></div><div class="fast-card"><strong>Image mentale</strong><p>La gateway est un portier, pas un cerveau métier.</p></div></div>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
         <p>L'<strong>API Gateway</strong> est le point d'entrée unique de toutes les requêtes extérieures vers les microservices. Elle centralise les préoccupations transversales.</p>
         <div class="diagram-wrap">
@@ -2533,7 +2067,6 @@ public class JwtAuthFilter implements GlobalFilter, Ordered {
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Discovery = savoir <b>où</b> appeler sans connaître l'IP.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>Eureka / DNS</p></div>
         </div>
-        <div class="section-kicker">Pourquoi c’est utile</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Les adresses des services changent quand les instances montent ou descendent.</p></div><div class="fast-card"><strong>Solution</strong><p>Un registre permet de retrouver dynamiquement les bonnes instances.</p></div><div class="fast-card"><strong>Repère moderne</strong><p>Sur Kubernetes, le DNS interne remplace souvent Eureka.</p></div></div>
         <div class="level-bar"><span class="level-pill mid">Mid</span></div>
         <p>Dans un système distribué, les instances de services démarrent et s'arrêtent dynamiquement. Il est impossible de coder en dur les adresses IP. Le <strong>Service Discovery</strong> résout ce problème en maintenant un registre dynamique.</p>
         <div class="columns">
@@ -2601,7 +2134,6 @@ eureka:
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Le bon code HTTP ici, c'est <b>429</b>.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>quota / 429</p></div>
         </div>
-        <div class="section-kicker">Protection</div><div class="fast-track"><div class="fast-card"><strong>But</strong><p>Empêcher qu’un client consomme trop de ressources.</p></div><div class="fast-card"><strong>Réponse HTTP</strong><p>Quand la limite est dépassée, on renvoie 429.</p></div><div class="fast-card"><strong>En distribué</strong><p>Redis permet de partager la même limite entre plusieurs instances.</p></div></div>
         <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
         <p>Le <strong>Rate Limiting</strong> consiste à limiter le nombre de requêtes qu'un client peut effectuer dans une fenêtre de temps donnée. Il protège vos services des abus, des attaques DDoS et de l'utilisation excessive des ressources.</p>
         <div class="box definition">
@@ -2743,7 +2275,6 @@ public class SlidingWindowRateLimiter {
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Une requête = une trace, chaque étape = un span.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>traceId / spanId</p></div>
         </div>
-        <div class="section-kicker">Debug production</div><div class="fast-track"><div class="fast-card"><strong>Trace ID</strong><p>Identifie tout le parcours d’une requête.</p></div><div class="fast-card"><strong>Span</strong><p>Représente une étape précise dans ce parcours.</p></div><div class="fast-card"><strong>Gain</strong><p>On voit vite quel service ou appel est lent.</p></div></div>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
         <p>Quand une requête traverse 5 services, comment savoir lequel est lent ? Le <strong>tracing distribué</strong> propage un identifiant unique (<strong>Trace ID</strong>) à travers tous les services pour reconstituer le chemin complet.</p>
         <div class="box definition">
@@ -2833,7 +2364,6 @@ public class LoanApplicationService {
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>C'est puissant pour l'audit, lourd pour un simple CRUD.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>events / replay</p></div>
         </div>
-        <div class="section-kicker">À réserver aux bons cas</div><div class="fast-track"><div class="fast-card"><strong>Principe</strong><p>On stocke l’historique des événements, pas seulement l’état final.</p></div><div class="fast-card"><strong>Atout</strong><p>Audit complet et reconstruction du passé.</p></div><div class="fast-card"><strong>Limite</strong><p>Plus puissant mais plus complexe qu’un CRUD classique.</p></div></div>
         <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
         <p>Au lieu de stocker <em>l'état actuel</em> d'une entité, on stocke la <strong>séquence de tous les événements</strong> qui ont conduit à cet état. L'état courant est reconstruit en rejouant les événements.</p>
         <div class="box child-mode">
@@ -2952,7 +2482,6 @@ public class LoanRepository {
           <div class="flash-card oral"><strong>À dire à l’oral</strong><p>Le contrat rend les dépendances <b>explicites et testables</b>.</p></div>
           <div class="flash-card keyword"><strong>Mot-clé</strong><p>Pact / contrat</p></div>
         </div>
-        <div class="section-kicker">Sécurité de changement</div><div class="fast-track"><div class="fast-card"><strong>Problème</strong><p>Un provider change son API et casse un consumer sans le savoir.</p></div><div class="fast-card"><strong>Solution</strong><p>Le consumer formalise ses attentes dans un contrat vérifiable.</p></div><div class="fast-card"><strong>Résultat</strong><p>On détecte la casse en CI avant la production.</p></div></div>
         <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
         <p>Dans un système distribué, comment s'assurer qu'un changement côté <em>provider</em> ne casse pas un <em>consumer</em> ?
           Le <strong>Contract Testing</strong> (Pact / Spring Cloud Contract) formalise les attentes des consommateurs en contrats vérifiables automatiquement.</p>
