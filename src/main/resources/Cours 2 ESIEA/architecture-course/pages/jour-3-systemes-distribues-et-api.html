@@ -1251,96 +1251,411 @@ resilience4j:
       <section id="cap">
         <h2>Théorème CAP — et au-delà avec PACELC</h2>
         <div class="section-kickoff">
-          <div class="flash-card"><strong>En une phrase</strong><p>En cas de partition réseau, on ne peut pas avoir cohérence forte et disponibilité totale.</p></div>
-          <div class="flash-card problem"><strong>Problème</strong><p>Quand le réseau coupe, il faut choisir quoi sacrifier.</p></div>
-          <div class="flash-card oral"><strong>À dire à l’oral</strong><p>CAP ne dit pas “tout est impossible”, il dit <b>qu'il faut arbitrer</b>.</p></div>
-          <div class="flash-card keyword"><strong>Mot-clé</strong><p>CP vs AP</p></div>
-        </div><div class="oral-script"><h4>Ce que tu peux dire à l’oral</h4><p>“CAP est un arbitrage de crise. Quand le réseau se coupe, je ne peux pas tout garder en même temps. Je choisis soit la vérité, soit la disponibilité.”</p></div>
+          <div class="flash-card"><strong>En une phrase</strong><p>Quand deux serveurs ne se parlent plus, il faut choisir entre répondre juste ou répondre vite.</p></div>
+          <div class="flash-card problem"><strong>Problème</strong><p>On ne peut pas avoir les trois en même temps : cohérence, disponibilité, tolérance aux pannes réseau.</p></div>
+          <div class="flash-card oral"><strong>À dire à l'oral</strong><p>CAP ne dit pas "tout est impossible", il dit <b>qu'il faut arbitrer</b>.</p></div>
+          <div class="flash-card keyword"><strong>Mot-clé</strong><p>CP · AP · EL · EC</p></div>
+        </div>
         <div class="level-bar">
           <span class="level-pill mid">Mid</span>
           <span class="level-pill senior">Senior</span>
         </div>
-        <div class="diagram-wrap">
-          <svg font-family="Inter,Segoe UI,sans-serif" viewbox="0 0 600 380" xmlns="http://www.w3.org/2000/svg">
-            <defs><filter height="116%" id="cSh" width="108%" x="-4%" y="-4%"><fedropshadow dx="0" dy="2" flood-color="#0f172a" flood-opacity=".1" stddeviation="3"></fedropshadow></filter></defs>
-            <rect fill="#f8fafc" height="380" rx="14" width="600"></rect>
-            <!-- Triangle -->
-            <polygon fill="none" points="300,40 80,310 520,310" stroke="#94a3b8" stroke-dasharray="8,4" stroke-width="2"></polygon>
-            <!-- C vertex -->
-            <g filter="url(#cSh)"><circle cx="300" cy="40" fill="#dbeafe" r="42" stroke="#3b82f6" stroke-width="2.5"></circle>
-              <text fill="#1e40af" font-size="22" font-weight="800" text-anchor="middle" x="300" y="36">C</text>
-              <text fill="#3b82f6" font-size="9" text-anchor="middle" x="300" y="54">Consistency</text></g>
-            <!-- A vertex -->
-            <g filter="url(#cSh)"><circle cx="80" cy="310" fill="#dcfce7" r="42" stroke="#16a34a" stroke-width="2.5"></circle>
-              <text fill="#15803d" font-size="22" font-weight="800" text-anchor="middle" x="80" y="306">A</text>
-              <text fill="#16a34a" font-size="9" text-anchor="middle" x="80" y="324">Availability</text></g>
-            <!-- P vertex -->
-            <g filter="url(#cSh)"><circle cx="520" cy="310" fill="#fef3c7" r="42" stroke="#d97706" stroke-width="2.5"></circle>
-              <text fill="#92400e" font-size="22" font-weight="800" text-anchor="middle" x="520" y="306">P</text>
-              <text fill="#d97706" font-size="9" text-anchor="middle" x="520" y="324">Partition</text></g>
-            <!-- CP edge -->
-            <rect fill="#fff" filter="url(#cSh)" height="50" rx="10" stroke="#3b82f6" stroke-width="1.5" width="110" x="370" y="140"></rect>
-            <text fill="#1e40af" font-size="11" font-weight="700" text-anchor="middle" x="425" y="160">CP</text>
-            <text fill="#475569" font-size="8.5" text-anchor="middle" x="425" y="178">HBase, ZooKeeper</text>
-            <!-- AP edge -->
-            <rect fill="#fff" filter="url(#cSh)" height="50" rx="10" stroke="#16a34a" stroke-width="1.5" width="170" x="215" y="280"></rect>
-            <text fill="#15803d" font-size="11" font-weight="700" text-anchor="middle" x="300" y="300">AP</text>
-            <text fill="#475569" font-size="8.5" text-anchor="middle" x="300" y="318">DynamoDB, Cassandra</text>
-            <!-- CA edge -->
-            <rect fill="#fff" filter="url(#cSh)" height="50" rx="10" stroke="#dc2626" stroke-dasharray="4,2" stroke-width="1.5" width="110" x="120" y="140"></rect>
-            <text fill="#dc2626" font-size="11" font-weight="700" text-anchor="middle" x="175" y="160">CA</text>
-            <text fill="#dc2626" font-size="8.5" text-anchor="middle" x="175" y="178">⚠️ impossible en réseau</text>
-            <!-- Bottom note -->
-            <rect fill="#fef2f2" height="24" rx="12" stroke="#fca5a5" stroke-width="1" width="370" x="115" y="348"></rect>
-            <text fill="#dc2626" font-size="10" font-weight="600" text-anchor="middle" x="300" y="365">En réseau réel, P est inévitable → choix entre C ou A</text>
-          </svg>
+
+        <div class="box child-mode">
+          <h4>Le scénario de base 🧸</h4>
+          <p>Imagine deux bibliothèques (Serveur A et Serveur B) qui partagent le même catalogue. Elles se synchronisent par réseau. Un jour, <strong>le câble entre les deux est coupé</strong> — c'est ça une <strong>partition réseau (P)</strong>. Un étudiant arrive à la bibliothèque A et veut emprunter un livre. Que fait le Serveur A ?</p>
+          <ul>
+            <li><strong>Option CP</strong> (Cohérence) : "Je refuse, parce que je ne sais pas si le Serveur B vient de prêter le dernier exemplaire."</li>
+            <li><strong>Option AP</strong> (Disponibilité) : "Je te le prête quand même, mais je risque de dire oui alors que le livre est déjà pris."</li>
+          </ul>
+          <p><strong>C'est ça le théorème CAP : quand le réseau coupe, on doit choisir entre la vérité (C) et le service (A).</strong></p>
         </div>
-        <p>Le théorème CAP (Brewer, 2000) rappelle qu'en présence d'une <strong>partition réseau</strong> (P), on ne peut pas garantir simultanément <strong>cohérence forte</strong> (C) et <strong>disponibilité totale</strong> (A).</p>
-        <table>
-          <thead><tr><th>Choix</th><th>Conséquence</th><th>Exemple</th></tr></thead>
-          <tbody>
-          <tr>
-            <td><strong>CP</strong> — Favoriser cohérence</td>
-            <td>On refuse certaines requêtes si le doute existe</td>
-            <td>Solde bancaire, réservation de siège unique</td>
-          </tr>
-          <tr>
-            <td><strong>AP</strong> — Favoriser disponibilité</td>
-            <td>On répond parfois avec une donnée pas encore fraîche</td>
-            <td>Catalogue de produits, fil d'actualité social</td>
-          </tr>
-          </tbody>
-        </table>
-        <div class="box pro-mode">
-          <h4>Au-delà de CAP : le théorème PACELC</h4>
-          <p>Daniel Abadi (2012) étend CAP : <em>même sans partition</em>, on fait un arbitrage entre <strong>latence</strong> (L) et <strong>cohérence</strong> (C).</p>
-          <p>Formule : <code>IF Partition THEN {C ou A} ELSE {L ou C}</code></p>
+
+        <h3>Les trois lettres de CAP</h3>
+        <div class="box definition">
+          <h4>Définitions</h4>
           <table>
-            <thead><tr><th>Système</th><th>En cas de partition</th><th>Cas normal</th><th>Cas d'usage</th></tr></thead>
+            <thead><tr><th>Lettre</th><th>Nom</th><th>Ce que ça veut dire concrètement</th></tr></thead>
             <tbody>
-            <tr><td>DynamoDB</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Panier e-commerce, sessions</td></tr>
-            <tr><td>HBase / ZooKeeper</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Coordination distribuée</td></tr>
-            <tr><td>Cassandra</td><td>Disponible (A)</td><td>Basse latence (L)</td><td>Time-series, IoT</td></tr>
-            <tr><td>PostgreSQL synchrone</td><td>Cohérent (C)</td><td>Cohérent (C)</td><td>Finance, inventaire</td></tr>
+            <tr><td><strong>C</strong></td><td>Consistency (Cohérence)</td><td>Tous les nœuds renvoient <strong>la même donnée au même moment</strong>. Si j'écris "stock = 0", tout le monde lit "stock = 0" immédiatement.</td></tr>
+            <tr><td><strong>A</strong></td><td>Availability (Disponibilité)</td><td>Chaque requête reçoit <strong>une réponse</strong> (pas d'erreur, pas de timeout), même si la donnée n'est pas parfaitement à jour.</td></tr>
+            <tr><td><strong>P</strong></td><td>Partition tolerance</td><td>Le système continue de fonctionner <strong>même si le réseau entre les nœuds est coupé</strong>. En réseau réel, les partitions arrivent (câble coupé, switch en panne, datacenter isolé) — on ne peut pas les empêcher.</td></tr>
             </tbody>
           </table>
         </div>
+
+        <div class="box warning">
+          <h4>⚠️ Pourquoi P est inévitable ?</h4>
+          <p>Sur un réseau réel (internet, datacenter, cloud), les pannes réseau <strong>arrivent</strong> : un switch tombe, un câble est coupé, une zone cloud est isolée. On ne peut pas construire un système distribué qui ignore les partitions. Donc <strong>P est toujours dans l'équation</strong>, et le vrai choix est : quand P arrive, est-ce que je sacrifie C ou A ?</p>
+        </div>
+
+        <div class="diagram-wrap">
+          <svg font-family="Inter,Segoe UI,sans-serif" viewBox="0 0 800 520" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <filter id="capSh" x="-4%" y="-4%" width="108%" height="116%"><feDropShadow dx="0" dy="2" stdDeviation="3" flood-color="#0f172a" flood-opacity=".1"/></filter>
+            </defs>
+            <rect width="800" height="520" rx="16" fill="#f8fafc"/>
+
+            <!-- Title -->
+            <text x="400" y="32" text-anchor="middle" font-size="18" font-weight="800" fill="#123f73">CAP : quand le réseau coupe, que choisir ?</text>
+
+            <!-- Server A -->
+            <g filter="url(#capSh)">
+              <rect x="60" y="70" width="160" height="90" rx="14" fill="#dbeafe" stroke="#3b82f6" stroke-width="2"/>
+              <text x="140" y="100" text-anchor="middle" font-size="22">&#x1F5A5;</text>
+              <text x="140" y="125" text-anchor="middle" font-size="13" font-weight="700" fill="#1e3a5f">Serveur A</text>
+              <text x="140" y="145" text-anchor="middle" font-size="10" fill="#475569">stock = 1 livre</text>
+            </g>
+
+            <!-- Server B -->
+            <g filter="url(#capSh)">
+              <rect x="580" y="70" width="160" height="90" rx="14" fill="#dcfce7" stroke="#16a34a" stroke-width="2"/>
+              <text x="660" y="100" text-anchor="middle" font-size="22">&#x1F5A5;</text>
+              <text x="660" y="125" text-anchor="middle" font-size="13" font-weight="700" fill="#14532d">Serveur B</text>
+              <text x="660" y="145" text-anchor="middle" font-size="10" fill="#475569">stock = 1 livre</text>
+            </g>
+
+            <!-- Network cut -->
+            <line x1="240" y1="115" x2="560" y2="115" stroke="#dc2626" stroke-width="3" stroke-dasharray="12,6"/>
+            <text x="400" y="100" text-anchor="middle" font-size="28">&#x26A1;</text>
+            <rect x="310" y="105" width="180" height="22" rx="11" fill="#fef2f2" stroke="#fca5a5"/>
+            <text x="400" y="121" text-anchor="middle" font-size="10" font-weight="700" fill="#dc2626">Partition r&#233;seau (P)</text>
+
+            <!-- Student at A -->
+            <text x="140" y="195" text-anchor="middle" font-size="28">&#x1F464;</text>
+            <text x="140" y="215" text-anchor="middle" font-size="10" fill="#475569">"Je veux emprunter ce livre"</text>
+
+            <!-- CP choice -->
+            <g filter="url(#capSh)">
+              <rect x="40" y="240" width="200" height="120" rx="14" fill="#fff" stroke="#3b82f6" stroke-width="2"/>
+              <rect x="40" y="240" width="200" height="28" rx="14" fill="#3b82f6"/>
+              <rect x="40" y="254" width="200" height="14" fill="#3b82f6"/>
+              <text x="140" y="260" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Choix CP &#x2014; Coh&#233;rence</text>
+              <text x="140" y="290" text-anchor="middle" font-size="10" fill="#1e293b">&#x274C; "D&#233;sol&#233;, je ne peux pas</text>
+              <text x="140" y="305" text-anchor="middle" font-size="10" fill="#1e293b">v&#233;rifier avec le Serveur B.</text>
+              <text x="140" y="320" text-anchor="middle" font-size="10" fill="#1e293b">Revenez plus tard."</text>
+              <text x="140" y="348" text-anchor="middle" font-size="9" font-weight="600" fill="#3b82f6">&#x2192; Pas de risque de doublon</text>
+            </g>
+
+            <!-- AP choice -->
+            <g filter="url(#capSh)">
+              <rect x="560" y="240" width="200" height="120" rx="14" fill="#fff" stroke="#16a34a" stroke-width="2"/>
+              <rect x="560" y="240" width="200" height="28" rx="14" fill="#16a34a"/>
+              <rect x="560" y="254" width="200" height="14" fill="#16a34a"/>
+              <text x="660" y="260" text-anchor="middle" font-size="12" font-weight="700" fill="#fff">Choix AP &#x2014; Disponibilit&#233;</text>
+              <text x="660" y="290" text-anchor="middle" font-size="10" fill="#1e293b">&#x2705; "Je vous le pr&#234;te !"</text>
+              <text x="660" y="305" text-anchor="middle" font-size="10" fill="#1e293b">(mais le Serveur B a peut-&#234;tre</text>
+              <text x="660" y="320" text-anchor="middle" font-size="10" fill="#1e293b">d&#233;j&#224; pr&#234;t&#233; le m&#234;me livre)</text>
+              <text x="660" y="348" text-anchor="middle" font-size="9" font-weight="600" fill="#16a34a">&#x2192; Risque d'incoh&#233;rence</text>
+            </g>
+
+            <!-- PACELC section -->
+            <rect x="40" y="390" width="720" height="115" rx="16" fill="#f5f3ff" stroke="#8b7cf6" stroke-width="2"/>
+            <text x="400" y="418" text-anchor="middle" font-size="15" font-weight="800" fill="#5b21b6">PACELC : et quand tout va bien (pas de partition) ?</text>
+            <text x="400" y="442" text-anchor="middle" font-size="11" fill="#334155">M&#234;me sans panne, il reste un arbitrage au quotidien :</text>
+
+            <!-- L choice -->
+            <g filter="url(#capSh)">
+              <rect x="80" y="455" width="280" height="36" rx="10" fill="#fff" stroke="#d97706" stroke-width="2"/>
+              <text x="220" y="478" text-anchor="middle" font-size="11" font-weight="700" fill="#92400e">&#x26A1; L &#x2014; Basse Latence : r&#233;pondre vite</text>
+            </g>
+            <text x="400" y="478" text-anchor="middle" font-size="14" font-weight="800" fill="#5b21b6">ou</text>
+            <!-- C choice -->
+            <g filter="url(#capSh)">
+              <rect x="440" y="455" width="280" height="36" rx="10" fill="#fff" stroke="#3b82f6" stroke-width="2"/>
+              <text x="580" y="478" text-anchor="middle" font-size="11" font-weight="700" fill="#1e40af">&#x1F512; C &#x2014; Coh&#233;rence forte : r&#233;pondre juste</text>
+            </g>
+          </svg>
+        </div>
+
+        <div class="box definition">
+          <h4>CAP en une formule</h4>
+          <p>En r&#233;seau r&#233;el, les partitions (P) finissent toujours par arriver. Quand elles arrivent, on a <strong>deux options</strong> :</p>
+          <table>
+            <thead><tr><th>Choix</th><th>On sacrifie</th><th>Cons&#233;quence</th><th>Bon pour</th></tr></thead>
+            <tbody>
+            <tr>
+              <td><strong>CP</strong></td>
+              <td>la disponibilit&#233; (A)</td>
+              <td>On refuse de r&#233;pondre si on n'est pas s&#251;r que la donn&#233;e est &#224; jour</td>
+              <td>Banque, r&#233;servation, stock critique</td>
+            </tr>
+            <tr>
+              <td><strong>AP</strong></td>
+              <td>la coh&#233;rence (C)</td>
+              <td>On r&#233;pond toujours, m&#234;me si la donn&#233;e est peut-&#234;tre un peu ancienne</td>
+              <td>Catalogue, fil d'actualit&#233;, analytics</td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h3>PACELC &#x2014; le compl&#233;ment indispensable</h3>
+
+        <div class="box definition">
+          <h4>Pourquoi CAP ne suffit pas ?</h4>
+          <p>CAP ne parle que du moment de crise (partition). Mais <strong>99% du temps, le r&#233;seau fonctionne</strong>. Et m&#234;me dans ce cas normal, on doit choisir :</p>
+          <ul>
+            <li><strong>L (Latency)</strong> &#x2014; je r&#233;ponds <strong>vite</strong>, quitte &#224; lire depuis un cache ou un r&#233;plica pas encore synchronis&#233;.</li>
+            <li><strong>C (Consistency)</strong> &#x2014; je r&#233;ponds <strong>juste</strong>, quitte &#224; attendre que tous les n&#339;uds soient d'accord.</li>
+          </ul>
+          <p>C'est la formule PACELC (Abadi, 2012) :</p>
+          <pre><code class="language-text">SI partition &#x2192; choisir C ou A    (comme CAP)
+SINON       &#x2192; choisir L ou C    (arbitrage du quotidien)</code></pre>
+        </div>
+
+        <div class="diagram-card">
+          <h3 style="margin-top:0">Lecture de PACELC sur des syst&#232;mes concrets</h3>
+          <table>
+            <thead><tr><th>Syst&#232;me</th><th>Partition &#x2192; ?</th><th>Normal &#x2192; ?</th><th>Notation</th><th>Ce que &#231;a veut dire</th></tr></thead>
+            <tbody>
+            <tr><td><strong>DynamoDB</strong></td><td>A (disponible)</td><td>L (latence basse)</td><td>PA/EL</td><td>Toujours rapide, jamais bloquant, mais donn&#233;e parfois stale</td></tr>
+            <tr><td><strong>Cassandra</strong></td><td>A (disponible)</td><td>L (latence basse)</td><td>PA/EL</td><td>M&#234;me philosophie &#x2014; vitesse d'abord</td></tr>
+            <tr><td><strong>HBase / ZooKeeper</strong></td><td>C (coh&#233;rent)</td><td>C (coh&#233;rent)</td><td>PC/EC</td><td>Toujours exact, quitte &#224; bloquer ou refuser</td></tr>
+            <tr><td><strong>PostgreSQL sync</strong></td><td>C (coh&#233;rent)</td><td>C (coh&#233;rent)</td><td>PC/EC</td><td>Donn&#233;es financi&#232;res, inventaire critique</td></tr>
+            <tr><td><strong>MongoDB (d&#233;faut)</strong></td><td>A (disponible)</td><td>L (latence basse)</td><td>PA/EL</td><td>Rapide par d&#233;faut, configurable vers EC</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="oral-script"><h4>Ce que tu peux dire &#224; l'oral</h4><p>"CAP, c'est le choix de crise : quand le r&#233;seau coupe, je prends C ou A. PACELC, c'est le choix de tous les jours : m&#234;me sans panne, est-ce que je pr&#233;f&#232;re la vitesse (L) ou l'exactitude (C) ? La plupart des syst&#232;mes web modernes choisissent PA/EL &#x2014; rapide et disponible &#x2014; sauf quand l'argent ou les r&#233;servations sont en jeu."</p></div>
+
         <div class="box expert">
-          <h4>⚙️ Expert — Niveaux de cohérence Cassandra</h4>
-          <p>Cassandra expose le niveau de cohérence à l'application. On choisit le trade-off par requête :</p>
-          <pre><code class="language-java">// Cassandra Driver Java — choisir le Consistency Level
+          <h4>&#x2699;&#xFE0F; Expert &#x2014; Niveaux de coh&#233;rence Cassandra</h4>
+          <p>Cassandra permet de <strong>choisir le curseur L &#x2194; C par requ&#234;te</strong>. C'est PACELC rendu configurable :</p>
+          <pre><code class="language-java">// Cassandra Driver Java &#x2014; choisir le Consistency Level
 import com.datastax.oss.driver.api.core.ConsistencyLevel;
 
 SimpleStatement stmt = SimpleStatement
     .builder("SELECT balance FROM accounts WHERE id = ?")
-    .setConsistencyLevel(ConsistencyLevel.QUORUM)  // Majorité de réplicas
-    // QUORUM = (N/2)+1 nœuds doivent répondre
-    // ONE   = 1 nœud suffit (plus rapide, moins cohérent)
-    // ALL   = tous les nœuds (max cohérence, min dispo)
+    .setConsistencyLevel(ConsistencyLevel.QUORUM)
+    // ONE    &#x2192; EL : 1 n&#339;ud suffit (plus rapide, moins coh&#233;rent)
+    // QUORUM &#x2192; entre EL et EC : majorit&#233; doit r&#233;pondre
+    // ALL    &#x2192; EC : tous les n&#339;uds (max coh&#233;rence, min vitesse)
     .build();
 
 Row row = session.execute(stmt).one();</code></pre>
-          <p>Formule du quorum : si N=3 réplicas, QUORUM = 2. Écriture QUORUM + Lecture QUORUM garantit la lecture-after-write même en présence d'une panne.</p>
+          <p>Avec N=3 r&#233;plicas : QUORUM = 2 n&#339;uds. &#201;criture QUORUM + Lecture QUORUM garantit la lecture-after-write.</p>
+        </div>
+
+
+        <h3>Appliquer CAP dans le code — campus_library</h3>
+        <p class="section-intro">La théorie dit "choisir CP ou AP". Concrètement, ce choix se traduit par du code très différent selon le cas d'usage.</p>
+
+        <div class="box warning">
+          <h4>Cas CP — Créer un emprunt (loan-service)</h4>
+          <p><strong>Pourquoi CP :</strong> on ne doit <strong>jamais</strong> prêter un livre qui n'est pas disponible. On préfère refuser (indisponible) que répondre avec une donnée fausse. Si <code>catalog-service</code> ne répond pas, on refuse l'emprunt.</p>
+        </div>
+        <div class="before-after-grid">
+          <div class="box frequent-error">
+            <h4>❌ Avant — AP naïf (dangereux ici)</h4>
+            <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class LoanApplicationService {
+
+    private final CatalogClient catalogClient;
+    private final LoanRepository loanRepository;
+
+    public LoanDto createLoan(CreateLoanRequest request) {
+        boolean available;
+        try {
+            available = catalogClient
+                .getAvailability(request.bookId()).available();
+        } catch (Exception e) {
+            // ⚠️ DANGER : on suppose disponible si le service ne répond pas.
+            // → Risque de prêter un livre déjà emprunté.
+            available = true;
+        }
+
+        Loan loan = Loan.create(request.bookId(), request.studentId());
+        loanRepository.save(loan);
+        return LoanMapper.toDto(loan);
+    }
+}</code></pre>
+          </div>
+          <div class="box best-practice">
+            <h4>✅ Après — CP strict (cohérence d'abord)</h4>
+            <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class LoanApplicationService {
+
+    private final CatalogClient catalogClient;
+    private final LoanRepository loanRepository;
+
+    public LoanDto createLoan(CreateLoanRequest request) {
+
+        // 1. Vérifier la disponibilité — appel SYNCHRONE obligatoire
+        AvailabilityResponse availability;
+        try {
+            availability = catalogClient
+                .getAvailability(request.bookId());
+        } catch (FeignException | ResourceAccessException e) {
+            // CP : si le service ne répond pas, on REFUSE.
+            // On préfère l'indisponibilité temporaire à une donnée fausse.
+            throw new ServiceUnavailableException(
+                "Impossible de vérifier la disponibilité du livre. "
+                + "Réessayez dans quelques instants.", e);
+        }
+
+        // 2. Règle métier stricte
+        if (!availability.available()) {
+            throw new BookNotAvailableException(request.bookId());
+        }
+
+        // 3. Réserver le livre (appel synchrone CP)
+        catalogClient.reserveBook(
+            request.bookId(),
+            new ReservationRequest(request.studentId())
+        );
+
+        // 4. Créer l'emprunt
+        Loan loan = Loan.create(request.bookId(), request.studentId());
+        loanRepository.save(loan);
+        return LoanMapper.toDto(loan);
+    }
+}</code></pre>
+          </div>
+        </div>
+
+        <div class="box warning">
+          <h4>Cas AP — Consulter le catalogue (catalog-service)</h4>
+          <p><strong>Pourquoi AP :</strong> un utilisateur qui consulte le catalogue n'a pas besoin d'une donnée parfaitement à jour. Mieux vaut répondre vite avec une donnée légèrement stale que de ne pas répondre du tout.</p>
+        </div>
+        <div class="before-after-grid">
+          <div class="box frequent-error">
+            <h4>❌ Avant — CP inutile ici</h4>
+            <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class CatalogQueryService {
+
+    private final BookRepository bookRepository;
+
+    public BookDto findById(UUID bookId) {
+        // Chaque requête va en base, même si 500 utilisateurs
+        // demandent le même livre en 1 seconde.
+        // → Latence inutile et charge DB pour des données
+        //   qui changent rarement.
+        return bookRepository.findById(bookId)
+            .map(BookMapper::toDto)
+            .orElseThrow(() -> new BookNotFoundException(bookId));
+    }
+}</code></pre>
+          </div>
+          <div class="box best-practice">
+            <h4>✅ Après — AP avec cache (disponibilité + basse latence)</h4>
+            <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class CatalogQueryService {
+
+    private final BookRepository bookRepository;
+
+    // AP : on accepte que la donnée soit "un peu" stale (max 30s).
+    // En contrepartie : réponse quasi instantanée.
+    @Cacheable(value = "books", key = "#bookId")
+    public BookDto findById(UUID bookId) {
+        return bookRepository.findById(bookId)
+            .map(BookMapper::toDto)
+            .orElseThrow(() -> new BookNotFoundException(bookId));
+    }
+
+    // Quand la donnée change, on invalide le cache.
+    @CacheEvict(value = "books", key = "#bookId")
+    public void updateBook(UUID bookId, UpdateBookRequest request) {
+        Book book = bookRepository.findById(bookId).orElseThrow();
+        book.update(request);
+        bookRepository.save(book);
+    }
+}</code></pre>
+            <pre><code class="language-yaml"># application.yml — Cache Redis avec TTL
+spring:
+  cache:
+    type: redis
+    redis:
+      time-to-live: 30s      # Donnée stale max 30 secondes
+      cache-null-values: false</code></pre>
+          </div>
+        </div>
+
+        <div class="box warning">
+          <h4>PACELC en pratique — Lecture vs écriture sur la même base</h4>
+          <p><strong>Le problème quotidien (sans partition) :</strong> même quand tout va bien, on fait un arbitrage entre latence et cohérence. Les lectures fréquentes peuvent aller sur un réplica (rapide, potentiellement stale). Les écritures vont sur le primary (cohérent, plus lent).</p>
+        </div>
+        <div class="before-after-grid">
+          <div class="box frequent-error">
+            <h4>❌ Avant — Tout sur le primary</h4>
+            <pre><code class="language-java">@Service
+@RequiredArgsConstructor
+public class BookSearchService {
+
+    private final BookRepository bookRepository;
+
+    // Toutes les lectures passent par le primary.
+    // → Latence élevée sous charge, et on sature le primary
+    //   avec des lectures qui pourraient aller ailleurs.
+    public Page&lt;BookDto&gt; search(String query, Pageable pageable) {
+        return bookRepository
+            .findByTitleContaining(query, pageable)
+            .map(BookMapper::toDto);
+    }
+}</code></pre>
+            <pre><code class="language-yaml"># Une seule datasource pour tout
+spring:
+  datasource:
+    url: jdbc:postgresql://db-primary:5432/catalog</code></pre>
+          </div>
+          <div class="box best-practice">
+            <h4>✅ Après — PACELC "EL" pour les lectures</h4>
+            <pre><code class="language-java">// Routeur de DataSource : primary pour écriture, replica pour lecture.
+public class ReadWriteRoutingDataSource
+        extends AbstractRoutingDataSource {
+
+    @Override
+    protected Object determineCurrentLookupKey() {
+        // Si la transaction est read-only → replica (basse latence)
+        // Sinon → primary (cohérence forte)
+        return TransactionSynchronizationManager
+            .isCurrentTransactionReadOnly() ? "replica" : "primary";
+    }
+}
+
+@Service
+@RequiredArgsConstructor
+public class BookSearchService {
+
+    private final BookRepository bookRepository;
+
+    // @Transactional(readOnly = true) → routé vers le replica.
+    // Le replica peut avoir ~100ms de retard, mais la latence
+    // de lecture est bien meilleure sous charge.
+    @Transactional(readOnly = true)
+    public Page&lt;BookDto&gt; search(String query, Pageable pageable) {
+        return bookRepository
+            .findByTitleContaining(query, pageable)
+            .map(BookMapper::toDto);
+    }
+}</code></pre>
+            <pre><code class="language-yaml"># Deux datasources — primary + replica
+app:
+  datasource:
+    primary:
+      url: jdbc:postgresql://db-primary:5432/catalog
+    replica:
+      url: jdbc:postgresql://db-replica:5432/catalog
+      read-only: true</code></pre>
+          </div>
+        </div>
+
+        <div class="box definition">
+          <h4>Résumé : quel choix pour quel besoin ?</h4>
+          <table>
+            <thead><tr><th>Opération</th><th>Choix CAP</th><th>PACELC</th><th>Pourquoi</th></tr></thead>
+            <tbody>
+            <tr><td>Créer un emprunt</td><td><strong>CP</strong></td><td>PC/EC</td><td>Jamais prêter un livre déjà emprunté → cohérence obligatoire</td></tr>
+            <tr><td>Consulter le catalogue</td><td><strong>AP</strong></td><td>PA/EL</td><td>Répondre vite, même avec 30s de retard sur le stock</td></tr>
+            <tr><td>Recherche de livres</td><td><strong>AP</strong></td><td>PA/EL</td><td>Lecture depuis un replica, basse latence</td></tr>
+            <tr><td>Retourner un livre</td><td><strong>CP</strong></td><td>PC/EC</td><td>Garantir que le livre est bien marqué comme rendu</td></tr>
+            </tbody>
+          </table>
         </div>
 
         <div class="compare-grid">
