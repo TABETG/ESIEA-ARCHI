@@ -9,316 +9,95 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
 
-  <style>
-    :root {
-      --bg: #f7fafc;
-      --surface: #ffffff;
-      --surface-alt: #eef3ff;
-      --text: #1f2937;
-      --muted: #5b6575;
-      --border: #d8e2ee;
-      --blue: #5da9ff;
-      --blue-soft: #e8f3ff;
-      --green: #4ba37a;
-      --green-soft: #e9f8f0;
-      --orange: #ef9b53;
-      --orange-soft: #fff3e7;
-      --red: #c85d5d;
-      --red-soft: #fff0f0;
-      --purple: #8b7cf6;
-      --purple-soft: #f2efff;
-      --shadow: 0 8px 24px rgba(36,53,84,.08);
-      --radius: 18px;
-      --max: 1180px;
-
-      --code-bg:        #1e1e1e;
-      --code-fg:        #d4d4d4;
-      --code-comment:   #6a9955;
-      --code-keyword:   #569cd6;
-      --code-string:    #ce9178;
-      --code-number:    #b5cea8;
-      --code-function:  #dcdcaa;
-      --code-class:     #4ec9b0;
-      --code-annotation:#c586c0;
-      --code-variable:  #9cdcfe;
-      --code-constant:  #4fc1ff;
-      --code-lineno:    #6e7681;
-    }
-
-    *, *::before, *::after { box-sizing: border-box; }
-    html { scroll-behavior: smooth; }
-    body {
-      margin: 0;
-      font-family: Inter, Segoe UI, Arial, sans-serif;
-      background: linear-gradient(180deg, #f9fbfd 0%, #f4f8fb 100%);
-      color: var(--text);
-      line-height: 1.65;
-    }
-    a { color: #1557b0; text-decoration: none; }
-    a:hover { text-decoration: underline; }
-
-    header.site-header {
-      position: sticky; top: 0; z-index: 20;
-      background: rgba(255,255,255,.92);
-      backdrop-filter: blur(8px);
-      border-bottom: 1px solid var(--border);
-    }
-    .nav-wrap {
-      max-width: var(--max); margin: auto;
-      display: flex; gap: 16px; align-items: center; padding: 12px 20px;
-    }
-    .brand { font-weight: 800; font-size: 1.05rem; color: #163b66; white-space: nowrap; }
-    nav.top-nav { display: flex; gap: 8px; flex-wrap: wrap; }
-    nav.top-nav a {
-      padding: 6px 11px; border-radius: 999px;
-      background: #fff; border: 1px solid var(--border); font-size: .88rem;
-    }
-
-    main { max-width: var(--max); margin: 24px auto; padding: 0 20px 60px; }
-    .hero {
-      background: linear-gradient(135deg, var(--purple-soft), #fff 45%, var(--blue-soft));
-      padding: 28px; border: 1px solid var(--border);
-      border-radius: 24px; box-shadow: var(--shadow); margin-bottom: 22px;
-    }
-    .hero h1 { margin: .2rem 0 1rem; font-size: 2.2rem; }
-    .meta-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 16px;
-    }
-    .meta {
-      background: var(--surface); padding: 16px 18px;
-      border: 1px solid var(--border); border-radius: var(--radius); box-shadow: var(--shadow);
-    }
-    .meta h3 { margin-top: 0; }
-    .layout { display: grid; grid-template-columns: 290px 1fr; gap: 22px; }
-    @media(max-width: 980px) { .layout { grid-template-columns: 1fr; } }
-    aside.toc {
-      align-self: start; position: sticky; top: 84px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 18px; box-shadow: var(--shadow);
-    }
-    aside.toc h2 { font-size: 1rem; margin-top: 0; }
-    aside.toc ul { padding-left: 18px; margin: .2rem 0; }
-    aside.toc li { margin: .35rem 0; }
-    article.content section {
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 24px; margin-bottom: 18px; box-shadow: var(--shadow);
-    }
-
-    h1, h2, h3, h4 { line-height: 1.2; }
-    h2 { margin-top: 0; color: #123f73; }
-    h3 { color: #244d7c; }
-    p, li { font-size: 1rem; }
-
-    .badges { display: flex; flex-wrap: wrap; gap: 10px; margin: 10px 0 18px; }
-    .badge {
-      background: #fff; border: 1px solid var(--border);
-      padding: 6px 10px; border-radius: 999px; font-size: .88rem; color: var(--muted);
-    }
-
-    .box {
-      border-left: 6px solid var(--blue); padding: 14px 16px;
-      border-radius: 14px; background: var(--blue-soft); margin: 14px 0;
-    }
-    .box.definition { border-left-color: var(--blue); background: var(--blue-soft); }
-    .box.example    { border-left-color: var(--green); background: var(--green-soft); }
-    .box.warning    { border-left-color: var(--orange); background: var(--orange-soft); }
-    .box.best-practice  { border-left-color: var(--green); background: #effaf5; }
-    .box.frequent-error { border-left-color: var(--red); background: var(--red-soft); }
-    .box.child-mode { border-left-color: var(--purple); background: var(--purple-soft); }
-    .box.pro-mode   { border-left-color: #3857b0; background: #edf2ff; }
-    .box.live-coding{ border-left-color: #0f766e; background: #ecfeff; }
-    .box.tp         { border-left-color: #7c3aed; background: #f5f3ff; }
-    .box.expert     { border-left-color: #b45309; background: #fffbeb; }
-    .box h4 { margin: 0 0 8px; }
-    .box h5 { margin: 12px 0 6px; font-size: .95rem; }
-
-    /* ── CODE — VS Code Dark+ ── */
-    :not(pre) > code {
-      font-family: "Fira Code", Consolas, Monaco, monospace;
-      font-size: .86em;
-      background: #2d2d2d;
-      color: #ce9178;
-      padding: 2px 7px;
-      border-radius: 5px;
-      border: 1px solid #444;
-    }
-
-    pre {
-      position: relative;
-      margin: 1.4em 0;
-      padding: 0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 20px rgba(0,0,0,.45);
-      border: 1px solid #3c3c3c;
-      background: var(--code-bg);
-    }
-
-    pre::before {
-      content: "● ● ●";
-      display: block;
-      padding: 8px 14px;
-      background: #2d2d2d;
-      color: #858585;
-      font-size: .72rem;
-      letter-spacing: .08em;
-      border-bottom: 1px solid #3c3c3c;
-      font-family: sans-serif;
-    }
-
-    pre > code {
-      display: block !important;
-      padding: 1.1em 1.4em !important;
-      background: var(--code-bg) !important;
-      color: var(--code-fg) !important;
-      font-family: "Fira Code", Consolas, "Courier New", monospace !important;
-      font-size: .875rem !important;
-      line-height: 1.8 !important;
-      overflow-x: auto !important;
-      border: none !important;
-      border-radius: 0 !important;
-      -webkit-font-smoothing: antialiased;
-    }
-
-    /* Tokens VS Code Dark+ */
-    .token.comment, .token.prolog, .token.doctype, .token.cdata { color: #6a9955; font-style: italic; }
-    .token.punctuation  { color: #d4d4d4; }
-    .token.namespace    { opacity: .75; }
-    .token.boolean, .token.number { color: #b5cea8; }
-    .token.constant, .token.symbol, .token.deleted { color: #b5cea8; }
-    .token.property, .token.tag  { color: #569cd6; }
-    .token.selector, .token.attr-name, .token.string,
-    .token.char, .token.builtin, .token.inserted { color: #ce9178; }
-    .token.operator, .token.entity, .token.url  { color: #d4d4d4; }
-    .token.keyword      { color: #569cd6; }
-    .token.atrule       { color: #ce9178; }
-    .token.attr-value   { color: #ce9178; }
-    .token.rule         { color: #c586c0; }
-    .token.function     { color: #dcdcaa; }
-    .token.class-name   { color: #4ec9b0; }
-    .token.annotation   { color: #c586c0; font-style: italic; }
-    .token.variable     { color: #9cdcfe; }
-    .token.regex, .token.important { color: #4fc1ff; }
-    .language-yaml .token.key { color: #9cdcfe; }
-    .language-xml .token.tag > .token.tag { color: #569cd6; }
-    .language-xml .token.attr-name  { color: #9cdcfe; }
-    .language-xml .token.attr-value { color: #ce9178; }
-    .line-numbers .line-numbers-rows { border-right: 1px solid #3c3c3c; }
-    .line-numbers-rows > span::before { color: #6e7681; }
-
-    table { width: 100%; border-collapse: collapse; margin: 14px 0; }
-    th, td { border: 1px solid var(--border); padding: 10px 12px; text-align: left; vertical-align: top; }
-    th { background: #eff6ff; }
-
-    summary { cursor: pointer; font-weight: 600; }
-
-    .footer-nav { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
-    .footer-nav a {
-      display: inline-block; padding: 12px 16px;
-      background: #fff; border: 1px solid var(--border); border-radius: 12px;
-    }
-
-    .quiz-item {
-      margin-bottom: 20px; padding: 15px;
-      background: var(--surface); border: 1px solid var(--border);
-      border-radius: var(--radius); box-shadow: var(--shadow);
-    }
-    .quiz-item p { margin-top: 0; font-size: 1.05rem; }
-    .quiz-item details { margin-top: 12px; background: var(--surface-alt); border-radius: 12px; padding: 12px 15px; }
-    .quiz-item summary { font-weight: 700; color: var(--blue); }
-    .quiz-item details[open] summary { margin-bottom: 10px; }
-    .quiz-item details p { margin: 0; padding-left: 10px; border-left: 3px solid var(--blue); }
-
-    .columns { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    @media(max-width: 760px) { .columns { grid-template-columns: 1fr; } }
-
-    .level-bar { display: flex; gap: 8px; align-items: center; margin: 0 0 14px; }
-    .level-pill { padding: 3px 10px; border-radius: 999px; font-size: .78rem; font-weight: 700; }
-    .level-pill.junior { background: #dcfce7; color: #15803d; }
-    .level-pill.mid    { background: #fef9c3; color: #854d0e; }
-    .level-pill.senior { background: #fce7f3; color: #9d174d; }
-    .level-pill.expert { background: #ede9fe; color: #5b21b6; }
-
-    /* Diagramme ASCII stylisé */
-    .diagram {
-      background: #1e1e1e;
-      border: 1px solid #3c3c3c;
-      border-radius: 12px;
-      padding: 1.2em 1.5em;
-      font-family: "Fira Code", Consolas, monospace;
-      font-size: .85rem;
-      color: #9cdcfe;
-      line-height: 1.7;
-      margin: 1.2em 0;
-      overflow-x: auto;
-    }
-    .diagram .d-green  { color: #4ec9b0; }
-    .diagram .d-yellow { color: #dcdcaa; }
-    .diagram .d-orange { color: #ce9178; }
-    .diagram .d-gray   { color: #858585; }
-  </style>
+  <!-- Feuille de style externe commune -->
+  <link rel="stylesheet" href="../assets/css/jour-3-systemes-distribues-et-api-external.css">
 </head>
 <body>
 
 <header class="site-header">
   <div class="nav-wrap">
     <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
-    <nav class="top-nav">
-      <a href="../index.html">Accueil</a>
-      <a href="../pages/introduction.html">Introduction</a>
-      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-      <a href="../pages/tp-1.html">TP1</a>
-      <a href="../pages/tp-2.html">TP2</a>
-      <a href="../pages/tp-3.html">TP3</a>
-      <a href="../pages/exercices.html">Exercices</a>
-      <a href="../pages/corriges.html">Corrigés</a>
-      <a href="../pages/glossary.html">Glossaire</a>
-    </nav>
+    <button class="menu-toggle" aria-label="Menu" onclick="this.closest('.nav-wrap').querySelector('.nav-scroll-zone').classList.toggle('open')">☰</button>
+    <div class="nav-scroll-zone">
+      <nav class="top-nav">
+        <span class="nav-group-label">Cours</span>
+        <a href="../index.html">Accueil</a>
+        <a href="../pages/introduction.html">Introduction</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">Jours</span>
+        <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+        <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+        <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+        <a href="../pages/jour-4-microservices-et-communication.html" class="current">Jour 4</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+        <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">TP</span>
+        <a href="../pages/tp-1.html">TP1</a>
+        <a href="../pages/tp-2.html">TP2</a>
+        <a href="../pages/tp-3.html">TP3</a>
+        <span class="nav-sep"></span>
+        <a href="../pages/exercices.html">Exercices</a>
+        <a href="../pages/corriges.html">Corrigés</a>
+        <a href="../pages/glossary.html">Glossaire</a>
+      </nav>
+    </div>
   </div>
 </header>
 
 <main>
-  <div class="hero">
+  <div class="hero" style="background: linear-gradient(135deg, var(--purple-soft), #fff 45%, var(--blue-soft));">
     <div class="badges">
-      <span class="badge">Support HTML modulaire</span>
-      <span class="badge">Master 2</span>
-      <span class="badge">6 jours</span>
-      <span class="badge">3 TP progressifs</span>
-      <span class="badge">Java / Spring Boot</span>
+      <span class="badge">☁️ Microservices</span>
+      <span class="badge">📡 Feign + Kafka</span>
+      <span class="badge">⚡ Resilience4j</span>
+      <span class="badge">🔄 Sagas</span>
+      <span class="badge">Master 2 · Jour 4/6</span>
     </div>
     <h1>Jour 4 — Microservices et communication inter-services</h1>
     <div class="meta-grid">
       <div class="meta">
-        <h3>Objectifs pédagogiques</h3>
+        <h3>🎯 Objectifs</h3>
         <p>Découper un domaine par bounded contexts, maîtriser la communication sync/async, les patterns de résilience (Circuit Breaker, Saga) et les anti-patterns à éviter.</p>
       </div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 7h incluant démos et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 3 acquis</p></div>
+      <div class="meta"><h3>⏱ Durée</h3><p>≈ 7h incluant démos, live coding et quiz</p></div>
+      <div class="meta"><h3>📚 Prérequis</h3><p>Jours 1 à 3 — Clean Architecture, Spring Boot, REST, JPA</p></div>
     </div>
+  </div>
+
+  <!-- Quick tools -->
+  <div class="quick-tools">
+    <a href="#principes">1. Principes</a>
+    <a href="#decoupage">2. DDD</a>
+    <a href="#feign">3. Feign</a>
+    <a href="#kafka-deep">4. Kafka</a>
+    <a href="#circuit-breaker">5. Circuit Breaker</a>
+    <a href="#gateway-deep">6. Gateway</a>
+    <a href="#sagas">7. Sagas</a>
+    <a href="#antipatterns">8. Anti-patterns</a>
+    <a href="#testing">9. Tests</a>
+    <a href="#service-mesh">10. Service Mesh</a>
+    <a href="#quiz">11. Quiz</a>
   </div>
 
   <div class="layout">
     <aside class="toc">
-      <h2>Table des matières</h2>
-      <ul>
-        <li><a href="#principes">1. Principes microservices</a></li>
-        <li><a href="#decoupage">2. Découpage par domaine (DDD)</a></li>
-        <li><a href="#feign">3. Communication sync — OpenFeign</a></li>
-        <li><a href="#kafka-deep">4. Communication async — Kafka</a></li>
-        <li><a href="#circuit-breaker">5. Circuit Breaker</a></li>
-        <li><a href="#gateway-deep">6. API Gateway avancé</a></li>
-        <li><a href="#sagas">7. Saga — Orchestration &amp; Chorégraphie</a></li>
-        <li><a href="#antipatterns">8. Anti-patterns</a></li>
-        <li><a href="#testing">9. Stratégie de tests</a></li>
-        <li><a href="#service-mesh">10. Service Mesh (intro)</a></li>
-        <li><a href="#quiz">11. Quiz</a></li>
-      </ul>
+      <details open>
+        <summary>Table des matières</summary>
+        <ul>
+          <li><a href="#principes">1. Principes microservices</a></li>
+          <li><a href="#decoupage">2. Découpage par domaine (DDD)</a></li>
+          <li><a href="#feign">3. Communication sync — OpenFeign</a></li>
+          <li><a href="#kafka-deep">4. Communication async — Kafka</a></li>
+          <li><a href="#circuit-breaker">5. Circuit Breaker</a></li>
+          <li><a href="#gateway-deep">6. API Gateway avancé</a></li>
+          <li><a href="#sagas">7. Saga — Orchestration &amp; Chorégraphie</a></li>
+          <li><a href="#antipatterns">8. Anti-patterns</a></li>
+          <li><a href="#testing">9. Stratégie de tests</a></li>
+          <li><a href="#service-mesh">10. Service Mesh (intro)</a></li>
+          <li><a href="#quiz">11. Quiz</a></li>
+        </ul>
+      </details>
     </aside>
 
     <article class="content">
@@ -327,18 +106,38 @@
            1. PRINCIPES
       ═══════════════════════════════ -->
       <section id="principes">
+        <span class="section-kicker">Fondamentaux</span>
         <h2>Principes des microservices</h2>
         <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span></div>
 
-        <p>Le microservice n'est pas <em>"un petit projet Spring Boot"</em>. C'est une <strong>unité de déploiement et d'évolution autonome</strong> centrée sur une capacité métier unique. Sam Newman (auteur de référence) le définit comme un service qui <em>peut être déployé indépendamment</em>.</p>
+        <p class="section-intro">Le microservice n'est pas <em>"un petit projet Spring Boot"</em>. C'est une <strong>unité de déploiement et d'évolution autonome</strong> centrée sur une capacité métier unique. Sam Newman (auteur de référence) le définit comme un service qui <em>peut être déployé indépendamment</em>.</p>
+
+        <div class="section-kickoff">
+          <div class="flash-card">
+            <strong>🤔 Problème</strong>
+            <p>Comment faire évoluer des parties du système indépendamment, sans casser les autres ?</p>
+          </div>
+          <div class="flash-card oral">
+            <strong>💬 À dire aux étudiants</strong>
+            <p>Commencez par un <em>modular monolith</em>. Passez aux microservices quand la douleur est réelle, pas par mode.</p>
+          </div>
+          <div class="flash-card keyword">
+            <strong>🔑 Mots-clés</strong>
+            <p>Déploiement indépendant · Database per Service · Conway's Law · Bounded Context</p>
+          </div>
+          <div class="flash-card problem">
+            <strong>⚠️ Pré-requis</strong>
+            <p>CI/CD mature · Observabilité · Container orchestration · On-call équipe</p>
+          </div>
+        </div>
 
         <div class="box child-mode">
-          <h4>Mode enfant 🧸</h4>
-          <p>Au lieu d'une seule grande cuisine qui fait tout (entrées, plats, desserts), tu as plusieurs cuisines spécialisées avec chacune son équipe et ses outils. Si la cuisine des desserts est en panne, les plats chauds continuent d'être servis.</p>
+          <h4>🧸 Analogie — La cuisine spécialisée</h4>
+          <p>Au lieu d'une seule grande cuisine qui fait tout (entrées, plats, desserts), on a plusieurs cuisines spécialisées avec chacune son équipe et ses outils. Si la cuisine des desserts est en panne, les plats chauds continuent d'être servis.</p>
         </div>
 
         <div class="box pro-mode">
-          <h4>Mode pro 🎓</h4>
+          <h4>🎓 Mode pro</h4>
           <p>Les microservices cherchent à réduire la <strong>coordination entre équipes</strong> (Conway's Law), aligner code et domaine métier, et permettre un scaling différencié. Ils ne sont rentables qu'avec une <strong>maturité d'exploitation suffisante</strong> : CI/CD mature, observabilité, on-call, container orchestration.</p>
         </div>
 
@@ -357,16 +156,36 @@
           <h4>⚠️ Microservices ne convient pas à tout le monde</h4>
           <p>Un monolithe bien structuré (Modular Monolith) est souvent <strong>le bon choix pour une startup</strong> ou une équipe réduite. Les microservices doublent la complexité opérationnelle. Migrez vers les microservices quand la douleur du monolithe est réelle, pas par mode.</p>
         </div>
+
+        <div class="retenir-grid">
+          <div class="retenir-card">
+            <h4>📌 À retenir — Déployabilité</h4>
+            <ul>
+              <li>Un service = un repo = une pipeline CI/CD</li>
+              <li>Déploiement sans coordination externe</li>
+              <li>Versionnement d'API pour la rétrocompatibilité</li>
+            </ul>
+          </div>
+          <div class="retenir-card green">
+            <h4>📌 À retenir — Conway's Law</h4>
+            <ul>
+              <li>Architecture ≈ structure des équipes</li>
+              <li>2 à 8 personnes par service (Two-Pizza Team)</li>
+              <li>Réduire les dépendances inter-équipes</li>
+            </ul>
+          </div>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════
            2. DÉCOUPAGE PAR DOMAINE
       ═══════════════════════════════ -->
       <section id="decoupage">
+        <span class="section-kicker">Domain-Driven Design</span>
         <h2>Découpage fonctionnel — Domain-Driven Design</h2>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
 
-        <p>Le découpage est la décision la plus critique en microservices. Un mauvais découpage crée un <em>Distributed Monolith</em> — le pire des deux mondes. On utilise le <strong>Bounded Context</strong> de DDD comme unité naturelle de découpage.</p>
+        <p class="section-intro">Le découpage est la décision la plus critique en microservices. Un mauvais découpage crée un <em>Distributed Monolith</em> — le pire des deux mondes. On utilise le <strong>Bounded Context</strong> de DDD comme unité naturelle de découpage.</p>
 
         <div class="box definition">
           <h4>Bounded Context — Définition</h4>
@@ -377,7 +196,7 @@
             <li>Dans le <em>Loan Context</em> : exemplaire emprunté, date de retour, état.</li>
             <li>Dans le <em>Billing Context</em> : prix de location, pénalités de retard.</li>
           </ul>
-          <p>Chaque contexte a son propre modèle — ne les fusionnez pas !</p>
+          <p>Chaque contexte a son propre modèle — <strong>ne les fusionnez pas !</strong></p>
         </div>
 
         <div class="box example">
@@ -427,19 +246,45 @@ notification-service ← emails, push, SMS</code></pre>
             <li><strong>Strangler Fig</strong> : migrez un monolithe progressivement, service par service, sans tout réécrire d'un coup.</li>
           </ul>
         </div>
+
+        <div class="oral-script">
+          <h4>🎤 Script oral — Présentation en cours</h4>
+          <p>"Imaginez une bibliothèque universitaire. Le catalogue des livres change quand un nouveau livre arrive. La gestion des prêts change quand les règles métier évoluent. Ce ne sont pas les mêmes rythmes, les mêmes équipes, les mêmes contraintes. Donc ce sont des services séparés."</p>
+          <p>"La règle d'or : si vous ne pouvez pas modifier et déployer un service <em>sans toucher les autres</em>, ce n'est pas un vrai microservice."</p>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════
            3. OPENFEIGN
       ═══════════════════════════════ -->
       <section id="feign">
+        <span class="section-kicker">Communication synchrone</span>
         <h2>Communication synchrone — OpenFeign</h2>
         <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
 
-        <p><strong>OpenFeign</strong> est un client HTTP déclaratif intégré à Spring Cloud. Il élimine le boilerplate des appels HTTP entre services et s'intègre nativement avec Eureka (découverte) et Resilience4j (résilience).</p>
+        <p class="section-intro"><strong>OpenFeign</strong> est un client HTTP déclaratif intégré à Spring Cloud. Il élimine le boilerplate des appels HTTP entre services et s'intègre nativement avec Eureka (découverte) et Resilience4j (résilience).</p>
+
+        <div class="mini-schema">
+          <div class="schema-node">
+            <h4>1. Dépendance Maven</h4>
+            <p>Ajouter <code>spring-cloud-starter-openfeign</code></p>
+          </div>
+          <div class="schema-node">
+            <h4>2. @EnableFeignClients</h4>
+            <p>Activer sur la classe principale</p>
+          </div>
+          <div class="schema-node">
+            <h4>3. Interface @FeignClient</h4>
+            <p>Déclaratif — Feign génère le client HTTP</p>
+          </div>
+          <div class="schema-node">
+            <h4>4. Fallback</h4>
+            <p>Réponse dégradée si le service est indisponible</p>
+          </div>
+        </div>
 
         <div class="box example">
-          <h4>Étape 1 — Dépendance Maven</h4>
+          <h4>Étape 1 — Dépendances Maven</h4>
 <pre><code class="language-xml">&lt;dependency&gt;
   &lt;groupId&gt;org.springframework.cloud&lt;/groupId&gt;
   &lt;artifactId&gt;spring-cloud-starter-openfeign&lt;/artifactId&gt;
@@ -485,7 +330,7 @@ public class CatalogClientFallback implements CatalogClient {
     @Override
     public AvailabilityResponse getAvailability(UUID bookId) {
         log.warn("catalog-service unavailable, returning cached/default response");
-        // Stratégie dégradée : supposer disponible pour ne pas bloquer l'UX
+        // Stratégie dégradée : supposer indisponible pour ne pas bloquer l'UX
         return new AvailabilityResponse(false, 0, "UNKNOWN");
     }
 
@@ -501,9 +346,8 @@ public class CatalogClientFallback implements CatalogClient {
     }
 }</code></pre>
 
-          <h5>Étape 4 — Configuration complète</h5>
-<pre><code class="language-yaml"># application.yml
-spring:
+          <h5>Étape 4 — Configuration complète (application.yml)</h5>
+<pre><code class="language-yaml">spring:
   cloud:
     openfeign:
       circuitbreaker:
@@ -547,7 +391,6 @@ resilience4j:
 @Bean
 public RequestInterceptor feignRequestInterceptor() {
     return requestTemplate -> {
-        // Récupérer le context de la requête courante
         HttpServletRequest currentRequest = ((ServletRequestAttributes)
             RequestContextHolder.currentRequestAttributes()).getRequest();
 
@@ -563,10 +406,23 @@ public RequestInterceptor feignRequestInterceptor() {
             requestTemplate.header("X-Trace-Id", traceId);
         }
 
-        // Propager l'identité de l'appelant (pour l'audit)
+        // Identifier l'appelant (pour l'audit)
         requestTemplate.header("X-Caller-Service", "loan-service");
     };
 }</code></pre>
+        </div>
+
+        <div class="box best-practice">
+          <h4>✅ Quand utiliser Feign (synchrone) vs Kafka (asynchrone)</h4>
+          <table>
+            <thead><tr><th>Cas d'usage</th><th>Feign (sync)</th><th>Kafka (async)</th></tr></thead>
+            <tbody>
+              <tr><td>Vérifier disponibilité d'un livre</td><td>✅ Réponse immédiate requise</td><td>❌ Trop complexe</td></tr>
+              <tr><td>Notifier un étudiant</td><td>❌ Ne pas bloquer sur la notif</td><td>✅ Fire &amp; forget</td></tr>
+              <tr><td>Récupérer un profil utilisateur</td><td>✅ Lecture simple</td><td>❌ Surdimensionné</td></tr>
+              <tr><td>Mettre à jour plusieurs services</td><td>❌ Couplage fort</td><td>✅ Événement distribué</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -574,10 +430,11 @@ public RequestInterceptor feignRequestInterceptor() {
            4. KAFKA DEEP DIVE
       ═══════════════════════════════ -->
       <section id="kafka-deep">
+        <span class="section-kicker">Communication asynchrone</span>
         <h2>Communication asynchrone — Kafka en profondeur</h2>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
 
-        <p>Apache Kafka est un log distribué immuable et persistant. Comprendre ses mécanismes internes est essentiel pour construire des systèmes fiables.</p>
+        <p class="section-intro">Apache Kafka est un log distribué immuable et persistant. Comprendre ses mécanismes internes est essentiel pour construire des systèmes fiables à grande échelle.</p>
 
         <div class="box definition">
           <h4>Concepts fondamentaux Kafka</h4>
@@ -589,7 +446,7 @@ public RequestInterceptor feignRequestInterceptor() {
               <tr><td><strong>Offset</strong></td><td>Position d'un message dans une partition</td><td>Numéro de page</td></tr>
               <tr><td><strong>Consumer Group</strong></td><td>Groupe de consommateurs partageant la charge</td><td>Équipe qui traite le courrier</td></tr>
               <tr><td><strong>Broker</strong></td><td>Nœud Kafka stockant les partitions</td><td>Serveur de messagerie</td></tr>
-              <tr><td><strong>Replication Factor</strong></td><td>Nombre de copies d'une partition</td><td>Sauvegardes</td></tr>
+              <tr><td><strong>Replication Factor</strong></td><td>Nombre de copies d'une partition</td><td>Sauvegardes automatiques</td></tr>
             </tbody>
           </table>
         </div>
@@ -598,7 +455,7 @@ public RequestInterceptor feignRequestInterceptor() {
           <h4>Architecture Kafka pour la bibliothèque</h4>
           <div class="diagram">
 <pre>
-Topics & Partitions
+Topics &amp; Partitions
 
 loan.created        [P0][P1][P2]  ← key = loanId (hash)
 book.reserved       [P0][P1]
@@ -616,7 +473,7 @@ Principe : chaque consumer group lit tous les messages indépendamment
 </pre>
           </div>
 
-          <h5>Configuration Kafka — application.yml complète</h5>
+          <h5>Configuration Kafka complète — application.yml</h5>
 <pre><code class="language-yaml">spring:
   kafka:
     bootstrap-servers: kafka-1:9092,kafka-2:9092,kafka-3:9092
@@ -627,7 +484,7 @@ Principe : chaque consumer group lit tous les messages indépendamment
       retries: 3
       batch-size: 16384      # 16 KB — batch pour la performance
       linger-ms: 5           # attendre 5ms pour batcher
-      compression-type: snappy  # compression pour le réseau
+      compression-type: snappy  # compression réseau
       properties:
         enable.idempotence: true   # producteur idempotent
         max.in.flight.requests.per.connection: 5
@@ -760,10 +617,11 @@ public class LoanApplicationService {
            5. CIRCUIT BREAKER
       ═══════════════════════════════ -->
       <section id="circuit-breaker">
+        <span class="section-kicker">Résilience</span>
         <h2>Circuit Breaker — Résilience4j</h2>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
 
-        <p>Le <strong>Circuit Breaker</strong> est le pattern de résilience le plus important des microservices. Inspiré du disjoncteur électrique, il coupe automatiquement les appels vers un service défaillant pour éviter la propagation des pannes (<em>Cascading Failure</em>).</p>
+        <p class="section-intro">Le <strong>Circuit Breaker</strong> est le pattern de résilience le plus important des microservices. Inspiré du disjoncteur électrique, il coupe automatiquement les appels vers un service défaillant pour éviter la propagation des pannes (<em>Cascading Failure</em>).</p>
 
         <div class="box definition">
           <h4>Les 3 états du Circuit Breaker</h4>
@@ -816,7 +674,6 @@ resilience4j:
 public class CatalogService {
 
     private final CatalogClient catalogClient;
-    private final CircuitBreakerRegistry circuitBreakerRegistry;
 
     // Annotation — le plus simple
     @CircuitBreaker(name = "catalog-service", fallbackMethod = "getAvailabilityFallback")
@@ -861,8 +718,7 @@ public class CatalogService {
   metrics:
     tags:
       application: loan-service</code></pre>
-<pre><code class="language-text">GET /actuator/health → état du circuit breaker en temps réel
-
+<pre><code class="language-json">// GET /actuator/health → état du circuit breaker en temps réel
 {
   "components": {
     "circuitBreakers": {
@@ -900,11 +756,14 @@ public class CatalogService {
            6. GATEWAY AVANCÉ
       ═══════════════════════════════ -->
       <section id="gateway-deep">
+        <span class="section-kicker">Infrastructure</span>
         <h2>API Gateway — Configuration avancée</h2>
         <div class="level-bar"><span class="level-pill senior">Senior</span></div>
 
+        <p class="section-intro">L'API Gateway est le point d'entrée unique de l'architecture microservices. Elle centralise le routage, la sécurité, le rate limiting et la résilience — sans que chaque service ait à réimplémenter ces préoccupations transverses.</p>
+
         <div class="box example">
-          <h4>Route avec Circuit Breaker + Fallback</h4>
+          <h4>Route avec Circuit Breaker + Rate Limiting + Retry (application.yml)</h4>
 <pre><code class="language-yaml">spring:
   cloud:
     gateway:
@@ -950,9 +809,9 @@ public class FallbackController {
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
             .body(Map.of(
-                "error",   "Service temporarily unavailable",
-                "service", "loan-service",
-                "traceId", traceId != null ? traceId : "unknown",
+                "error",      "Service temporarily unavailable",
+                "service",    "loan-service",
+                "traceId",    traceId != null ? traceId : "unknown",
                 "retryAfter", 30
             ));
     }
@@ -977,27 +836,42 @@ public KeyResolver apiKeyResolver() {
     };
 }</code></pre>
         </div>
+
+        <div class="box best-practice">
+          <h4>✅ Responsabilités de l'API Gateway</h4>
+          <table>
+            <thead><tr><th>Responsabilité</th><th>Mécanisme Gateway</th><th>Ne PAS déléguer aux services</th></tr></thead>
+            <tbody>
+              <tr><td>Authentification JWT</td><td>Filtre global <code>AuthenticationFilter</code></td><td>Validation du token</td></tr>
+              <tr><td>Rate limiting</td><td><code>RequestRateLimiter</code> (Redis)</td><td>Compteurs par service</td></tr>
+              <tr><td>Circuit Breaker global</td><td>Filtre <code>CircuitBreaker</code></td><td>Fallback commun</td></tr>
+              <tr><td>Logging des requêtes</td><td>Filtre global <code>LoggingFilter</code></td><td>Audit centralisé</td></tr>
+              <tr><td>CORS</td><td>Configuration globale Gateway</td><td>Chaque service indépendamment</td></tr>
+            </tbody>
+          </table>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════
            7. SAGAS
       ═══════════════════════════════ -->
       <section id="sagas">
+        <span class="section-kicker">Transactions distribuées</span>
         <h2>Transactions distribuées — Pattern Saga</h2>
         <div class="level-bar"><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
 
-        <p>Dans un monolithe, une transaction ACID locale garantit la cohérence. Dans les microservices, chaque service a sa propre base : une transaction distribuée bloquante (2PC) est trop coûteuse et fragile. Le <strong>pattern Saga</strong> découpe la transaction en étapes avec des <strong>transactions compensatoires</strong> en cas d'échec.</p>
+        <p class="section-intro">Dans un monolithe, une transaction ACID locale garantit la cohérence. Dans les microservices, chaque service a sa propre base : une transaction distribuée bloquante (2PC) est trop coûteuse et fragile. Le <strong>pattern Saga</strong> découpe la transaction en étapes avec des <strong>transactions compensatoires</strong> en cas d'échec.</p>
 
         <div class="columns">
           <div class="box definition">
-            <h4>Orchestration</h4>
+            <h4>🎯 Orchestration</h4>
             <p>Un <strong>orchestrateur central</strong> (Saga Manager) dicte les étapes à chaque service. Chaque service répond "succès" ou "échec".</p>
-            <p>✅ Flux visible et centralisé.<br>⚠️ Single point of complexity.</p>
+            <p>✅ Flux visible et centralisé.<br>✅ Facile à auditer et à déboguer.<br>⚠️ Single point of complexity.</p>
           </div>
           <div class="box definition">
-            <h4>Chorégraphie</h4>
+            <h4>🔄 Chorégraphie</h4>
             <p>Chaque service <strong>réagit aux événements</strong> et publie les siens. Pas de chef d'orchestre.</p>
-            <p>✅ Découplage maximal.<br>⚠️ Flux difficile à visualiser.</p>
+            <p>✅ Découplage maximal.<br>✅ Naturellement scalable.<br>⚠️ Flux difficile à visualiser.</p>
           </div>
         </div>
 
@@ -1069,7 +943,6 @@ public class CreateLoanSaga {
             loanRepo.save(loan);
             saga.setState(LoanSagaState.LOAN_CONFIRMED);
 
-            // Publier l'événement de succès
             kafka.send("loan.created", new LoanCreatedEvent(cmd.loanId(),
                 cmd.studentId(), cmd.bookId(), Instant.now()));
 
@@ -1088,7 +961,6 @@ public class CreateLoanSaga {
             return LoanSagaResult.failure("Student account suspended");
 
         } catch (Exception e) {
-            // Compenser toutes les étapes réussies
             compensateAll(cmd, saga);
             saga.setState(LoanSagaState.FAILED);
             return LoanSagaResult.failure("Unexpected error: " + e.getMessage());
@@ -1146,7 +1018,6 @@ public class LoanApplicationService {
             new StudentValidationRequestedEvent(event.loanId(), loan.getStudentId()));
     }
 
-    // Si le livre n'est pas disponible
     @KafkaListener(topics = "book.reservation-rejected")
     public void onBookReservationRejected(BookReservationRejectedEvent event) {
         Loan loan = loanRepo.findById(event.loanId()).orElseThrow();
@@ -1182,8 +1053,8 @@ public void onLoanInitiationRequested(LoanInitiationRequestedEvent event) {
             <tr><td>Visibilité du flux</td><td>✅ Centralisée, facile à tracer</td><td>⚠️ Flux implicite, difficile à visualiser</td></tr>
             <tr><td>Couplage</td><td>⚠️ Orchestrateur connaît tous les services</td><td>✅ Découplage maximal</td></tr>
             <tr><td>Complexité</td><td>⚠️ Single point of complexity</td><td>⚠️ Complexité répartie</td></tr>
-            <tr><td>Scalabilité</td><td>⚠️ Orchestrateur peut devenir goulot</td><td>✅ Naturellement scalable</td></tr>
-            <tr><td>Quand l'utiliser</td><td>Flux longs et complexes, audit requis</td><td>Flux simples, fort découplage requis</td></tr>
+            <tr><td>Scalabilité</td><td>⚠️ Orchestrateur peut être goulot</td><td>✅ Naturellement scalable</td></tr>
+            <tr><td>Quand l'utiliser</td><td>Flux longs, complexes, audit requis</td><td>Flux simples, fort découplage requis</td></tr>
           </tbody>
         </table>
       </section>
@@ -1192,8 +1063,11 @@ public void onLoanInitiationRequested(LoanInitiationRequestedEvent event) {
            8. ANTI-PATTERNS
       ═══════════════════════════════ -->
       <section id="antipatterns">
+        <span class="section-kicker">Pièges à éviter</span>
         <h2>Anti-patterns microservices</h2>
         <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill senior">Senior</span></div>
+
+        <p class="section-intro">Les microservices mal conçus sont pires qu'un monolithe. Ces anti-patterns sont les erreurs les plus fréquentes vues en production.</p>
 
         <div class="box frequent-error">
           <h4>🔴 1. Distributed Monolith</h4>
@@ -1213,7 +1087,6 @@ public LoanDetailsDto getDetails(@PathVariable UUID id) {
 // loan-service maintient sa propre vue des données dont il a besoin
 @KafkaListener(topics = "book.updated")
 public void updateLocalBookView(BookUpdatedEvent event) {
-    // Stocker uniquement ce dont loan-service a besoin
     localBookViewRepo.upsert(new LoanBookView(
         event.bookId(), event.title(), event.authorName()
     ));
@@ -1247,7 +1120,7 @@ public void onLoanOverdue(LoanOverdueEvent event) {
         </div>
 
         <div class="box frequent-error">
-          <h4>🔴 3. Chatty Communication</h4>
+          <h4>🔴 3. Chatty Communication (N+1 distribué)</h4>
           <p>Trop d'appels réseau pour un seul cas d'usage. Chaque appel ajoute de la latence et de la fragilité.</p>
 <pre><code class="language-java">// ❌ Anti-pattern : N+1 en distribué
 for (UUID bookId : loanedBookIds) {
@@ -1278,7 +1151,7 @@ catalog-service  ← tout ce qui concerne les livres et le catalogue</code></pre
 
         <div class="box frequent-error">
           <h4>🔴 5. Synchronous Chain (couplage temporel)</h4>
-          <p>Toute la chaîne tombe si un seul service est lent.</p>
+          <p>Toute la chaîne tombe si un seul service est lent ou indisponible.</p>
 <pre><code class="language-text">// ❌ Chaîne synchrone : latence = somme de toutes les latences
 Client ──► Gateway ──► A (200ms) ──► B (300ms) ──► C (500ms)
 Total = 200 + 300 + 500 = 1000ms + overhead réseau
@@ -1295,10 +1168,11 @@ Client reçoit la réponse immédiatement, B et C s'exécutent en arrière-plan<
            9. STRATÉGIE DE TESTS
       ═══════════════════════════════ -->
       <section id="testing">
+        <span class="section-kicker">Qualité &amp; fiabilité</span>
         <h2>Stratégie de tests dans les microservices</h2>
         <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
 
-        <p>La pyramide des tests traditionnelle s'adapte aux microservices. L'objectif : détecter les bugs au plus tôt, le plus localement possible, sans dépendre des autres services à chaque exécution.</p>
+        <p class="section-intro">La pyramide des tests traditionnelle s'adapte aux microservices. L'objectif : détecter les bugs au plus tôt, le plus localement possible, sans dépendre des autres services à chaque exécution.</p>
 
         <div class="box definition">
           <h4>Pyramide des tests microservices</h4>
@@ -1405,7 +1279,6 @@ class CatalogClientTest {
 
     @Test
     void shouldGetAvailabilityFromCatalogService() {
-        // Stubber le catalog-service avec WireMock
         stubFor(get(urlPathEqualTo("/internal/books/d290f1ee/availability"))
             .willReturn(aResponse()
                 .withStatus(200)
@@ -1414,7 +1287,6 @@ class CatalogClientTest {
                     { "available": true, "copies": 3 }
                     """)));
 
-        // Appeler le client Feign → il appelle WireMock
         AvailabilityResponse response = catalogClient.getAvailability(
             UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851"));
 
@@ -1424,7 +1296,6 @@ class CatalogClientTest {
 
     @Test
     void shouldActivateFallbackWhenCatalogServiceIsDown() {
-        // Simuler un timeout
         stubFor(get(anyUrl())
             .willReturn(aResponse()
                 .withStatus(503)
@@ -1436,16 +1307,28 @@ class CatalogClientTest {
     }
 }</code></pre>
         </div>
+
+        <div class="box best-practice">
+          <h4>✅ Règles d'or pour les tests de microservices</h4>
+          <ul>
+            <li><strong>80% de tests unitaires</strong> — logique métier pure, sans Spring.</li>
+            <li><strong>Testcontainers</strong> pour les tests d'intégration — vraie BDD, vrai Kafka.</li>
+            <li><strong>WireMock</strong> pour mocker les services voisins dans les tests Feign.</li>
+            <li><strong>Contract Tests (Pact)</strong> — vérifient la compatibilité producteur/consommateur sans déployer.</li>
+            <li><strong>Éviter les tests E2E</strong> coûteux — réservez-les aux chemins critiques.</li>
+          </ul>
+        </div>
       </section>
 
       <!-- ═══════════════════════════════
            10. SERVICE MESH
       ═══════════════════════════════ -->
       <section id="service-mesh">
+        <span class="section-kicker">Expert</span>
         <h2>Service Mesh — Introduction à Istio</h2>
         <div class="level-bar"><span class="level-pill expert">Expert</span></div>
 
-        <p>Un <strong>Service Mesh</strong> déplace les préoccupations réseau (mTLS, Circuit Breaker, retry, observabilité) <strong>hors du code</strong> et dans l'infrastructure, via des proxies <em>sidecar</em> injectés automatiquement dans chaque pod.</p>
+        <p class="section-intro">Un <strong>Service Mesh</strong> déplace les préoccupations réseau (mTLS, Circuit Breaker, retry, observabilité) <strong>hors du code</strong> et dans l'infrastructure, via des proxies <em>sidecar</em> injectés automatiquement dans chaque pod.</p>
 
         <div class="box definition">
           <h4>Architecture Istio</h4>
@@ -1462,13 +1345,13 @@ class CatalogClientTest {
 │                          │  - Metrics Prometheus        │   │
 │                          └──────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────┘
-         │ Tout le trafic passe par Envoy — transparent pour l'app │
+    Tout le trafic passe par Envoy — transparent pour l'application
 </pre>
           </div>
         </div>
 
         <div class="box example">
-          <h4>Politique de retry et Circuit Breaker — DestinationRule Istio (YAML)</h4>
+          <h4>Politique de retry et Circuit Breaker — VirtualService + DestinationRule Istio</h4>
 <pre><code class="language-yaml">apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
@@ -1501,15 +1384,39 @@ spec:
       maxEjectionPercent: 50       # max 50% des instances éjectées</code></pre>
         </div>
 
+        <div class="compare-grid">
+          <div class="compare-card">
+            <h4>✅ Avantages du Service Mesh</h4>
+            <ul>
+              <li><strong>mTLS automatique</strong> : chiffrement entre services sans modifier le code.</li>
+              <li><strong>Observabilité gratuite</strong> : traces, métriques, logs sans instrumentation.</li>
+              <li><strong>Circuit Breaker infrastructure</strong> : pas de Resilience4j dans le code.</li>
+              <li><strong>Chaos Engineering</strong> : injecter des pannes via YAML.</li>
+            </ul>
+          </div>
+          <div class="compare-card">
+            <h4>⚠️ Inconvénients</h4>
+            <ul>
+              <li><strong>Complexité opérationnelle</strong> accrue — réservé aux équipes DevOps matures.</li>
+              <li><strong>Overhead latence</strong> du proxy sidecar (~1-5ms par hop).</li>
+              <li><strong>Courbe d'apprentissage</strong> : Kubernetes + Istio + Envoy à maîtriser.</li>
+              <li><strong>Debug plus complexe</strong> : la config réseau est hors du code.</li>
+            </ul>
+          </div>
+        </div>
+
         <div class="box pro-mode">
-          <h4>Avantages du Service Mesh</h4>
-          <ul>
-            <li>✅ <strong>mTLS automatique</strong> : chiffrement entre services sans modifier le code.</li>
-            <li>✅ <strong>Observabilité gratuite</strong> : traces, métriques, logs sans instrumentation.</li>
-            <li>✅ <strong>Circuit Breaker infrastructure</strong> : pas de Resilience4j dans le code.</li>
-            <li>✅ <strong>Chaos Engineering</strong> : injecter des pannes et des délais via YAML.</li>
-            <li>⚠️ <strong>Complexité opérationnelle</strong> accrue — réservé aux équipes DevOps matures.</li>
-          </ul>
+          <h4>Resilience4j vs Service Mesh — Quand utiliser quoi ?</h4>
+          <table>
+            <thead><tr><th>Critère</th><th>Resilience4j (dans le code)</th><th>Service Mesh (Istio)</th></tr></thead>
+            <tbody>
+              <tr><td>Maturité équipe</td><td>Toute équipe Java</td><td>Équipe DevOps/Kubernetes senior</td></tr>
+              <tr><td>Contrôle fin</td><td>✅ Par service, par méthode</td><td>⚠️ Niveau réseau uniquement</td></tr>
+              <tr><td>Logique applicative</td><td>✅ Accessible dans le fallback</td><td>❌ Infrastructure seulement</td></tr>
+              <tr><td>mTLS automatique</td><td>❌ À configurer manuellement</td><td>✅ Transparent</td></tr>
+              <tr><td>Recommandation</td><td>Projets jusqu'à ~20 services</td><td>Plateformes à grande échelle</td></tr>
+            </tbody>
+          </table>
         </div>
       </section>
 
@@ -1517,6 +1424,7 @@ spec:
            11. QUIZ
       ═══════════════════════════════ -->
       <section id="quiz">
+        <span class="section-kicker">Auto-évaluation</span>
         <h2>Quiz de fin — Jour 4</h2>
 
         <div class="quiz-item">
@@ -1585,8 +1493,8 @@ spec:
       </section>
 
       <div class="footer-nav">
-        <a href="../pages/jour-3-systemes-distribues-et-api.html">← Jour 3</a>
-        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5 →</a>
+        <a href="../pages/jour-3-systemes-distribues-et-api.html">← Jour 3 — Systèmes distribués &amp; API</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5 — Résilience &amp; Sécurité →</a>
       </div>
     </article>
   </div>
@@ -1596,5 +1504,25 @@ spec:
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+<script>
+  // Fermer le menu mobile au clic sur un lien
+  document.querySelectorAll('.top-nav a').forEach(a => {
+    a.addEventListener('click', () => {
+      document.querySelector('.nav-scroll-zone').classList.remove('open');
+    });
+  });
+  // Highlight lien actif dans quick-tools au scroll
+  const sections = document.querySelectorAll('section[id]');
+  const qtLinks = document.querySelectorAll('.quick-tools a');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        qtLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+      }
+    });
+  }, { threshold: 0.3 });
+  sections.forEach(s => observer.observe(s));
+</script>
 </body>
 </html>

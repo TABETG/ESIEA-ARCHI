@@ -252,21 +252,33 @@
     .line-numbers-rows > span::before { color: #6e7681; }
 
     /* ── Tables ── */
-    table { width: 100%; border-collapse: collapse; margin: 14px 0; }
+    table { width: 100%; border-collapse: collapse; margin: 14px 0; border-radius: 10px; overflow: hidden; }
     th, td {
-      border: 1px solid var(--border); padding: 10px 12px;
+      border: 1px solid var(--border); padding: 10px 14px;
       text-align: left; vertical-align: top;
     }
-    th { background: #eff6ff; }
+    th { background: #eff6ff; color: #123f73; font-size: .9rem; letter-spacing: .01em; }
+    tbody tr:nth-child(even) { background: #f8fbff; }
+    tbody tr:hover { background: #eef6ff; transition: background .15s; }
 
     summary { cursor: pointer; font-weight: 600; }
+    details > summary { list-style: none; }
+    details > summary::-webkit-details-marker { display: none; }
+    details > summary::before {
+      content: "▶ "; font-size: .75em; color: var(--blue);
+      transition: transform .2s;
+    }
+    details[open] > summary::before { content: "▼ "; }
+    details[open] > summary { margin-bottom: 8px; color: #0f3460; }
 
     /* ── Nav pied de page ── */
-    .footer-nav { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 20px; }
+    .footer-nav { display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 24px; }
     .footer-nav a {
-      display: inline-block; padding: 12px 16px;
-      background: #fff; border: 1px solid var(--border); border-radius: 12px;
+      display: inline-flex; align-items: center; gap: 6px; padding: 12px 20px;
+      background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+      font-weight: 600; color: #163b66; transition: background .15s, border-color .15s, transform .1s;
     }
+    .footer-nav a:hover { background: var(--blue-soft); border-color: var(--blue); text-decoration: none; transform: translateY(-1px); }
 
     /* ── Quiz ── */
     .quiz-item {
@@ -316,7 +328,7 @@
     .level-pill.senior { background: #fce7f3; color: #9d174d; }
     .level-pill.expert { background: #ede9fe; color: #5b21b6; }
 
-    /* ── Diagrams ── */
+    /* ── Diagrams ASCII ── */
     .diagram-wrap{
       margin:20px 0;
       max-width:100%;
@@ -332,6 +344,44 @@
       height:auto;
       flex:0 0 auto;
     }
+    /* Conteneur ASCII art (non-SVG) */
+    .diagram {
+      background: #1a1f2e;
+      border: 1px solid #2d3748;
+      border-radius: 12px;
+      padding: 1.3em 1.6em;
+      font-family: "Fira Code", "JetBrains Mono", Consolas, monospace;
+      font-size: .84rem;
+      color: #a5d6ff;
+      line-height: 1.75;
+      margin: 1.2em 0;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+    .diagram pre {
+      margin: 0 !important;
+      padding: 0 !important;
+      background: transparent !important;
+      border: none !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      overflow: visible !important;
+    }
+    .diagram pre::before { display: none !important; }
+    .diagram pre > code {
+      display: block !important;
+      padding: 0 !important;
+      background: transparent !important;
+      color: inherit !important;
+      font-family: inherit !important;
+      font-size: inherit !important;
+      border: none !important;
+    }
+    .diagram .d-green  { color: #68d391; }
+    .diagram .d-yellow { color: #f6e05e; }
+    .diagram .d-orange { color: #f6ad55; }
+    .diagram .d-gray   { color: #718096; }
+    .diagram .d-teal   { color: #4fd1c7; }
 
     /* ── Hamburger ── */
     .menu-toggle{display:none;background:none;border:1px solid var(--border);border-radius:8px;padding:6px 10px;font-size:1.3rem;cursor:pointer;color:var(--text);flex-shrink:0}
@@ -339,6 +389,9 @@
     /* ── Retenir ── */
     .retenir-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin:18px 0}
     .retenir-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow);border-top:4px solid var(--blue)}
+    .retenir-card.green { border-top-color: var(--green); }
+    .retenir-card.orange { border-top-color: var(--orange); }
+    .retenir-card.purple { border-top-color: var(--purple); }
     .retenir-card h4{margin:0 0 10px;font-size:1rem}
     .retenir-card ul{margin:0;padding-left:18px}
     .retenir-card li{margin:.4rem 0;font-size:.9rem}
@@ -540,17 +593,13 @@
     }
 
 
-    /* ── Correction pédagogique : ne pas afficher Avant / Après côte à côte ── */
-    .columns{
-      grid-template-columns: 1fr !important;
-      gap: 18px !important;
-    }
-    .columns > .box{
+    /* ── .columns — grille 2 colonnes par défaut ── */
+    .columns > .box {
       width: 100%;
       min-width: 0;
     }
     .columns pre,
-    .columns code{
+    .columns code {
       max-width: 100%;
     }
 
