@@ -3029,6 +3029,77 @@ class CatalogServiceContractVerificationTest {
   (function(){
     const navZone = document.querySelector('.nav-scroll-zone');
     const nav = document.querySelector('.top-nav');
+
+    const copyLabels = {
+      idle: 'Copier',
+      success: 'Copié ✓',
+      error: 'Erreur'
+    };
+
+    const copyText = async (text) => {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+      }
+
+      const textarea = document.createElement('textarea');
+      textarea.value = text;
+      textarea.setAttribute('readonly', '');
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      textarea.style.pointerEvents = 'none';
+      document.body.appendChild(textarea);
+      textarea.select();
+      textarea.setSelectionRange(0, textarea.value.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(textarea);
+      if (!ok) throw new Error('copy_failed');
+    };
+
+    const enhanceCodeBlocks = () => {
+      document.querySelectorAll('pre').forEach((pre) => {
+        if (pre.dataset.copyReady === 'true') return;
+
+        const code = pre.querySelector('code');
+        if (!code) return;
+
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'copy-code-btn';
+        button.setAttribute('aria-label', 'Copier le code dans le presse-papiers');
+        button.textContent = copyLabels.idle;
+
+        let resetTimer = null;
+
+        button.addEventListener('click', async () => {
+          const text = code.innerText || code.textContent || '';
+          if (!text.trim()) return;
+
+          try {
+            await copyText(text);
+            button.textContent = copyLabels.success;
+            button.classList.remove('is-error');
+            button.classList.add('is-copied');
+          } catch (error) {
+            button.textContent = copyLabels.error;
+            button.classList.remove('is-copied');
+            button.classList.add('is-error');
+          }
+
+          window.clearTimeout(resetTimer);
+          resetTimer = window.setTimeout(() => {
+            button.textContent = copyLabels.idle;
+            button.classList.remove('is-copied', 'is-error');
+          }, 1800);
+        });
+
+        pre.appendChild(button);
+        pre.dataset.copyReady = 'true';
+      });
+    };
+
+    enhanceCodeBlocks();
+
     if(!nav) return;
 
     nav.querySelectorAll('a').forEach(a =>
