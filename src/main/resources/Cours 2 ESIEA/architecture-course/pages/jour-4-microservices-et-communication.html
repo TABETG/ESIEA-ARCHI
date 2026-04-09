@@ -201,19 +201,29 @@
 
         <div class="box example">
           <h4>Analyse Event Storming → Services pour une bibliothèque</h4>
-          <div class="diagram">
-<pre>
-┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐  ┌──────────────────┐
-│  catalog-service│  │  loan-service   │  │identity-service │  │notification-svc  │
-├─────────────────┤  ├─────────────────┤  ├─────────────────┤  ├──────────────────┤
-│ Book            │  │ Loan            │  │ Student         │  │ Notification     │
-│ Author          │  │ Reservation     │  │ Membership      │  │ EmailTemplate    │
-│ Category        │  │ Return          │  │ Auth / JWT      │  │ PushSubscription │
-├─────────────────┤  ├─────────────────┤  ├─────────────────┤  ├──────────────────┤
-│ DB: PostgreSQL  │  │ DB: PostgreSQL  │  │ DB: PostgreSQL  │  │ Queue: Kafka     │
-│ Port: 8081      │  │ Port: 8082      │  │ Port: 8083      │  │ Port: 8084       │
-└─────────────────┘  └─────────────────┘  └─────────────────┘  └──────────────────┘
-</pre>
+          <div class="kafka-viz">
+            <div class="kv-partitions" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+              <div class="kv-partition">
+                <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);color:#5b21b6;">catalog-service</div>
+                <div class="kv-offset-row"><span class="kv-offset-val">Book · Author · Category</span></div>
+                <div class="kv-offset-row" style="color:var(--muted);font-size:.78rem;">DB: PostgreSQL · Port 8081</div>
+              </div>
+              <div class="kv-partition">
+                <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);color:#15803d;">loan-service</div>
+                <div class="kv-offset-row"><span class="kv-offset-val">Loan · Reservation · Return</span></div>
+                <div class="kv-offset-row" style="color:var(--muted);font-size:.78rem;">DB: PostgreSQL · Port 8082</div>
+              </div>
+              <div class="kv-partition">
+                <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#e0ecff,#eff6ff);color:#1d4ed8;">identity-service</div>
+                <div class="kv-offset-row"><span class="kv-offset-val">Student · Membership · Auth/JWT</span></div>
+                <div class="kv-offset-row" style="color:var(--muted);font-size:.78rem;">DB: PostgreSQL · Port 8083</div>
+              </div>
+              <div class="kv-partition">
+                <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#ffedd5,#fff7ed);color:#c2410c;">notification-svc</div>
+                <div class="kv-offset-row"><span class="kv-offset-val">Notification · EmailTemplate · Push</span></div>
+                <div class="kv-offset-row" style="color:var(--muted);font-size:.78rem;">Queue: Kafka · Port 8084</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -296,6 +306,8 @@ notification-service ← emails, push, SMS</code></pre>
 
           <h5>Étape 2 — Activer Feign dans l'application</h5>
 <pre><code class="language-java">@SpringBootApplication
+// Active le scan des interfaces @FeignClient dans le package spécifié.
+// Spring génère automatiquement l'implémentation HTTP de chaque interface.
 @EnableFeignClients(basePackages = "com.example.loan.clients")
 public class LoanServiceApplication {
     public static void main(String[] args) {
@@ -304,44 +316,60 @@ public class LoanServiceApplication {
 }</code></pre>
 
           <h5>Étape 3 — Interface déclarative</h5>
-<pre><code class="language-java">// loan-service → catalog-service
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// CLIENT FEIGN : loan-service appelle catalog-service via HTTP
+// ═══════════════════════════════════════════════════════════════
+// On déclare une interface Java — Feign génère le code HTTP pour nous.
+// C'est comme écrire un @Repository pour JPA : on décrit, Spring implémente.
 @FeignClient(
-    name      = "catalog-service",          // résolu par Eureka
-    path      = "/internal",
-    fallback  = CatalogClientFallback.class // utilisé si CircuitBreaker open
+    name     = "catalog-service",           // Nom du service dans Eureka (Service Discovery)
+    path     = "/internal",                  // Préfixe commun à tous les endpoints internes
+    fallback = CatalogClientFallback.class   // Classe appelée si le Circuit Breaker est OPEN
 )
 public interface CatalogClient {
 
+    // Vérifie si un livre est disponible — réponse immédiate requise (sync)
     @GetMapping("/books/{bookId}/availability")
     AvailabilityResponse getAvailability(@PathVariable UUID bookId);
 
+    // Réserve un exemplaire du livre — opération d'écriture
     @PutMapping("/books/{bookId}/reserve")
     void reserveBook(@PathVariable UUID bookId,
                      @RequestBody ReservationRequest request);
 
+    // Libère la réservation (compensation en cas d'annulation de la Saga)
     @PutMapping("/books/{bookId}/release")
     void releaseBook(@PathVariable UUID bookId);
 }
 
-// Fallback — valeur par défaut si le service est indisponible
+// ═══════════════════════════════════════════════════════════════
+// FALLBACK : réponse dégradée quand catalog-service est DOWN
+// ═══════════════════════════════════════════════════════════════
+// Implémente la même interface que le client Feign.
+// Spring l'utilise automatiquement quand le Circuit Breaker est OPEN
+// ou quand catalog-service ne répond pas dans le timeout.
 @Component
 public class CatalogClientFallback implements CatalogClient {
 
     @Override
     public AvailabilityResponse getAvailability(UUID bookId) {
+        // Stratégie conservative : on dit "indisponible" plutôt que de bloquer l'UX.
+        // En prod, on pourrait retourner une réponse cachée (Redis/local cache).
         log.warn("catalog-service unavailable, returning cached/default response");
-        // Stratégie dégradée : supposer indisponible pour ne pas bloquer l'UX
         return new AvailabilityResponse(false, 0, "UNKNOWN");
     }
 
     @Override
     public void reserveBook(UUID bookId, ReservationRequest request) {
-        // Publier un événement compensation dans Kafka pour retry asynchrone
+        // On ne peut pas réserver → on publie un événement Kafka pour retry plus tard.
+        // C'est le pattern "async retry" : on ne perd pas la demande.
         compensationPublisher.publish(new ReservationFailedEvent(bookId));
     }
 
     @Override
     public void releaseBook(UUID bookId) {
+        // Cas critique : la libération a échoué → le livre reste "réservé" à tort.
+        // → Alerte pour intervention manuelle (PagerDuty, Slack, etc.)
         log.error("Could not release book {} — manual intervention needed", bookId);
     }
 }</code></pre>
@@ -351,62 +379,76 @@ public class CatalogClientFallback implements CatalogClient {
   cloud:
     openfeign:
       circuitbreaker:
-        enabled: true
+        enabled: true          # Active l'intégration Feign + Resilience4j
       client:
         config:
-          catalog-service:
-            connectTimeout: 1000    # ms — connexion TCP
-            readTimeout: 3000       # ms — attente de la réponse
-            loggerLevel: FULL       # en dev ; BASIC en prod
+          catalog-service:     # Config spécifique pour le client "catalog-service"
+            connectTimeout: 1000    # 1s max pour établir la connexion TCP
+            readTimeout: 3000       # 3s max pour recevoir la réponse complète
+            loggerLevel: FULL       # FULL en dev (headers+body), BASIC en prod
 
+# ─── Configuration Resilience4j ─────────────────────────────────
 resilience4j:
   circuitbreaker:
     instances:
       catalog-service:
-        slidingWindowType: COUNT_BASED
-        slidingWindowSize: 10
-        failureRateThreshold: 50       # % d'échecs pour ouvrir
-        waitDurationInOpenState: 10s   # attendre 10s avant HALF_OPEN
-        permittedNumberOfCallsInHalfOpenState: 3
-        registerHealthIndicator: true
+        slidingWindowType: COUNT_BASED   # Évalue les N derniers appels (pas par durée)
+        slidingWindowSize: 10            # Fenêtre de 10 appels
+        failureRateThreshold: 50         # Si 50% échouent → circuit OPEN
+        waitDurationInOpenState: 10s     # Attendre 10s avant de tester (HALF_OPEN)
+        permittedNumberOfCallsInHalfOpenState: 3  # 3 appels de test en HALF_OPEN
+        registerHealthIndicator: true    # Expose l'état dans /actuator/health
 
   retry:
     instances:
       catalog-service:
-        maxAttempts: 3
-        waitDuration: 200ms
-        enableExponentialBackoff: true
-        exponentialBackoffMultiplier: 2
-        randomizedWaitFactor: 0.25
-        retryExceptions:
-          - feign.RetryableException
-          - java.net.ConnectException
-        ignoreExceptions:
-          - com.example.catalog.BookNotFoundException</code></pre>
+        maxAttempts: 3                   # 3 tentatives max (1 initiale + 2 retries)
+        waitDuration: 200ms              # Attendre 200ms entre les tentatives
+        enableExponentialBackoff: true   # 200ms → 400ms → 800ms (exponentiel)
+        exponentialBackoffMultiplier: 2  # Facteur multiplicateur entre chaque retry
+        randomizedWaitFactor: 0.25       # Ajoute ±25% de jitter pour éviter le "thundering herd"
+        retryExceptions:                 # Retenter UNIQUEMENT ces exceptions
+          - feign.RetryableException          # Timeout réseau, connexion refusée
+          - java.net.ConnectException          # Service unreachable
+        ignoreExceptions:                # NE PAS retenter ces exceptions (erreur métier)
+          - com.example.catalog.BookNotFoundException  # 404 = le livre n'existe pas, pas la peine de retenter</code></pre>
         </div>
 
         <div class="box expert">
           <h4>⚙️ Expert — Intercepteur Feign pour propager les headers</h4>
-<pre><code class="language-java">// Propagation automatique du Trace ID et de l'Authorization
+          <p>Quand loan-service appelle catalog-service, on veut que le <strong>token JWT</strong> et le <strong>Trace ID</strong> soient transmis automatiquement — sans que chaque développeur doive y penser.</p>
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// INTERCEPTEUR FEIGN : s'exécute AVANT chaque appel HTTP sortant
+// ═══════════════════════════════════════════════════════════════
+// Problème : quand un utilisateur appelle loan-service, son JWT
+// est dans le header HTTP. Mais quand loan-service appelle
+// catalog-service via Feign, le JWT est perdu. Cet intercepteur
+// le récupère et le transmet automatiquement.
 @Bean
 public RequestInterceptor feignRequestInterceptor() {
     return requestTemplate -> {
+        // Récupérer la requête HTTP entrante actuelle (celle du client → loan-service)
         HttpServletRequest currentRequest = ((ServletRequestAttributes)
             RequestContextHolder.currentRequestAttributes()).getRequest();
 
-        // Propager le token JWT vers les services internes
+        // ── 1. Propager le JWT ──
+        // Le token du client est dans "Authorization: Bearer xxx"
+        // On le copie dans la requête sortante Feign → catalog-service
         String authHeader = currentRequest.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null) {
             requestTemplate.header(HttpHeaders.AUTHORIZATION, authHeader);
         }
 
-        // Propager le Trace ID pour le distributed tracing
+        // ── 2. Propager le Trace ID (distributed tracing) ──
+        // Permet de suivre une requête à travers tous les services
+        // Indispensable pour déboguer en production !
         String traceId = MDC.get("traceId");
         if (traceId != null) {
             requestTemplate.header("X-Trace-Id", traceId);
         }
 
-        // Identifier l'appelant (pour l'audit)
+        // ── 3. Identifier l'appelant ──
+        // catalog-service sait que c'est loan-service qui l'appelle (audit, logs)
         requestTemplate.header("X-Caller-Service", "loan-service");
     };
 }</code></pre>
@@ -436,134 +478,342 @@ public RequestInterceptor feignRequestInterceptor() {
 
         <p class="section-intro">Apache Kafka est un log distribué immuable et persistant. Comprendre ses mécanismes internes est essentiel pour construire des systèmes fiables à grande échelle.</p>
 
+        <div class="box child-mode">
+          <h4>🧸 Analogie — Le cahier, la page et la ligne</h4>
+          <p>Imaginez Kafka comme <strong>un ensemble de cahiers</strong> dans un bureau de poste géant où les messages ne sont jamais effacés :</p>
+          <ul>
+            <li><strong>Topic = un cahier</strong> dédié à un sujet. Exemple : le cahier <em>"emprunts"</em>, le cahier <em>"réservations"</em>.</li>
+            <li><strong>Partition = une page</strong> dans ce cahier. Kafka écrit sur plusieurs pages en parallèle pour aller plus vite. La clé du message (ex : <code>loanId</code>) détermine sur quelle page on écrit : <code>hash(loanId) % nb_pages</code>.</li>
+            <li><strong>Offset = le numéro de ligne</strong> sur la page. Chaque message reçoit un numéro unique et croissant (0, 1, 2, 3…). On ne peut pas modifier ni supprimer une ligne déjà écrite.</li>
+            <li><strong>Consumer Group = une équipe de lecteurs</strong>. Chaque équipe a sa propre photocopie du cahier et lit à son propre rythme. L'équipe "notifications" peut en être à la ligne 5, pendant que l'équipe "analytics" en est à la ligne 3.</li>
+            <li><strong>Broker = le meuble</strong> qui stocke physiquement les cahiers. On a plusieurs meubles pour la redondance.</li>
+            <li><strong>Ack = l'accusé de réception</strong>. Quand on écrit un message, on peut demander : aucune confirmation (rapide mais risqué), confirmation du meuble principal, ou confirmation de tous les meubles (le plus sûr).</li>
+          </ul>
+        </div>
+
         <div class="box definition">
           <h4>Concepts fondamentaux Kafka</h4>
           <table>
-            <thead><tr><th>Concept</th><th>Définition</th><th>Analogie</th></tr></thead>
+            <thead><tr><th>Concept</th><th>Définition</th><th>Analogie (cahier)</th></tr></thead>
             <tbody>
-              <tr><td><strong>Topic</strong></td><td>Canal nommé de messages</td><td>File de courrier par sujet</td></tr>
-              <tr><td><strong>Partition</strong></td><td>Sous-unité d'un topic, ordonnée</td><td>Tiroir dans la file</td></tr>
-              <tr><td><strong>Offset</strong></td><td>Position d'un message dans une partition</td><td>Numéro de page</td></tr>
-              <tr><td><strong>Consumer Group</strong></td><td>Groupe de consommateurs partageant la charge</td><td>Équipe qui traite le courrier</td></tr>
-              <tr><td><strong>Broker</strong></td><td>Nœud Kafka stockant les partitions</td><td>Serveur de messagerie</td></tr>
-              <tr><td><strong>Replication Factor</strong></td><td>Nombre de copies d'une partition</td><td>Sauvegardes automatiques</td></tr>
+              <tr><td><strong>Topic</strong></td><td>Canal nommé de messages</td><td>📓 Le cahier (un par sujet)</td></tr>
+              <tr><td><strong>Partition</strong></td><td>Sous-unité ordonnée d'un topic</td><td>📄 Une page du cahier</td></tr>
+              <tr><td><strong>Offset</strong></td><td>Position d'un message dans une partition</td><td>✏️ Numéro de ligne sur la page</td></tr>
+              <tr><td><strong>Consumer Group</strong></td><td>Groupe de consommateurs partageant la charge</td><td>👥 Équipe de lecteurs (chacune lit tout)</td></tr>
+              <tr><td><strong>Broker</strong></td><td>Nœud Kafka stockant les partitions</td><td>🗄️ Meuble de rangement</td></tr>
+              <tr><td><strong>Replication Factor</strong></td><td>Nombre de copies d'une partition</td><td>📋 Photocopies de sécurité</td></tr>
+              <tr><td><strong>Ack</strong></td><td>Confirmation d'écriture du broker</td><td>📬 Accusé de réception (lettre simple, recommandée, AR)</td></tr>
             </tbody>
           </table>
         </div>
 
         <div class="box example">
-          <h4>Architecture Kafka pour la bibliothèque</h4>
-          <div class="diagram">
-<pre>
-Topics &amp; Partitions
+          <h4>Architecture Kafka pour la bibliothèque — avec offsets</h4>
+          <div class="kafka-viz">
+            <div class="kv-label">Topic : loan.created — 3 partitions, replication-factor = 2</div>
+            <div class="kv-partitions">
+              <div class="kv-partition">
+                <div class="kv-partition-hdr">P0 <span class="kv-broker">Broker 1</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num">0</span><span class="kv-offset-val">loan-42</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num">1</span><span class="kv-offset-val">loan-99</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num">2</span><span class="kv-offset-val">loan-120</span></div>
+                <div class="kv-append">↓ append-only</div>
+              </div>
+              <div class="kv-partition">
+                <div class="kv-partition-hdr">P1 <span class="kv-broker">Broker 2</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num">0</span><span class="kv-offset-val">loan-17</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num">1</span><span class="kv-offset-val">loan-63</span></div>
+                <div class="kv-append">↓ append-only</div>
+              </div>
+              <div class="kv-partition">
+                <div class="kv-partition-hdr">P2 <span class="kv-broker">Broker 3</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num">0</span><span class="kv-offset-val">loan-88</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num">1</span><span class="kv-offset-val">loan-55</span></div>
+                <div class="kv-append">↓ append-only</div>
+              </div>
+            </div>
+            <div class="kv-note">Comment le message arrive dans P0, P1 ou P2 ? → <code>hash(loanId) % 3</code> = numéro de page</div>
 
-loan.created        [P0][P1][P2]  ← key = loanId (hash)
-book.reserved       [P0][P1]
-book.released       [P0][P1]
-notification.send   [P0][P1][P2]
-
-Consumer Groups
-
-loan.created ──┬──► notification-service (group: notif-grp)  [P0,P1] → instance A
-               │                                              [P2]    → instance B
-               └──► analytics-service    (group: analytics)  [P0,P1,P2] → instance C
-               └──► audit-service        (group: audit)      [P0,P1,P2] → instance D
-
-Principe : chaque consumer group lit tous les messages indépendamment
-</pre>
+            <div class="kv-label" style="margin-top:20px">Consumer Groups — chaque groupe lit TOUT le topic indépendamment</div>
+            <div class="kv-groups">
+              <div class="kv-group green">
+                <div class="kv-group-hdr">notif-grp <span style="font-weight:400;font-size:.78rem">(2 instances)</span></div>
+                <div class="kv-instance">
+                  <span class="kv-instance-dot"></span> instance A
+                  <span class="kv-instance-parts">P0 + P1</span>
+                  <span class="kv-instance-offset">offset P0: 2</span>
+                  <span class="kv-instance-offset">offset P1: 1</span>
+                </div>
+                <div class="kv-instance">
+                  <span class="kv-instance-dot"></span> instance B
+                  <span class="kv-instance-parts">P2</span>
+                  <span class="kv-instance-offset">offset P2: 1</span>
+                </div>
+              </div>
+              <div class="kv-group blue">
+                <div class="kv-group-hdr">analytics <span style="font-weight:400;font-size:.78rem">(1 instance)</span></div>
+                <div class="kv-instance">
+                  <span class="kv-instance-dot"></span> instance C
+                  <span class="kv-instance-parts">P0 + P1 + P2</span>
+                  <span class="kv-instance-offset kv-behind">offset P0: 1 ⚠ retard</span>
+                  <span class="kv-instance-offset">offset P1: 2</span>
+                </div>
+              </div>
+            </div>
           </div>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>🎓 Règles d'or des Consumer Groups</h4>
+          <table>
+            <thead><tr><th>Règle</th><th>Explication</th><th>Conséquence</th></tr></thead>
+            <tbody>
+              <tr><td><strong>1 partition = 1 consumer max par groupe</strong></td><td>Au sein d'un même groupe, une partition n'est jamais lue par 2 instances en même temps</td><td>Si 3 partitions et 5 instances → 2 instances sont inactives</td></tr>
+              <tr><td><strong>Entre groupes = indépendant</strong></td><td>Chaque groupe a ses propres curseurs (offsets), comme sa propre photocopie du cahier</td><td>Le groupe "notif" peut être en avance sur le groupe "analytics"</td></tr>
+              <tr><td><strong>Parallélisme max = nb partitions</strong></td><td>On ne peut pas avoir plus de lecteurs actifs que de pages</td><td>Pour scaler → augmenter le nombre de partitions</td></tr>
+              <tr><td><strong>L'offset est un curseur</strong></td><td>Chaque consumer retient "j'en suis à la ligne N". S'il plante, il reprend là</td><td>Stocké dans le topic interne <code>__consumer_offsets</code></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box definition">
+          <h4>📬 Acknowledgments (acks) — Niveaux de confirmation du producer</h4>
+          <table>
+            <thead><tr><th>Niveau</th><th>Comportement</th><th>Analogie</th><th>Fiabilité</th><th>Latence</th></tr></thead>
+            <tbody>
+              <tr><td><code>acks=0</code></td><td>Aucune confirmation — fire &amp; forget</td><td>Lettre simple sans suivi</td><td>❌ Message potentiellement perdu</td><td>⚡ La plus rapide</td></tr>
+              <tr><td><code>acks=1</code></td><td>Le broker leader confirme l'écriture</td><td>Lettre recommandée (le facteur signe)</td><td>⚠️ Perdu si crash leader avant réplication</td><td>🔄 Moyenne</td></tr>
+              <tr><td><code>acks=all</code></td><td>Leader + toutes les répliques confirment</td><td>Recommandée avec AR (signé par le destinataire)</td><td>✅ Durabilité maximale</td><td>🐢 La plus lente</td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:8px">💡 <strong>En production</strong>, on utilise presque toujours <code>acks=all</code> avec <code>min.insync.replicas=2</code> pour garantir qu'au moins 2 copies existent avant de confirmer.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Récapitulatif visuel — Cycle de vie d'un message</h4>
+          <div class="kafka-viz">
+            <div class="kv-flow">
+
+              <div class="kv-flow-node producer">
+                <h5>🟣 Producer — loan-service</h5>
+                <p>1. Sérialise le message + calcule <code>hash(key) % nb_partitions</code></p>
+              </div>
+
+              <div class="kv-flow-arrow">
+                <svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+
+              <div class="kv-flow-node broker">
+                <h5>🔵 Broker — Cluster Kafka</h5>
+                <p style="margin-bottom:8px">Topic : <code>loan.created</code> — le message atterrit dans <strong>une seule</strong> partition selon sa clé</p>
+                <div class="kv-partitions-mini">
+                  <span class="kv-p-mini">P0 — offset 0, 1, 2</span>
+                  <span class="kv-p-mini">P1 — offset 0, 1</span>
+                  <span class="kv-p-mini">P2 — offset 0, 1</span>
+                </div>
+                <p>2. Le broker écrit + réplique sur les autres brokers</p>
+                <p>3. Envoie l'<strong>ack</strong> au producer selon la config (<code>0</code>, <code>1</code>, <code>all</code>)</p>
+              </div>
+
+              <div class="kv-flow-arrow">
+                <svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </div>
+
+              <div class="kv-flow-node consumer">
+                <h5>🟢 Consumer Group — notif-grp</h5>
+                <p>instance A lit <strong>P0 + P1</strong> · instance B lit <strong>P2</strong></p>
+                <p>4. Après traitement réussi, le consumer appelle <code>ack.acknowledge()</code> pour avancer son curseur (commit offset)</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <div class="box example">
+          <h4>Topics de la bibliothèque — Vue d'ensemble</h4>
+          <div class="kafka-viz">
+            <div class="kv-topics-list">
+              <div class="kv-topic-row">
+                <span class="kv-topic-name">loan.created</span>
+                <div class="kv-topic-partitions"><span class="kv-topic-p">P0</span><span class="kv-topic-p">P1</span><span class="kv-topic-p">P2</span></div>
+                <span class="kv-topic-key">key = loanId (hash)</span>
+              </div>
+              <div class="kv-topic-row">
+                <span class="kv-topic-name">book.reserved</span>
+                <div class="kv-topic-partitions"><span class="kv-topic-p">P0</span><span class="kv-topic-p">P1</span></div>
+                <span class="kv-topic-key">key = bookId</span>
+              </div>
+              <div class="kv-topic-row">
+                <span class="kv-topic-name">book.released</span>
+                <div class="kv-topic-partitions"><span class="kv-topic-p">P0</span><span class="kv-topic-p">P1</span></div>
+                <span class="kv-topic-key">key = bookId</span>
+              </div>
+              <div class="kv-topic-row">
+                <span class="kv-topic-name">notification.send</span>
+                <div class="kv-topic-partitions"><span class="kv-topic-p">P0</span><span class="kv-topic-p">P1</span><span class="kv-topic-p">P2</span></div>
+                <span class="kv-topic-key">key = studentId</span>
+              </div>
+            </div>
+          </div>
+
+        <div class="oral-script">
+          <h4>🎤 Script oral — Présentation en cours</h4>
+          <p>"Pensez à Kafka comme un cahier dans lequel on écrit à l'encre indélébile. On ne peut qu'ajouter des lignes, jamais en modifier ni en supprimer. Chaque lecteur a son propre marque-page — il peut relire les anciennes lignes autant de fois qu'il veut."</p>
+          <p>"Pourquoi plusieurs pages (partitions) ? Parce que si tout le monde écrit sur la même page, on se bloque. Avec 3 pages, 3 personnes peuvent écrire en même temps. C'est le secret de la scalabilité de Kafka."</p>
+          <p>"Et les consumer groups ? Imaginez que l'équipe notifications ET l'équipe analytics ont chacune besoin de lire le même cahier. Chaque équipe a sa photocopie et son propre marque-page. L'équipe notif peut être à la ligne 100 pendant que l'équipe analytics en est à la ligne 50."</p>
+        </div>
 
           <h5>Configuration Kafka complète — application.yml</h5>
 <pre><code class="language-yaml">spring:
   kafka:
+    # ── Connexion au cluster Kafka (3 brokers pour la haute dispo) ──
     bootstrap-servers: kafka-1:9092,kafka-2:9092,kafka-3:9092
+
+    # ═══════════════════════════════════════
+    # PRODUCER : envoie les messages
+    # ═══════════════════════════════════════
     producer:
+      # Sérialisation : comment transformer la clé et le contenu en bytes
       key-serializer:   org.apache.kafka.common.serialization.StringSerializer
       value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
-      acks: all              # Leader + toutes les réplicas = durabilité max
-      retries: 3
-      batch-size: 16384      # 16 KB — batch pour la performance
-      linger-ms: 5           # attendre 5ms pour batcher
-      compression-type: snappy  # compression réseau
-      properties:
-        enable.idempotence: true   # producteur idempotent
-        max.in.flight.requests.per.connection: 5
 
+      # ── Fiabilité ──
+      acks: all              # Attendre que TOUTES les répliques confirment l'écriture
+                              # (= lettre recommandée avec AR, le plus sûr)
+      retries: 3              # En cas d'erreur réseau, retenter 3 fois
+
+      # ── Performance : batch les messages pour envoyer en groupe ──
+      batch-size: 16384       # Accumuler jusqu'à 16 KB de messages avant d'envoyer
+      linger-ms: 5            # Attendre 5ms pour remplir le batch (compromis latence/débit)
+      compression-type: snappy  # Compresser les messages (économise la bande passante)
+
+      properties:
+        enable.idempotence: true   # Évite les doublons si un retry réussit 2 fois
+                                    # Le broker détecte et ignore le message dupliqué
+        max.in.flight.requests.per.connection: 5  # Max 5 requêtes en vol simultanées
+
+    # ═══════════════════════════════════════
+    # CONSUMER : lit les messages
+    # ═══════════════════════════════════════
     consumer:
-      group-id: notification-service
-      auto-offset-reset: earliest
-      enable-auto-commit: false    # commit manuel = exactement une fois
-      isolation-level: read_committed  # lire uniquement les transactions committées
+      group-id: notification-service   # Nom du consumer group (identifie cette équipe de lecteurs)
+      auto-offset-reset: earliest      # Si c'est la 1ère fois : commencer depuis le début du cahier
+                                        # ("latest" = commencer à la dernière ligne seulement)
+
+      enable-auto-commit: false    # ⚠️ CRUCIAL : on commit l'offset MANUELLEMENT après traitement
+                                    # Si auto-commit=true, Kafka peut marquer un message comme lu
+                                    # AVANT qu'on l'ait vraiment traité → perte de message si crash
+
+      isolation-level: read_committed  # Ne lire QUE les messages dont la transaction Kafka est validée
+                                        # Ignore les messages en cours de transaction (cohérence EOS)
+
+      # Désérialisation : comment reconvertir les bytes en objets Java
       key-deserializer:   org.apache.kafka.common.serialization.StringDeserializer
       value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        spring.json.trusted.packages: "com.example.events"
-        max.poll.records: 50       # 50 messages par poll
-        max.poll.interval.ms: 300000  # 5 min max par batch
+        spring.json.trusted.packages: "com.example.events"  # Packages autorisés pour la désérialisation
+        max.poll.records: 50       # Traiter max 50 messages par appel poll()
+        max.poll.interval.ms: 300000  # 5 min max pour traiter un batch, sinon Kafka nous considère "mort"
 
+    # ═══════════════════════════════════════
+    # LISTENER : comment le consumer traite les messages
+    # ═══════════════════════════════════════
     listener:
-      ack-mode: MANUAL_IMMEDIATE   # commit après traitement réussi
-      concurrency: 3               # 3 threads consommateurs</code></pre>
+      ack-mode: MANUAL_IMMEDIATE   # Le code doit appeler ack.acknowledge() explicitement
+                                    # → on ne marque "lu" qu'APRÈS traitement réussi
+      concurrency: 3               # 3 threads consommateurs en parallèle
+                                    # (idéalement = nombre de partitions du topic)</code></pre>
 
           <h5>Consommateur robuste avec Dead Letter Queue</h5>
-<pre><code class="language-java">@Configuration
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// DEAD LETTER QUEUE (DLT) : où vont les messages impossibles à traiter
+// ═══════════════════════════════════════════════════════════════
+// Problème : un message arrive mais le traitement échoue (bug, data corrompue...).
+// Sans DLT, le consumer retente à l'infini et BLOQUE toute la partition.
+// Solution : après N retries, envoyer le message dans un topic ".DLT"
+// pour analyse manuelle, et continuer avec les messages suivants.
+@Configuration
 public class KafkaConsumerConfig {
 
-    // Dead Letter Topic : les messages en erreur sont envoyés ici
     @Bean
     public DefaultErrorHandler errorHandler(KafkaTemplate&lt;String, Object&gt; template) {
+        // Le "recoverer" envoie le message échoué dans un topic DLT dédié
+        // Ex : "loan.created" → "loan.created.DLT"
         DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(
             template,
             (record, ex) -> new TopicPartition(
-                record.topic() + ".DLT",   // loan.created.DLT
-                record.partition()
+                record.topic() + ".DLT",   // Topic de destination = nom original + ".DLT"
+                record.partition()          // Garder la même partition pour le debug
             )
         );
 
-        // Backoff exponentiel : 1s, 2s, 4s, 8s — puis DLT
+        // Backoff exponentiel : 1s → 2s → 4s → 8s — puis abandon → DLT
+        // Pourquoi exponentiel ? Si le service distant est surchargé,
+        // on lui laisse de plus en plus de temps pour récupérer.
         ExponentialBackOffWithMaxRetries backOff =
-            new ExponentialBackOffWithMaxRetries(4);
-        backOff.setInitialInterval(1_000);
-        backOff.setMultiplier(2.0);
+            new ExponentialBackOffWithMaxRetries(4);  // 4 tentatives max
+        backOff.setInitialInterval(1_000);   // 1ère attente : 1 seconde
+        backOff.setMultiplier(2.0);          // Chaque retry attend 2x plus longtemps
 
         DefaultErrorHandler handler = new DefaultErrorHandler(recoverer, backOff);
-        // Ne pas retenter les erreurs de désérialisation (données corrompues)
+
+        // ⚠️ Ne PAS retenter les erreurs de désérialisation (le message est corrompu,
+        // retenter ne changera rien → envoi direct en DLT)
         handler.addNotRetryableExceptions(JsonParseException.class);
 
         return handler;
     }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// CONSUMER : traite les messages du topic "loan.created"
+// ═══════════════════════════════════════════════════════════════
 @Component
 @RequiredArgsConstructor
 public class LoanCreatedConsumer {
 
     private final NotificationService notificationService;
-    private final MeterRegistry registry;
+    private final MeterRegistry registry;  // Métriques Prometheus
 
+    // Cette méthode est appelée automatiquement pour CHAQUE message
+    // publié dans le topic "loan.created" et assigné à ce consumer group
     @KafkaListener(topics = "loan.created", groupId = "notification-service")
     public void onLoanCreated(
-            @Payload LoanCreatedEvent event,
-            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition,
-            @Header(KafkaHeaders.OFFSET) long offset,
-            Acknowledgment ack) {
+            @Payload LoanCreatedEvent event,                       // Le contenu du message (JSON → objet Java)
+            @Header(KafkaHeaders.RECEIVED_PARTITION) int partition, // N° de partition (page) d'où vient le msg
+            @Header(KafkaHeaders.OFFSET) long offset,              // N° de ligne dans la partition
+            Acknowledgment ack) {                                   // Pour commit manuel de l'offset
 
         log.info("Processing [loanId={}, partition={}, offset={}]",
             event.loanId(), partition, offset);
 
         try {
+            // ── Traitement métier ──
             notificationService.sendConfirmation(event.studentId(), event.loanId());
-            ack.acknowledge();  // commit l'offset APRÈS succès
+
+            // ── COMMIT de l'offset ──
+            // On ne fait ack QU'APRÈS le traitement réussi.
+            // Si le service crash AVANT cette ligne, le message sera re-traité au redémarrage.
+            ack.acknowledge();
+
+            // Compteur Prometheus pour monitoring (Grafana dashboard)
             registry.counter("kafka.consumed", "topic", "loan.created", "status", "ok")
                     .increment();
+
         } catch (Exception e) {
             registry.counter("kafka.consumed", "topic", "loan.created", "status", "error")
                     .increment();
-            throw e;  // ne pas ack → retry + DLT si max retries atteint
+            // ⚠️ On NE fait PAS ack → Kafka va retenter (backoff exponentiel)
+            // Si max retries atteint → le message part en DLT (Dead Letter Topic)
+            throw e;
         }
     }
 
-    // Consommateur du DLT pour monitoring/alerting
+    // ═══════════════════════════════════════════════════════════════
+    // CONSUMER DLT : surveille les messages qui ont échoué N fois
+    // ═══════════════════════════════════════════════════════════════
+    // En production, ce consumer crée des alertes (PagerDuty, Slack)
+    // pour que l'équipe investigue les messages "empoisonnés"
     @KafkaListener(topics = "loan.created.DLT", groupId = "notification-dlq")
     public void onLoanCreatedDlt(@Payload LoanCreatedEvent event) {
         log.error("DEAD LETTER: failed to process loan.created for loanId={}",
@@ -575,41 +825,61 @@ public class LoanCreatedConsumer {
 
         <div class="box expert">
           <h4>⚙️ Expert — Transactions Kafka (Exactly-Once Semantics)</h4>
-<pre><code class="language-java">// Garantie : le message est publié exactement une fois, même en cas de crash
-
+          <p><strong>Le problème :</strong> on veut que l'emprunt soit sauvegardé en base ET publié dans Kafka de manière <em>atomique</em>. Si on persiste en base puis que le publish Kafka échoue, on a un emprunt en base sans notification. Si Kafka réussit mais la base échoue, on a une notification sans emprunt. La transaction coordonnée résout ce problème.</p>
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// TRANSACTION MANAGER : coordonne la BDD et Kafka dans une seule transaction
+// ═══════════════════════════════════════════════════════════════
+// Principe : les deux opérations (INSERT en base + SEND Kafka) sont
+// dans la MÊME transaction. Si l'une échoue, l'autre est annulée.
 @Configuration
 public class KafkaTransactionConfig {
 
     @Bean
     public KafkaTransactionManager&lt;String, Object&gt; kafkaTransactionManager(
             ProducerFactory&lt;String, Object&gt; pf) {
+        // Ce bean permet à Spring de coordonner transactions JPA + Kafka
         return new KafkaTransactionManager&lt;&gt;(pf);
     }
 }
 
+// ═══════════════════════════════════════════════════════════════
+// SERVICE APPLICATION : crée un emprunt de manière atomique
+// ═══════════════════════════════════════════════════════════════
 @Service
 public class LoanApplicationService {
 
     private final LoanRepository loanRepo;
     private final KafkaTemplate&lt;String, LoanCreatedEvent&gt; kafka;
 
-    // Transaction Spring coordonne : BDD + Kafka commit en même temps
-    // Si l'un échoue, les deux sont rollbackés
+    // @Transactional("kafkaTransactionManager") :
+    // Spring ouvre une transaction Kafka ET une transaction JPA.
+    // Les deux sont committées ensemble, ou rollbackées ensemble.
     @Transactional("kafkaTransactionManager")
     public Loan createLoan(CreateLoanRequest request) {
-        // 1. Persister en base
+
+        // ── Étape 1 : persister l'emprunt en base de données ──
         Loan loan = loanRepo.save(Loan.from(request));
 
-        // 2. Publier l'événement — même transaction que la BDD
-        kafka.send("loan.created", loan.getId().toString(),
-            new LoanCreatedEvent(loan.getId(), request.studentId(),
-                                 request.bookId(), Instant.now()));
+        // ── Étape 2 : publier l'événement dans Kafka ──
+        // Clé = loanId → garantit que tous les événements du même emprunt
+        // arrivent dans la même partition → ordre préservé
+        kafka.send("loan.created",
+            loan.getId().toString(),   // clé de partitionnement
+            new LoanCreatedEvent(      // payload JSON
+                loan.getId(),
+                request.studentId(),
+                request.bookId(),
+                Instant.now()
+            ));
 
         return loan;
-        // Si commit Kafka échoue → rollback BDD aussi (atomique)
+        // ✅ Si tout réussit → commit BDD + commit Kafka (atomique)
+        // ❌ Si commit Kafka échoue → rollback BDD automatique
+        // ❌ Si commit BDD échoue → le message Kafka n'est jamais visible
+        //    (car isolation.level=read_committed côté consommateur)
     }
 }</code></pre>
-          <p>La combinaison <code>enable.idempotence=true</code> côté producteur + <code>isolation.level=read_committed</code> côté consommateur garantit l'<strong>Exactly-Once Semantics (EOS)</strong> de bout en bout.</p>
+          <p>La combinaison <code>enable.idempotence=true</code> côté producteur + <code>isolation.level=read_committed</code> côté consommateur garantit l'<strong>Exactly-Once Semantics (EOS)</strong> de bout en bout. Sans EOS, un crash après l'envoi Kafka mais avant le commit de l'offset peut causer un message dupliqué.</p>
         </div>
       </section>
 
@@ -623,83 +893,107 @@ public class LoanApplicationService {
 
         <p class="section-intro">Le <strong>Circuit Breaker</strong> est le pattern de résilience le plus important des microservices. Inspiré du disjoncteur électrique, il coupe automatiquement les appels vers un service défaillant pour éviter la propagation des pannes (<em>Cascading Failure</em>).</p>
 
+        <div class="box child-mode">
+          <h4>🧸 Analogie — Le disjoncteur de la maison</h4>
+          <p>Quand un appareil provoque un court-circuit, le disjoncteur <strong>coupe le courant</strong> pour protéger toute l'installation. Sans lui, un seul appareil défectueux pourrait faire griller toute la maison.</p>
+          <p>C'est pareil en microservices : si <code>catalog-service</code> est down, on ne veut pas que <code>loan-service</code> se bloque à attendre la réponse pendant 30 secondes à chaque requête. Le Circuit Breaker <strong>coupe immédiatement</strong> et retourne une réponse dégradée (fallback).</p>
+        </div>
+
         <div class="box definition">
           <h4>Les 3 états du Circuit Breaker</h4>
-          <div class="diagram">
-<pre>
-       Taux d'erreurs ≥ seuil             Appels de test réussis
-CLOSED ─────────────────────► OPEN ──────────────────────────► HALF-OPEN
-  │     (appels normaux)        │   (appels court-circuités)       │
-  │                             │   ← fallback retourné            │
-  └─────────────────────────────┘◄──── Appels de test échouent ────┘
-
-CLOSED    → Circuit fermé, appels normaux
-OPEN      → Circuit ouvert, fallback immédiat (pas d'appel réseau)
-HALF-OPEN → Quelques appels de test passent pour vérifier la récupération
-</pre>
+          <div class="kafka-viz">
+            <div class="kv-flow">
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);border-color:#86efac;color:#15803d;">
+                <h5>🟢 CLOSED — Circuit fermé (normal)</h5>
+                <p>Les appels passent normalement. On surveille le taux d'erreurs. Si ≥ 50% des derniers 20 appels échouent → passage à OPEN.</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Taux d'erreurs ≥ seuil</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fff0f0,#fff5f5);border-color:#fca5a5;color:#b91c1c;">
+                <h5>🔴 OPEN — Circuit ouvert (protection)</h5>
+                <p>Tous les appels sont <strong>court-circuités immédiatement</strong> — pas d'appel réseau, le fallback est retourné instantanément. Attente de 30s avant de tester.</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Après waitDuration (30s)</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border-color:#fde047;color:#854d0e;">
+                <h5>🟡 HALF-OPEN — Test de récupération</h5>
+                <p>On laisse passer 5 appels de test. Si ≥ 50% réussissent → retour à CLOSED. Si échec → retour à OPEN.</p>
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="box example">
           <h4>Configuration et utilisation — Resilience4j</h4>
-<pre><code class="language-yaml"># application.yml
+<pre><code class="language-yaml"># ═══════════════════════════════════════
+# CIRCUIT BREAKER — Configuration complète
+# ═══════════════════════════════════════
 resilience4j:
   circuitbreaker:
     instances:
       catalog-service:
-        # Fenêtre d'évaluation
-        slidingWindowType: COUNT_BASED   # ou TIME_BASED
-        slidingWindowSize: 20            # 20 derniers appels
-        minimumNumberOfCalls: 5          # minimum avant évaluation
+        # ── Fenêtre d'évaluation ──
+        slidingWindowType: COUNT_BASED   # Évalue les N derniers appels
+                                          # (TIME_BASED = évalue sur les N dernières secondes)
+        slidingWindowSize: 20            # Analyse les 20 derniers appels
+        minimumNumberOfCalls: 5          # Besoin d'au moins 5 appels avant d'évaluer
+                                          # (évite d'ouvrir le CB dès le 1er échec au démarrage)
 
-        # Seuils
-        failureRateThreshold: 50         # 50% d'échecs → OPEN
-        slowCallRateThreshold: 80        # 80% d'appels lents → OPEN
-        slowCallDurationThreshold: 2s    # seuil de "lenteur"
+        # ── Seuils de déclenchement ──
+        failureRateThreshold: 50         # Si 50% des appels échouent → OPEN
+        slowCallRateThreshold: 80        # Si 80% des appels sont trop lents → OPEN
+        slowCallDurationThreshold: 2s    # Un appel est "lent" s'il dépasse 2 secondes
 
-        # Timing
-        waitDurationInOpenState: 30s     # 30s avant test en HALF-OPEN
-        permittedNumberOfCallsInHalfOpenState: 5
+        # ── Timing du recovery ──
+        waitDurationInOpenState: 30s     # Rester en OPEN pendant 30s (laisser le service récupérer)
+        permittedNumberOfCallsInHalfOpenState: 5  # 5 appels de test en HALF-OPEN
 
-        # Observabilité
-        registerHealthIndicator: true
-        recordExceptions:
-          - java.net.ConnectException
-          - feign.FeignException$ServiceUnavailable
-        ignoreExceptions:
-          - com.example.BookNotFoundException  # 404 n'est pas une panne</code></pre>
+        # ── Observabilité ──
+        registerHealthIndicator: true    # Expose dans /actuator/health
+        recordExceptions:                # Exceptions qui comptent comme "échec"
+          - java.net.ConnectException              # Service injoignable
+          - feign.FeignException$ServiceUnavailable # 503 Service Unavailable
+        ignoreExceptions:                # Exceptions qui NE COMPTENT PAS comme "échec"
+          - com.example.BookNotFoundException  # Un 404 = le livre n'existe pas, c'est normal</code></pre>
 
-<pre><code class="language-java">@Service
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// UTILISATION DU CIRCUIT BREAKER — 2 approches
+// ═══════════════════════════════════════════════════════════════
+@Service
 @RequiredArgsConstructor
 public class CatalogService {
 
     private final CatalogClient catalogClient;
 
-    // Annotation — le plus simple
+    // ── Approche 1 : par annotation (la plus simple) ──
+    // L'ordre des annotations est important : TimeLimiter → CircuitBreaker → Retry
     @CircuitBreaker(name = "catalog-service", fallbackMethod = "getAvailabilityFallback")
-    @Retry(name = "catalog-service")
-    @TimeLimiter(name = "catalog-service")
+    @Retry(name = "catalog-service")        // Retry d'abord, puis CB si tous échouent
+    @TimeLimiter(name = "catalog-service")  // Coupe si la réponse dépasse le timeout
     public AvailabilityResponse getAvailability(UUID bookId) {
         return catalogClient.getAvailability(bookId);
     }
 
-    // Fallback method — signature : même params + Throwable en dernier
+    // Fallback : appelé quand le CB est OPEN ou quand tous les retries échouent.
+    // RÈGLE : même signature que la méthode originale + Throwable en dernier paramètre.
     private AvailabilityResponse getAvailabilityFallback(UUID bookId, Throwable ex) {
         log.warn("CB fallback for bookId={}, cause={}", bookId, ex.getMessage());
-        // Stratégie : réponse dégradée conservative
+        // Stratégie conservative : on dit "indisponible" plutôt que de planter
         return new AvailabilityResponse(false, 0, "DEGRADED");
     }
 
-    // Approche programmatique pour plus de contrôle
+    // ── Approche 2 : programmatique (plus de contrôle) ──
+    // Utile quand on veut des fallbacks différents selon le type d'erreur
     public AvailabilityResponse getAvailabilityProgrammatic(UUID bookId) {
         CircuitBreaker cb = circuitBreakerRegistry.circuitBreaker("catalog-service");
 
+        // "Décorer" l'appel avec le CB : chaque appel passe par le CB
         Supplier&lt;AvailabilityResponse&gt; decoratedSupplier = CircuitBreaker
             .decorateSupplier(cb, () -> catalogClient.getAvailability(bookId));
 
         return Try.ofSupplier(decoratedSupplier)
+            // Si CB est OPEN → réponse spécifique "CB_OPEN"
             .recover(CallNotPermittedException.class,
                 ex -> new AvailabilityResponse(false, 0, "CB_OPEN"))
+            // Si autre erreur → réponse générique
             .recover(Exception.class,
                 ex -> new AvailabilityResponse(false, 0, "ERROR"))
             .get();
@@ -707,31 +1001,34 @@ public class CatalogService {
 }</code></pre>
 
           <h5>Monitoring du Circuit Breaker (Actuator + Prometheus)</h5>
-<pre><code class="language-yaml">management:
+<pre><code class="language-yaml"># Exposer les métriques du CB via Spring Actuator
+# → visible dans Grafana via Prometheus
+management:
   endpoints:
     web:
       exposure:
-        include: health, prometheus, circuitbreakers
+        include: health, prometheus, circuitbreakers  # Endpoints exposés
   health:
     circuitbreakers:
-      enabled: true
+      enabled: true    # Inclure l'état du CB dans /actuator/health
   metrics:
     tags:
-      application: loan-service</code></pre>
+      application: loan-service  # Tag pour identifier le service dans Grafana</code></pre>
 <pre><code class="language-json">// GET /actuator/health → état du circuit breaker en temps réel
+// Utile pour le monitoring et les dashboards Grafana
 {
   "components": {
     "circuitBreakers": {
       "details": {
         "catalog-service": {
           "details": {
-            "failureRate": "20.0%",
-            "slowCallRate": "0.0%",
-            "state": "CLOSED",
-            "bufferedCalls": 5,
-            "failedCalls": 1
+            "failureRate": "20.0%",     // 20% d'échecs (sous le seuil de 50%)
+            "slowCallRate": "0.0%",     // Aucun appel lent
+            "state": "CLOSED",          // Circuit fermé = tout va bien
+            "bufferedCalls": 5,         // 5 appels dans la fenêtre
+            "failedCalls": 1            // 1 seul échec sur 5
           },
-          "status": "UP"
+          "status": "UP"                // Le service est considéré sain
         }
       }
     }
@@ -764,70 +1061,99 @@ public class CatalogService {
 
         <div class="box example">
           <h4>Route avec Circuit Breaker + Rate Limiting + Retry (application.yml)</h4>
-<pre><code class="language-yaml">spring:
+<pre><code class="language-yaml"># ═══════════════════════════════════════════════════════════════
+# API GATEWAY : point d'entrée unique pour TOUS les clients
+# ═══════════════════════════════════════════════════════════════
+# Le client (navigateur, mobile) n'appelle JAMAIS les services directement.
+# Il appelle la Gateway, qui route vers le bon service.
+spring:
   cloud:
     gateway:
       routes:
-        - id: loan-service
-          uri: lb://loan-service
-          predicates:
-            - Path=/api/v1/loans/**
-            - Method=GET,POST,PUT,DELETE
-          filters:
+        - id: loan-service           # Identifiant unique de la route
+          uri: lb://loan-service     # "lb://" = load balanced via Eureka
+                                      # La Gateway découvre automatiquement les instances
+          predicates:                 # CONDITIONS pour matcher cette route
+            - Path=/api/v1/loans/**           # Toute URL commençant par /api/v1/loans/
+            - Method=GET,POST,PUT,DELETE      # Tous les verbes HTTP
+
+          filters:                    # TRAITEMENTS appliqués à chaque requête
+            # ── Circuit Breaker : protège contre un loan-service en panne ──
             - name: CircuitBreaker
               args:
-                name: loanServiceCB
-                fallbackUri: forward:/fallback/loans
+                name: loanServiceCB            # Nom du CB (pour monitoring)
+                fallbackUri: forward:/fallback/loans  # Si OPEN → rediriger vers le fallback
+
+            # ── Rate Limiting : protège contre les abus (DDoS, scraping) ──
             - name: RequestRateLimiter
               args:
-                redis-rate-limiter.replenishRate: 50
-                redis-rate-limiter.burstCapacity:  100
-                key-resolver: "#{@apiKeyResolver}"
+                redis-rate-limiter.replenishRate: 50    # 50 requêtes/seconde autorisées
+                redis-rate-limiter.burstCapacity: 100   # Pic max = 100 requêtes d'un coup
+                key-resolver: "#{@apiKeyResolver}"      # Identifier le client par API key
+
+            # ── Retry : retenter les erreurs transitoires (502, 503) ──
             - name: Retry
               args:
-                retries: 2
-                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE
-                methods: GET           # retry GET seulement (idempotent)
+                retries: 2                      # 2 retries max
+                statuses: BAD_GATEWAY,SERVICE_UNAVAILABLE  # Retenter seulement ces codes
+                methods: GET                    # ⚠️ UNIQUEMENT les GET (idempotent)
+                                                 # Ne JAMAIS retenter un POST (risque de doublon)
                 backoff:
-                  firstBackoff: 50ms
-                  maxBackoff: 500ms
-                  factor: 2
-            - AddRequestHeader=X-Request-Source, gateway
-            - AddResponseHeader=X-Response-Time, "#{T(java.time.Instant).now()}"</code></pre>
+                  firstBackoff: 50ms            # 1er retry après 50ms
+                  maxBackoff: 500ms             # Max 500ms entre retries
+                  factor: 2                     # Exponentiel : 50ms → 100ms → 200ms
 
-          <h5>Fallback Controller</h5>
-<pre><code class="language-java">@RestController
+            # ── Headers personnalisés ──
+            - AddRequestHeader=X-Request-Source, gateway          # Identifier la source
+            - AddResponseHeader=X-Response-Time, "#{T(java.time.Instant).now()}"  # Timestamp</code></pre>
+
+          <h5>Fallback Controller — réponse quand un service est down</h5>
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// FALLBACK : réponse élégante quand loan-service est indisponible
+// ═══════════════════════════════════════════════════════════════
+// Au lieu d'un timeout de 30s suivi d'une erreur 500 incompréhensible,
+// le client reçoit immédiatement un 503 propre avec un message clair.
+@RestController
 @RequestMapping("/fallback")
 public class FallbackController {
 
     @GetMapping("/loans")
     public ResponseEntity&lt;Map&lt;String, Object&gt;&gt; loansFallback(
             ServerWebExchange exchange) {
+
+        // Récupérer le Trace ID pour le support technique
         String traceId = exchange.getRequest()
             .getHeaders()
             .getFirst("X-Trace-Id");
 
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
             .body(Map.of(
-                "error",      "Service temporarily unavailable",
-                "service",    "loan-service",
-                "traceId",    traceId != null ? traceId : "unknown",
-                "retryAfter", 30
+                "error",      "Service temporarily unavailable",  // Message client
+                "service",    "loan-service",                     // Quel service est down
+                "traceId",    traceId != null ? traceId : "unknown",  // Pour le debug
+                "retryAfter", 30    // Suggestion : retenter dans 30 secondes
             ));
     }
 }</code></pre>
 
           <h5>Key Resolver par API Key (Rate Limiting)</h5>
-<pre><code class="language-java">@Bean
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// KEY RESOLVER : identifier QUI fait la requête pour le rate limiting
+// ═══════════════════════════════════════════════════════════════
+// Le rate limiter a besoin d'une clé pour compter les requêtes PAR client.
+// Sans clé, il compterait toutes les requêtes ensemble → inutile.
+@Bean
 public KeyResolver apiKeyResolver() {
     return exchange -> {
+        // Priorité 1 : utiliser l'API Key du header (pour les clients API)
         String apiKey = exchange.getRequest()
             .getHeaders()
             .getFirst("X-Api-Key");
         if (apiKey != null) {
-            return Mono.just(apiKey);
+            return Mono.just(apiKey);  // Chaque API Key a son propre compteur
         }
-        // Fallback sur l'IP si pas d'API key
+
+        // Priorité 2 : utiliser l'adresse IP (pour les navigateurs)
         InetSocketAddress remoteAddress = exchange.getRequest()
             .getRemoteAddress();
         return Mono.just(
@@ -862,6 +1188,11 @@ public KeyResolver apiKeyResolver() {
 
         <p class="section-intro">Dans un monolithe, une transaction ACID locale garantit la cohérence. Dans les microservices, chaque service a sa propre base : une transaction distribuée bloquante (2PC) est trop coûteuse et fragile. Le <strong>pattern Saga</strong> découpe la transaction en étapes avec des <strong>transactions compensatoires</strong> en cas d'échec.</p>
 
+        <div class="box child-mode">
+          <h4>🧸 Analogie — La réservation de vacances</h4>
+          <p>Réserver des vacances implique 3 étapes : réserver l'avion, réserver l'hôtel, réserver la voiture. Si l'hôtel refuse (complet), on doit <strong>annuler l'avion</strong> déjà réservé. C'est une <em>transaction compensatoire</em>. La Saga fait exactement ça : elle exécute les étapes dans l'ordre, et si une étape échoue, elle <strong>défait les étapes précédentes</strong> en sens inverse.</p>
+        </div>
+
         <div class="columns">
           <div class="box definition">
             <h4>🎯 Orchestration</h4>
@@ -879,102 +1210,126 @@ public KeyResolver apiKeyResolver() {
 
         <div class="box example">
           <h4>Saga "Créer un emprunt" — Orchestration</h4>
-          <div class="diagram">
-<pre>
-Client ──► LoanSaga (Orchestrateur)
-              │
-              ├─1.► catalog-service.reserveBook(bookId)
-              │         └── ✅ BookReserved  →  étape 2
-              │         └── ❌ BookNotAvailable → fin (CompensationNotNeeded)
-              │
-              ├─2.► identity-service.validateStudent(studentId)
-              │         └── ✅ StudentValidated  →  étape 3
-              │         └── ❌ StudentSuspended  →  compenser étape 1
-              │             ↳ catalog-service.releaseBook(bookId)
-              │
-              └─3.► loan-service.confirmLoan(loanId)
-                        └── ✅ LoanConfirmed → saga terminée
-                        └── ❌ LoanFailed   → compenser étapes 1 et 2
-                            ↳ identity-service.decrementLoanCount(studentId)
-                            ↳ catalog-service.releaseBook(bookId)
-</pre>
+          <div class="kafka-viz">
+            <div class="kv-flow">
+              <div class="kv-flow-node producer" style="padding:10px 16px;">
+                <h5 style="font-size:.88rem;">Client → LoanSaga (Orchestrateur)</h5>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Étape 1</span></div>
+              <div class="kv-flow-node broker" style="padding:10px 16px;">
+                <h5 style="font-size:.88rem;">catalog-service.reserveBook(bookId)</h5>
+                <p style="font-size:.8rem;">✅ BookReserved → passe à l'étape 2<br>❌ BookNotAvailable → fin (pas de compensation nécessaire)</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Étape 2</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:10px 16px;">
+                <h5 style="font-size:.88rem;">identity-service.validateStudent(studentId)</h5>
+                <p style="font-size:.8rem;">✅ StudentValidated → passe à l'étape 3<br>❌ StudentSuspended → <strong>compenser étape 1</strong> : catalog-service.releaseBook()</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Étape 3</span></div>
+              <div class="kv-flow-node consumer" style="padding:10px 16px;">
+                <h5 style="font-size:.88rem;">loan-service.confirmLoan(loanId)</h5>
+                <p style="font-size:.8rem;">✅ LoanConfirmed → saga terminée avec succès<br>❌ LoanFailed → <strong>compenser étapes 1 et 2</strong></p>
+              </div>
+            </div>
           </div>
 
-<pre><code class="language-java">// État de la saga
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// ÉTATS DE LA SAGA : machine à états pour tracer la progression
+// ═══════════════════════════════════════════════════════════════
+// Chaque état est persisté en base → on peut reprendre après un crash
 public enum LoanSagaState {
-    STARTED, BOOK_RESERVED, STUDENT_VALIDATED, LOAN_CONFIRMED,
-    COMPENSATING_BOOK, COMPENSATING_STUDENT, FAILED, COMPLETED
+    STARTED,              // Saga initiée, rien encore fait
+    BOOK_RESERVED,        // Étape 1 OK : le livre est réservé
+    STUDENT_VALIDATED,    // Étape 2 OK : l'étudiant est validé
+    LOAN_CONFIRMED,       // Étape 3 OK : le prêt est confirmé
+    COMPENSATING_BOOK,    // En train d'annuler la réservation du livre
+    COMPENSATING_STUDENT, // En train d'annuler la validation étudiant
+    FAILED,               // Saga échouée (compensation effectuée)
+    COMPLETED             // Saga terminée avec succès
 }
 
-// Orchestrateur — utilise une machine à états
+// ═══════════════════════════════════════════════════════════════
+// ORCHESTRATEUR : exécute les étapes dans l'ordre
+// ═══════════════════════════════════════════════════════════════
+// C'est le "chef d'orchestre" qui coordonne catalog, identity et loan.
 @Component
 @RequiredArgsConstructor
 public class CreateLoanSaga {
 
-    private final CatalogClient catalogClient;
-    private final IdentityClient identityClient;
-    private final LoanRepository loanRepo;
-    private final KafkaTemplate&lt;String, Object&gt; kafka;
+    private final CatalogClient catalogClient;     // Appel sync → catalog-service
+    private final IdentityClient identityClient;   // Appel sync → identity-service
+    private final LoanRepository loanRepo;         // Accès BDD locale
+    private final KafkaTemplate&lt;String, Object&gt; kafka;  // Publication d'événements
 
     @Transactional
     public LoanSagaResult execute(CreateLoanCommand cmd) {
+        // ── Créer et persister l'état initial de la saga ──
         LoanSaga saga = LoanSaga.builder()
             .id(UUID.randomUUID())
             .loanId(cmd.loanId())
             .bookId(cmd.bookId())
             .studentId(cmd.studentId())
-            .state(LoanSagaState.STARTED)
+            .state(LoanSagaState.STARTED)  // État initial
             .build();
-        sagaRepository.save(saga);
+        sagaRepository.save(saga);  // Persister pour survie au crash
 
         try {
-            // Étape 1 — Réserver le livre
+            // ── Étape 1 : réserver le livre ──
+            // Si le livre est indisponible → BookNotAvailableException
             catalogClient.reserveBook(cmd.bookId(),
                 new ReservationRequest(cmd.loanId()));
-            saga.setState(LoanSagaState.BOOK_RESERVED);
+            saga.setState(LoanSagaState.BOOK_RESERVED);  // Succès étape 1
 
-            // Étape 2 — Valider l'étudiant
+            // ── Étape 2 : valider l'étudiant ──
+            // Vérifie : compte actif, quota d'emprunts non dépassé, pas de retards
             identityClient.validateStudentForLoan(cmd.studentId());
-            saga.setState(LoanSagaState.STUDENT_VALIDATED);
+            saga.setState(LoanSagaState.STUDENT_VALIDATED);  // Succès étape 2
 
-            // Étape 3 — Confirmer le prêt
+            // ── Étape 3 : confirmer le prêt en base locale ──
             Loan loan = loanRepo.findById(cmd.loanId()).orElseThrow();
-            loan.confirm(Instant.now().plus(30, ChronoUnit.DAYS));
+            loan.confirm(Instant.now().plus(30, ChronoUnit.DAYS));  // Retour dans 30 jours
             loanRepo.save(loan);
-            saga.setState(LoanSagaState.LOAN_CONFIRMED);
+            saga.setState(LoanSagaState.LOAN_CONFIRMED);  // Succès étape 3
 
+            // ── Publier l'événement de succès ──
             kafka.send("loan.created", new LoanCreatedEvent(cmd.loanId(),
                 cmd.studentId(), cmd.bookId(), Instant.now()));
 
             saga.setState(LoanSagaState.COMPLETED);
             return LoanSagaResult.success(cmd.loanId());
 
+        // ── COMPENSATIONS en cas d'échec ──
+
         } catch (BookNotAvailableException e) {
+            // Échec étape 1 → pas de compensation nécessaire (rien n'a été fait)
             saga.setState(LoanSagaState.FAILED);
             return LoanSagaResult.failure("Book not available");
 
         } catch (StudentSuspendedException e) {
-            // Compenser étape 1
+            // Échec étape 2 → il faut compenser l'étape 1 (libérer le livre)
             saga.setState(LoanSagaState.COMPENSATING_BOOK);
             compensateBookReservation(cmd.bookId(), saga);
             saga.setState(LoanSagaState.FAILED);
             return LoanSagaResult.failure("Student account suspended");
 
         } catch (Exception e) {
+            // Échec inattendu → compenser TOUTES les étapes effectuées
             compensateAll(cmd, saga);
             saga.setState(LoanSagaState.FAILED);
             return LoanSagaResult.failure("Unexpected error: " + e.getMessage());
 
         } finally {
-            sagaRepository.save(saga);  // persister l'état final
+            sagaRepository.save(saga);  // Toujours persister l'état final
         }
     }
 
+    // ── Compensation : annuler la réservation du livre ──
+    // ⚠️ La compensation elle-même peut échouer ! Il faut gérer ce cas.
     private void compensateBookReservation(UUID bookId, LoanSaga saga) {
         try {
             catalogClient.releaseBook(bookId);
         } catch (Exception e) {
-            // La compensation a échoué → alerter, retry manuel, ou DLT
+            // Si même la compensation échoue → alerte critique (intervention humaine)
             log.error("COMPENSATION FAILED for bookId={}", bookId, e);
             saga.addCompensationFailure("book-release", e.getMessage());
             alertingService.criticalAlert("Saga compensation failure", saga);
@@ -987,58 +1342,78 @@ public class CreateLoanSaga {
 
         <div class="box example">
           <h4>Chorégraphie — loan-service émet, catalog-service réagit</h4>
-<pre><code class="language-java">// ═══ loan-service ═══
-// Publie l'intention (pas le fait accompli)
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// CHORÉGRAPHIE : chaque service réagit aux événements des autres
+// ═══════════════════════════════════════════════════════════════
+// Pas d'orchestrateur central. Chaque service :
+//   1. Écoute les événements qui le concernent
+//   2. Fait son travail
+//   3. Publie un nouvel événement pour le prochain service
+// C'est comme un relais : chaque coureur passe le bâton au suivant.
+
+// ═══ loan-service (initie le processus) ═══
 @Service
 public class LoanApplicationService {
 
     @Transactional
     public UUID initiateLoan(CreateLoanRequest request) {
+        // Créer un emprunt en statut PENDING (pas encore confirmé)
         Loan loan = new Loan(request.studentId(), request.bookId());
         loan.setStatus(LoanStatus.PENDING);
         loanRepo.save(loan);
 
-        // Émet un événement — catalog-service va réagir
+        // Publier une INTENTION (pas un fait accompli !)
+        // "J'aimerais emprunter ce livre" → catalog-service va vérifier
         kafka.send("loan.initiation-requested",
             new LoanInitiationRequestedEvent(
                 loan.getId(), request.bookId(), request.studentId()
             ));
 
-        return loan.getId();
+        return loan.getId();  // Réponse immédiate au client (async derrière)
     }
 
-    // Réagit à la réponse du catalog-service
+    // ── Écoute la réponse de catalog-service ──
+    // Si le livre a été réservé avec succès → passer à l'étape suivante
     @KafkaListener(topics = "book.reservation-confirmed")
     public void onBookReserved(BookReservationConfirmedEvent event) {
         Loan loan = loanRepo.findById(event.loanId()).orElseThrow();
-        loan.setStatus(LoanStatus.BOOK_RESERVED);
+        loan.setStatus(LoanStatus.BOOK_RESERVED);  // Mise à jour du statut
         loanRepo.save(loan);
-        // Émet la prochaine étape
+
+        // Publier la PROCHAINE ÉTAPE : valider l'étudiant
         kafka.send("student.validation-requested",
             new StudentValidationRequestedEvent(event.loanId(), loan.getStudentId()));
     }
 
+    // ── Écoute le REFUS de catalog-service ──
+    // Le livre n'est pas disponible → fin de la saga, pas de compensation
     @KafkaListener(topics = "book.reservation-rejected")
     public void onBookReservationRejected(BookReservationRejectedEvent event) {
         Loan loan = loanRepo.findById(event.loanId()).orElseThrow();
         loan.setStatus(LoanStatus.REJECTED);
         loan.setRejectionReason("Book not available: " + event.reason());
         loanRepo.save(loan);
+
+        // Informer les autres services que l'emprunt est annulé
         kafka.send("loan.rejected",
             new LoanRejectedEvent(event.loanId(), event.reason()));
     }
 }
 
-// ═══ catalog-service ═══
+// ═══ catalog-service (réagit à la demande) ═══
+// Ce service ne sait PAS qu'il fait partie d'une saga.
+// Il réagit simplement aux événements qui le concernent.
 @KafkaListener(topics = "loan.initiation-requested")
 public void onLoanInitiationRequested(LoanInitiationRequestedEvent event) {
     boolean available = bookRepository.isAvailable(event.bookId());
 
     if (available) {
+        // Le livre est dispo → le réserver et confirmer
         bookRepository.reserve(event.bookId(), event.loanId());
         kafka.send("book.reservation-confirmed",
             new BookReservationConfirmedEvent(event.loanId(), event.bookId()));
     } else {
+        // Le livre est pris → refuser
         kafka.send("book.reservation-rejected",
             new BookReservationRejectedEvent(event.loanId(), "No copies left"));
     }
@@ -1073,47 +1448,60 @@ public void onLoanInitiationRequested(LoanInitiationRequestedEvent event) {
           <h4>🔴 1. Distributed Monolith</h4>
           <p>Services techniquement séparés mais si fortement couplés qu'ils doivent être développés, testés et déployés ensemble. On a la complexité du distribué <strong>sans les bénéfices de l'autonomie</strong>.</p>
           <p><strong>Symptômes :</strong> "On ne peut pas déployer A sans déployer B." — Appels synchrones en chaîne : A→B→C→D. — Base de données partagée.</p>
-<pre><code class="language-java">// ❌ Anti-pattern : loan-service appelle catalog → catalog appelle identity
+<pre><code class="language-java">// ❌ ANTI-PATTERN : chaîne d'appels synchrones
+// loan-service → catalog-service → catalog-service → identity-service
+// Problème : si identity-service est down, TOUT échoue (cascade de pannes)
+// Latence = somme : 50ms + 80ms + 120ms = 250ms minimum
 @GetMapping("/loans/{id}/details")
 public LoanDetailsDto getDetails(@PathVariable UUID id) {
     Loan loan = loanRepo.findById(id).orElseThrow();
-    Book book = catalogClient.getBook(loan.getBookId());           // appel 1
-    Author author = catalogClient.getAuthor(book.getAuthorId());  // appel 2
-    Student student = identityClient.getStudent(loan.getStudentId()); // appel 3
-    // Si identity-service est down → 3 appels échouent en cascade
+    Book book = catalogClient.getBook(loan.getBookId());           // appel réseau 1
+    Author author = catalogClient.getAuthor(book.getAuthorId());   // appel réseau 2
+    Student student = identityClient.getStudent(loan.getStudentId()); // appel réseau 3
+    // 3 appels réseau synchrones = 3 points de panne possibles !
     return new LoanDetailsDto(loan, book, author, student);
 }</code></pre>
-<pre><code class="language-java">// ✅ Pattern : CQRS + Vue matérialisée locale (read model)
-// loan-service maintient sa propre vue des données dont il a besoin
+<pre><code class="language-java">// ✅ SOLUTION : CQRS + Vue matérialisée locale (read model)
+// loan-service maintient une COPIE LOCALE des données dont il a besoin.
+// Les données sont mises à jour via des événements Kafka (async).
+
+// Étape 1 : écouter les changements de catalog-service
 @KafkaListener(topics = "book.updated")
 public void updateLocalBookView(BookUpdatedEvent event) {
+    // Mettre à jour la copie locale → 0 appel réseau pour les lectures
     localBookViewRepo.upsert(new LoanBookView(
         event.bookId(), event.title(), event.authorName()
     ));
 }
 
+// Étape 2 : lire LOCALEMENT — 0 appel réseau, ultra rapide
 @GetMapping("/loans/{id}/details")
 public LoanDetailsDto getDetails(@PathVariable UUID id) {
-    // Tout en local — 0 appel réseau
     Loan loan = loanRepo.findById(id).orElseThrow();
     LoanBookView book = localBookViewRepo.findByBookId(loan.getBookId());
-    return new LoanDetailsDto(loan, book);
+    return new LoanDetailsDto(loan, book);  // Tout est local !
 }</code></pre>
         </div>
 
         <div class="box frequent-error">
           <h4>🔴 2. Shared Database</h4>
           <p>Plusieurs microservices lisent/écrivent les mêmes tables. Impossible de migrer, scaler ou redéployer indépendamment.</p>
-<pre><code class="language-java">// ❌ Anti-pattern : notification-service lit directement la table loans
+<pre><code class="language-java">// ❌ ANTI-PATTERN : notification-service accède DIRECTEMENT à la table "loans"
+// Problème : si loan-service change son schéma (renomme une colonne, change un type),
+// notification-service CASSE sans prévenir. Les deux services sont couplés par la BDD.
 @Repository
 public class NotificationRepository {
     @Query("SELECT * FROM loans WHERE due_date &lt; :date AND notified = false")
-    List&lt;Loan&gt; findOverdue(LocalDate date);  // couplage fort au schéma loan-service
+    List&lt;Loan&gt; findOverdue(LocalDate date);  // Requête sur la table d'un AUTRE service !
 }
 
-// ✅ Correct : notification-service écoute les événements Kafka
+// ✅ SOLUTION : notification-service écoute les événements Kafka
+// loan-service publie "loan.overdue" quand un emprunt est en retard.
+// notification-service réagit sans connaître le schéma de loan-service.
 @KafkaListener(topics = "loan.overdue")
 public void onLoanOverdue(LoanOverdueEvent event) {
+    // L'événement contient exactement les données dont on a besoin
+    // Pas de couplage au schéma SQL de loan-service
     notificationService.sendOverdueNotice(event.studentId(), event.loanId(),
         event.dueDate());
 }</code></pre>
@@ -1121,46 +1509,62 @@ public void onLoanOverdue(LoanOverdueEvent event) {
 
         <div class="box frequent-error">
           <h4>🔴 3. Chatty Communication (N+1 distribué)</h4>
-          <p>Trop d'appels réseau pour un seul cas d'usage. Chaque appel ajoute de la latence et de la fragilité.</p>
-<pre><code class="language-java">// ❌ Anti-pattern : N+1 en distribué
+          <p>Trop d'appels réseau pour un seul cas d'usage. Chaque appel ajoute de la latence et de la fragilité. C'est le <em>SELECT N+1</em> de JPA, mais en version réseau — 100x plus lent.</p>
+<pre><code class="language-java">// ❌ ANTI-PATTERN : N+1 en distribué
+// Pour afficher 20 emprunts avec les infos du livre, on fait 20 appels HTTP !
+// Latence = 20 × 50ms = 1 seconde minimum, plus les risques de panne
 for (UUID bookId : loanedBookIds) {
-    Book book = catalogClient.getBook(bookId);  // N appels réseau !
+    Book book = catalogClient.getBook(bookId);  // 1 appel réseau par livre !
 }
 
-// ✅ Correct : batch API
+// ✅ SOLUTION : API de batch — 1 seul appel pour N livres
 @FeignClient(name = "catalog-service")
 public interface CatalogClient {
+    // Endpoint qui accepte une LISTE d'IDs → 1 seul appel réseau
     @PostMapping("/internal/books/batch")
     List&lt;BookDto&gt; getBooksBatch(@RequestBody List&lt;UUID&gt; bookIds);
 }
-// 1 seul appel pour N livres</code></pre>
+// 20 livres = 1 appel de ~2ms au lieu de 20 appels de 50ms = 40x plus rapide</code></pre>
         </div>
 
         <div class="box frequent-error">
           <h4>🔴 4. Nano-services</h4>
-          <p>Découpage trop fin : un service pour chaque entité. Coût opérationnel exorbitant, performances catastrophiques.</p>
-<pre><code class="language-text">// ❌ Nano-services (éviter absolument)
-BookTitleService
-BookAuthorService
-BookISBNService
-BookAvailabilityService
+          <p>Découpage trop fin : un service pour chaque entité ou chaque opération. Le coût opérationnel explose (monitoring, déploiement, debug) et la latence réseau ruine les performances. Si votre service n'a qu'un ou deux endpoints, il est probablement trop petit.</p>
+<pre><code class="language-text">// ❌ Nano-services (chaque attribut est un service séparé !)
+// → 4 repos, 4 pipelines CI/CD, 4 bases, 4 instances à monitorer
+// → Pour afficher un livre : 4 appels réseau en cascade
+BookTitleService           ← juste le titre
+BookAuthorService          ← juste l'auteur
+BookISBNService            ← juste l'ISBN
+BookAvailabilityService    ← juste le stock
 
-// ✅ Un service par domaine cohérent
-catalog-service  ← tout ce qui concerne les livres et le catalogue</code></pre>
+// ✅ Un service par DOMAINE COHÉRENT
+// → 1 repo, 1 pipeline, 1 base, 1 instance
+// → Tout ce qui concerne les livres est au même endroit
+catalog-service  ← titre + auteur + ISBN + stock + recherche</code></pre>
         </div>
 
         <div class="box frequent-error">
           <h4>🔴 5. Synchronous Chain (couplage temporel)</h4>
-          <p>Toute la chaîne tombe si un seul service est lent ou indisponible.</p>
-<pre><code class="language-text">// ❌ Chaîne synchrone : latence = somme de toutes les latences
+          <p>Toute la chaîne tombe si un seul service est lent ou indisponible. La latence totale est la <strong>somme</strong> de toutes les latences. Plus la chaîne est longue, plus le risque de panne augmente exponentiellement.</p>
+<pre><code class="language-text">// ❌ CHAÎNE SYNCHRONE : chaque service attend le suivant
+// Si C met 500ms, tout le monde attend 500ms de plus
 Client ──► Gateway ──► A (200ms) ──► B (300ms) ──► C (500ms)
-Total = 200 + 300 + 500 = 1000ms + overhead réseau
+Latence totale = 200 + 300 + 500 = 1000ms + overhead réseau
+Fiabilité = 99.9% × 99.9% × 99.9% = 99.7% (chaque maillon réduit la fiabilité)
 
-// ✅ Fan-out asynchrone : latence = max des latences parallèles
-Client ──► Gateway ──► A ──► Kafka
-                        ├──► B (traite en parallèle)
-                        └──► C (traite en parallèle)
-Client reçoit la réponse immédiatement, B et C s'exécutent en arrière-plan</code></pre>
+// ✅ FAN-OUT ASYNCHRONE : le client reçoit sa réponse immédiatement
+// B et C traitent en ARRIÈRE-PLAN via Kafka
+Client ──► Gateway ──► A ──► Kafka (publish)
+                         ├──► B (consomme en parallèle, indépendamment)
+                         └──► C (consomme en parallèle, indépendamment)
+Latence client = seulement A (~200ms) — B et C ne bloquent pas
+Fiabilité = si B tombe, A et C continuent normalement</code></pre>
+        </div>
+
+        <div class="box child-mode">
+          <h4>🧸 Résumé des anti-patterns — La règle d'or</h4>
+          <p>Si vous devez <strong>coordonner le déploiement</strong> de plusieurs services, ou si la panne d'un service <strong>cascade</strong> sur les autres, vous avez probablement un <em>Distributed Monolith</em>. Posez-vous la question : "Est-ce que je peux éteindre ce service sans impacter les autres ?" Si non, il faut repenser le découplage.</p>
         </div>
       </section>
 
@@ -1174,24 +1578,32 @@ Client reçoit la réponse immédiatement, B et C s'exécutent en arrière-plan<
 
         <p class="section-intro">La pyramide des tests traditionnelle s'adapte aux microservices. L'objectif : détecter les bugs au plus tôt, le plus localement possible, sans dépendre des autres services à chaque exécution.</p>
 
+        <div class="box child-mode">
+          <h4>🧸 Analogie — Tester une voiture</h4>
+          <p><strong>Tests unitaires</strong> = tester chaque pièce isolément (le moteur tourne, les freins serrent). <strong>Tests d'intégration</strong> = vérifier que le moteur + la transmission + les roues fonctionnent ensemble. <strong>Contract tests</strong> = vérifier que le volant contrôle bien les roues (interface entre composants). <strong>Tests E2E</strong> = conduire la voiture sur route (coûteux, lent, mais nécessaire pour les scénarios critiques).</p>
+        </div>
+
         <div class="box definition">
           <h4>Pyramide des tests microservices</h4>
-          <div class="diagram">
-<pre>
-              /\
-             /  \   ← Tests End-to-End (quelques uns, lents, coûteux)
-            /E2E \      Environnement complet déployé
-           /──────\
-          /        \  ← Contract Tests (Pact, Spring Cloud Contract)
-         / Contract \     Consumer → Provider, sans déploiement réel
-        /────────────\
-       /              \  ← Tests d'intégration (Testcontainers)
-      /  Integration   \    BDD réelle, Kafka réel — service isolé
-     /──────────────────\
-    /                    \  ← Tests unitaires (JUnit, Mockito)
-   /      Unit Tests      \    Logique métier pure — très rapides
-  /────────────────────────\
-</pre>
+          <div class="kafka-viz">
+            <div style="display:flex;flex-direction:column;gap:0;align-items:center;">
+              <div style="width:30%;background:linear-gradient(135deg,#fff0f0,#fef2f2);border:1.5px solid #fca5a5;border-radius:10px 10px 0 0;padding:10px 12px;text-align:center;">
+                <div style="font-weight:700;font-size:.82rem;color:#b91c1c;">E2E</div>
+                <div style="font-size:.72rem;color:#9a3412;">Quelques-uns, lents, coûteux</div>
+              </div>
+              <div style="width:50%;background:linear-gradient(135deg,#ffedd5,#fff7ed);border:1.5px solid #fdba74;border-radius:0;padding:10px 12px;text-align:center;">
+                <div style="font-weight:700;font-size:.82rem;color:#c2410c;">Contract Tests (Pact)</div>
+                <div style="font-size:.72rem;color:#9a3412;">Consumer → Provider, sans déploiement</div>
+              </div>
+              <div style="width:70%;background:linear-gradient(135deg,#e0ecff,#eff6ff);border:1.5px solid #93c5fd;padding:10px 12px;text-align:center;">
+                <div style="font-weight:700;font-size:.82rem;color:#1d4ed8;">Tests d'intégration (Testcontainers)</div>
+                <div style="font-size:.72rem;color:#1e40af;">BDD réelle, Kafka réel — service isolé</div>
+              </div>
+              <div style="width:100%;background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1.5px solid #86efac;border-radius:0 0 10px 10px;padding:10px 12px;text-align:center;">
+                <div style="font-weight:700;font-size:.82rem;color:#15803d;">Tests unitaires (JUnit, Mockito) — 80%</div>
+                <div style="font-size:.72rem;color:#166534;">Logique métier pure — très rapides</div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -1214,56 +1626,69 @@ Client reçoit la réponse immédiatement, B et C s'exécutent en arrière-plan<
   &lt;scope&gt;test&lt;/scope&gt;
 &lt;/dependency&gt;</code></pre>
 
-<pre><code class="language-java">@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
-@Testcontainers
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// TEST D'INTÉGRATION : vrai PostgreSQL + vrai Kafka en conteneurs Docker
+// ═══════════════════════════════════════════════════════════════
+// Testcontainers démarre de VRAIS serveurs dans Docker pendant le test.
+// Avantage par rapport aux mocks : on teste le vrai comportement
+// (transactions, contraintes SQL, sérialisation Kafka, etc.)
+
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)  // Port aléatoire pour éviter les conflits
+@Testcontainers  // Active le lifecycle des conteneurs Docker
 class LoanServiceIntegrationTest {
 
-    @Container
+    // ── Conteneurs Docker démarrés AVANT les tests ──
+
+    @Container  // Crée un vrai PostgreSQL 16 dans Docker
     static PostgreSQLContainer&lt;?&gt; postgres =
         new PostgreSQLContainer&lt;&gt;("postgres:16-alpine")
-            .withDatabaseName("library_test")
+            .withDatabaseName("library_test")   // Nom de la base de test
             .withUsername("test")
             .withPassword("test");
 
-    @Container
+    @Container  // Crée un vrai Kafka dans Docker
     static KafkaContainer kafka =
         new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"));
 
+    // ── Injecter les URLs dynamiques dans Spring ──
+    // Les conteneurs ont des ports aléatoires → on les injecte dans la config
     @DynamicPropertySource
     static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url",     postgres::getJdbcUrl);
+        registry.add("spring.datasource.url",     postgres::getJdbcUrl);      // jdbc:postgresql://localhost:XXXXX/library_test
         registry.add("spring.datasource.username", postgres::getUsername);
         registry.add("spring.datasource.password", postgres::getPassword);
-        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);  // localhost:YYYYY
     }
 
-    @Autowired private TestRestTemplate restTemplate;
-    @Autowired private LoanRepository loanRepo;
+    @Autowired private TestRestTemplate restTemplate;  // Client HTTP pour les tests
+    @Autowired private LoanRepository loanRepo;        // Accès direct à la base pour vérifier
 
     @Test
     void shouldCreateLoanAndPublishEvent() throws Exception {
-        // Given
+        // ── Given : préparer les données de test ──
         UUID studentId = UUID.randomUUID();
         UUID bookId    = UUID.randomUUID();
         CreateLoanRequest request = new CreateLoanRequest(studentId, bookId);
 
-        // When
+        // ── When : appeler l'API comme un vrai client ──
         ResponseEntity&lt;LoanDto&gt; response = restTemplate.postForEntity(
             "/api/v1/loans", request, LoanDto.class);
 
-        // Then — HTTP
+        // ── Then : vérifier la réponse HTTP ──
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         assertThat(response.getBody()).isNotNull();
         assertThat(response.getBody().studentId()).isEqualTo(studentId);
 
-        // Then — Base de données
+        // ── Then : vérifier que l'emprunt est RÉELLEMENT en base ──
+        // (pas un mock — on interroge le vrai PostgreSQL !)
         Optional&lt;Loan&gt; savedLoan = loanRepo.findById(response.getBody().id());
         assertThat(savedLoan).isPresent();
         assertThat(savedLoan.get().getStatus()).isEqualTo(LoanStatus.PENDING);
 
-        // Then — Événement Kafka publié
+        // ── Then : vérifier que l'événement Kafka a RÉELLEMENT été publié ──
+        // (pas un mock — on lit depuis le vrai Kafka !)
         ConsumerRecords&lt;String, String&gt; records = KafkaTestUtils.getRecords(
-            testConsumer, Duration.ofSeconds(5));
+            testConsumer, Duration.ofSeconds(5));  // Attendre max 5s
         assertThat(records.count()).isEqualTo(1);
         assertThat(records.iterator().next().topic()).isEqualTo("loan.created");
     }
@@ -1271,14 +1696,24 @@ class LoanServiceIntegrationTest {
 </code></pre>
 
           <h5>Test OpenFeign avec WireMock</h5>
-<pre><code class="language-java">@SpringBootTest
-@AutoConfigureWireMock(port = 0)  // port aléatoire
+<pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// TEST FEIGN : simuler catalog-service avec WireMock
+// ═══════════════════════════════════════════════════════════════
+// WireMock = un faux serveur HTTP qui simule les réponses de catalog-service.
+// Contrairement à Testcontainers, on ne démarre PAS le vrai catalog-service,
+// on simule ses réponses pour tester LE COMPORTEMENT DE NOTRE CLIENT Feign.
+
+@SpringBootTest
+@AutoConfigureWireMock(port = 0)  // WireMock sur un port aléatoire
 class CatalogClientTest {
 
     @Autowired private CatalogClient catalogClient;
 
     @Test
     void shouldGetAvailabilityFromCatalogService() {
+        // ── Programmer la réponse simulée de catalog-service ──
+        // "Quand quelqu'un appelle GET /internal/books/d290f1ee/availability,
+        //  répondre 200 OK avec ce JSON"
         stubFor(get(urlPathEqualTo("/internal/books/d290f1ee/availability"))
             .willReturn(aResponse()
                 .withStatus(200)
@@ -1287,23 +1722,26 @@ class CatalogClientTest {
                     { "available": true, "copies": 3 }
                     """)));
 
+        // ── Appeler le client Feign (qui va contacter WireMock) ──
         AvailabilityResponse response = catalogClient.getAvailability(
             UUID.fromString("d290f1ee-6c54-4b01-90e6-d701748f0851"));
 
+        // ── Vérifier que Feign a bien désérialisé la réponse ──
         assertThat(response.available()).isTrue();
         assertThat(response.copies()).isEqualTo(3);
     }
 
     @Test
     void shouldActivateFallbackWhenCatalogServiceIsDown() {
+        // ── Simuler un catalog-service en panne (503 + 3s de délai) ──
         stubFor(get(anyUrl())
             .willReturn(aResponse()
-                .withStatus(503)
-                .withFixedDelay(3000)));  // 3s → timeout déclenché
+                .withStatus(503)             // Service Unavailable
+                .withFixedDelay(3000)));      // 3s → dépasse le readTimeout (configuré à 3s)
 
-        // Le fallback doit retourner une réponse dégradée
+        // ── Le fallback DOIT s'activer automatiquement ──
         AvailabilityResponse response = catalogClient.getAvailability(UUID.randomUUID());
-        assertThat(response.available()).isFalse();
+        assertThat(response.available()).isFalse();   // Fallback retourne false (conservative)
     }
 }</code></pre>
         </div>
@@ -1330,46 +1768,72 @@ class CatalogClientTest {
 
         <p class="section-intro">Un <strong>Service Mesh</strong> déplace les préoccupations réseau (mTLS, Circuit Breaker, retry, observabilité) <strong>hors du code</strong> et dans l'infrastructure, via des proxies <em>sidecar</em> injectés automatiquement dans chaque pod.</p>
 
+        <div class="box child-mode">
+          <h4>🧸 Analogie — Le garde du corps invisible</h4>
+          <p>Imaginez que chaque service a un <strong>garde du corps personnel</strong> (le proxy Envoy) qui intercepte toutes ses communications. Ce garde chiffre les messages (mTLS), coupe la ligne si le correspondant ne répond pas (Circuit Breaker), retente automatiquement, et note tout dans un carnet (tracing). Le service lui-même ne sait même pas que le garde existe — il parle normalement.</p>
+        </div>
+
         <div class="box definition">
           <h4>Architecture Istio</h4>
-          <div class="diagram">
-<pre>
-┌─────────────────────────────────────────────────────────────┐
-│  loan-service Pod                                           │
-│  ┌─────────────────┐    ┌──────────────────────────────┐   │
-│  │  loan-service   │◄──►│  Envoy Sidecar Proxy         │   │
-│  │  container      │    │  - mTLS (chiffrement auto)   │   │
-│  └─────────────────┘    │  - Circuit Breaker           │   │
-│                          │  - Retry                     │   │
-│                          │  - Tracing (OpenTelemetry)   │   │
-│                          │  - Metrics Prometheus        │   │
-│                          └──────────────────────────────┘   │
-└─────────────────────────────────────────────────────────────┘
-    Tout le trafic passe par Envoy — transparent pour l'application
-</pre>
+          <div class="kafka-viz">
+            <div class="kv-partition" style="border:2px solid #c4b5fd;">
+              <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);color:#5b21b6;border-bottom-color:#c4b5fd;">
+                loan-service Pod
+              </div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:0;">
+                <div style="padding:12px;border-right:1px dashed var(--border);">
+                  <div style="font-weight:700;font-size:.84rem;color:var(--text);margin-bottom:4px;">loan-service</div>
+                  <div style="font-size:.76rem;color:var(--muted);">Container applicatif<br>Code Java — ne voit pas Envoy</div>
+                </div>
+                <div style="padding:12px;background:#f8f5ff;">
+                  <div style="font-weight:700;font-size:.84rem;color:#5b21b6;margin-bottom:4px;">Envoy Sidecar Proxy</div>
+                  <div style="font-size:.76rem;color:#7c3aed;">
+                    ✦ mTLS automatique<br>
+                    ✦ Circuit Breaker<br>
+                    ✦ Retry + timeout<br>
+                    ✦ Tracing (OpenTelemetry)<br>
+                    ✦ Métriques Prometheus
+                  </div>
+                </div>
+              </div>
+              <div style="padding:6px 14px;font-size:.76rem;color:var(--muted);border-top:1px solid var(--border);text-align:center;font-style:italic;">
+                ↔ Tout le trafic entrant et sortant passe par Envoy — transparent pour l'application
+              </div>
+            </div>
           </div>
         </div>
 
         <div class="box example">
           <h4>Politique de retry et Circuit Breaker — VirtualService + DestinationRule Istio</h4>
-<pre><code class="language-yaml">apiVersion: networking.istio.io/v1alpha3
+<pre><code class="language-yaml"># ═══════════════════════════════════════════════════════════════
+# VIRTUALSERVICE : configure le routage et les retries
+# ═══════════════════════════════════════════════════════════════
+# Équivalent de la config Resilience4j, mais dans l'infra YAML
+# → pas besoin de modifier le code Java !
+apiVersion: networking.istio.io/v1alpha3
 kind: VirtualService
 metadata:
   name: catalog-service
 spec:
   hosts:
-    - catalog-service
+    - catalog-service     # S'applique aux appels vers catalog-service
   http:
     - retries:
-        attempts: 3
-        perTryTimeout: 2s
-        retryOn: connect-failure,refused-stream,503
+        attempts: 3        # 3 tentatives max (comme Resilience4j maxAttempts)
+        perTryTimeout: 2s  # Timeout par tentative (comme readTimeout Feign)
+        retryOn: connect-failure,refused-stream,503   # Quand retenter
+
+      # ── Chaos Engineering : injecter des pannes volontairement ──
+      # En production simulée, on injecte 5% de latence pour tester la résilience
       fault:
         delay:
           percentage:
-            value: 5    # Chaos Engineering : 5% des req avec 2s de délai
-          fixedDelay: 2s
+            value: 5       # 5% des requêtes reçoivent un délai artificiel
+          fixedDelay: 2s    # 2 secondes de délai
 ---
+# ═══════════════════════════════════════════════════════════════
+# DESTINATIONRULE : configure le Circuit Breaker côté infrastructure
+# ═══════════════════════════════════════════════════════════════
 apiVersion: networking.istio.io/v1alpha3
 kind: DestinationRule
 metadata:
@@ -1377,11 +1841,12 @@ metadata:
 spec:
   host: catalog-service
   trafficPolicy:
-    outlierDetection:
-      consecutive5xxErrors: 5      # 5 erreurs 5xx → éjecter l'instance
-      interval: 30s
-      baseEjectionTime: 1m
-      maxEjectionPercent: 50       # max 50% des instances éjectées</code></pre>
+    outlierDetection:                  # = Circuit Breaker d'Istio
+      consecutive5xxErrors: 5          # 5 erreurs 5xx consécutives → éjecter l'instance
+      interval: 30s                    # Évaluer toutes les 30 secondes
+      baseEjectionTime: 1m            # Instance éjectée pendant 1 minute minimum
+      maxEjectionPercent: 50           # Ne jamais éjecter plus de 50% des instances
+                                        # (garder un minimum de capacité)</code></pre>
         </div>
 
         <div class="compare-grid">

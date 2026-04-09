@@ -717,3 +717,170 @@ pre {
     font-size: .72rem;
   }
 }
+
+/* ══════════════════════════════════════════════════
+   Visual Diagrams — Kafka & Architecture
+   ══════════════════════════════════════════════════ */
+
+/* ── Kafka visual diagram ── */
+.kafka-viz { margin: 1.2em 0; }
+
+.kafka-viz .kv-label {
+  font-size: .78rem; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em; color: var(--muted); margin: 0 0 10px;
+}
+.kafka-viz .kv-note {
+  font-size: .82rem; color: var(--muted); margin: 6px 0 0; font-style: italic;
+}
+
+/* Partitions row */
+.kv-partitions {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px; margin: 0 0 12px;
+}
+.kv-partition {
+  background: var(--surface); border: 1.5px solid var(--border);
+  border-radius: 14px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(36,53,84,.06);
+}
+.kv-partition-hdr {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 8px 14px; font-weight: 700; font-size: .88rem;
+  background: linear-gradient(135deg, #e0ecff 0%, #eef3ff 100%);
+  border-bottom: 1px solid var(--border); color: #1e3a6e;
+}
+.kv-partition-hdr .kv-broker {
+  font-weight: 500; font-size: .72rem; color: #5a7daa;
+  background: rgba(255,255,255,.7); padding: 2px 8px; border-radius: 6px;
+}
+.kv-offset-row {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 14px; font-size: .82rem;
+  border-bottom: 1px solid #f0f3f8;
+}
+.kv-offset-row:last-child { border-bottom: none; }
+.kv-offset-num {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-size: .72rem; color: #94a3b8; min-width: 16px;
+  background: #f1f5f9; padding: 1px 6px; border-radius: 4px;
+}
+.kv-offset-val { color: var(--text); }
+.kv-append {
+  padding: 4px 14px 8px; font-size: .72rem; color: #94a3b8;
+  display: flex; align-items: center; gap: 4px;
+}
+
+/* Consumer groups row */
+.kv-groups {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px; margin: 8px 0;
+}
+.kv-group {
+  background: var(--surface); border-radius: 14px; overflow: hidden;
+  box-shadow: 0 2px 8px rgba(36,53,84,.06);
+}
+.kv-group.green  { border: 1.5px solid #86efac; }
+.kv-group.blue   { border: 1.5px solid #93c5fd; }
+.kv-group.orange { border: 1.5px solid #fdba74; }
+.kv-group-hdr {
+  padding: 8px 14px; font-weight: 700; font-size: .88rem;
+}
+.kv-group.green .kv-group-hdr  { background: linear-gradient(135deg, #dcfce7, #f0fdf4); color: #15803d; }
+.kv-group.blue .kv-group-hdr   { background: linear-gradient(135deg, #dbeafe, #eff6ff); color: #1d4ed8; }
+.kv-group.orange .kv-group-hdr { background: linear-gradient(135deg, #ffedd5, #fff7ed); color: #c2410c; }
+.kv-instance {
+  display: flex; align-items: center; gap: 8px;
+  padding: 6px 14px; font-size: .84rem;
+  border-top: 1px solid #f0f3f8;
+}
+.kv-instance-dot {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.kv-group.green .kv-instance-dot  { background: #22c55e; }
+.kv-group.blue .kv-instance-dot   { background: #3b82f6; }
+.kv-group.orange .kv-instance-dot { background: #f97316; }
+.kv-instance-parts {
+  font-family: "JetBrains Mono", monospace; font-size: .72rem;
+  color: #94a3b8; margin-left: auto;
+}
+.kv-instance-offset {
+  font-family: "JetBrains Mono", monospace; font-size: .72rem;
+  background: #f1f5f9; padding: 1px 6px; border-radius: 4px; color: #64748b;
+}
+.kv-behind {
+  background: #fef3c7 !important; color: #92400e !important;
+}
+
+/* Flow diagram */
+.kv-flow {
+  display: flex; flex-direction: column; align-items: center; gap: 0;
+  margin: 1em 0;
+}
+.kv-flow-node {
+  width: 100%; max-width: 640px;
+  border-radius: 14px; padding: 16px 20px;
+  box-shadow: 0 2px 8px rgba(36,53,84,.06);
+}
+.kv-flow-node.producer {
+  background: linear-gradient(135deg, #ede9fe, #f5f3ff);
+  border: 1.5px solid #c4b5fd; color: #5b21b6;
+}
+.kv-flow-node.broker {
+  background: linear-gradient(135deg, #e0ecff, #f0f7ff);
+  border: 1.5px solid #93c5fd; color: #1e3a6e;
+}
+.kv-flow-node.consumer {
+  background: linear-gradient(135deg, #dcfce7, #f0fdf4);
+  border: 1.5px solid #86efac; color: #15803d;
+}
+.kv-flow-node h5 {
+  margin: 0 0 6px; font-size: .95rem;
+}
+.kv-flow-node p, .kv-flow-node li {
+  font-size: .84rem; margin: 3px 0;
+}
+.kv-flow-arrow {
+  display: flex; flex-direction: column; align-items: center;
+  color: #94a3b8; font-size: .78rem; padding: 2px 0;
+}
+.kv-flow-arrow svg { width: 20px; height: 28px; }
+.kv-flow-arrow span { margin-top: -2px; }
+
+.kv-partitions-mini {
+  display: flex; gap: 8px; margin: 8px 0; flex-wrap: wrap;
+}
+.kv-p-mini {
+  background: rgba(255,255,255,.6); border: 1px solid rgba(147,197,253,.5);
+  border-radius: 8px; padding: 4px 10px; font-size: .78rem; font-weight: 600;
+  font-family: "JetBrains Mono", monospace; color: #1e40af;
+}
+
+/* Topics overview */
+.kv-topics-list { margin: 0; }
+.kv-topic-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 8px 0; border-bottom: 1px solid #f0f3f8;
+  font-size: .88rem;
+}
+.kv-topic-row:last-child { border-bottom: none; }
+.kv-topic-name {
+  font-family: "JetBrains Mono", monospace; font-weight: 600;
+  color: #1e3a6e; min-width: 160px;
+}
+.kv-topic-partitions { display: flex; gap: 4px; }
+.kv-topic-p {
+  background: #e0ecff; color: #1e40af; padding: 2px 8px;
+  border-radius: 6px; font-size: .72rem; font-weight: 700;
+  font-family: "JetBrains Mono", monospace;
+}
+.kv-topic-key {
+  font-size: .76rem; color: #94a3b8; margin-left: auto;
+}
+
+@media(max-width:768px){
+  .kv-partitions { grid-template-columns: 1fr; }
+  .kv-groups { grid-template-columns: 1fr; }
+  .kv-topic-row { flex-wrap: wrap; }
+  .kv-topic-name { min-width: auto; }
+  .kv-topic-key { margin-left: 0; }
+}
