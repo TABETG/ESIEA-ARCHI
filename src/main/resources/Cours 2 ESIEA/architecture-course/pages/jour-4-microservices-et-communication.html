@@ -136,6 +136,38 @@
           <p>Au lieu d'une seule grande cuisine qui fait tout (entrées, plats, desserts), on a plusieurs cuisines spécialisées avec chacune son équipe et ses outils. Si la cuisine des desserts est en panne, les plats chauds continuent d'être servis.</p>
         </div>
 
+        <div class="box definition">
+          <h4>Monolithe vs Microservices — en un coup d'œil</h4>
+          <div class="kafka-viz">
+            <div class="kv-groups" style="grid-template-columns: 1fr 1fr;">
+              <div class="kv-group orange">
+                <div class="kv-group-hdr">Monolithe</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> 1 seule application</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> 1 seule base de données</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> 1 seul déploiement</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Tout le code ensemble</div>
+                <div style="padding:8px 14px;font-size:.78rem;color:var(--muted);border-top:1px solid #f0f3f8;">
+                  ✅ Simple à développer et déboguer<br>
+                  ❌ Impossible de scaler une partie seule<br>
+                  ❌ Un bug peut tout casser
+                </div>
+              </div>
+              <div class="kv-group green">
+                <div class="kv-group-hdr">Microservices</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Plusieurs applications indépendantes</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> 1 base PAR service</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Déploiement indépendant</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Communication via API/événements</div>
+                <div style="padding:8px 14px;font-size:.78rem;color:var(--muted);border-top:1px solid #f0f3f8;">
+                  ✅ Scaler indépendamment chaque service<br>
+                  ✅ Équipes autonomes par domaine<br>
+                  ❌ Complexité réseau + ops × 10
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="box pro-mode">
           <h4>🎓 Mode pro</h4>
           <p>Les microservices cherchent à réduire la <strong>coordination entre équipes</strong> (Conway's Law), aligner code et domaine métier, et permettre un scaling différencié. Ils ne sont rentables qu'avec une <strong>maturité d'exploitation suffisante</strong> : CI/CD mature, observabilité, on-call, container orchestration.</p>
@@ -272,7 +304,39 @@ notification-service ← emails, push, SMS</code></pre>
         <h2>Communication synchrone — OpenFeign</h2>
         <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
 
-        <p class="section-intro"><strong>OpenFeign</strong> est un client HTTP déclaratif intégré à Spring Cloud. Il élimine le boilerplate des appels HTTP entre services et s'intègre nativement avec Eureka (découverte) et Resilience4j (résilience).</p>
+        <p class="section-intro"><strong>OpenFeign</strong> permet à un service d'appeler un autre service via HTTP <em>comme si c'était une méthode Java locale</em>. Au lieu d'écrire du code HTTP bas niveau (URL, headers, parsing JSON…), on déclare une <strong>interface Java</strong> et Feign génère tout le code HTTP automatiquement.</p>
+
+        <div class="box child-mode">
+          <h4>🧸 Analogie — Le téléphone avec annuaire automatique</h4>
+          <p>Sans Feign, pour appeler un collègue dans un autre bureau, tu dois chercher son numéro, composer, attendre, décoder sa réponse… Avec Feign, tu dis juste <em>"appelle catalog-service et demande la disponibilité du livre"</em> — Feign s'occupe du reste : il trouve l'adresse (Eureka), passe l'appel (HTTP), et te retourne la réponse en objet Java.</p>
+        </div>
+
+        <div class="box definition">
+          <h4>Comment ça marche — le flux complet</h4>
+          <div class="kafka-viz">
+            <div class="kv-flow">
+              <div class="kv-flow-node producer" style="padding:10px 16px;">
+                <h5 style="font-size:.88rem;">🟣 loan-service veut vérifier un livre</h5>
+                <p style="font-size:.8rem;">Le code appelle <code>catalogClient.getAvailability(bookId)</code> — comme une méthode Java normale</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Feign génère l'appel HTTP</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:10px 16px;">
+                <h5 style="font-size:.88rem;">🟡 Eureka (Service Discovery)</h5>
+                <p style="font-size:.8rem;">Feign demande à Eureka : "Où se trouve <code>catalog-service</code> ?" → Eureka répond avec l'adresse IP + port</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>GET /internal/books/{id}/availability</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#e0ecff,#eff6ff);border:1.5px solid #93c5fd;color:#1e3a6e;padding:10px 16px;">
+                <h5 style="font-size:.88rem;">🔵 catalog-service répond</h5>
+                <p style="font-size:.8rem;">Retourne <code>{ "available": true, "copies": 3 }</code> — Feign le convertit en objet Java <code>AvailabilityResponse</code></p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Si erreur ou timeout</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fff0f0,#fff5f5);border:1.5px solid #fca5a5;color:#b91c1c;padding:10px 16px;">
+                <h5 style="font-size:.88rem;">🔴 Fallback (Circuit Breaker)</h5>
+                <p style="font-size:.8rem;">Si catalog-service est DOWN → Feign appelle automatiquement la classe Fallback → réponse dégradée sans planter</p>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="mini-schema">
           <div class="schema-node">
@@ -456,6 +520,25 @@ public RequestInterceptor feignRequestInterceptor() {
 
         <div class="box best-practice">
           <h4>✅ Quand utiliser Feign (synchrone) vs Kafka (asynchrone)</h4>
+          <div class="kafka-viz" style="margin-bottom:14px;">
+            <div class="kv-label">La question clé : "Le client a-t-il besoin de la réponse TOUT DE SUITE ?"</div>
+            <div class="kv-groups" style="grid-template-columns: 1fr 1fr;">
+              <div class="kv-group blue">
+                <div class="kv-group-hdr">OUI → Feign (synchrone)</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Vérifier la dispo d'un livre</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Récupérer un profil</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Valider un paiement</div>
+                <div style="padding:6px 14px;font-size:.76rem;color:#1e40af;border-top:1px solid #f0f3f8;">L'appelant ATTEND la réponse</div>
+              </div>
+              <div class="kv-group green">
+                <div class="kv-group-hdr">NON → Kafka (asynchrone)</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Envoyer une notification</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Mettre à jour un analytics</div>
+                <div class="kv-instance"><span class="kv-instance-dot"></span> Propager un événement</div>
+                <div style="padding:6px 14px;font-size:.76rem;color:#15803d;border-top:1px solid #f0f3f8;">Fire &amp; forget — l'appelant continue</div>
+              </div>
+            </div>
+          </div>
           <table>
             <thead><tr><th>Cas d'usage</th><th>Feign (sync)</th><th>Kafka (async)</th></tr></thead>
             <tbody>
@@ -574,6 +657,85 @@ public RequestInterceptor feignRequestInterceptor() {
               <tr><td><strong>L'offset est un curseur</strong></td><td>Chaque consumer retient "j'en suis à la ligne N". S'il plante, il reprend là</td><td>Stocké dans le topic interne <code>__consumer_offsets</code></td></tr>
             </tbody>
           </table>
+        </div>
+
+        <div class="box definition">
+          <h4>🗄️ Brokers et réplication — Pourquoi plusieurs serveurs ?</h4>
+          <p>Un <strong>broker</strong> est un serveur Kafka. Un cluster Kafka est composé de <strong>plusieurs brokers</strong> (typiquement 3 en production). Chaque partition est stockée sur un broker, mais <strong>copiée</strong> sur d'autres brokers pour survivre aux pannes.</p>
+        </div>
+
+        <div class="box child-mode">
+          <h4>🧸 Analogie — Les coffres-forts dans 3 banques différentes</h4>
+          <p>Imagine que tu as un document important. Tu le mets dans un coffre-fort à la <strong>banque A</strong> (c'est le <em>leader</em>). Mais si la banque A brûle, tu perds tout. Alors tu fais <strong>2 copies</strong> dans les coffres des banques B et C (ce sont les <em>followers</em>). Si la banque A brûle, la banque B devient le nouveau leader — aucun document n'est perdu. C'est ça le <code>replication-factor=3</code>.</p>
+        </div>
+
+        <div class="box example">
+          <h4>Réplication en action — Topic <code>loan.created</code> avec replication-factor=3</h4>
+          <div class="kafka-viz">
+            <div class="kv-label">Chaque partition a 1 leader + 2 followers répartis sur des brokers différents</div>
+            <div class="kv-partitions" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+              <div class="kv-partition">
+                <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);color:#15803d;">Broker 1</div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#dcfce7;color:#15803d;font-weight:700;">L</span><span class="kv-offset-val"><strong>P0 Leader</strong> — reçoit les écritures</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#f1f5f9;">F</span><span class="kv-offset-val">P1 Follower — copie de B2</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#f1f5f9;">F</span><span class="kv-offset-val">P2 Follower — copie de B3</span></div>
+              </div>
+              <div class="kv-partition">
+                <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#e0ecff,#eff6ff);color:#1d4ed8;">Broker 2</div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#f1f5f9;">F</span><span class="kv-offset-val">P0 Follower — copie de B1</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#dbeafe;color:#1d4ed8;font-weight:700;">L</span><span class="kv-offset-val"><strong>P1 Leader</strong> — reçoit les écritures</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#f1f5f9;">F</span><span class="kv-offset-val">P2 Follower — copie de B3</span></div>
+              </div>
+              <div class="kv-partition">
+                <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);color:#5b21b6;">Broker 3</div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#f1f5f9;">F</span><span class="kv-offset-val">P0 Follower — copie de B1</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#f1f5f9;">F</span><span class="kv-offset-val">P1 Follower — copie de B2</span></div>
+                <div class="kv-offset-row"><span class="kv-offset-num" style="background:#ede9fe;color:#5b21b6;font-weight:700;">L</span><span class="kv-offset-val"><strong>P2 Leader</strong> — reçoit les écritures</span></div>
+              </div>
+            </div>
+            <div class="kv-note">L = Leader (reçoit les écritures et lectures) · F = Follower (copie synchronisée automatiquement). Kafka distribue les leaders sur des brokers différents pour équilibrer la charge.</div>
+          </div>
+        </div>
+
+        <div class="box example">
+          <h4>Que se passe-t-il si un broker tombe ?</h4>
+          <div class="kafka-viz">
+            <div class="kv-flow">
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1.5px solid #86efac;color:#15803d;padding:10px 16px;">
+                <h5 style="font-size:.88rem;">🟢 État normal — 3 brokers en ligne</h5>
+                <p style="font-size:.8rem;">P0 Leader sur Broker 1 · P1 Leader sur Broker 2 · P2 Leader sur Broker 3. Tout fonctionne, chaque partition a 2 copies de secours.</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Broker 2 plante !</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:10px 16px;">
+                <h5 style="font-size:.88rem;">🟡 Élection automatique — en quelques secondes</h5>
+                <p style="font-size:.8rem;">P1 a perdu son leader (Broker 2). Kafka élit automatiquement le follower sur Broker 1 ou Broker 3 comme <strong>nouveau leader de P1</strong>. Aucune intervention humaine, aucune perte de données.</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Broker 2 revient</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1.5px solid #86efac;color:#15803d;padding:10px 16px;">
+                <h5 style="font-size:.88rem;">🟢 Rattrapage — Broker 2 se resynchronise</h5>
+                <p style="font-size:.8rem;">Broker 2 redémarre, récupère les messages manqués depuis les autres brokers, et redevient follower. Éventuellement, Kafka peut lui redonner le rôle de leader pour P1 (preferred leader election).</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="box pro-mode">
+          <h4>🎓 Concepts clés de la réplication</h4>
+          <table>
+            <thead><tr><th>Concept</th><th>Explication</th><th>Config typique</th></tr></thead>
+            <tbody>
+              <tr><td><strong>Replication Factor</strong></td><td>Nombre total de copies d'une partition (leader + followers)</td><td><code>replication.factor=3</code> (1 leader + 2 followers)</td></tr>
+              <tr><td><strong>ISR</strong> (In-Sync Replicas)</td><td>Ensemble des répliques synchronisées avec le leader. Si un follower prend du retard, il sort de l'ISR.</td><td>Doit rester ≥ <code>min.insync.replicas</code></td></tr>
+              <tr><td><strong>min.insync.replicas</strong></td><td>Nombre minimum de répliques synchronisées pour accepter une écriture avec <code>acks=all</code></td><td><code>min.insync.replicas=2</code> → au moins 2 copies avant confirmation</td></tr>
+              <tr><td><strong>Leader Election</strong></td><td>Si le leader tombe, Kafka élit un follower ISR comme nouveau leader — en quelques secondes</td><td>Automatique, géré par le Controller (un broker élu)</td></tr>
+              <tr><td><strong>Unclean Leader Election</strong></td><td>Autoriser un follower NON synchronisé à devenir leader (risque de perte de données)</td><td><code>unclean.leader.election.enable=false</code> en prod</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="box warning">
+          <h4>⚠️ Pourquoi <code>replication-factor=1</code> est dangereux en production</h4>
+          <p>Avec <code>replication-factor=1</code>, chaque partition n'existe que sur <strong>un seul broker</strong>. Si ce broker plante (crash disque, panne réseau), <strong>les données de cette partition sont PERDUES</strong> jusqu'au retour du broker. En production, toujours utiliser <code>replication-factor=3</code> avec <code>min.insync.replicas=2</code>.</p>
         </div>
 
         <div class="box definition">
@@ -1057,7 +1219,52 @@ management:
         <h2>API Gateway — Configuration avancée</h2>
         <div class="level-bar"><span class="level-pill senior">Senior</span></div>
 
-        <p class="section-intro">L'API Gateway est le point d'entrée unique de l'architecture microservices. Elle centralise le routage, la sécurité, le rate limiting et la résilience — sans que chaque service ait à réimplémenter ces préoccupations transverses.</p>
+        <p class="section-intro">L'API Gateway est le <strong>point d'entrée unique</strong> de l'architecture. Le client (navigateur, mobile) ne connaît qu'une seule URL — la Gateway. C'est elle qui route vers le bon service, vérifie l'authentification, limite le débit et protège contre les pannes.</p>
+
+        <div class="box child-mode">
+          <h4>🧸 Analogie — Le standard téléphonique</h4>
+          <p>Au lieu de donner le numéro direct de chaque employé (loan-service:8082, catalog-service:8081…), on donne UN SEUL numéro : celui du standard (la Gateway). Le standard transfère l'appel vers le bon service, filtre les appels indésirables (rate limiter), et dit "rappeler plus tard" si le service est occupé (circuit breaker).</p>
+        </div>
+
+        <div class="box definition">
+          <h4>Architecture avec API Gateway</h4>
+          <div class="kafka-viz">
+            <div class="kv-flow">
+              <div class="kv-flow-node producer" style="padding:10px 16px;">
+                <h5 style="font-size:.88rem;">👤 Client (navigateur / mobile)</h5>
+                <p style="font-size:.8rem;">Appelle <code>https://api.library.com/api/v1/loans</code> — ne connaît que cette URL</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>HTTPS</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:12px 16px;">
+                <h5 style="font-size:.88rem;">🟡 API Gateway (Spring Cloud Gateway)</h5>
+                <p style="font-size:.8rem;">
+                  ✦ <strong>Routage</strong> : /api/v1/loans → loan-service, /api/v1/books → catalog-service<br>
+                  ✦ <strong>Auth JWT</strong> : vérifie le token AVANT de transmettre<br>
+                  ✦ <strong>Rate Limiter</strong> : max 50 req/s par client (Redis)<br>
+                  ✦ <strong>Circuit Breaker</strong> : fallback si un service est DOWN<br>
+                  ✦ <strong>Retry</strong> : retente automatiquement les GET en cas de 503
+                </p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>HTTP interne (réseau privé)</span></div>
+              <div style="width:100%;max-width:640px;">
+                <div class="kv-groups" style="grid-template-columns: 1fr 1fr 1fr;">
+                  <div class="kv-group green">
+                    <div class="kv-group-hdr">loan-service</div>
+                    <div class="kv-instance"><span class="kv-instance-dot"></span> :8082</div>
+                  </div>
+                  <div class="kv-group blue">
+                    <div class="kv-group-hdr">catalog-service</div>
+                    <div class="kv-instance"><span class="kv-instance-dot"></span> :8081</div>
+                  </div>
+                  <div class="kv-group orange">
+                    <div class="kv-group-hdr">identity-service</div>
+                    <div class="kv-instance"><span class="kv-instance-dot"></span> :8083</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="box example">
           <h4>Route avec Circuit Breaker + Rate Limiting + Retry (application.yml)</h4>
@@ -1340,6 +1547,31 @@ public class CreateLoanSaga {
 
         <h3>Saga par Chorégraphie — Événements réactifs</h3>
 
+        <div class="box definition">
+          <h4>Chorégraphie — le flux par événements</h4>
+          <p>Pas de chef d'orchestre. Chaque service réagit aux événements et publie les siens — comme une chaîne de dominos :</p>
+          <div class="kafka-viz">
+            <div class="kv-flow">
+              <div class="kv-flow-node consumer" style="padding:10px 16px;">
+                <h5 style="font-size:.85rem;">1. loan-service publie "loan.initiation-requested"</h5>
+                <p style="font-size:.8rem;">Crée l'emprunt en PENDING et publie l'intention dans Kafka</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Kafka</span></div>
+              <div class="kv-flow-node broker" style="padding:10px 16px;">
+                <h5 style="font-size:.85rem;">2. catalog-service réagit → vérifie le livre</h5>
+                <p style="font-size:.8rem;">Si dispo → publie "book.reservation-confirmed"<br>Si pas dispo → publie "book.reservation-rejected"</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Kafka</span></div>
+              <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:10px 16px;">
+                <h5 style="font-size:.85rem;">3. loan-service réagit → lance la validation étudiant</h5>
+                <p style="font-size:.8rem;">Met à jour le statut BOOK_RESERVED → publie "student.validation-requested"</p>
+              </div>
+              <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Et ainsi de suite…</span></div>
+            </div>
+            <div class="kv-note">Chaque service ne connaît QUE les événements qu'il écoute. Il ne sait pas qu'il fait partie d'une saga. Découplage maximal.</div>
+          </div>
+        </div>
+
         <div class="box example">
           <h4>Chorégraphie — loan-service émet, catalog-service réagit</h4>
 <pre><code class="language-java">// ═══════════════════════════════════════════════════════════════
@@ -1442,7 +1674,40 @@ public void onLoanInitiationRequested(LoanInitiationRequestedEvent event) {
         <h2>Anti-patterns microservices</h2>
         <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill senior">Senior</span></div>
 
-        <p class="section-intro">Les microservices mal conçus sont pires qu'un monolithe. Ces anti-patterns sont les erreurs les plus fréquentes vues en production.</p>
+        <p class="section-intro">Les microservices mal conçus sont <strong>pires</strong> qu'un monolithe. Vous avez la complexité du réseau ET la perte de la cohérence locale. Voici les 5 erreurs les plus fréquentes vues en production.</p>
+
+        <div class="box child-mode">
+          <h4>🧸 Le test ultime</h4>
+          <p>Posez-vous cette question : <em>"Est-ce que je peux éteindre ce service sans impacter les autres ?"</em> Si la réponse est non → vous avez un <strong>Distributed Monolith</strong>, pas des microservices.</p>
+        </div>
+
+        <div class="box definition">
+          <h4>Les 5 anti-patterns en un coup d'œil</h4>
+          <div class="kafka-viz">
+            <div class="kv-topics-list">
+              <div class="kv-topic-row">
+                <span class="kv-topic-name" style="color:#b91c1c;">1. Distributed Monolith</span>
+                <span style="font-size:.82rem;color:var(--muted);">Services séparés mais couplés → déploiement coordonné obligatoire</span>
+              </div>
+              <div class="kv-topic-row">
+                <span class="kv-topic-name" style="color:#b91c1c;">2. Shared Database</span>
+                <span style="font-size:.82rem;color:var(--muted);">Plusieurs services lisent la même table → couplage au schéma</span>
+              </div>
+              <div class="kv-topic-row">
+                <span class="kv-topic-name" style="color:#b91c1c;">3. Chatty N+1</span>
+                <span style="font-size:.82rem;color:var(--muted);">N appels réseau au lieu d'1 seul → latence × N</span>
+              </div>
+              <div class="kv-topic-row">
+                <span class="kv-topic-name" style="color:#b91c1c;">4. Nano-services</span>
+                <span style="font-size:.82rem;color:var(--muted);">1 service par entité → coût ops exorbitant</span>
+              </div>
+              <div class="kv-topic-row">
+                <span class="kv-topic-name" style="color:#b91c1c;">5. Sync Chain</span>
+                <span style="font-size:.82rem;color:var(--muted);">A→B→C→D synchrone → latence = somme, fiabilité = produit</span>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="box frequent-error">
           <h4>🔴 1. Distributed Monolith</h4>
@@ -1547,6 +1812,42 @@ catalog-service  ← titre + auteur + ISBN + stock + recherche</code></pre>
         <div class="box frequent-error">
           <h4>🔴 5. Synchronous Chain (couplage temporel)</h4>
           <p>Toute la chaîne tombe si un seul service est lent ou indisponible. La latence totale est la <strong>somme</strong> de toutes les latences. Plus la chaîne est longue, plus le risque de panne augmente exponentiellement.</p>
+
+          <div class="kafka-viz">
+            <div class="kv-label" style="color:#b91c1c;">❌ Chaîne synchrone : tout le monde attend tout le monde</div>
+            <div class="kv-flow" style="gap:0;">
+              <div style="display:flex;gap:6px;align-items:center;width:100%;max-width:640px;flex-wrap:wrap;">
+                <div class="kv-group orange" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">Client</div></div>
+                <span style="color:var(--muted);">→</span>
+                <div class="kv-group orange" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">Gateway</div></div>
+                <span style="color:var(--muted);">→</span>
+                <div class="kv-group orange" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">A (200ms)</div></div>
+                <span style="color:var(--muted);">→</span>
+                <div class="kv-group orange" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">B (300ms)</div></div>
+                <span style="color:var(--muted);">→</span>
+                <div class="kv-group orange" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">C (500ms)</div></div>
+              </div>
+            </div>
+            <div class="kv-note" style="color:#b91c1c;">Total = 200 + 300 + 500 = <strong>1000ms</strong>. Si C tombe → tout tombe.</div>
+
+            <div class="kv-label" style="margin-top:16px;color:#15803d;">✅ Fan-out asynchrone : le client reçoit sa réponse immédiatement</div>
+            <div class="kv-flow" style="gap:0;">
+              <div style="display:flex;gap:6px;align-items:center;width:100%;max-width:640px;flex-wrap:wrap;">
+                <div class="kv-group green" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">Client</div></div>
+                <span style="color:var(--muted);">→</span>
+                <div class="kv-group green" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">A (200ms)</div></div>
+                <span style="color:var(--muted);">→</span>
+                <div class="kv-group green" style="flex:1;min-width:80px;margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:6px 10px;">Kafka</div></div>
+                <span style="color:var(--muted);">→</span>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <div class="kv-group green" style="margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:4px 10px;">B (async)</div></div>
+                  <div class="kv-group green" style="margin:0;"><div class="kv-group-hdr" style="font-size:.78rem;padding:4px 10px;">C (async)</div></div>
+                </div>
+              </div>
+            </div>
+            <div class="kv-note" style="color:#15803d;">Latence client = <strong>200ms</strong> seulement. B et C traitent en arrière-plan. Si B tombe, A et C continuent.</div>
+          </div>
+        </div>
 <pre><code class="language-text">// ❌ CHAÎNE SYNCHRONE : chaque service attend le suivant
 // Si C met 500ms, tout le monde attend 500ms de plus
 Client ──► Gateway ──► A (200ms) ──► B (300ms) ──► C (500ms)
@@ -1977,17 +2278,52 @@ spec:
       document.querySelector('.nav-scroll-zone').classList.remove('open');
     });
   });
-  // Highlight lien actif dans quick-tools au scroll
-  const sections = document.querySelectorAll('section[id]');
-  const qtLinks = document.querySelectorAll('.quick-tools a');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        qtLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
-      }
-    });
-  }, { threshold: 0.3 });
-  sections.forEach(s => observer.observe(s));
+
+  // Positionner le quick-tools juste sous le header (hauteur dynamique)
+  (function() {
+    const header = document.querySelector('.site-header');
+    const qt = document.querySelector('.quick-tools');
+    if (!header || !qt) return;
+
+    function setPositions() {
+      const hh = header.offsetHeight;
+      qt.style.top = hh + 'px';
+      document.documentElement.style.setProperty('--header-h', hh + 'px');
+      // scroll-margin pour les ancres
+      document.querySelectorAll('section[id]').forEach(s => {
+        s.style.scrollMarginTop = (hh + qt.offsetHeight + 16) + 'px';
+      });
+    }
+    setPositions();
+    window.addEventListener('resize', setPositions);
+
+    // Highlight lien actif dans quick-tools + TOC au scroll
+    const sections = document.querySelectorAll('section[id]');
+    const qtLinks = document.querySelectorAll('.quick-tools a');
+    const tocLinks = document.querySelectorAll('.toc a');
+
+    let ticking = false;
+    function updateActive() {
+      const scrollY = window.scrollY + header.offsetHeight + qt.offsetHeight + 20;
+      let current = '';
+      sections.forEach(s => {
+        if (s.offsetTop <= scrollY) current = s.getAttribute('id');
+      });
+      qtLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + current));
+      tocLinks.forEach(l => {
+        const href = l.getAttribute('href');
+        if (href && href.startsWith('#')) {
+          l.style.fontWeight = (href === '#' + current) ? '700' : '';
+          l.style.color = (href === '#' + current) ? '#123f73' : '';
+        }
+      });
+      ticking = false;
+    }
+    window.addEventListener('scroll', () => {
+      if (!ticking) { requestAnimationFrame(updateActive); ticking = true; }
+    }, { passive: true });
+    updateActive();
+  })();
 </script>
 </body>
 </html>

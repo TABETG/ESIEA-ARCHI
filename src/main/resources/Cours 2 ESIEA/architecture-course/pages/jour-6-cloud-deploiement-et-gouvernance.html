@@ -4,64 +4,98 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jour 6 — Déploiement, cloud, gouvernance et architecture d'entreprise</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+  <link rel="stylesheet" href="../assets/css/jour-3-systemes-distribues-et-api-external.css">
 </head>
 <body>
+
 <header class="site-header">
   <div class="nav-wrap">
     <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
-    <nav class="top-nav">
-      <a href="../index.html">Accueil</a>
-      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-      <a href="../pages/tp-1.html">TP1</a>
-      <a href="../pages/tp-2.html">TP2</a>
-      <a href="../pages/tp-3.html">TP3</a>
-      <a href="../pages/glossary.html">Glossaire</a>
-    </nav>
+    <button class="menu-toggle" aria-label="Menu" onclick="this.closest('.nav-wrap').querySelector('.nav-scroll-zone').classList.toggle('open')">☰</button>
+    <div class="nav-scroll-zone">
+      <nav class="top-nav">
+        <span class="nav-group-label">Cours</span>
+        <a href="../index.html">Accueil</a>
+        <a href="../pages/introduction.html">Introduction</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">Jours</span>
+        <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+        <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+        <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+        <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+        <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html" class="current">Jour 6</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">TP</span>
+        <a href="../pages/tp-1.html">TP1</a>
+        <a href="../pages/tp-2.html">TP2</a>
+        <a href="../pages/tp-3.html">TP3</a>
+        <span class="nav-sep"></span>
+        <a href="../pages/exercices.html">Exercices</a>
+        <a href="../pages/corriges.html">Corrigés</a>
+        <a href="../pages/glossary.html">Glossaire</a>
+      </nav>
+    </div>
   </div>
 </header>
 <main>
-  <div class="hero">
+  <div class="hero" style="background: linear-gradient(135deg, var(--green-soft), #fff 45%, var(--purple-soft));">
     <div class="badges">
-      <span class="badge">Support HTML modulaire</span>
-      <span class="badge">Master 2</span>
-      <span class="badge">6 jours</span>
-      <span class="badge">Java / Spring Boot</span>
+      <span class="badge">🐳 Docker multi-stage</span>
+      <span class="badge">☸️ Kubernetes</span>
+      <span class="badge">🚀 CI/CD GitHub Actions</span>
+      <span class="badge">📋 ADR &amp; Gouvernance</span>
+      <span class="badge">Master 2 · Jour 6/6</span>
     </div>
     <h1>Jour 6 — Déploiement, cloud, gouvernance &amp; architecture d'entreprise</h1>
     <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Docker multi-stage, Kubernetes avancé, CI/CD GitHub Actions, IaC Terraform, gouvernance ADR, choix contextuels d'architecture.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos, live coding et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 5 acquis</p></div>
+      <div class="meta">
+        <h3>🎯 Objectifs</h3>
+        <p>Docker multi-stage, Kubernetes avancé, CI/CD GitHub Actions, IaC Terraform, gouvernance ADR, choix contextuels d'architecture.</p>
+      </div>
+      <div class="meta"><h3>⏱ Durée</h3><p>≈ 6h incluant démos, live coding et quiz</p></div>
+      <div class="meta"><h3>📚 Prérequis</h3><p>Jours 1 à 5 acquis</p></div>
     </div>
   </div>
+
+  <div class="quick-tools">
+    <a href="#conteneurs">1. Docker</a>
+    <a href="#kubernetes">2. Kubernetes</a>
+    <a href="#delivery">3. CI/CD &amp; IaC</a>
+    <a href="#gouvernance">4. Gouvernance</a>
+    <a href="#urbanisation">5. Urbanisation</a>
+    <a href="#cloture">6. Clôture</a>
+    <a href="#quiz">7. Quiz</a>
+  </div>
+
   <div class="layout">
     <aside class="toc">
-      <h2>Table des matières</h2>
-      <ul>
-        <li><a href="#conteneurs">1. Conteneurs &amp; Docker</a></li>
-        <li><a href="#kubernetes">2. Kubernetes avancé</a></li>
-        <li><a href="#delivery">3. CI/CD &amp; IaC</a></li>
-        <li><a href="#gouvernance">4. Gouvernance &amp; ADR</a></li>
-        <li><a href="#urbanisation">5. Urbanisation &amp; choix</a></li>
-        <li><a href="#cloture">6. Clôture &amp; évaluation</a></li>
-        <li><a href="#quiz">Quiz de fin</a></li>
-      </ul>
+      <details open>
+        <summary>Table des matières</summary>
+        <ul>
+          <li><a href="#conteneurs">1. Conteneurs &amp; Docker</a></li>
+          <li><a href="#kubernetes">2. Kubernetes avancé</a></li>
+          <li><a href="#delivery">3. CI/CD &amp; IaC</a></li>
+          <li><a href="#gouvernance">4. Gouvernance &amp; ADR</a></li>
+          <li><a href="#urbanisation">5. Urbanisation &amp; choix</a></li>
+          <li><a href="#cloture">6. Clôture &amp; évaluation</a></li>
+          <li><a href="#quiz">7. Quiz de fin</a></li>
+        </ul>
+      </details>
     </aside>
     <article class="content">
 
 <section id="conteneurs">
+  <span class="section-kicker">Conteneurisation</span>
   <h2>1. Conteneurs et Docker</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span></div>
+
   <div class="box child-mode">
-    <h4>&#x1F9D2; Mode enfant</h4>
-    <p>Un conteneur c'est comme une boite de transport standardisée : peu importe ce qu'il y a dedans, elle s'emboite partout de la meme facon — sur ton laptop, le serveur du client, le cloud. Plus de "ca marche chez moi mais pas en prod".</p>
+    <h4>🧸 Analogie — Le conteneur maritime</h4>
+    <p>Un conteneur Docker c'est comme un <strong>conteneur maritime standardisé</strong> : peu importe ce qu'il y a dedans (Java, Python, Node), il s'emboîte partout de la même façon — sur ton laptop, le serveur du client, le cloud. Plus de "ça marche chez moi mais pas en prod".</p>
   </div>
   <table>
     <thead><tr><th></th><th>VM</th><th>Conteneur</th></tr></thead>
@@ -73,11 +107,15 @@
     </tbody>
   </table>
 
-  <h3>1.1 Dockerfile basique</h3>
-  <span class="level-badge junior">&#x1F7E2; Junior</span>
+  <h3>1.1 Dockerfile basique vs optimisé</h3>
   <div class="code-example bad">
-    <span class="code-label">❌ Dockerfile naif — image inutilement lourde</span>
-    <pre data-label="Dockerfile"><code class="language-dockerfile">FROM eclipse-temurin:21
+    <span class="code-label">❌ Dockerfile naïf — image inutilement lourde</span>
+    <pre data-label="Dockerfile"><code class="language-dockerfile"># ⚠️ PROBLÈMES :
+# 1. Utilise le JDK complet (outils de dev) en PRODUCTION → +300Mo inutiles
+# 2. Copie TOUT le projet (y compris .git, tests, docs) → cache invalidé à chaque modif
+# 3. Build + runtime dans la même image → surface d'attaque CVE élargie
+# 4. Tourne en root par défaut → risque de sécurité
+FROM eclipse-temurin:21
 COPY . /app
 WORKDIR /app
 RUN ./mvnw package
@@ -85,25 +123,38 @@ CMD ["java", "-jar", "target/catalog-service.jar"]</code></pre>
   </div>
   <div class="code-example good">
     <span class="code-label">✅ Dockerfile optimisé — multi-stage build</span>
-    <pre data-label="Dockerfile"><code class="language-dockerfile"># Stage 1 : Build (JDK + Maven)
+    <pre data-label="Dockerfile"><code class="language-dockerfile"># ═══════════════════════════════════════
+# STAGE 1 : BUILD — compile le projet (temporaire, pas dans l'image finale)
+# ═══════════════════════════════════════
 FROM eclipse-temurin:21-jdk AS build
 WORKDIR /build
 COPY pom.xml .
-RUN mvn dependency:go-offline -q
+RUN mvn dependency:go-offline -q   # Télécharger les dépendances d'abord (cache Docker)
+                                    # → si seul le code change, cette couche est cachée
 COPY src ./src
-RUN mvn package -DskipTests -q
+RUN mvn package -DskipTests -q     # Compiler le .jar (tests déjà passés dans la CI)
 
-# Stage 2 : Runtime (JRE seul = image 3x plus petite)
+# ═══════════════════════════════════════
+# STAGE 2 : RUNTIME — image finale légère (JRE seul, pas de JDK)
+# ═══════════════════════════════════════
+# L'image finale ne contient QUE le JRE + le .jar → 3x plus petite
 FROM eclipse-temurin:21-jre AS runtime
+
+# ── Sécurité : créer un utilisateur non-root ──
+# Par défaut Docker tourne en root → si un attaquant pénètre le conteneur,
+# il a les pleins pouvoirs. Avec un user dédié, les dégâts sont limités.
 RUN addgroup --system appgroup \
  && adduser --system --ingroup appgroup appuser
+
 WORKDIR /app
+# Copier UNIQUEMENT le .jar depuis le stage de build
 COPY --from=build /build/target/catalog-service.jar app.jar
-USER appuser
-EXPOSE 8080
+USER appuser          # Basculer sur l'utilisateur non-root
+EXPOSE 8080           # Documenter le port (n'ouvre rien, c'est informatif)
+
 ENTRYPOINT ["java", \
-  "-XX:MaxRAMPercentage=75.0", \
-  "-Djava.security.egd=file:/dev/./urandom", \
+  "-XX:MaxRAMPercentage=75.0", \              # Utiliser max 75% de la RAM du conteneur
+  "-Djava.security.egd=file:/dev/./urandom", \ # Éviter le blocage /dev/random dans Docker
   "-jar", "app.jar"]</code></pre>
   </div>
 
@@ -127,29 +178,38 @@ target/
 </section>
 
 <section id="kubernetes">
+  <span class="section-kicker">Orchestration</span>
   <h2>2. Kubernetes — Orchestration avancée</h2>
+  <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill expert">Expert</span></div>
+
   <div class="box child-mode">
-    <h4>&#x1F9D2; Mode enfant</h4>
-    <p>Kubernetes c'est le chef d'orchestre de tes conteneurs. Tu lui dis "je veux 3 copies de ce service" et il s'en assure en permanence, même si l'un plante — il le remplace automatiquement.</p>
+    <h4>🧸 Analogie — Le chef d'orchestre</h4>
+    <p>Kubernetes c'est le <strong>chef d'orchestre</strong> de tes conteneurs. Tu lui dis "je veux 3 copies de ce service" et il s'en assure en permanence, même si l'un plante — il le remplace automatiquement en quelques secondes. Tu ne gères plus les serveurs, tu déclares l'état souhaité.</p>
   </div>
 
   <h3>2.1 Deployment complet avec sondes et ressources</h3>
-  <span class="level-badge mid">&#x1F7E1; Intermédiaire</span>
-  <pre data-label="catalog-deployment.yaml"><code class="language-yaml">apiVersion: apps/v1
+  <pre data-label="catalog-deployment.yaml"><code class="language-yaml"># ═══════════════════════════════════════════════════════════════
+# DEPLOYMENT KUBERNETES — catalog-service en production
+# ═══════════════════════════════════════════════════════════════
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: catalog-service
-  namespace: library
+  namespace: library            # Isoler par namespace (library = notre projet)
 spec:
-  replicas: 3
+  replicas: 3                   # 3 instances pour la haute disponibilité
   selector:
     matchLabels:
-      app: catalog-service
+      app: catalog-service      # K8s utilise ce label pour identifier les pods
+
+  # ── Stratégie de déploiement : Rolling Update ──
+  # Remplace les pods un par un, sans downtime
   strategy:
     type: RollingUpdate
     rollingUpdate:
-      maxUnavailable: 1  # au max 1 pod indispo pendant le déploiement
-      maxSurge: 1        # au max 1 pod supplémentaire pendant la transition
+      maxUnavailable: 1  # Au max 1 pod arrêté pendant le déploiement
+      maxSurge: 1        # Au max 1 pod supplémentaire (temporaire) pendant la transition
+
   template:
     metadata:
       labels:
@@ -157,36 +217,51 @@ spec:
     spec:
       containers:
         - name: catalog-service
-          image: registry.example.com/catalog-service:1.2.0
+          image: registry.example.com/catalog-service:1.2.0  # Image Docker versionnée
           ports:
             - containerPort: 8080
+
+          # ── Ressources : combien de CPU/mémoire pour ce conteneur ──
           resources:
-            requests:
-              cpu: "250m"
-              memory: "256Mi"
-            limits:
-              cpu: "1000m"
-              memory: "512Mi"
+            requests:              # Minimum garanti (K8s réserve ces ressources)
+              cpu: "250m"          # 250 millicores = 25% d'un CPU
+              memory: "256Mi"      # 256 Mo de RAM minimum
+            limits:                # Maximum autorisé (le conteneur est tué si dépassé)
+              cpu: "1000m"         # 1 CPU max
+              memory: "512Mi"      # 512 Mo max — OOMKill si dépassé
+
+          # ── Secrets : injectés depuis un K8s Secret (pas en clair dans le YAML) ──
           env:
             - name: SPRING_PROFILES_ACTIVE
               value: prod
             - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: catalog-db-secret
-                  key: password
+                  name: catalog-db-secret  # Référence au Secret K8s
+                  key: password            # Clé dans le Secret
+
+          # ── Sonde STARTUP : attend que le service ait fini de démarrer ──
+          # Spring Boot peut mettre 15-30s pour démarrer (JVM warmup, Flyway, etc.)
+          # Sans cette sonde, K8s pourrait tuer le pod avant qu'il ait démarré !
           startupProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            failureThreshold: 30
+            failureThreshold: 30    # Essayer 30 fois × 10s = 5 minutes max pour démarrer
             periodSeconds: 10
+
+          # ── Sonde LIVENESS : le process est-il vivant ? ──
+          # Si KO → K8s REDÉMARRE le pod (deadlock, corruption mémoire)
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
               port: 8080
-            periodSeconds: 20
-            failureThreshold: 3
+            periodSeconds: 20       # Vérifier toutes les 20s
+            failureThreshold: 3     # 3 échecs consécutifs → restart
+
+          # ── Sonde READINESS : le pod peut-il recevoir du trafic ? ──
+          # Si KO → K8s RETIRE le pod du load balancer (DB coupée, warmup)
+          # mais ne le redémarre PAS (contrairement à liveness)
           readinessProbe:
             httpGet:
               path: /actuator/health/readiness
@@ -195,8 +270,12 @@ spec:
             failureThreshold: 3</code></pre>
 
   <h3>2.2 HPA — Horizontal Pod Autoscaler</h3>
-  <span class="level-badge expert">&#x1F534; Expert</span>
-  <pre data-label="catalog-hpa.yaml"><code class="language-yaml">apiVersion: autoscaling/v2
+  <pre data-label="catalog-hpa.yaml"><code class="language-yaml"># ═══════════════════════════════════════════════════════════════
+# HPA : scale automatiquement le nombre de pods selon la charge
+# ═══════════════════════════════════════════════════════════════
+# Kubernetes surveille les métriques et ajuste le nombre de réplicas.
+# Plus de trafic → plus de pods. Moins de trafic → moins de pods.
+apiVersion: autoscaling/v2
 kind: HorizontalPodAutoscaler
 metadata:
   name: catalog-hpa
@@ -205,23 +284,25 @@ spec:
   scaleTargetRef:
     apiVersion: apps/v1
     kind: Deployment
-    name: catalog-service
-  minReplicas: 2
-  maxReplicas: 10
+    name: catalog-service       # Le Deployment à scaler
+  minReplicas: 2                # Jamais moins de 2 pods (haute dispo)
+  maxReplicas: 10               # Jamais plus de 10 pods (contrôler les coûts)
   metrics:
+    # ── Scale sur le CPU ──
     - type: Resource
       resource:
         name: cpu
         target:
           type: Utilization
-          averageUtilization: 70  # Scale si CPU moyen > 70%
+          averageUtilization: 70  # Si CPU moyen > 70% → ajouter un pod
+    # ── Scale sur une métrique custom (Prometheus) ──
     - type: Pods
       pods:
         metric:
-          name: http_requests_per_second
+          name: http_requests_per_second  # Métrique custom exposée par Micrometer
         target:
           type: AverageValue
-          averageValue: "100"</code></pre>
+          averageValue: "100"   # Si > 100 req/s par pod → scale up</code></pre>
 
   <div class="box warning">
     <h4>⚠️ Kubernetes Secrets != sécurisés par défaut</h4>
@@ -241,7 +322,11 @@ spec:
 </section>
 
 <section id="delivery">
+  <span class="section-kicker">Livraison continue</span>
   <h2>3. Stratégies de déploiement, CI/CD et IaC</h2>
+  <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill expert">Expert</span></div>
+
+  <p class="section-intro">La question n'est pas <em>"comment déployer"</em> mais <em>"comment déployer sans risque"</em>. Chaque stratégie offre un compromis entre vitesse, sécurité et coût.</p>
 
   <table>
     <thead><tr><th>Pratique</th><th>But</th><th>Avantage</th><th>Coût / Risque</th></tr></thead>
@@ -253,35 +338,55 @@ spec:
     </tbody>
   </table>
 
-  <div class="diagram">Blue-Green :
-  Load Balancer
-       |
-       +---> [Blue  v1.0 — 3 pods]  (production actuelle)
-       |
-       +---> [Green v1.1 — 3 pods]  (nouvelle version testée)
-  -> Basculer 100% du trafic d'un coup -> Blue reste pour rollback instantané
+  <div class="box definition">
+    <h4>Blue-Green vs Canary — visuellement</h4>
+    <div class="kafka-viz">
+      <div class="kv-label">Blue-Green : bascule 100% du trafic d'un coup</div>
+      <div class="kv-groups" style="grid-template-columns: 1fr 1fr;">
+        <div class="kv-group blue">
+          <div class="kv-group-hdr">Blue v1.0 — production actuelle</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> 3 pods <span class="kv-instance-parts" style="color:#3b82f6;">100% trafic</span></div>
+        </div>
+        <div class="kv-group green">
+          <div class="kv-group-hdr">Green v1.1 — nouvelle version testée</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> 3 pods <span class="kv-instance-parts" style="color:#22c55e;">0% → 100% en 1 clic</span></div>
+        </div>
+      </div>
+      <div class="kv-note">Rollback instantané : rebasculer sur Blue. Coût : double infra.</div>
 
-Canary :
-  Load Balancer
-       |
-       +---> [Stable v1.0 — 90%]
-       |
-       +---> [Canary  v1.1 — 10%] -> surveiller métriques -> augmenter progressivement</div>
+      <div class="kv-label" style="margin-top:18px;">Canary : exposition progressive, blast radius maîtrisé</div>
+      <div class="kv-groups" style="grid-template-columns: 2fr 1fr;">
+        <div class="kv-group blue">
+          <div class="kv-group-hdr">Stable v1.0 — 90% du trafic</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> 3 pods <span class="kv-instance-parts">production</span></div>
+        </div>
+        <div class="kv-group orange">
+          <div class="kv-group-hdr">Canary v1.1 — 10% du trafic</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> 1 pod <span class="kv-instance-parts" style="color:#f97316;">surveiller métriques</span></div>
+        </div>
+      </div>
+      <div class="kv-note">Si les métriques sont bonnes : 10% → 50% → 100%. Si problème : rollback immédiat, seuls 10% des users ont été impactés.</div>
+    </div>
+  </div>
 
   <h3>3.1 Pipeline CI/CD avec GitHub Actions</h3>
-  <span class="level-badge mid">&#x1F7E1; Intermédiaire</span>
-  <pre data-label=".github/workflows/catalog-service.yml"><code class="language-yaml">name: CI/CD — catalog-service
+  <pre data-label=".github/workflows/catalog-service.yml"><code class="language-yaml"># ═══════════════════════════════════════════════════════════════
+# PIPELINE CI/CD : du git push au déploiement en production
+# ═══════════════════════════════════════════════════════════════
+# Flux : Code → Build → Tests → Analyse qualité → Image Docker → Scan CVE → Staging → Production
+name: CI/CD — catalog-service
 on:
   push:
-    branches: [main, develop]
+    branches: [main, develop]    # Déclencher sur push vers main ou develop
   pull_request:
-    branches: [main]
+    branches: [main]             # Déclencher sur PR vers main
 
 env:
   IMAGE: registry.example.com/catalog-service
   JAVA_VERSION: '21'
 
 jobs:
+  # ── JOB 1 : Build + Tests ──
   build-and-test:
     runs-on: ubuntu-latest
     steps:
@@ -291,85 +396,99 @@ jobs:
         with:
           java-version: ${{ env.JAVA_VERSION }}
           distribution: temurin
-          cache: maven
+          cache: maven              # Cache Maven pour accélérer les builds suivants
       - name: Build and tests
-        run: mvn verify -q
+        run: mvn verify -q          # Compile + tests unitaires + tests d'intégration
       - name: SonarQube analysis
         env:
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: mvn sonar:sonar
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}   # Secret GitHub, jamais en clair
+        run: mvn sonar:sonar        # Analyse qualité du code (bugs, code smells, couverture)
 
+  # ── JOB 2 : Build Docker + Scan sécurité ──
+  # Ne s'exécute QUE sur la branche main (pas sur les PRs)
   docker-build:
-    needs: build-and-test
+    needs: build-and-test           # Attend que les tests passent
     runs-on: ubuntu-latest
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/main'   # Uniquement sur main
     steps:
       - uses: actions/checkout@v4
       - name: Build image
-        run: docker build -t $IMAGE:${{ github.sha }} .
+        run: docker build -t $IMAGE:${{ github.sha }} .   # Tag = hash du commit (unique)
       - name: Scan CVE (Trivy)
         uses: aquasecurity/trivy-action@master
         with:
           image-ref: ${{ env.IMAGE }}:${{ github.sha }}
-          exit-code: '1'
-          severity: 'CRITICAL,HIGH'
+          exit-code: '1'            # ⚠️ FAIL le pipeline si vulnérabilité trouvée
+          severity: 'CRITICAL,HIGH' # Bloquer uniquement sur les CVE critiques
       - name: Push
         run: |
           echo "${{ secrets.REGISTRY_TOKEN }}" | docker login -u "${{ secrets.REGISTRY_USER }}" --password-stdin registry.example.com
           docker push $IMAGE:${{ github.sha }}
 
+  # ── JOB 3 : Déployer en staging ──
   deploy-staging:
     needs: docker-build
-    environment: staging
+    environment: staging            # Environnement GitHub (variables + secrets séparés)
     runs-on: ubuntu-latest
     steps:
       - name: Rolling update staging
         run: kubectl set image deployment/catalog-service catalog-service=$IMAGE:${{ github.sha }} --namespace=staging
       - name: Smoke test
         run: |
-          sleep 30
-          curl -f https://catalog.staging.example.com/actuator/health
+          sleep 30                  # Attendre le rollout
+          curl -f https://catalog.staging.example.com/actuator/health   # Vérifier que ça marche
 
+  # ── JOB 4 : Déployer en production (approbation manuelle) ──
   deploy-production:
     needs: deploy-staging
-    environment: production    # Approbation manuelle requise dans GitHub
+    environment: production         # ⚠️ Approbation manuelle requise dans GitHub
     runs-on: ubuntu-latest
     steps:
       - name: Deploy canary 10%
         run: kubectl set image deployment/catalog-service-canary catalog-service=$IMAGE:${{ github.sha }} --namespace=production</code></pre>
 
   <h3>3.2 Infrastructure as Code avec Terraform</h3>
-  <span class="level-badge expert">&#x1F534; Expert</span>
-  <pre data-label="main.tf — Cluster GKE"><code class="language-bash">terraform {
+  <pre data-label="main.tf — Cluster GKE"><code class="language-bash"># ═══════════════════════════════════════════════════════════════
+# TERRAFORM : décrire l'infrastructure en code (IaC)
+# ═══════════════════════════════════════════════════════════════
+# Au lieu de cliquer dans la console GCP/AWS pour créer un cluster,
+# on le décrit dans un fichier .tf. Avantage : reproductible, versionné,
+# auditable, destructible et recréable en 1 commande.
+
+terraform {
   required_providers {
     google = { source = "hashicorp/google", version = "~> 5.0" }
   }
+  # ── État Terraform stocké dans le cloud (pas en local !) ──
+  # Permet à toute l'équipe de travailler sur la même infra
   backend "gcs" {
-    bucket = "tfstate-library-prod"
+    bucket = "tfstate-library-prod"    # Bucket Google Cloud Storage
     prefix = "catalog-service"
   }
 }
 
+# ── Cluster Kubernetes (GKE) ──
 resource "google_container_cluster" "library_cluster" {
   name                     = "library-cluster"
-  location                 = "europe-west1"
-  remove_default_node_pool = true
+  location                 = "europe-west1"        # Région EU (latence, RGPD)
+  remove_default_node_pool = true                   # On crée un pool custom
   initial_node_count       = 1
 }
 
+# ── Pool de nœuds (les VMs qui exécutent les pods) ──
 resource "google_container_node_pool" "primary_nodes" {
   name       = "primary-pool"
   cluster    = google_container_cluster.library_cluster.name
   location   = google_container_cluster.library_cluster.location
-  node_count = 3
+  node_count = 3                   # 3 nœuds (= 3 VMs)
   node_config {
-    machine_type = "e2-standard-2"
+    machine_type = "e2-standard-2" # 2 vCPU, 8 Go RAM par nœud
     disk_size_gb = 50
-    labels       = { env = "prod" }
+    labels       = { env = "prod" } # Tags pour le monitoring des coûts
   }
   management {
-    auto_repair  = true
-    auto_upgrade = true
+    auto_repair  = true  # K8s répare automatiquement les nœuds défaillants
+    auto_upgrade = true  # K8s met à jour les nœuds automatiquement
   }
 }</code></pre>
   <div class="box best-practice">
@@ -385,7 +504,14 @@ resource "google_container_node_pool" "primary_nodes" {
 </section>
 
 <section id="gouvernance">
+  <span class="section-kicker">Documentation</span>
   <h2>4. Gouvernance d'API, versioning et ADR</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span></div>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — Le carnet de bord du navire</h4>
+    <p>Un ADR c'est comme le <strong>carnet de bord d'un capitaine</strong> : on note pourquoi on a choisi cette route, quelles alternatives existaient, et ce qu'on risque. Quand un nouveau capitaine prend le relais 6 mois plus tard, il peut comprendre les décisions sans refaire les mêmes erreurs.</p>
+  </div>
 
   <div class="box best-practice">
     <h4>✅ Checklist gouvernance API</h4>
@@ -407,25 +533,33 @@ resource "google_container_node_pool" "primary_nodes" {
   </div>
 
   <pre data-label="docs/adr/ADR-003-resilience.md (template)"><code class="language-bash"># ADR-003 — Adoption de Resilience4j
+# ════════════════════════════════════
+# Un ADR = 1 page max. Structure fixe : contexte → décision → conséquences.
+# Numéroté séquentiellement. Jamais supprimé : si la décision change,
+# on crée un nouvel ADR qui "supersede" l'ancien.
 
 **Date :** 2025-03-15
-**Statut :** Accepté
+**Statut :** Accepté    # Proposé → Accepté → Remplacé par ADR-XXX
 **Décideurs :** Alice (tech lead), Bob (architecte), Carol (SRE)
 
 ## Contexte
+# Quel problème résout-on ? Quelle douleur a motivé cette décision ?
 loan-service appelle catalog-service de façon synchrone (HTTP).
 Des pannes intermittentes provoquent des timeouts en cascade.
 
 ## Décision
+# Que fait-on concrètement ?
 Adopter Resilience4j pour tous les appels inter-services synchrones.
 
 ## Alternatives considérées
+# Pourquoi les autres options ont été écartées ?
 | Alternative     | Raison d'exclusion                       |
 |-----------------|-------------------------------------------|
 | Netflix Hystrix | Abandonné depuis 2018                     |
 | Custom / manuel | Complexité, réinventer la roue            |
 
 ## Conséquences
+# Quels impacts positifs ET négatifs ?
 [+] Circuit breaker, retry, timeout disponibles avec annotations
 [+] Intégration native Spring Boot + Actuator + Micrometer
 [-] CompletableFuture requis pour TimeLimiter (changement API)
@@ -454,43 +588,53 @@ Adopter Resilience4j pour tous les appels inter-services synchrones.
     </div>
   </div>
 
-  <pre data-label="LoanController.java — Gestion versions API"><code class="language-java">@RestController
+  <pre data-label="LoanController.java — Gestion versions API"><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// VERSIONING D'API : maintenir v1 et v2 en parallèle
+// ═══════════════════════════════════════════════════════════════
+// Règle : ne JAMAIS casser les clients existants.
+// Quand on ajoute des champs → v2 avec les nouveaux champs.
+// v1 reste disponible pendant 6 mois minimum (période de dépréciation).
+@RestController
 @RequestMapping("/api")
 public class LoanController {
 
-    // v1 maintenu pour compatibilité ascendante
+    // v1 — structure originale, maintenue pour les anciens clients
     @GetMapping("/v1/loans/{id}")
-    @Deprecated
+    @Deprecated  // Marqué comme déprécié dans la Javadoc et l'OpenAPI
     public LoanDtoV1 getLoanV1(@PathVariable UUID id) {
         return LoanMapper.toV1(loanService.findById(id));
     }
 
-    // v2 — nouvelle structure enrichie
+    // v2 — nouvelle structure enrichie (nouveaux champs, HATEOAS)
     @GetMapping("/v2/loans/{id}")
     public LoanDtoV2 getLoanV2(@PathVariable UUID id) {
         return LoanMapper.toV2(loanService.findById(id));
     }
 }
 
-// V1 — structure originale
+// V1 — structure minimale (ne change JAMAIS — contrat gelé)
 public record LoanDtoV1(UUID id, String bookTitle, String studentName) {}
 
-// V2 — enrichi, sans casser les clients V1 (ils ignorent les nouveaux champs)
+// V2 — enrichi avec de nouveaux champs
+// Les clients V1 ne sont PAS cassés : ils appellent /v1/ et ignorent V2
 public record LoanDtoV2(
     UUID id,
     String bookTitle,
     String studentName,
-    LocalDate dueDate,       // nouveau
-    LoanStatus status,       // nouveau
-    List&lt;Link&gt; links         // HATEOAS
+    LocalDate dueDate,       // ← nouveau champ
+    LoanStatus status,       // ← nouveau champ
+    List&lt;Link&gt; links         // ← HATEOAS : liens vers les actions possibles
 ) {}</code></pre>
 </section>
 
 <section id="urbanisation">
+  <span class="section-kicker">Stratégie</span>
   <h2>5. Urbanisation SI et choix d'architecture selon le contexte</h2>
+  <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span><span class="level-pill expert">Expert</span></div>
+
   <div class="box pro-mode">
-    <h4>Mode pro</h4>
-    <p>Un bon architecte ne vend pas une architecture "préférée". Il choisit selon le contexte : taille de l'équipe, criticité, budget, maturité ops, charge, réglementation, dette. Il n'y a rarement qu'une seule bonne réponse.</p>
+    <h4>🎓 Mode pro</h4>
+    <p>Un bon architecte ne vend pas une architecture "préférée". Il choisit selon le <strong>contexte</strong> : taille de l'équipe, criticité, budget, maturité ops, charge, réglementation, dette. Il n'y a rarement qu'une seule bonne réponse.</p>
   </div>
 
   <table>
@@ -514,15 +658,48 @@ public record LoanDtoV2(
   <h3>5.2 Strangler Fig Pattern</h3>
   <span class="level-badge expert">&#x1F534; Expert</span>
   <p>Moderniser un legacy en extrayant progressivement des features vers de nouveaux services, en plaçant un API Gateway devant les deux. À terme, le legacy est entièrement remplacé sans jamais avoir fait de réécriture complète risquée.</p>
-  <div class="diagram">Étape 1 : API Gateway devant le legacy
-  Gateway ---> [Legacy monolithe]
 
-Étape 2 : Extraire une feature
-  Gateway ---> [Nouveau service A]  (nouvelle feature)
-           ---> [Legacy monolithe]  (reste du système)
+  <div class="box definition">
+    <h4>Strangler Fig — Migration progressive</h4>
+    <div class="kafka-viz">
+      <div class="kv-label">Étape 1 : Gateway devant le legacy</div>
+      <div class="kv-groups" style="grid-template-columns: 1fr;">
+        <div class="kv-group blue">
+          <div class="kv-group-hdr">API Gateway</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> 100% trafic → <strong>Legacy monolithe</strong> <span class="kv-instance-parts">tout passe encore par l'ancien</span></div>
+        </div>
+      </div>
 
-Étape N : Legacy entièrement remplacé
-  Gateway ---> [Service A] [Service B] [Service C]</div>
+      <div class="kv-label" style="margin-top:14px;">Étape 2 : Extraire une feature</div>
+      <div class="kv-groups" style="grid-template-columns: 1fr 1fr;">
+        <div class="kv-group green">
+          <div class="kv-group-hdr">Nouveau service A</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> Feature extraite <span class="kv-instance-parts">catalog-service</span></div>
+        </div>
+        <div class="kv-group orange">
+          <div class="kv-group-hdr">Legacy monolithe</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> Reste du système <span class="kv-instance-parts">en réduction progressive</span></div>
+        </div>
+      </div>
+
+      <div class="kv-label" style="margin-top:14px;">Étape N : Legacy entièrement remplacé</div>
+      <div class="kv-groups" style="grid-template-columns: 1fr 1fr 1fr;">
+        <div class="kv-group green">
+          <div class="kv-group-hdr">Service A</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> catalog</div>
+        </div>
+        <div class="kv-group green">
+          <div class="kv-group-hdr">Service B</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> loan</div>
+        </div>
+        <div class="kv-group green">
+          <div class="kv-group-hdr">Service C</div>
+          <div class="kv-instance"><span class="kv-instance-dot"></span> notification</div>
+        </div>
+      </div>
+      <div class="kv-note">Le legacy a disparu sans réécriture "big bang". Chaque étape est déployable et réversible indépendamment.</div>
+    </div>
+  </div>
 
   <h3>5.3 Framework de décision</h3>
   <table>
@@ -538,7 +715,9 @@ public record LoanDtoV2(
 </section>
 
 <section id="cloture">
+  <span class="section-kicker">Synthèse</span>
   <h2>6. Clôture — Synthèse et préparation à l'évaluation</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill senior">Senior</span></div>
   <div class="box tp">
     <h4>&#x1F4E6; Livrable final attendu</h4>
     <ol>
@@ -625,11 +804,37 @@ public record LoanDtoV2(
 </section>
 
       <div class="footer-nav">
-        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">← Jour 5</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">← Jour 5 — Résilience &amp; Sécurité</a>
         <a href="../pages/tp-1.html">TP 1 →</a>
       </div>
     </article>
   </div>
 </main>
+
+<!-- Prism.js core + langages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+<script>
+  document.querySelectorAll('.top-nav a').forEach(a => {
+    a.addEventListener('click', () => {
+      const zone = document.querySelector('.nav-scroll-zone');
+      if (zone) zone.classList.remove('open');
+    });
+  });
+  const sections = document.querySelectorAll('section[id]');
+  const qtLinks = document.querySelectorAll('.quick-tools a');
+  if (qtLinks.length) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          qtLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+        }
+      });
+    }, { threshold: 0.3 });
+    sections.forEach(s => observer.observe(s));
+  }
+</script>
 </body>
 </html>

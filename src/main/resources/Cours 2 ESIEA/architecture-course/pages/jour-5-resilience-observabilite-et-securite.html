@@ -4,93 +4,134 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Jour 5 — Résilience, observabilité, sécurité, fiabilité</title>
-  <link rel="stylesheet" href="../assets/css/style.css">
-  <!-- PrismJS JS uniquement — thème géré par style-3.css (VS Code Dark+) -->
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
-  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+
+  <!-- Prism.js – thème VS Code Dark+ -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-vsc-dark-plus.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.css">
+
+  <!-- Feuille de style externe commune -->
+  <link rel="stylesheet" href="../assets/css/jour-3-systemes-distribues-et-api-external.css">
 </head>
 <body>
+
 <header class="site-header">
   <div class="nav-wrap">
     <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
-    <nav class="top-nav">
-      <a href="../index.html">Accueil</a>
-      <a href="../pages/introduction.html">Introduction</a>
-      <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
-      <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
-      <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
-      <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
-      <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
-      <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
-      <a href="../pages/tp-1.html">TP1</a>
-      <a href="../pages/tp-2.html">TP2</a>
-      <a href="../pages/tp-3.html">TP3</a>
-      <a href="../pages/exercices.html">Exercices</a>
-      <a href="../pages/corriges.html">Corrigés</a>
-      <a href="../pages/glossary.html">Glossaire</a>
-      <a href="../pages/live-coding.html">Live Coding</a>
-      <a href="../pages/architecture-dossier.html">Dossier Architecture</a>
-      <a href="../pages/faq.html">FAQ</a>
-    </nav>
+    <button class="menu-toggle" aria-label="Menu" onclick="this.closest('.nav-wrap').querySelector('.nav-scroll-zone').classList.toggle('open')">☰</button>
+    <div class="nav-scroll-zone">
+      <nav class="top-nav">
+        <span class="nav-group-label">Cours</span>
+        <a href="../index.html">Accueil</a>
+        <a href="../pages/introduction.html">Introduction</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">Jours</span>
+        <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+        <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+        <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+        <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html" class="current">Jour 5</a>
+        <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">TP</span>
+        <a href="../pages/tp-1.html">TP1</a>
+        <a href="../pages/tp-2.html">TP2</a>
+        <a href="../pages/tp-3.html">TP3</a>
+        <span class="nav-sep"></span>
+        <a href="../pages/exercices.html">Exercices</a>
+        <a href="../pages/corriges.html">Corrigés</a>
+        <a href="../pages/glossary.html">Glossaire</a>
+      </nav>
+    </div>
   </div>
 </header>
 
 <main>
-  <div class="hero">
+  <div class="hero" style="background: linear-gradient(135deg, var(--red-soft), #fff 45%, var(--blue-soft));">
     <div class="badges">
-      <span class="badge">Support HTML modulaire</span>
-      <span class="badge">Master 2</span>
-      <span class="badge">6 jours</span>
-      <span class="badge">3 TP progressifs</span>
-      <span class="badge">Java / Spring Boot</span>
+      <span class="badge">🛡️ Resilience4j</span>
+      <span class="badge">📊 Observabilité 3 piliers</span>
+      <span class="badge">🔐 JWT / OAuth2</span>
+      <span class="badge">🔒 Zero Trust</span>
+      <span class="badge">Master 2 · Jour 5/6</span>
     </div>
     <h1>Jour 5 — Résilience, observabilité, sécurité &amp; fiabilité</h1>
     <div class="meta-grid">
-      <div class="meta"><h3>Objectifs pédagogiques</h3><p>Fiabiliser un système distribué : résilience Resilience4j, observabilité 3 pillars (ELK + Prometheus + Jaeger), sécurité JWT/OAuth2 et Zero Trust.</p></div>
-      <div class="meta"><h3>Temps estimé</h3><p>≈ 6h incluant démos, live coding et quiz</p></div>
-      <div class="meta"><h3>Prérequis</h3><p>Jours 1 à 4 acquis — microservices, communication inter-services</p></div>
+      <div class="meta">
+        <h3>🎯 Objectifs</h3>
+        <p>Fiabiliser un système distribué : résilience Resilience4j, observabilité 3 pillars (ELK + Prometheus + Jaeger), sécurité JWT/OAuth2 et Zero Trust.</p>
+      </div>
+      <div class="meta"><h3>⏱ Durée</h3><p>≈ 6h incluant démos, live coding et quiz</p></div>
+      <div class="meta"><h3>📚 Prérequis</h3><p>Jours 1 à 4 acquis — microservices, communication inter-services</p></div>
     </div>
+  </div>
+
+  <!-- Quick tools -->
+  <div class="quick-tools">
+    <a href="#resilience">1. Résilience</a>
+    <a href="#observabilite">2. Observabilité</a>
+    <a href="#healthchecks">3. Health Checks</a>
+    <a href="#securite">4. Sécurité JWT</a>
+    <a href="#zerotrust">5. Zero Trust</a>
+    <a href="#quiz">6. Quiz</a>
   </div>
 
   <div class="layout">
     <aside class="toc">
-      <h2>Table des matières</h2>
-      <ul>
-        <li><a href="#resilience">1. Résilience</a></li>
-        <li><a href="#timeout-retry">— Timeout &amp; Retry</a></li>
-        <li><a href="#circuit-breaker">— Circuit Breaker</a></li>
-        <li><a href="#bulkhead">— Bulkhead &amp; Rate Limiter</a></li>
-        <li><a href="#observabilite">2. Observabilité</a></li>
-        <li><a href="#logs">— Logs structurés</a></li>
-        <li><a href="#metriques">— Métriques Micrometer</a></li>
-        <li><a href="#traces">— Traces distribuées</a></li>
-        <li><a href="#healthchecks">3. Health Checks</a></li>
-        <li><a href="#securite">4. Sécurité JWT / OAuth2</a></li>
-        <li><a href="#zerotrust">5. Zero Trust &amp; Secrets</a></li>
-        <li><a href="#quiz">Quiz de fin</a></li>
-      </ul>
+      <details open>
+        <summary>Table des matières</summary>
+        <ul>
+          <li><a href="#resilience">1. Résilience</a></li>
+          <li><a href="#timeout-retry">— Timeout &amp; Retry</a></li>
+          <li><a href="#circuit-breaker">— Circuit Breaker</a></li>
+          <li><a href="#bulkhead">— Bulkhead &amp; Rate Limiter</a></li>
+          <li><a href="#observabilite">2. Observabilité</a></li>
+          <li><a href="#logs">— Logs structurés</a></li>
+          <li><a href="#metriques">— Métriques Micrometer</a></li>
+          <li><a href="#traces">— Traces distribuées</a></li>
+          <li><a href="#healthchecks">3. Health Checks</a></li>
+          <li><a href="#securite">4. Sécurité JWT / OAuth2</a></li>
+          <li><a href="#zerotrust">5. Zero Trust &amp; Secrets</a></li>
+          <li><a href="#quiz">6. Quiz de fin</a></li>
+        </ul>
+      </details>
     </aside>
 
     <article class="content">
 
 <!-- ═══ SECTION 1 — RÉSILIENCE ═══════════════════════════════ -->
 <section id="resilience">
+  <span class="section-kicker">Fiabilité</span>
   <h2>1. Résilience : empêcher la panne locale de devenir globale</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
 
   <div class="box child-mode">
-    <h4>🧒 Mode enfant</h4>
-    <p>Imagine que la cantine ne réponde plus. Sans résilience, tous les élèves restent bloqués à attendre devant la porte fermée. Avec résilience, la cantine propose une alternative (fallback) ou dit "reviens dans 10 minutes" (circuit breaker). L'école continue de fonctionner.</p>
+    <h4>🧸 Analogie — La cantine en panne</h4>
+    <p>Imagine que la cantine ne réponde plus. Sans résilience, tous les élèves restent bloqués à attendre devant la porte fermée — et les cours ne reprennent pas. Avec résilience, la cantine propose un sandwich (fallback) ou dit "reviens dans 10 minutes" (circuit breaker). L'école continue de fonctionner.</p>
   </div>
 
-  <p>Dans un système distribué, un seul service lent peut provoquer une <strong>cascade failure</strong> : ses appelants s'entassent sur des threads bloqués, ce qui bloque leurs propres appelants, et ainsi de suite jusqu'à l'indisponibilité totale.</p>
+  <p class="section-intro">Dans un système distribué, un seul service lent peut provoquer une <strong>cascade failure</strong> : ses appelants s'entassent sur des threads bloqués, ce qui bloque leurs propres appelants, et ainsi de suite jusqu'à l'indisponibilité totale.</p>
 
-  <div class="diagram">Client ──► Service A ──► Service B (lent/mort)
-                     │
-         threads bloqués en A s'accumulent
-                     │
-         Service A répond 503 à son tour
-                     │
-         Client : erreur générale</div>
+  <div class="box definition">
+    <h4>Cascade failure — comment une panne se propage</h4>
+    <div class="kafka-viz">
+      <div class="kv-flow">
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1.5px solid #86efac;color:#15803d;padding:10px 16px;">
+          <h5 style="font-size:.88rem;">🟢 Client → Service A → Service B (lent/mort)</h5>
+          <p style="font-size:.8rem;">Le client appelle A, qui appelle B. B ne répond plus.</p>
+        </div>
+        <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>B ne répond pas</span></div>
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:10px 16px;">
+          <h5 style="font-size:.88rem;">🟡 Les threads de A s'accumulent</h5>
+          <p style="font-size:.8rem;">A attend B → ses threads sont bloqués. Les nouvelles requêtes s'entassent dans la file.</p>
+        </div>
+        <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Pool threads épuisé</span></div>
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#fff0f0,#fff5f5);border:1.5px solid #fca5a5;color:#b91c1c;padding:10px 16px;">
+          <h5 style="font-size:.88rem;">🔴 Service A et le Client sont DOWN</h5>
+          <p style="font-size:.8rem;">A ne peut plus répondre à personne → le client reçoit des erreurs 503. Toute la chaîne est tombée.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <table>
     <thead><tr><th>Mécanisme</th><th>Rôle</th><th>Analogie</th><th>Config typique</th></tr></thead>
@@ -108,21 +149,25 @@
   <span class="level-badge junior">🟢 Junior</span>
   <p>Le timeout abandonne l'attente d'une réponse après un délai défini. Le retry retente automatiquement en cas d'échec <em>transitoire</em>. <strong>Ne jamais configurer un retry sans timeout</strong>.</p>
 
-  <pre data-label="application.yml — Resilience4j"><code class="language-yaml">resilience4j:
+  <pre data-label="application.yml — Resilience4j"><code class="language-yaml"># ═══════════════════════════════════════
+# TIMEOUT + RETRY — Première ligne de défense
+# ═══════════════════════════════════════
+resilience4j:
   timelimiter:
     instances:
       catalogService:
-        timeout-duration: 1500ms
-        cancel-running-future: true
+        timeout-duration: 1500ms    # Si catalog-service ne répond pas en 1.5s → abandon
+                                     # Sans ça, le thread attend indéfiniment (danger !)
+        cancel-running-future: true  # Annuler le CompletableFuture si timeout
 
   retry:
     instances:
       catalogService:
-        max-attempts: 3
-        wait-duration: 200ms
-        enable-exponential-backoff: true   # 200ms, 400ms, 800ms
-        exponential-backoff-multiplier: 2
-        # Ne PAS retenter les erreurs métier (404, 400)
+        max-attempts: 3                    # 3 tentatives max (1 initiale + 2 retries)
+        wait-duration: 200ms               # Attendre 200ms entre les tentatives
+        enable-exponential-backoff: true   # Délais croissants : 200ms → 400ms → 800ms
+        exponential-backoff-multiplier: 2  # Chaque retry attend 2× plus longtemps
+        # ⚠️ NE PAS retenter les erreurs MÉTIER (le livre n'existe pas = c'est normal)
         ignore-exceptions:
           - com.example.exception.BookNotFoundException</code></pre>
 
@@ -134,59 +179,74 @@
   <h3 id="circuit-breaker">1.2 Circuit Breaker — Les 3 états</h3>
   <span class="level-badge mid">🟡 Intermédiaire</span>
 
-  <div class="diagram">      ┌────────────────────────────────┐
-      │         CLOSED (normal)        │
-      │  Appels passent normalement    │
-      │  On compte les erreurs         │
-      └────────────┬───────────────────┘
-                   │ taux erreur > seuil
-                   ▼
-      ┌────────────────────────────────┐
-      │         OPEN (déclenché)       │
-      │  Appels rejetés immédiatement  │
-      │  Fallback activé               │
-      └────────────┬───────────────────┘
-                   │ wait-duration écoulé
-                   ▼
-      ┌────────────────────────────────┐
-      │       HALF-OPEN (sonde)        │
-      │  X appels de test autorisés    │
-      │  Succès → CLOSED, Échec → OPEN │
-      └────────────────────────────────┘</div>
+  <div class="box definition">
+    <h4>Les 3 états du Circuit Breaker</h4>
+    <div class="kafka-viz">
+      <div class="kv-flow">
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1.5px solid #86efac;color:#15803d;padding:10px 16px;">
+          <h5 style="font-size:.88rem;">🟢 CLOSED — normal</h5>
+          <p style="font-size:.82rem;">Appels passent normalement. On compte les erreurs dans une fenêtre glissante.</p>
+        </div>
+        <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Taux d'erreur &gt; seuil (50%)</span></div>
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#fff0f0,#fff5f5);border:1.5px solid #fca5a5;color:#b91c1c;padding:10px 16px;">
+          <h5 style="font-size:.88rem;">🔴 OPEN — protection activée</h5>
+          <p style="font-size:.82rem;">Appels rejetés immédiatement — pas d'appel réseau. Fallback retourné. Attente de <code>wait-duration</code>.</p>
+        </div>
+        <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Après wait-duration (30s)</span></div>
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:10px 16px;">
+          <h5 style="font-size:.88rem;">🟡 HALF-OPEN — test de récupération</h5>
+          <p style="font-size:.82rem;">X appels de test autorisés. Si succès → retour CLOSED. Si échec → retour OPEN.</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <pre data-label="application.yml — Circuit Breaker complet"><code class="language-yaml">resilience4j:
+  <pre data-label="application.yml — Circuit Breaker complet"><code class="language-yaml"># ═══════════════════════════════════════
+# CIRCUIT BREAKER — Disjoncteur intelligent
+# ═══════════════════════════════════════
+resilience4j:
   circuitbreaker:
     instances:
       catalogService:
-        sliding-window-type: COUNT_BASED
-        sliding-window-size: 10
-        failure-rate-threshold: 50          # Ouvrir si 50% d'échecs
-        slow-call-rate-threshold: 80        # Appels lents > seuil aussi = échec
-        slow-call-duration-threshold: 1000ms
-        wait-duration-in-open-state: 30s
-        permitted-number-of-calls-in-half-open-state: 3
-        register-health-indicator: true</code></pre>
+        sliding-window-type: COUNT_BASED     # Évalue les N derniers appels (pas par durée)
+        sliding-window-size: 10              # Fenêtre de 10 appels
+        failure-rate-threshold: 50           # Si 50% échouent → circuit OPEN (disjoncteur déclenché)
+        slow-call-rate-threshold: 80         # Si 80% des appels sont trop lents → aussi OPEN
+        slow-call-duration-threshold: 1000ms # Un appel est "lent" s'il dépasse 1 seconde
+        wait-duration-in-open-state: 30s     # Rester OPEN 30s (laisser le service récupérer)
+        permitted-number-of-calls-in-half-open-state: 3  # 3 appels de test en HALF-OPEN
+        register-health-indicator: true      # Expose l'état dans /actuator/health</code></pre>
 
   <pre data-label="LoanService.java — Annotations combinées"><code class="language-java">@Service
 @Slf4j
 public class LoanService {
 
-    // Ordre d'exécution (externe → interne) :
-    // TimeLimiter → CircuitBreaker → Retry
+    // ═══════════════════════════════════════════════════════════════
+    // ORDRE D'EXÉCUTION DES PATTERNS (de l'externe vers l'interne) :
+    //   TimeLimiter → CircuitBreaker → Retry
+    // ═══════════════════════════════════════════════════════════════
+    // 1. TimeLimiter : coupe si la réponse dépasse 1.5s
+    // 2. CircuitBreaker : si trop d'échecs, court-circuite sans appel réseau
+    // 3. Retry : retente 3 fois avec backoff exponentiel
+    // ⚠️ Retry est À L'EXTÉRIEUR du CircuitBreaker — sinon chaque retry
+    //    compterait comme un échec séparé dans la fenêtre du CB !
     @TimeLimiter(name = "catalogService")
     @CircuitBreaker(name = "catalogService",
                     fallbackMethod = "fallbackAvailability")
     @Retry(name = "catalogService")
     public CompletableFuture&lt;AvailabilityResponse&gt; getAvailability(UUID bookId) {
+        // CompletableFuture requis par TimeLimiter (non-bloquant)
         return CompletableFuture.supplyAsync(
             () -> catalogClient.getAvailability(bookId)
         );
     }
 
-    // Même signature + Throwable en dernier
+    // FALLBACK : appelé quand le CB est OPEN ou tous les retries échouent
+    // Règle : même signature que la méthode originale + Throwable en dernier
     private CompletableFuture&lt;AvailabilityResponse&gt; fallbackAvailability(
             UUID bookId, Throwable ex) {
         log.warn("Fallback triggered bookId={} cause={}", bookId, ex.getMessage());
+        // Réponse dégradée : on dit "inconnu" au lieu de planter
         return CompletableFuture.completedFuture(
             AvailabilityResponse.degraded(bookId)
         );
@@ -204,8 +264,9 @@ public class LoanService {
   bulkhead:
     instances:
       catalogService:
-        max-concurrent-calls: 10
-        max-wait-duration: 10ms</code></pre>
+        max-concurrent-calls: 10   # Max 10 appels simultanés vers catalog-service
+                                    # Le 11ème appel est rejeté immédiatement
+        max-wait-duration: 10ms    # Attendre max 10ms pour un slot libre</code></pre>
     </div>
     <div>
       <strong>Thread Pool</strong> (thread dédié, isolation totale)
@@ -213,9 +274,11 @@ public class LoanService {
   thread-pool-bulkhead:
     instances:
       paymentService:
-        core-thread-pool-size: 4
-        max-thread-pool-size: 8
-        queue-capacity: 20</code></pre>
+        core-thread-pool-size: 4   # 4 threads dédiés au paymentService
+        max-thread-pool-size: 8    # Max 8 threads en pic
+        queue-capacity: 20         # 20 requêtes en file d'attente
+        # Avantage : si paymentService est lent, il ne monopolise
+        # que SES 8 threads, pas ceux des autres services</code></pre>
     </div>
   </div>
 
@@ -237,9 +300,11 @@ public class LoanService {
 
 <!-- ═══ SECTION 2 — OBSERVABILITÉ ════════════════════════════ -->
 <section id="observabilite">
+  <span class="section-kicker">Monitoring</span>
   <h2>2. Observabilité : les 3 piliers</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill expert">Expert</span></div>
 
-  <p>L'observabilité répond à trois questions fondamentales en production :</p>
+  <p class="section-intro">L'observabilité répond à trois questions fondamentales en production :</p>
   <div class="columns">
     <div class="card">
       <h3>📄 Logs</h3>
@@ -275,7 +340,13 @@ log.error("Erreur lors de la création");</code></pre>
 
   <div class="code-example good">
     <span class="code-label">✅ Log structuré avec corrélation</span>
-    <pre data-label="LoanController.java"><code class="language-java">@RestController
+    <pre data-label="LoanController.java"><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// MDC : ajouter du contexte à TOUS les logs du thread courant
+// ═══════════════════════════════════════════════════════════════
+// Problème : en production, des milliers de requêtes passent en même temps.
+// Comment retrouver TOUS les logs d'un emprunt précis ?
+// Solution : le MDC ajoute correlationId et studentId à chaque log automatiquement.
+@RestController
 @Slf4j
 public class LoanController {
 
@@ -284,26 +355,34 @@ public class LoanController {
             @RequestBody CreateLoanRequest req,
             @RequestHeader("X-Correlation-Id") String correlationId) {
 
-        MDC.put("correlationId", correlationId);
+        // Mettre des clés dans le MDC → apparaîtront dans TOUS les logs
+        // de ce thread, y compris dans les services appelés via Feign
+        MDC.put("correlationId", correlationId);  // ID unique de la requête
         MDC.put("studentId", req.getStudentId().toString());
 
         try {
             LoanDto loan = loanService.createLoan(req);
-            // correlationId et studentId apparaissent dans le log automatiquement
+            // Ce log contiendra automatiquement correlationId et studentId
+            // → facile à chercher dans Kibana : correlationId="abc-123"
             log.info("loan-created loanId={} bookId={}", loan.getId(), loan.getBookId());
             return ResponseEntity.status(201).body(loan);
         } finally {
-            MDC.clear(); // TOUJOURS nettoyer pour éviter les fuites
+            MDC.clear(); // ⚠️ TOUJOURS nettoyer — sinon le prochain thread
+                         // hérite du contexte précédent (fuite de données)
         }
     }
 }</code></pre>
   </div>
 
-  <pre data-label="logback-spring.xml — Format JSON pour ELK"><code class="language-xml">&lt;configuration&gt;
+  <pre data-label="logback-spring.xml — Format JSON pour ELK"><code class="language-xml">&lt;!-- Logback envoie les logs en JSON → Elasticsearch → Kibana (ELK stack) --&gt;
+&lt;!-- Chaque ligne de log contient le correlationId et le studentId du MDC --&gt;
+&lt;configuration&gt;
   &lt;appender name="JSON" class="ch.qos.logback.core.ConsoleAppender"&gt;
     &lt;encoder class="net.logstash.logback.encoder.LogstashEncoder"&gt;
+      &lt;!-- Inclure ces clés MDC dans chaque ligne de log JSON --&gt;
       &lt;includeMdcKeyName&gt;correlationId&lt;/includeMdcKeyName&gt;
       &lt;includeMdcKeyName&gt;studentId&lt;/includeMdcKeyName&gt;
+      &lt;!-- Champs fixes ajoutés à chaque log (identifier le service et l'env) --&gt;
       &lt;customFields&gt;{"service":"loan-service","env":"prod"}&lt;/customFields&gt;
     &lt;/encoder&gt;
   &lt;/appender&gt;
@@ -323,31 +402,43 @@ public class LoanController {
     </tbody>
   </table>
 
-  <pre data-label="LoanService.java — Métriques métier"><code class="language-java">@Service
+  <pre data-label="LoanService.java — Métriques métier"><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// MÉTRIQUES MICROMETER : compteurs et timers pour Prometheus/Grafana
+// ═══════════════════════════════════════════════════════════════
+// Les métriques répondent à "combien ?" et "quelle performance ?"
+// Elles sont collectées par Prometheus et affichées dans Grafana.
+@Service
 public class LoanService {
 
-    private final Counter loansCreated;
+    private final Counter loansCreated;       // Compteur monotone : ne fait que monter
     private final Counter loansRejected;
-    private final Timer loanCreationTimer;
+    private final Timer loanCreationTimer;    // Mesure la durée + le nombre d'appels
 
     public LoanService(MeterRegistry registry) {
+        // ── Counter : compter les événements ──
         loansCreated = Counter.builder("loans.created")
             .description("Prêts créés avec succès")
-            .register(registry);
+            .register(registry);   // Enregistrer dans Prometheus
+
         loansRejected = Counter.builder("loans.rejected")
             .description("Prêts refusés (quota, indisponibilité)")
             .register(registry);
+
+        // ── Timer : mesurer la durée d'une opération ──
         loanCreationTimer = Timer.builder("loans.creation.duration")
             .description("Durée de création d'un prêt")
-            .publishPercentiles(0.5, 0.95, 0.99)   // p50, p95, p99
+            .publishPercentiles(0.5, 0.95, 0.99)   // Publier p50, p95, p99
+            // p95 = 95% des requêtes sont plus rapides que cette valeur
+            // → C'est LE chiffre à surveiller en prod (pas la moyenne !)
             .register(registry);
     }
 
     public LoanDto createLoan(CreateLoanRequest req) {
+        // record() mesure automatiquement la durée du bloc lambda
         return loanCreationTimer.record(() -> {
             validateQuota(req.getStudentId());
             LoanDto loan = LoanMapper.toDto(loanRepository.save(toLoan(req)));
-            loansCreated.increment();
+            loansCreated.increment();  // +1 dans le compteur Prometheus
             return loan;
         });
     }
@@ -356,17 +447,44 @@ public class LoanService {
   <h3 id="traces">2.3 Traces distribuées avec OpenTelemetry</h3>
   <span class="level-badge expert">🔴 Expert</span>
 
-  <div class="diagram">POST /api/loans  (200ms total)
-  ├── [loan-service]     span: validate-quota      (5ms)
-  ├── [catalog-service]  span: GET /availability   (80ms)  ← goulot !
-  └── [notif-service]    span: POST /notify        (15ms async)</div>
+  <div class="box definition">
+    <h4>Trace d'une requête — visualisation des spans</h4>
+    <div class="kafka-viz">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:.82rem;line-height:2;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="color:var(--muted);min-width:110px;">POST /api/loans</span>
+          <div style="flex:1;height:16px;background:linear-gradient(90deg,#dbeafe,#93c5fd);border-radius:4px;position:relative;">
+            <span style="position:absolute;right:4px;top:0;font-size:.7rem;color:#1e40af;">200ms total</span>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-left:20px;">
+          <span style="color:#15803d;min-width:110px;">loan-service</span>
+          <div style="width:8%;height:12px;background:#86efac;border-radius:3px;"></div>
+          <span style="font-size:.72rem;color:var(--muted);">validate-quota (5ms)</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-left:20px;">
+          <span style="color:#c2410c;min-width:110px;">catalog-service</span>
+          <div style="width:40%;height:12px;background:#fdba74;border-radius:3px;"></div>
+          <span style="font-size:.72rem;color:#c2410c;font-weight:600;">GET /availability (80ms) ← goulot !</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;padding-left:20px;">
+          <span style="color:#5b21b6;min-width:110px;">notif-service</span>
+          <div style="width:10%;height:12px;background:#c4b5fd;border-radius:3px;"></div>
+          <span style="font-size:.72rem;color:var(--muted);">POST /notify (15ms async)</span>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <p>Un <strong>span</strong> est une unité de travail. Une <strong>trace</strong> est l'arbre de spans partagés via un même <code>traceId</code>, propagé dans le header HTTP <code>traceparent</code> (standard W3C Trace Context).</p>
+  <p>Un <strong>span</strong> est une unité de travail (un appel HTTP, une requête SQL). Une <strong>trace</strong> est l'arbre de spans partagés via un même <code>traceId</code>, propagé dans le header HTTP <code>traceparent</code> (standard W3C Trace Context). Grâce aux traces, on voit d'un coup d'œil que <code>catalog-service</code> est le goulot d'étranglement (80ms sur 200ms total).</p>
 
-  <pre data-label="pom.xml — OpenTelemetry + Zipkin"><code class="language-xml">&lt;dependency&gt;
+  <pre data-label="pom.xml — OpenTelemetry + Zipkin"><code class="language-xml">&lt;!-- Dépendances pour le distributed tracing --&gt;
+&lt;!-- Micrometer bridge : connecte Spring Boot à OpenTelemetry --&gt;
+&lt;dependency&gt;
   &lt;groupId&gt;io.micrometer&lt;/groupId&gt;
   &lt;artifactId&gt;micrometer-tracing-bridge-otel&lt;/artifactId&gt;
 &lt;/dependency&gt;
+&lt;!-- Exporter les traces vers Zipkin (ou Jaeger, ou Tempo) --&gt;
 &lt;dependency&gt;
   &lt;groupId&gt;io.opentelemetry&lt;/groupId&gt;
   &lt;artifactId&gt;opentelemetry-exporter-zipkin&lt;/artifactId&gt;
@@ -375,31 +493,43 @@ public class LoanService {
   <pre data-label="application.yml — Tracing"><code class="language-yaml">management:
   tracing:
     sampling:
-      probability: 1.0   # 100% en dev, 0.1 en prod (10%)
+      probability: 1.0   # 100% des requêtes tracées en dev
+                           # En prod : 0.1 (10%) pour limiter le volume
 spring:
   zipkin:
-    base-url: http://zipkin:9411
-# Le traceId est automatiquement injecté dans les logs MDC</code></pre>
+    base-url: http://zipkin:9411   # URL du collecteur de traces
+# Bonus : le traceId est automatiquement injecté dans les logs MDC
+# → on peut passer de Kibana (logs) à Zipkin (traces) d'un clic</code></pre>
 
-  <pre data-label="LoanService.java — Span personnalisé"><code class="language-java">@Service
+  <pre data-label="LoanService.java — Span personnalisé"><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// SPAN PERSONNALISÉ : mesurer une opération spécifique dans la trace
+// ═══════════════════════════════════════════════════════════════
+// Les spans HTTP sont créés automatiquement par Spring.
+// Mais pour mesurer une opération MÉTIER (ex: vérification quota),
+// il faut créer un span manuellement.
+@Service
 public class LoanService {
 
-    @Autowired Tracer tracer;
+    @Autowired Tracer tracer;  // Injecté par Spring — gère les spans
 
     public LoanDto createLoan(CreateLoanRequest req) {
+        // ── Créer un span pour la vérification du quota ──
         Span span = tracer.nextSpan()
-            .name("loan.quota-check")
-            .tag("studentId", req.getStudentId().toString())
+            .name("loan.quota-check")               // Nom affiché dans Zipkin/Jaeger
+            .tag("studentId", req.getStudentId().toString())  // Métadonnée pour le debug
             .start();
 
         try (Tracer.SpanInScope ws = tracer.withSpan(span)) {
+            // Tout ce qui s'exécute ici est "dans" le span
+            // Si on appelle d'autres services, ils hériteront du traceId
             validateQuota(req.getStudentId());
             return doCreateLoan(req);
         } catch (QuotaExceededException e) {
-            span.tag("error", "quota-exceeded");
+            span.tag("error", "quota-exceeded");  // Marquer le span comme erreur
             throw e;
         } finally {
-            span.end(); // TOUJOURS finir le span
+            span.end(); // ⚠️ TOUJOURS finir le span — sinon il apparaît comme
+                         // "en cours" indéfiniment dans Zipkin
         }
     }
 }</code></pre>
@@ -412,11 +542,13 @@ public class LoanService {
 
 <!-- ═══ SECTION 3 — HEALTH CHECKS ════════════════════════════ -->
 <section id="healthchecks">
+  <span class="section-kicker">Fiabilité</span>
   <h2>3. Monitoring, Health Checks &amp; alerting</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill expert">Expert</span></div>
 
   <div class="box child-mode">
-    <h4>🧒 Mode enfant</h4>
-    <p>Un service peut "tourner" (le process est vivant) mais être incapable de répondre (la base de données est coupée). Le health check c'est comme appuyer sur un bouton de test réel — il vérifie si tout fonctionne en profondeur, pas juste si le moteur tourne.</p>
+    <h4>🧸 Analogie — Le contrôle technique</h4>
+    <p>Un service peut "tourner" (le moteur démarre) mais être incapable de répondre (les freins ne marchent pas). Le health check c'est comme un <strong>contrôle technique complet</strong> — il vérifie si tout fonctionne en profondeur, pas juste si le moteur tourne.</p>
   </div>
 
   <table>
@@ -428,26 +560,41 @@ public class LoanService {
     </tbody>
   </table>
 
-  <pre data-label="application.yml — Actuator complet"><code class="language-yaml">management:
+  <pre data-label="application.yml — Actuator complet"><code class="language-yaml"># ═══════════════════════════════════════
+# SPRING ACTUATOR : exposer les sondes et métriques
+# ═══════════════════════════════════════
+management:
   endpoints:
     web:
       exposure:
         include: health,info,prometheus,metrics,circuitbreakers
+        # ↑ Endpoints exposés via HTTP :
+        # /actuator/health      → état de santé (liveness/readiness)
+        # /actuator/prometheus  → métriques au format Prometheus
+        # /actuator/circuitbreakers → état des Circuit Breakers
   endpoint:
     health:
       probes:
         enabled: true         # Active /actuator/health/liveness et /readiness
-      show-details: always    # Détail des composants (à restreindre en prod)
+                               # → utilisés par Kubernetes pour les probes
+      show-details: always    # Montrer les détails des composants (DB, CB, etc.)
+                               # ⚠️ En prod, utiliser "when_authorized" pour sécuriser
   metrics:
     export:
       prometheus:
-        enabled: true
+        enabled: true         # Exposer les métriques au format Prometheus
     tags:
-      application: loan-service
-      env: ${SPRING_PROFILES_ACTIVE:dev}</code></pre>
+      application: loan-service                  # Tag pour identifier dans Grafana
+      env: ${SPRING_PROFILES_ACTIVE:dev}         # Tag pour l'environnement</code></pre>
 
   <span class="level-badge mid">🟡 Intermédiaire</span>
-  <pre data-label="CatalogServiceHealthIndicator.java"><code class="language-java">@Component
+  <pre data-label="CatalogServiceHealthIndicator.java"><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// HEALTH INDICATOR PERSONNALISÉ : vérifier catalog-service
+// ═══════════════════════════════════════════════════════════════
+// Spring Actuator vérifie automatiquement la BDD, Redis, etc.
+// Mais pour vérifier un SERVICE EXTERNE (catalog-service),
+// il faut créer un HealthIndicator personnalisé.
+@Component
 public class CatalogServiceHealthIndicator implements HealthIndicator {
 
     private final CatalogClient catalogClient;
@@ -455,15 +602,19 @@ public class CatalogServiceHealthIndicator implements HealthIndicator {
 
     @Override
     public Health health() {
+        // Vérifier l'état du Circuit Breaker d'abord
         CircuitBreaker cb = cbRegistry.circuitBreaker("catalogService");
         if (cb.getState() == CircuitBreaker.State.OPEN) {
+            // Si le CB est OPEN → catalog-service est considéré DOWN
             return Health.down()
                 .withDetail("circuit-breaker", "OPEN")
                 .withDetail("reason", "Trop d'échecs vers catalog-service")
                 .build();
         }
+
+        // Si le CB est CLOSED ou HALF-OPEN → tester avec un ping réel
         try {
-            catalogClient.ping();
+            catalogClient.ping();  // Appel léger pour vérifier que le service répond
             return Health.up()
                 .withDetail("circuit-breaker", cb.getState().name())
                 .build();
@@ -475,24 +626,30 @@ public class CatalogServiceHealthIndicator implements HealthIndicator {
 
   <div class="box best-practice">
     <h4>✅ 4 Golden Signals (Google SRE)</h4>
+    <p>Les 4 métriques que Google surveille sur TOUS ses services. C'est le minimum vital pour savoir si un service fonctionne correctement :</p>
     <ul>
-      <li><strong>Latency</strong> — Temps de traitement (p95, p99)</li>
-      <li><strong>Traffic</strong> — Volume de requêtes (req/s)</li>
-      <li><strong>Errors</strong> — Taux d'erreurs 5xx</li>
-      <li><strong>Saturation</strong> — CPU, mémoire, threads, connexions DB</li>
+      <li><strong>Latency</strong> — Temps de traitement (p95, p99). "Est-ce rapide ?"</li>
+      <li><strong>Traffic</strong> — Volume de requêtes (req/s). "Combien de trafic ?"</li>
+      <li><strong>Errors</strong> — Taux d'erreurs 5xx. "Est-ce fiable ?"</li>
+      <li><strong>Saturation</strong> — CPU, mémoire, threads, connexions DB. "Est-ce plein ?"</li>
     </ul>
     <p>Une alerte Prometheus sur chacun de ces 4 indicateurs est le minimum viable.</p>
   </div>
 
   <span class="level-badge expert">🔴 Expert</span>
-  <pre data-label="Prometheus alert rule — Taux d'erreur"><code class="language-yaml">- alert: HighErrorRate
+  <pre data-label="Prometheus alert rule — Taux d'erreur"><code class="language-yaml"># ═══════════════════════════════════════
+# ALERTE PROMETHEUS : se déclenche automatiquement si trop d'erreurs
+# ═══════════════════════════════════════
+# Cette règle surveille le taux d'erreurs 5xx sur les 5 dernières minutes.
+# Si > 5% pendant 2 minutes → alerte "critical" → notification PagerDuty/Slack
+- alert: HighErrorRate
   expr: |
     rate(http_server_requests_seconds_count{status=~"5.."}[5m])
     /
     rate(http_server_requests_seconds_count[5m]) > 0.05
-  for: 2m
+  for: 2m                         # Attendre 2 min avant de déclencher (éviter les faux positifs)
   labels:
-    severity: critical
+    severity: critical             # Niveau d'urgence (critical = PagerDuty wake-up)
   annotations:
     summary: "Taux d'erreur élevé sur {{ $labels.application }}"
     description: "{{ $value | humanizePercentage }} d'erreurs 5xx détectées"</code></pre>
@@ -500,84 +657,138 @@ public class CatalogServiceHealthIndicator implements HealthIndicator {
 
 <!-- ═══ SECTION 4 — SÉCURITÉ ═════════════════════════════════ -->
 <section id="securite">
+  <span class="section-kicker">Sécurité</span>
   <h2>4. Sécurité inter-services : JWT, OAuth2 / OIDC, RBAC</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill expert">Expert</span></div>
 
   <div class="box child-mode">
-    <h4>🧒 Mode enfant</h4>
-    <p>Le badge d'entrée (JWT) dit <em>qui tu es</em> et <em>ce que tu peux faire</em>. Authentification = prouver son identité. Autorisation = vérifier ses droits.</p>
+    <h4>🧸 Analogie — Le badge d'entrée</h4>
+    <p>Le JWT c'est comme un <strong>badge visiteur</strong> tamponné par l'accueil (Keycloak). Il dit <em>qui tu es</em> (nom) et <em>ce que tu peux faire</em> (zones autorisées). Le vigile (Spring Security) vérifie le tampon — s'il est faux ou périmé, l'accès est refusé. Le badge est lisible par tous (pas chiffré), mais <strong>infalsifiable</strong> grâce au tampon.</p>
   </div>
 
   <h3>4.1 Anatomie d'un JWT</h3>
-  <span class="level-badge junior">🟢 Junior</span>
 
-  <p>Un JWT est signé en <strong>3 parties séparées par des points</strong> : <code>header.payload.signature</code>. Chaque partie est encodée en Base64URL — lisible, <strong>pas chiffré</strong>.</p>
-
-  <div class="diagram">eyJhbGciOiJSUzI1NiJ9  .  eyJzdWIiOiJ1c2VyMTIzIn0  .  abc123sig...
-  ▲ Header                  ▲ Payload (claims)              ▲ Signature RSA
-{ alg: "RS256" }          { sub: "user123",              Vérifiée avec la clé
-{ typ: "JWT"  }             roles: ["LIBRARIAN"],         publique de l'IdP
-                            exp: 1735686000 }</div>
+  <div class="box definition">
+    <h4>Structure d'un JWT — 3 parties séparées par des points</h4>
+    <p>Un JWT est signé en <strong>3 parties</strong> encodées en Base64URL — lisibles, <strong>pas chiffrées</strong> :</p>
+    <div class="kafka-viz">
+      <div class="kv-partitions" style="grid-template-columns: repeat(3, 1fr);">
+        <div class="kv-partition">
+          <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#e0ecff,#eff6ff);color:#1d4ed8;">Header</div>
+          <div class="kv-offset-row" style="font-family:'JetBrains Mono',monospace;font-size:.76rem;"><span class="kv-offset-val">{ "alg": "RS256", "typ": "JWT" }</span></div>
+          <div class="kv-offset-row" style="font-size:.76rem;color:var(--muted);">Algorithme de signature utilisé</div>
+        </div>
+        <div class="kv-partition">
+          <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);color:#15803d;">Payload (claims)</div>
+          <div class="kv-offset-row" style="font-family:'JetBrains Mono',monospace;font-size:.76rem;"><span class="kv-offset-val">{ "sub": "user123", "roles": ["LIBRARIAN"], "exp": 1735686000 }</span></div>
+          <div class="kv-offset-row" style="font-size:.76rem;color:var(--muted);">Données utilisateur — lisibles par tous !</div>
+        </div>
+        <div class="kv-partition">
+          <div class="kv-partition-hdr" style="background:linear-gradient(135deg,#fff0f0,#fff5f5);color:#b91c1c;">Signature</div>
+          <div class="kv-offset-row" style="font-family:'JetBrains Mono',monospace;font-size:.76rem;"><span class="kv-offset-val">RSASHA256(header + payload, clé_privée)</span></div>
+          <div class="kv-offset-row" style="font-size:.76rem;color:var(--muted);">Vérifié avec la clé publique de l'IdP</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <div class="box warning">
     <h4>⚠️ JWT ≠ chiffrement</h4>
-    <p>Le payload est lisible par n'importe qui. Ne jamais y mettre de données sensibles. La signature garantit l'<em>intégrité</em>, pas la confidentialité.</p>
+    <p>Le payload est lisible par n'importe qui (c'est juste du Base64). Ne jamais y mettre de données sensibles (mot de passe, numéro de carte). La signature garantit l'<em>intégrité</em> (pas modifié), pas la <em>confidentialité</em> (pas lisible).</p>
   </div>
 
   <h3>4.2 Flux OAuth2 Authorization Code (OIDC)</h3>
-  <span class="level-badge mid">🟡 Intermédiaire</span>
 
-  <div class="diagram">Navigateur         Application          Keycloak (IdP)
-     │                   │                       │
-     │── GET /loans ────►│                       │
-     │                   │── Redirect ──────────►│
-     │◄─ redirect(login)─┤                       │
-     │──── login ───────────────────────────────►│
-     │◄─── authorization code ──────────────────┤
-     │── code ──────────►│                       │
-     │                   │── POST /token ────────►│
-     │                   │◄── access_token (JWT) ─┤
-     │◄─ page /loans ────┤</div>
+  <div class="box definition">
+    <h4>Flux OAuth2 — Comment le token arrive jusqu'au service</h4>
+    <div class="kafka-viz">
+      <div class="kv-flow">
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#ede9fe,#f5f3ff);border:1.5px solid #c4b5fd;color:#5b21b6;padding:10px 16px;">
+          <h5 style="font-size:.85rem;">1. L'utilisateur accède à /loans</h5>
+          <p style="font-size:.8rem;">Le navigateur est redirigé vers Keycloak (page de login)</p>
+        </div>
+        <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#fef9c3,#fefce8);border:1.5px solid #fde047;color:#854d0e;padding:10px 16px;">
+          <h5 style="font-size:.85rem;">2. L'utilisateur se connecte sur Keycloak</h5>
+          <p style="font-size:.8rem;">Keycloak vérifie les identifiants → retourne un <strong>authorization code</strong></p>
+        </div>
+        <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#e0ecff,#eff6ff);border:1.5px solid #93c5fd;color:#1e3a6e;padding:10px 16px;">
+          <h5 style="font-size:.85rem;">3. L'application échange le code contre un JWT</h5>
+          <p style="font-size:.8rem;">POST /token vers Keycloak → reçoit un <code>access_token</code> (JWT signé)</p>
+        </div>
+        <div class="kv-flow-arrow"><svg viewBox="0 0 20 28"><path d="M10 0 L10 20 M4 16 L10 24 L16 16" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <div class="kv-flow-node" style="background:linear-gradient(135deg,#dcfce7,#f0fdf4);border:1.5px solid #86efac;color:#15803d;padding:10px 16px;">
+          <h5 style="font-size:.85rem;">4. Le JWT est envoyé à chaque requête</h5>
+          <p style="font-size:.8rem;">Header <code>Authorization: Bearer eyJhbGci...</code> — vérifié par Spring Security</p>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <pre data-label="SecurityConfig.java — Resource Server"><code class="language-java">@Configuration
+  <pre data-label="SecurityConfig.java — Resource Server"><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// SPRING SECURITY : configurer l'authentification JWT
+// ═══════════════════════════════════════════════════════════════
+// Ce service est un "Resource Server" : il VÉRIFIE les JWT
+// mais ne les ÉMET PAS (c'est le rôle de Keycloak/Auth0).
+@Configuration
 @EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity  // Active @PreAuthorize sur les méthodes
 public class SecurityConfig {
 
     @Bean
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         return http
-            .csrf(csrf -> csrf.disable())      // API stateless = pas de CSRF
+            // ── Désactiver CSRF : API stateless, pas de session navigateur ──
+            .csrf(csrf -> csrf.disable())
+
+            // ── Pas de session HTTP : chaque requête contient son JWT ──
             .sessionManagement(s ->
                 s.sessionCreationPolicy(STATELESS))
+
+            // ── Règles d'accès par URL ──
             .authorizeHttpRequests(auth -> auth
+                // Health checks accessibles sans authentification (pour Kubernetes)
                 .requestMatchers("/actuator/health/**").permitAll()
+                // Consulter les livres : USER ou LIBRARIAN
                 .requestMatchers(GET,  "/api/books/**").hasAnyRole("USER", "LIBRARIAN")
+                // Créer un emprunt : LIBRARIAN uniquement
                 .requestMatchers(POST, "/api/loans/**").hasRole("LIBRARIAN")
+                // Tout le reste : authentification requise
                 .anyRequest().authenticated()
             )
+
+            // ── Configurer la validation du JWT ──
             .oauth2ResourceServer(oauth ->
                 oauth.jwt(jwt -> jwt.jwtAuthenticationConverter(
-                    jwtAuthenticationConverter()))
+                    jwtAuthenticationConverter()))  // Convertir les claims en rôles Spring
             )
             .build();
     }
 
+    // ── Convertisseur : extraire les rôles du JWT ──
+    // Keycloak stocke les rôles dans un claim "roles" (pas "authorities")
+    // Il faut mapper : claim "roles" → authorities Spring "ROLE_xxx"
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter conv = new JwtGrantedAuthoritiesConverter();
-        conv.setAuthoritiesClaimName("roles");  // claim custom dans Keycloak
-        conv.setAuthorityPrefix("ROLE_");
+        conv.setAuthoritiesClaimName("roles");   // Nom du claim dans le JWT
+        conv.setAuthorityPrefix("ROLE_");         // Préfixe Spring Security
         JwtAuthenticationConverter jwtConv = new JwtAuthenticationConverter();
         jwtConv.setJwtGrantedAuthoritiesConverter(conv);
         return jwtConv;
     }
 }</code></pre>
 
-  <pre data-label="LoanController.java — @PreAuthorize fin"><code class="language-java">@RestController
+  <pre data-label="LoanController.java — @PreAuthorize fin"><code class="language-java">// ═══════════════════════════════════════════════════════════════
+// RBAC FIN : contrôle d'accès au niveau de chaque méthode
+// ═══════════════════════════════════════════════════════════════
+@RestController
 @RequestMapping("/api/loans")
 public class LoanController {
 
-    // L'étudiant ne voit QUE ses propres emprunts
+    // L'étudiant ne voit QUE ses propres emprunts (sauf si LIBRARIAN)
+    // authentication.name = le "sub" du JWT (identifiant unique de l'utilisateur)
     @GetMapping("/{loanId}")
     @PreAuthorize("""
         hasRole('LIBRARIAN') or
@@ -587,6 +798,7 @@ public class LoanController {
         return loanService.findById(loanId);
     }
 
+    // Seul un bibliothécaire peut créer un emprunt
     @PostMapping
     @PreAuthorize("hasRole('LIBRARIAN')")
     public ResponseEntity&lt;LoanDto&gt; createLoan(
@@ -615,75 +827,99 @@ public class LoanController {
 
 <!-- ═══ SECTION 5 — ZERO TRUST & SECRETS ════════════════════ -->
 <section id="zerotrust">
+  <span class="section-kicker">Sécurité avancée</span>
   <h2>5. Zero Trust &amp; gestion des secrets</h2>
+  <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill expert">Expert</span></div>
 
   <div class="box definition">
     <h4>Zero Trust — "Never trust, always verify"</h4>
     <p>Aucun segment réseau n'est implicitement fiable, même interne. Chaque accès sensible est vérifié : identité, contexte, droits minimaux. Un attaquant ayant pénétré le périmètre ne peut pas se déplacer librement.</p>
   </div>
 
+  <div class="box child-mode">
+    <h4>🧸 Analogie — L'aéroport</h4>
+    <p>Même après avoir passé le contrôle de sécurité, tu dois montrer ta carte d'embarquement à chaque porte. Zero Trust c'est pareil : même si un service est "à l'intérieur du réseau", il doit prouver son identité à chaque appel.</p>
+  </div>
+
   <h3>5.1 Les 3 règles fondamentales des secrets</h3>
-  <span class="level-badge junior">🟢 Junior</span>
 
   <div class="code-example bad">
     <span class="code-label">❌ Ne jamais faire — secret dans Git</span>
-    <pre data-label="application.yml versionné"><code class="language-yaml">spring:
+    <pre data-label="application.yml versionné"><code class="language-yaml"># ⚠️ DANGER : ces secrets sont visibles dans l'historique Git POUR TOUJOURS
+# Même si vous les supprimez ensuite, git log les montre encore
+spring:
   datasource:
-    password: MonSuperMotDePasse123!   # visible dans l'historique Git pour toujours
+    password: MonSuperMotDePasse123!   # N'importe qui avec accès au repo peut le lire
   security:
     oauth2:
       client:
         registration:
           keycloak:
-            client-secret: abc-def-secret  # même problème</code></pre>
+            client-secret: abc-def-secret  # Idem — compromis dès le 1er push</code></pre>
   </div>
 
   <div class="code-example good">
     <span class="code-label">✅ Variables d'environnement ou Vault</span>
-    <pre data-label="application.yml sécurisé"><code class="language-yaml">spring:
+    <pre data-label="application.yml sécurisé"><code class="language-yaml"># Les secrets sont injectés au DÉMARRAGE depuis l'environnement ou Vault.
+# Le fichier YAML ne contient que des RÉFÉRENCES, pas les valeurs.
+spring:
   datasource:
-    url:      ${DATABASE_URL}
+    url:      ${DATABASE_URL}           # Injecté par Docker/K8s/Vault
     username: ${DATABASE_USER}
-    password: ${DATABASE_PASSWORD}
+    password: ${DATABASE_PASSWORD}      # Jamais de valeur en clair ici
   security:
     oauth2:
       client:
         registration:
           keycloak:
-            client-secret: ${KEYCLOAK_CLIENT_SECRET}</code></pre>
+            client-secret: ${KEYCLOAK_CLIENT_SECRET}  # Idem</code></pre>
   </div>
 
   <h3>5.2 HashiCorp Vault avec Spring Cloud Vault</h3>
-  <span class="level-badge mid">🟡 Intermédiaire</span>
 
-  <pre data-label="bootstrap.yml — Vault + auth Kubernetes"><code class="language-yaml">spring:
+  <pre data-label="bootstrap.yml — Vault + auth Kubernetes"><code class="language-yaml"># ═══════════════════════════════════════
+# VAULT : coffre-fort centralisé pour les secrets
+# ═══════════════════════════════════════
+# Au démarrage, Spring contacte Vault pour récupérer les secrets.
+# Vault vérifie l'identité du service via le token Kubernetes.
+spring:
   cloud:
     vault:
-      host: vault.internal.company.com
+      host: vault.internal.company.com    # Adresse du serveur Vault
       port: 8200
-      scheme: https
-      authentication: KUBERNETES
+      scheme: https                        # Toujours HTTPS en prod
+
+      # ── Authentification : le service prouve son identité via K8s ──
+      authentication: KUBERNETES           # Vault vérifie le service account K8s
       kubernetes:
-        role: loan-service
+        role: loan-service                 # Rôle Vault autorisé pour ce service
         service-account-token-file: /var/run/secrets/kubernetes.io/serviceaccount/token
+
+      # ── Lecture des secrets ──
       kv:
         enabled: true
-        backend: secret
-        default-context: loan-service</code></pre>
+        backend: secret                    # Mount path dans Vault
+        default-context: loan-service      # Chemin : secret/loan-service/*</code></pre>
 
   <h3>5.3 Dynamic Secrets — Credentials DB éphémères</h3>
-  <span class="level-badge expert">🔴 Expert</span>
 
-  <p>Vault génère des credentials PostgreSQL <strong>à la demande avec une TTL courte</strong> (ex. 1h). L'application ne connaît jamais le mot de passe permanent. En cas de compromission, le credential expire automatiquement.</p>
+  <p>Vault génère des credentials PostgreSQL <strong>à la demande avec une TTL courte</strong> (ex. 1h). L'application ne connaît jamais le mot de passe permanent. En cas de compromission, le credential expire automatiquement — pas besoin de rotation manuelle.</p>
 
-  <pre data-label="bootstrap.yml — Dynamic secrets PostgreSQL"><code class="language-yaml">spring:
+  <pre data-label="bootstrap.yml — Dynamic secrets PostgreSQL"><code class="language-yaml"># ═══════════════════════════════════════
+# DYNAMIC SECRETS : mots de passe temporaires générés par Vault
+# ═══════════════════════════════════════
+# Au lieu d'un mot de passe permanent (risque si compromis),
+# Vault génère un user/password PostgreSQL unique et temporaire.
+# Durée de vie typique : 1h. Rotation automatique par Spring Cloud Vault.
+spring:
   cloud:
     vault:
       database:
         enabled: true
-        role: loan-service-role
-        backend: database
-        # Vault renouvelle automatiquement le lease avant expiration</code></pre>
+        role: loan-service-role     # Rôle Vault qui définit les permissions SQL
+        backend: database           # Mount path du moteur "database" dans Vault
+        # Vault renouvelle automatiquement le lease avant expiration
+        # → l'application n'a rien à faire, c'est transparent</code></pre>
 
   <div class="box best-practice">
     <h4>✅ Checklist Sécurité Production</h4>
@@ -759,5 +995,33 @@ public class LoanController {
     </article>
   </div>
 </main>
+
+<!-- Prism.js core + langages -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/line-numbers/prism-line-numbers.min.js"></script>
+
+<script>
+  // Fermer le menu mobile au clic sur un lien
+  document.querySelectorAll('.top-nav a').forEach(a => {
+    a.addEventListener('click', () => {
+      const zone = document.querySelector('.nav-scroll-zone');
+      if (zone) zone.classList.remove('open');
+    });
+  });
+  // Highlight lien actif dans quick-tools au scroll
+  const sections = document.querySelectorAll('section[id]');
+  const qtLinks = document.querySelectorAll('.quick-tools a');
+  if (qtLinks.length) {
+    const observer = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          qtLinks.forEach(l => l.classList.toggle('active', l.getAttribute('href') === '#' + e.target.id));
+        }
+      });
+    }, { threshold: 0.3 });
+    sections.forEach(s => observer.observe(s));
+  }
+</script>
 </body>
 </html>
