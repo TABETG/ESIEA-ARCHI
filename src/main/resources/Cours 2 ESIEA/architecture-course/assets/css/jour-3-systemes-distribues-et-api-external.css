@@ -97,6 +97,8 @@
       background: var(--surface); border: 1px solid var(--border);
       border-radius: var(--radius); padding: 16px; box-shadow: var(--shadow);
       max-width: 250px;
+      max-height: calc(100vh - 140px);
+      overflow-y: auto;
     }
     section[id] { scroll-margin-top: 160px; /* fallback, overridden by JS */ }
     aside.toc details{margin:0}
@@ -886,3 +888,26 @@ pre {
   .kv-topic-name { min-width: auto; }
   .kv-topic-key { margin-left: 0; }
 }
+
+/* ══════════════════════════════════════════════════
+   Mermaid Diagram Cards
+   ══════════════════════════════════════════════════ */
+.mermaid-card {
+  background: #ffffff; border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  margin: 18px 0; box-shadow: var(--shadow);
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+}
+.mermaid-card h4 {
+  margin: 0 0 4px; font-size: .95rem; color: #123f73;
+  padding-left: 10px; border-left: 4px solid var(--purple);
+}
+.mermaid-card .mermaid-desc {
+  font-size: .82rem; color: var(--muted); margin: 0 0 14px; padding-left: 14px;
+}
+.mermaid-card .mermaid { width: 100%; background: #ffffff; border-radius: 10px; padding: 10px; }
+.mermaid-card .mermaid svg { max-width: 100%; height: auto; display: block; margin: 0 auto; }
+.mermaid-card .mermaid .node rect,
+.mermaid-card .mermaid .node polygon,
+.mermaid-card .mermaid .node circle { rx: 8; }
+.mermaid-card .mermaid .cluster rect { fill: #f8fafc !important; stroke: #cbd5e1 !important; rx: 12; }
