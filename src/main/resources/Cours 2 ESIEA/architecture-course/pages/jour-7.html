@@ -1,0 +1,1611 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Jour 7 — Architecture événementielle, CQRS, Event Sourcing & Reactive Systems</title>
+  <link rel="stylesheet" href="../assets/css/jour-3-systemes-distribues-et-api-external.css">
+  <style>
+    /* Mermaid + pedagogical extensions — Jour 7 / 8 */
+    .mermaid-wrapper {
+      background: #ffffff;
+      padding: 18px 16px;
+      border-radius: 14px;
+      border: 1.5px solid #e2e8f0;
+      margin: 1.2rem 0;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+    }
+    .mermaid-wrapper .mermaid {
+      background: #ffffff !important;
+      text-align: center;
+      font-family: inherit;
+    }
+    .mermaid-wrapper .mermaid svg {
+      background: transparent !important;
+      max-width: 100%;
+      height: auto;
+    }
+    .mermaid-title {
+      font-weight: 700;
+      color: #123f73;
+      margin: 0 0 12px;
+      font-size: 0.96rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .mermaid-caption {
+      font-size: 0.83rem;
+      color: #64748b;
+      margin-top: 12px;
+      padding-top: 10px;
+      border-top: 1px dashed #cbd5e1;
+      font-style: italic;
+    }
+    .use-case-box {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border-left: 4px solid #10b981;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 1rem 0;
+    }
+    .use-case-box h4 {
+      color: #065f46;
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .use-case-box ul { margin: 0; padding-left: 20px; }
+    .use-case-box li {
+      font-size: 0.88rem;
+      color: #1f2937;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .use-case-box li strong { color: #065f46; }
+    .real-world-box {
+      background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+      border-left: 4px solid #1d4ed8;
+      border-radius: 10px;
+      padding: 14px 16px;
+      margin: 1rem 0;
+    }
+    .real-world-box h4 {
+      color: #1e3a8a;
+      margin: 0 0 10px;
+      font-size: 0.96rem;
+    }
+    .real-world-box ul { margin: 0; padding-left: 20px; }
+    .real-world-box li {
+      font-size: 0.88rem;
+      color: #1f2937;
+      margin-bottom: 6px;
+      line-height: 1.5;
+    }
+    .real-world-box li strong { color: #1e3a8a; }
+
+    /* Zoom feature for Mermaid diagrams */
+    .mermaid-wrapper { position: relative; }
+    .mermaid-zoom-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 1.5px solid #cbd5e1;
+      border-radius: 8px;
+      padding: 6px 11px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: #334155;
+      cursor: pointer;
+      z-index: 5;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+      transition: all 0.15s ease;
+      opacity: 0.7;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .mermaid-wrapper:hover .mermaid-zoom-btn { opacity: 1; }
+    .mermaid-zoom-btn:hover {
+      background: #1d4ed8;
+      color: #fff;
+      border-color: #1d4ed8;
+      transform: scale(1.05);
+    }
+    .mermaid-zoom-btn:focus-visible {
+      outline: 2px solid #1d4ed8;
+      outline-offset: 2px;
+    }
+    @media (max-width: 768px) {
+      .mermaid-zoom-btn { opacity: 1; }
+    }
+
+    /* Modal */
+    .mermaid-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.88);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 10000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .mermaid-modal.active { display: flex; animation: mm-fadein 0.18s ease; }
+    @keyframes mm-fadein { from { opacity: 0; } to { opacity: 1; } }
+
+    .mermaid-modal-stage {
+      width: 100%;
+      max-width: 100%;
+      height: 100%;
+      max-height: 100%;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+    }
+    .mermaid-modal-stage.dragging { cursor: grabbing; }
+
+    .mermaid-modal-content {
+      transition: transform 0.12s ease-out;
+      transform-origin: center center;
+      will-change: transform;
+      pointer-events: none; /* let stage handle drag */
+    }
+    .mermaid-modal-content.no-transition { transition: none; }
+    .mermaid-modal-content svg {
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 28px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+      max-width: none;
+      max-height: none;
+      pointer-events: auto;
+    }
+
+    .mermaid-modal-close {
+      position: fixed;
+      top: 18px;
+      right: 18px;
+      background: #ffffff;
+      border: 0;
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      font-size: 1.4rem;
+      line-height: 1;
+      cursor: pointer;
+      z-index: 10002;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+      color: #334155;
+      font-weight: 700;
+      font-family: inherit;
+    }
+    .mermaid-modal-close:hover { background: #fee2e2; color: #b91c1c; }
+
+    .mermaid-modal-toolbar {
+      position: fixed;
+      bottom: 22px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #ffffff;
+      border-radius: 14px;
+      padding: 8px 12px;
+      display: flex;
+      gap: 6px;
+      align-items: center;
+      z-index: 10002;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    }
+    .mermaid-modal-toolbar button {
+      background: #f1f5f9;
+      border: 0;
+      border-radius: 8px;
+      width: 36px;
+      height: 36px;
+      font-size: 1.1rem;
+      cursor: pointer;
+      font-weight: 700;
+      color: #1e293b;
+      font-family: inherit;
+      transition: all 0.12s;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .mermaid-modal-toolbar button:hover { background: #1d4ed8; color: #fff; }
+    .mermaid-modal-zoom-level {
+      font-size: 0.85rem;
+      min-width: 56px;
+      text-align: center;
+      font-weight: 700;
+      color: #1e293b;
+      padding: 0 6px;
+    }
+    .mermaid-modal-hint {
+      position: fixed;
+      top: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.92);
+      color: #475569;
+      padding: 6px 14px;
+      border-radius: 999px;
+      font-size: 0.78rem;
+      z-index: 10002;
+      pointer-events: none;
+    }
+    @media (max-width: 600px) {
+      .mermaid-modal-hint { display: none; }
+      .mermaid-modal-toolbar { bottom: 14px; }
+    }
+
+  </style>
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: 'base',
+      themeVariables: {
+        background: '#ffffff',
+        primaryColor: '#dbeafe',
+        primaryTextColor: '#0f172a',
+        primaryBorderColor: '#3b82f6',
+        lineColor: '#475569',
+        secondaryColor: '#fef9c3',
+        tertiaryColor: '#fce7f3',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        fontSize: '14px'
+      },
+      flowchart: { htmlLabels: true, curve: 'basis', useMaxWidth: true },
+      sequence: { actorMargin: 60, useMaxWidth: true, mirrorActors: false },
+      gantt: { useMaxWidth: true }
+    });
+  </script>
+</head>
+<body>
+
+<header class="site-header">
+  <div class="nav-wrap">
+    <div class="brand">Architecture logicielle &amp; systèmes distribués</div>
+    <button class="menu-toggle" aria-label="Menu" onclick="this.closest('.nav-wrap').querySelector('.nav-scroll-zone').classList.toggle('open')">☰</button>
+    <div class="nav-scroll-zone">
+      <nav class="top-nav">
+        <span class="nav-group-label">Cours</span>
+        <a href="../index.html">Accueil</a>
+        <a href="../pages/introduction.html">Introduction</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">Jours</span>
+        <a href="../pages/jour-1-fondamentaux-architecture.html">Jour 1</a>
+        <a href="../pages/jour-2-patterns-et-couches.html">Jour 2</a>
+        <a href="../pages/jour-3-systemes-distribues-et-api.html">Jour 3</a>
+        <a href="../pages/jour-4-microservices-et-communication.html">Jour 4</a>
+        <a href="../pages/jour-5-resilience-observabilite-et-securite.html">Jour 5</a>
+        <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">Jour 6</a>
+        <a href="../pages/jour-7.html" class="current">Jour 7</a>
+        <a href="../pages/jour-8.html">Jour 8</a>
+        <span class="nav-sep"></span>
+        <span class="nav-group-label">TP</span>
+        <a href="../pages/tp-1.html">TP1</a>
+        <a href="../pages/tp-2.html">TP2</a>
+        <a href="../pages/tp-3.html">TP3</a>
+        <span class="nav-sep"></span>
+        <a href="../pages/exercices.html">Exercices</a>
+        <a href="../pages/corriges.html">Corrigés</a>
+        <a href="../pages/glossary.html">Glossaire</a>
+      </nav>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="hero" style="background: linear-gradient(135deg, #fff7ed, #fff 45%, #eff6ff);">
+    <div class="badges">
+      <span class="badge">⚡ Event-Driven Architecture</span>
+      <span class="badge">↔️ CQRS</span>
+      <span class="badge">📜 Event Sourcing</span>
+      <span class="badge">🌊 Reactive Systems</span>
+      <span class="badge">🕸️ Service Mesh</span>
+      <span class="badge">Master 2 · Jour 7</span>
+    </div>
+    <h1>Jour 7 — Architecture événementielle avancée</h1>
+    <p style="color:#334155;font-size:1.05rem;margin-bottom:1rem;">EDA · CQRS · Event Sourcing · Reactive Systems — les <strong>patterns architecturaux avancés</strong> du distribué moderne</p>
+    <div class="meta-grid">
+      <div class="meta">
+        <h3>🎯 Objectifs</h3>
+        <p>Maîtriser l'architecture événementielle comme décision structurante, comprendre CQRS et Event Sourcing, découvrir les Reactive Systems et le Service Mesh.</p>
+      </div>
+      <div class="meta"><h3>⏱ Durée</h3><p>≈ 6h incluant ateliers de conception et quiz</p></div>
+      <div class="meta"><h3>📚 Prérequis</h3><p>Jours 1–6 acquis — microservices, messaging, gouvernance</p></div>
+    </div>
+  </div>
+
+  <div class="quick-tools">
+    <a href="#eda">1. Event-Driven Architecture</a>
+    <a href="#patterns-eda">2. Patterns EDA</a>
+    <a href="#cqrs">3. CQRS</a>
+    <a href="#event-sourcing">4. Event Sourcing</a>
+    <a href="#reactive">5. Reactive Systems</a>
+    <a href="#service-mesh">6. Service Mesh</a>
+    <a href="#chaos">7. Chaos Engineering</a>
+    <a href="#quiz">8. Quiz</a>
+  </div>
+
+  <div class="layout">
+    <aside class="toc">
+      <details open>
+        <summary>Table des matières</summary>
+        <ul>
+          <li><a href="#eda">1. Event-Driven Architecture</a></li>
+          <li><a href="#eda-vs-request">— EDA vs Request/Response</a></li>
+          <li><a href="#types-evenements">— Taxonomie des événements</a></li>
+          <li><a href="#patterns-eda">2. Patterns EDA</a></li>
+          <li><a href="#event-notification">— Event Notification</a></li>
+          <li><a href="#event-carried-state">— Event-Carried State Transfer</a></li>
+          <li><a href="#event-stream">— Event Streaming</a></li>
+          <li><a href="#cqrs">3. CQRS</a></li>
+          <li><a href="#cqrs-simple">— CQRS simple</a></li>
+          <li><a href="#cqrs-avance">— CQRS avec projections</a></li>
+          <li><a href="#event-sourcing">4. Event Sourcing</a></li>
+          <li><a href="#es-principes">— Principes</a></li>
+          <li><a href="#es-avantages">— Trade-offs</a></li>
+          <li><a href="#es-cqrs">— ES + CQRS combinés</a></li>
+          <li><a href="#reactive">5. Reactive Systems</a></li>
+          <li><a href="#reactive-manifesto">— Reactive Manifesto</a></li>
+          <li><a href="#backpressure">— Backpressure</a></li>
+          <li><a href="#service-mesh">6. Service Mesh</a></li>
+          <li><a href="#chaos">7. Chaos Engineering</a></li>
+          <li><a href="#quiz">8. Quiz</a></li>
+        </ul>
+      </details>
+    </aside>
+
+    <article class="content">
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 1 — EVENT-DRIVEN ARCHITECTURE
+═══════════════════════════════════════════════════════ -->
+<section id="eda">
+  <span class="section-kicker">Architecture événementielle</span>
+  <h2>1. Event-Driven Architecture — Une décision de couplage</h2>
+  <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — Le tableau d'affichage de la bibliothèque</h4>
+    <p>Dans une bibliothèque physique, quand un livre est retourné, la bibliothécaire ne court pas prévenir chaque étudiant intéressé un par un (appel synchrone). Elle affiche un avis sur le tableau d'affichage (événement). Chacun consulte le tableau à son rythme (découplage temporel). Personne n'attend personne.</p>
+  </div>
+
+  <div class="box definition">
+    <h4>📖 Définition — Event-Driven Architecture</h4>
+    <p>Style architectural dans lequel les composants communiquent via des <strong>événements</strong> plutôt que des appels directs. Un producteur émet un fait passé ("loan-created"), sans savoir qui l'écoutera ni combien de consommateurs réagiront. Le couplage est réduit au minimum : le producteur ne connaît que le canal, pas les abonnés.</p>
+  </div>
+
+  <h3 id="eda-vs-request">1.1 EDA vs Request/Response — Décision de couplage</h3>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 14px;">📐 Comparaison structurelle — campus_library : créer un prêt</p>
+    <div class="columns">
+      <div>
+        <strong style="color:#b91c1c;display:block;margin-bottom:8px;">🔴 Request/Response synchrone</strong>
+        <div style="background:#1e293b;border-radius:10px;padding:14px;font-family:'Fira Code',monospace;font-size:.8rem;color:#94a3b8;line-height:2;">
+          <span style="color:#60a5fa;">loan-service</span><br>
+          &nbsp;&nbsp;→ <span style="color:#f87171;">POST catalog/reserve</span> (attente)<br>
+          &nbsp;&nbsp;→ <span style="color:#f87171;">POST student/check-quota</span> (attente)<br>
+          &nbsp;&nbsp;→ <span style="color:#f87171;">POST notification/send</span> (attente)<br>
+          &nbsp;&nbsp;→ <span style="color:#f87171;">POST audit/log</span> (attente)<br>
+          <span style="color:#fbbf24;">Durée totale : somme des latences</span><br>
+          <span style="color:#ef4444;">Si 1 échoue : tout échoue</span>
+        </div>
+      </div>
+      <div>
+        <strong style="color:#15803d;display:block;margin-bottom:8px;">🟢 Event-Driven</strong>
+        <div style="background:#1e293b;border-radius:10px;padding:14px;font-family:'Fira Code',monospace;font-size:.8rem;color:#94a3b8;line-height:2;">
+          <span style="color:#60a5fa;">loan-service</span><br>
+          &nbsp;&nbsp;→ <span style="color:#4ade80;">émit "loan-created" event</span> ✓<br>
+          &nbsp;&nbsp;→ <span style="color:#94a3b8;">répond 201 Created</span><br>
+          <span style="color:#94a3b8;">catalog-service</span> ← écoute event<br>
+          <span style="color:#94a3b8;">notification-svc</span> ← écoute event<br>
+          <span style="color:#94a3b8;">audit-service</span>    ← écoute event<br>
+          <span style="color:#4ade80;">Durée : latence de l'émission seule</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Dimension</th><th>Request/Response</th><th>Event-Driven</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Couplage temporel</strong></td><td>Producteur attend la réponse</td><td>Producteur n'attend pas</td></tr>
+      <tr><td><strong>Couplage spatial</strong></td><td>Producteur connaît l'adresse du consommateur</td><td>Producteur connaît seulement le canal</td></tr>
+      <tr><td><strong>Cohérence</strong></td><td>Forte (transactionnelle)</td><td>Éventuelle (eventual consistency)</td></tr>
+      <tr><td><strong>Débogage</strong></td><td>Stack trace linéaire, facile</td><td>Flux asynchrone, corrélation nécessaire</td></tr>
+      <tr><td><strong>Scalabilité</strong></td><td>Limitée par la dépendance la plus lente</td><td>Chaque consommateur scale indépendamment</td></tr>
+      <tr><td><strong>Ajout d'un consommateur</strong></td><td>Modifier le producteur</td><td>Zéro modification du producteur</td></tr>
+      <tr><td><strong>Quand l'utiliser</strong></td><td>Réponse immédiate requise (disponibilité stock ?)</td><td>Action déclenchée, pas de réponse attendue</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Comparaison séquentielle : créer un prêt</div>
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as 👤 Étudiant Ahmed
+    participant L as 📘 loan-service
+    participant C as 📚 catalog-service
+    participant N as 📧 notification
+    participant A as 📋 audit
+    rect rgb(254, 226, 226)
+    Note over U,A: 🔴 Mode synchrone (Request/Response)
+    U->>L: POST /loans
+    L->>C: réserver livre (attend...)
+    C-->>L: OK
+    L->>N: envoyer email (attend...)
+    N-->>L: OK
+    L->>A: logger (attend...)
+    A-->>L: OK
+    L-->>U: 201 Created (après TOUT)
+    end
+    rect rgb(220, 252, 231)
+    Note over U,A: 🟢 Mode événementiel
+    U->>L: POST /loans
+    L->>L: persiste + émet LoanCreated
+    L-->>U: 201 Created (immédiat ✓)
+    par En parallèle, asynchrone
+        L--)C: event LoanCreated
+        L--)N: event LoanCreated
+        L--)A: event LoanCreated
+    end
+    end
+    </div>
+    <p class="mermaid-caption">En synchrone, l'étudiant attend la somme des latences. En événementiel, il reçoit la confirmation dès la persistance — les autres services réagissent en parallèle, sans bloquer la réponse.</p>
+  </div>
+
+  <div class="use-case-box">
+    <h4>🎯 Quand utiliser EDA en vrai ?</h4>
+    <ul>
+      <li><strong>Notifications &amp; intégrations</strong> : envoyer un email, un SMS, un webhook après une action → le client n'a pas besoin d'attendre.</li>
+      <li><strong>Pipelines de données</strong> : indexer dans Elasticsearch, mettre à jour un dashboard analytics, alimenter un data warehouse.</li>
+      <li><strong>Workflows multi-services</strong> : un prêt déclenche stock, notification, statistiques, audit — chacun avance à son rythme.</li>
+      <li><strong>Domaines à fort taux d'évolution</strong> : ajouter un nouveau consommateur (ex: nouveau service de recommandation) sans toucher au producteur.</li>
+    </ul>
+  </div>
+
+  <div class="real-world-box">
+    <h4>🏢 Exemples d'entreprises qui utilisent massivement EDA</h4>
+    <ul>
+      <li><strong>Uber</strong> : chaque course émet des dizaines d'événements (course créée, chauffeur attribué, position mise à jour, course terminée, paiement effectué). Le pricing, le routing, les statistiques et le support en consomment chacun ce qui les intéresse.</li>
+      <li><strong>Netflix</strong> : chaque "play", "pause", "seek" devient un événement, alimentant la recommandation, le billing, la détection d'incidents et le contrôle qualité — sans coupler les services entre eux.</li>
+      <li><strong>LinkedIn</strong> : Kafka a été créé chez eux pour gérer leurs événements (profile updated, connection accepted, message sent) à grande échelle.</li>
+    </ul>
+  </div>
+
+
+  <h3 id="types-evenements">1.2 Taxonomie des événements — 3 types fondamentaux</h3>
+
+  <div class="retenir-grid">
+    <div class="retenir-card">
+      <h4>📢 Event Notification</h4>
+      <ul>
+        <li>Annonce qu'un fait s'est passé</li>
+        <li>Payload minimal (juste l'ID)</li>
+        <li>Le consommateur va chercher les détails si besoin</li>
+        <li>Ex : <code>{"type":"loan-created","loanId":"abc-123"}</code></li>
+      </ul>
+      <p class="small">✅ Léger ❌ Chattiness si beaucoup de consommateurs</p>
+    </div>
+    <div class="retenir-card green">
+      <h4>📦 Event-Carried State Transfer</h4>
+      <ul>
+        <li>L'événement contient tout l'état nécessaire</li>
+        <li>Consommateur autonome, pas de rappel</li>
+        <li>Ex : <code>{"type":"loan-created","loanId":"abc","bookTitle":"Clean Code","studentName":"Ahmed",...}</code></li>
+      </ul>
+      <p class="small">✅ Autonomie ❌ Events volumineux, couplage sur le modèle</p>
+    </div>
+    <div class="retenir-card orange">
+      <h4>📜 Domain Event (DDD)</h4>
+      <ul>
+        <li>Fait métier significatif, immutable</li>
+        <li>Nommé au passé : "LoanCreated", "BookReturned"</li>
+        <li>Versioned (v1, v2)</li>
+        <li>Ex : fait partie du ubiquitous language</li>
+      </ul>
+      <p class="small">✅ Expressivité métier ❌ Discipline DDD requise</p>
+    </div>
+  </div>
+
+  <div class="box expert">
+    <h4>🏛️ Règle d'or — Nommer les événements</h4>
+    <p>Un événement est un <strong>fait passé et immutable</strong>. Il se nomme toujours au passé composé et en langage métier, jamais technique : <strong>"LoanCreated"</strong> (pas "SaveLoanEvent"), <strong>"BookReturned"</strong> (pas "UpdateBookStatusEvent"). Si vous hésitez sur le nom, c'est que la frontière de votre bounded context n'est pas claire.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 2 — PATTERNS EDA
+═══════════════════════════════════════════════════════ -->
+<section id="patterns-eda">
+  <span class="section-kicker">Patterns EDA</span>
+  <h2>2. Patterns EDA — Trois approches architecturales</h2>
+  <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <p class="section-intro">Référence : Martin Fowler — <em>"What do you mean by 'Event-Driven'?"</em> (2017). Ces trois patterns se combinent mais répondent à des problèmes différents.</p>
+
+  <h3 id="event-notification">2.1 Event Notification — Le signal minimal</h3>
+
+  <div class="columns">
+    <div class="box definition">
+      <h4>📖 Principe</h4>
+      <p>Le producteur envoie un signal léger : "quelque chose s'est passé". Les consommateurs qui veulent les détails <strong>rappellent le producteur</strong> pour les obtenir. Faible couplage de données, mais génère des appels retour.</p>
+    </div>
+    <div class="box warning">
+      <h4>⚠️ Quand éviter</h4>
+      <p>Si chaque consommateur rappelle systématiquement le producteur après chaque événement, on reconstitue du couplage synchrone caché. Le bénéfice de l'asynchronisme disparaît.</p>
+    </div>
+  </div>
+
+  <h3 id="event-carried-state">2.2 Event-Carried State Transfer — L'autonomie maximale</h3>
+
+  <div class="box definition">
+    <h4>📖 Principe</h4>
+    <p>L'événement contient tout ce dont les consommateurs ont besoin. Chaque service maintient sa <strong>propre copie locale</strong> des données qui lui sont pertinentes (réplication partielle). Pas de rappel nécessaire → résistance aux pannes des dépendances.</p>
+  </div>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 ECST — Réplication locale dans campus_library</p>
+    <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:start;">
+      <div style="background:#dbeafe;border:1.5px solid #93c5fd;border-radius:12px;padding:14px;">
+        <strong style="color:#1d4ed8;display:block;margin-bottom:6px;">catalog-service</strong>
+        <p style="font-size:.83rem;margin:0;">Émet <code>BookUpdated</code> event avec le titre complet, l'auteur, le stock. Chaque consommateur reçoit ce qu'il lui faut.</p>
+      </div>
+      <div style="display:flex;flex-direction:column;justify-content:center;align-items:center;gap:6px;padding-top:20px;">
+        <div style="font-size:.75rem;color:#64748b;">Event bus</div>
+        <div style="font-size:1.3rem;">→</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:10px;padding:10px;">
+          <strong style="color:#15803d;font-size:.88rem;">loan-service</strong>
+          <p style="margin:4px 0 0;font-size:.8rem;">Stocke localement : titre + stock (pour vérification sans appel réseau)</p>
+        </div>
+        <div style="background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:10px;padding:10px;">
+          <strong style="color:#7c3aed;font-size:.88rem;">search-service</strong>
+          <p style="margin:4px 0 0;font-size:.8rem;">Stocke localement : titre + auteur + mots-clés (pour full-text search autonome)</p>
+        </div>
+        <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;padding:10px;">
+          <strong style="color:#c2410c;font-size:.88rem;">analytics-service</strong>
+          <p style="margin:4px 0 0;font-size:.8rem;">Stocke localement : catégorie + éditeur (pour statistiques)</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="event-stream">2.3 Event Streaming — Le log distribué</h3>
+
+  <div class="box pro-mode">
+    <h4>🏛️ Principe architectural — Event Stream comme source de vérité</h4>
+    <p>Le stream d'événements <strong>est</strong> la vérité du système. Les données en base de données ne sont que des projections du stream. Un nouveau consommateur peut <strong>rejouer l'historique entier</strong> pour construire sa propre vue. C'est le principe fondateur de Kafka et d'Event Sourcing.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Pattern</th><th>Producteur sait qui consomme ?</th><th>Consommateur autonome ?</th><th>Rejouable ?</th><th>Cas d'usage principal</th></tr></thead>
+    <tbody>
+      <tr><td>Event Notification</td><td>Non</td><td>Non (doit rappeler)</td><td>Non</td><td>Déclenchement simple</td></tr>
+      <tr><td>Event-Carried State</td><td>Non</td><td>Oui</td><td>Partiel</td><td>Réplication de données</td></tr>
+      <tr><td>Event Streaming</td><td>Non</td><td>Oui (rejeu complet)</td><td>Oui (rétention)</td><td>Source de vérité, audit, CQRS</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Les 3 patterns EDA côte à côte</div>
+    <div class="mermaid">
+flowchart LR
+    subgraph s1["📢 1. Event Notification (signal léger)"]
+        direction LR
+        P1["loan-service<br>📤 émet :<br>{loanId: 'abc'}"] -->|event mince| Q1[(Bus)]
+        Q1 --> N1["notification<br>📥 reçoit l'ID"]
+        N1 -.rappel HTTP.-> P1
+    end
+    subgraph s2["📦 2. Event-Carried State Transfer (autonomie)"]
+        direction LR
+        P2["loan-service<br>📤 émet :<br>{loanId, livre, étudiant,<br>date, durée...}"] -->|event riche| Q2[(Bus)]
+        Q2 --> N2["notification<br>✅ tout est dans l'event<br>aucun rappel"]
+    end
+    subgraph s3["📜 3. Event Streaming (log historisé)"]
+        direction LR
+        P3["loan-service<br>📤 émet"] -->|append| K3[("Kafka log<br>rétention 30j")]
+        K3 --> N3["analytics<br>peut REJOUER<br>tout l'historique"]
+        K3 --> N4["nouveau service<br>arrive aujourd'hui<br>et lit depuis J0"]
+    end
+    style s1 fill:#fff7ed,stroke:#fb923c
+    style s2 fill:#dbeafe,stroke:#3b82f6
+    style s3 fill:#f5f3ff,stroke:#a78bfa
+    </div>
+    <p class="mermaid-caption">Chaque pattern résout un problème différent. Notification = simplicité. ECST = autonomie. Streaming = mémoire et rejeu.</p>
+  </div>
+
+  <div class="use-case-box">
+    <h4>🎯 Choix pratique : quel pattern pour quel besoin ?</h4>
+    <ul>
+      <li><strong>Event Notification</strong> : "déclenche quelque chose, je m'en fiche du détail" → ex: un cron qui réveille un job.</li>
+      <li><strong>Event-Carried State</strong> : "je veux fonctionner même si l'autre service tombe" → ex: notification-service garde sa propre vue des prêts.</li>
+      <li><strong>Event Streaming</strong> : "je veux pouvoir reconstruire mes données après un bug, ou intégrer un nouveau service rétroactivement" → ex: nouveau dashboard analytics qui replay 6 mois.</li>
+    </ul>
+  </div>
+
+
+  <div class="box best-practice">
+    <h4>✅ Règle de sélection des patterns EDA</h4>
+    <p>Commencer par <strong>Event Notification</strong> (simple). Passer à <strong>ECST</strong> quand les consommateurs rappellent trop souvent. Adopter <strong>Event Streaming</strong> seulement quand l'historique, le rejeu ou la traçabilité complète sont des besoins métier explicites — le coût opérationnel (Kafka) est significatif.</p>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 3 — CQRS
+═══════════════════════════════════════════════════════ -->
+<section id="cqrs">
+  <span class="section-kicker">CQRS</span>
+  <h2>3. CQRS — Command Query Responsibility Segregation</h2>
+  <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — La bibliothécaire et le catalogue</h4>
+    <p>Dans une bibliothèque, la bibliothécaire qui <em>enregistre</em> un retour de livre travaille différemment de l'étudiant qui <em>cherche</em> dans le catalogue. L'une modifie une base (write), l'autre consulte un index optimisé pour la recherche (read). CQRS formalise cette séparation : deux modèles distincts, deux chemins distincts.</p>
+  </div>
+
+  <div class="box definition">
+    <h4>📖 Définition — CQRS (Greg Young, 2010)</h4>
+    <p>Séparation stricte entre les <strong>Commands</strong> (opérations qui changent l'état — write) et les <strong>Queries</strong> (opérations qui lisent l'état — read). Chaque chemin peut avoir son propre modèle de données, son propre store, sa propre scalabilité.</p>
+  </div>
+
+  <h3 id="cqrs-simple">3.1 CQRS simple — Même store, modèles séparés</h3>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 14px;">📐 CQRS niveau 1 — Séparation des modèles (campus_library)</p>
+    <div style="display:grid;grid-template-columns:1fr 60px 1fr;gap:10px;align-items:start;">
+      <div>
+        <div style="background:#fff7ed;border:2px solid #fed7aa;border-radius:12px;padding:14px;margin-bottom:10px;">
+          <strong style="color:#c2410c;display:block;margin-bottom:8px;">📝 Write Side — Commands</strong>
+          <div style="background:#1e293b;border-radius:8px;padding:10px;font-family:'Fira Code',monospace;font-size:.79rem;color:#94a3b8;line-height:1.9;">
+            <span style="color:#f97316;">CreateLoanCommand</span><br>
+            <span style="color:#94a3b8;">  → Validation métier stricte</span><br>
+            <span style="color:#94a3b8;">  → Vérification quota étudiant</span><br>
+            <span style="color:#94a3b8;">  → Mise à jour stock catalogue</span><br>
+            <span style="color:#94a3b8;">  → Modèle riche (DDD Aggregate)</span><br>
+            <span style="color:#fbbf24;">  → DB Write (PostgreSQL)</span>
+          </div>
+        </div>
+        <div style="background:#fff7ed;border:2px solid #fed7aa;border-radius:12px;padding:14px;">
+          <strong style="color:#c2410c;display:block;margin-bottom:8px;">📝 ReturnLoanCommand</strong>
+          <div style="background:#1e293b;border-radius:8px;padding:10px;font-family:'Fira Code',monospace;font-size:.79rem;color:#94a3b8;line-height:1.9;">
+            <span style="color:#f97316;">ReturnLoanCommand</span><br>
+            <span style="color:#94a3b8;">  → Calcul pénalité si retard</span><br>
+            <span style="color:#94a3b8;">  → Libération stock catalogue</span><br>
+            <span style="color:#fbbf24;">  → DB Write (PostgreSQL)</span>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;justify-content:center;height:100%;padding-top:60px;">
+        <div style="font-size:1.3rem;color:#94a3b8;writing-mode:vertical-rl;text-orientation:mixed;">
+          ← même DB →
+        </div>
+      </div>
+      <div>
+        <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:12px;padding:14px;margin-bottom:10px;">
+          <strong style="color:#1d4ed8;display:block;margin-bottom:8px;">🔍 Read Side — Queries</strong>
+          <div style="background:#1e293b;border-radius:8px;padding:10px;font-family:'Fira Code',monospace;font-size:.79rem;color:#94a3b8;line-height:1.9;">
+            <span style="color:#60a5fa;">GetStudentLoansQuery</span><br>
+            <span style="color:#94a3b8;">  → Modèle dénormalisé (DTO flat)</span><br>
+            <span style="color:#94a3b8;">  → Vue SQL optimisée (index)</span><br>
+            <span style="color:#94a3b8;">  → Pas de logique métier</span><br>
+            <span style="color:#4ade80;">  → DB Read (même PostgreSQL)</span>
+          </div>
+        </div>
+        <div style="background:#eff6ff;border:2px solid #93c5fd;border-radius:12px;padding:14px;">
+          <strong style="color:#1d4ed8;display:block;margin-bottom:8px;">🔍 SearchBooksQuery</strong>
+          <div style="background:#1e293b;border-radius:8px;padding:10px;font-family:'Fira Code',monospace;font-size:.79rem;color:#94a3b8;line-height:1.9;">
+            <span style="color:#60a5fa;">SearchBooksQuery</span><br>
+            <span style="color:#94a3b8;">  → Full-text index Elasticsearch</span><br>
+            <span style="color:#94a3b8;">  → Store séparé (read replica)</span><br>
+            <span style="color:#4ade80;">  → Scale indépendamment ×5</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3 id="cqrs-avance">3.2 CQRS avancé — Stores séparés et projections</h3>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 CQRS complet — Write Store ≠ Read Store</p>
+    <div style="background:#1e293b;border-radius:10px;padding:16px;font-family:'Fira Code',monospace;font-size:.82rem;color:#94a3b8;line-height:2;">
+      <span style="color:#f97316;">Command</span> → <span style="color:#fb923c;">Write Model</span> → <span style="color:#fbbf24;">Write Store (PostgreSQL)</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#a78bfa;">Domain Event publié</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#4ade80;">Projection Builder</span> (event handler)<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↙&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↓&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;↘<br>
+      <span style="color:#38bdf8;">Read Store A</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#fb923c;">Read Store B</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#a78bfa;">Read Store C</span><br>
+      <span style="color:#7dd3fc;">(PostgreSQL vue)</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#fed7aa;">(Elasticsearch)</span>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#d8b4fe;">(Redis cache)</span><br>
+      <span style="color:#94a3b8;">Dashboard admin</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#94a3b8;">Recherche livre</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span style="color:#94a3b8;">Stats temps réel</span>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Niveau CQRS</th><th>Séparation</th><th>Cohérence</th><th>Quand ?</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Niveau 0 (sans CQRS)</strong></td><td>Aucune</td><td>Forte</td><td>Application simple, équipe unique</td></tr>
+      <tr><td><strong>Niveau 1 (modèles séparés)</strong></td><td>Classes séparées, même store</td><td>Forte</td><td>Besoin de clarté sur les intentions</td></tr>
+      <tr><td><strong>Niveau 2 (stores séparés)</strong></td><td>Write DB ≠ Read DB</td><td>Éventuelle</td><td>Scalabilité read/write asymétrique</td></tr>
+      <tr><td><strong>Niveau 3 (+ Event Sourcing)</strong></td><td>Event log = source de vérité</td><td>Éventuelle</td><td>Auditabilité, replay, time-travel</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box warning">
+    <h4>⚠️ CQRS n'est pas toujours la bonne réponse</h4>
+    <p>CQRS introduit de la cohérence éventuelle : entre la commande et la projection mise à jour, il y a un délai. Si l'utilisateur lit immédiatement après avoir écrit, il peut voir un état périmé. <strong>Ne pas appliquer CQRS par défaut</strong> — seulement quand la scalabilité asymétrique ou l'auditabilité le justifient explicitement.</p>
+  </div>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Flux complet d'une commande CQRS niveau 2</div>
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant U as 👤 Ahmed (UI)
+    participant API as 🌐 API Gateway
+    participant CMD as ✏️ Command Handler
+    participant W as 🗄️ Write DB<br>(PostgreSQL)
+    participant BUS as 📨 Event Bus
+    participant PROJ as 🔄 Projection<br>Builder
+    participant R as 🔍 Read DB<br>(Elasticsearch)
+    participant Q as 👁️ Query Handler
+    U->>API: POST /loans (CreateLoan)
+    API->>CMD: CreateLoanCommand
+    CMD->>CMD: validation métier<br>+ règles DDD
+    CMD->>W: INSERT loan
+    W-->>CMD: ok
+    CMD->>BUS: publish LoanCreated
+    CMD-->>U: 201 Created (id: abc)
+    Note over BUS,R: ⏱️ Asynchrone — quelques ms à quelques s
+    BUS->>PROJ: LoanCreated event
+    PROJ->>R: index loan optimisé pour recherche
+    Note over U,R: Plus tard, l'étudiant consulte ses prêts
+    U->>API: GET /loans?student=ahmed
+    API->>Q: GetStudentLoansQuery
+    Q->>R: SELECT depuis read DB
+    R-->>Q: liste optimisée
+    Q-->>U: 200 OK (DTO plat)
+    </div>
+    <p class="mermaid-caption">Deux chemins complètement séparés. Le write se concentre sur la cohérence métier ; le read sur la performance et la dénormalisation. Le projection builder fait le pont, en asynchrone.</p>
+  </div>
+
+  <div class="use-case-box">
+    <h4>🎯 Quand CQRS est-il vraiment justifié ?</h4>
+    <ul>
+      <li><strong>Lectures &gt;&gt; écritures (10:1, 100:1)</strong> : un site e-commerce a 1000× plus de visites de fiches produit que de modifications du catalogue.</li>
+      <li><strong>Modèles d'affichage très différents du modèle métier</strong> : un dashboard agrège plusieurs aggregates DDD ; sans CQRS, vous faites des jointures complexes à chaque query.</li>
+      <li><strong>Besoin de scalabilité indépendante</strong> : votre moteur de recherche (Elasticsearch) doit scaler ×10 sans toucher à la DB transactionnelle.</li>
+      <li><strong>Sources de vérité multiples</strong> : la même donnée projetée dans Postgres (transac), Elasticsearch (search), Redis (cache) et S3 (export).</li>
+    </ul>
+  </div>
+
+  <div class="real-world-box">
+    <h4>🏢 Exemples concrets de CQRS en production</h4>
+    <ul>
+      <li><strong>Amazon</strong> : la fiche produit que vous voyez n'est PAS lue depuis le catalogue principal. Elle est projetée dans une vue dénormalisée (titre, prix, photos, stock, avis agrégés, recommandations) optimisée pour le rendu.</li>
+      <li><strong>StackOverflow</strong> : quand vous postez une réponse (command), votre profil, le tag, la home page et la liste des "active questions" sont mis à jour via projections — vous voyez parfois quelques secondes de décalage.</li>
+      <li><strong>Twitter/X</strong> : poster un tweet = command. Votre timeline = projection précalculée et fan-outée vers tous vos abonnés. Sans CQRS, lire votre timeline coûterait une jointure géante à chaque visite.</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 4 — EVENT SOURCING
+═══════════════════════════════════════════════════════ -->
+<section id="event-sourcing">
+  <span class="section-kicker">Event Sourcing</span>
+  <h2>4. Event Sourcing — Le journal comme source de vérité</h2>
+  <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — Le livre de comptes d'une banque</h4>
+    <p>Une banque ne stocke pas "solde = 1247€". Elle stocke tous les mouvements : "+500€ virement", "-50€ retrait", "+800€ salaire"... Le solde est <em>calculé</em> à partir de l'historique complet. Revenir en arrière, auditer chaque centime, reconstituer l'état à n'importe quel instant : c'est Event Sourcing.</p>
+  </div>
+
+  <h3 id="es-principes">4.1 Principes fondamentaux</h3>
+
+  <div class="key-rule">
+    <p>🏗️ Principe ES : <strong>Ne jamais mettre à jour l'état — toujours ajouter un événement.</strong><br>
+    <span style="font-size:.9rem;color:#64748b;">L'état courant = rejeu de tous les événements depuis le début (ou depuis le dernier snapshot).</span></p>
+  </div>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 Event Store — Prêt Ahmed / "Clean Code"</p>
+    <div style="background:#1e293b;border-radius:10px;padding:16px;font-family:'Fira Code',monospace;font-size:.82rem;color:#94a3b8;line-height:1.9;overflow-x:auto;">
+      <span style="color:#7dd3fc;"># Event Store — loan aggregate "loan-abc-123"</span><br>
+      <span style="color:#a78bfa;">seq:1</span> <span style="color:#4ade80;">LoanCreated</span>   {studentId:"ahmed", bookId:"clean-code", date:"2024-09-15"}<br>
+      <span style="color:#a78bfa;">seq:2</span> <span style="color:#fbbf24;">LoanExtended</span>  {newDueDate:"2024-10-15", reason:"exam session"}<br>
+      <span style="color:#a78bfa;">seq:3</span> <span style="color:#f97316;">LoanOverdue</span>   {daysLate:3, penaltyAmount:1.5}<br>
+      <span style="color:#a78bfa;">seq:4</span> <span style="color:#60a5fa;">LoanReturned</span>  {returnDate:"2024-10-18", penaltyPaid:true}<br>
+      <br>
+      <span style="color:#7dd3fc;"># Pour connaître l'état actuel :</span><br>
+      <span style="color:#94a3b8;">Rejouer seq 1→4 → état final : Loan{status:RETURNED, penaltyPaid:true}</span><br>
+      <br>
+      <span style="color:#7dd3fc;"># Pour connaître l'état au 16 octobre :</span><br>
+      <span style="color:#94a3b8;">Rejouer seq 1→3 → état partiel : Loan{status:OVERDUE, daysLate:3}</span>
+    </div>
+  </div>
+
+  <h3 id="es-avantages">4.2 Trade-offs architecturaux — ES n'est pas gratuit</h3>
+
+  <div class="columns">
+    <div class="compare-card">
+      <h4>✅ Avantages</h4>
+      <ul>
+        <li><strong>Audit complet</strong> : chaque changement d'état est tracé</li>
+        <li><strong>Time-travel debugging</strong> : état à tout instant</li>
+        <li><strong>Replay</strong> : reconstruire une projection après un bug</li>
+        <li><strong>Découplage temporel</strong> : ajouter un consommateur rétroactivement</li>
+        <li><strong>Intégration naturelle</strong> avec CQRS et DDD</li>
+      </ul>
+    </div>
+    <div class="compare-card">
+      <h4>⚠️ Complexité architecturale</h4>
+      <ul>
+        <li><strong>Snapshots obligatoires</strong> : sans eux, rejouer 10M d'events est lent</li>
+        <li><strong>Schéma évolution</strong> : comment gérer les événements de la v1 avec du code v3 ?</li>
+        <li><strong>Suppression RGPD</strong> : "effacer" une donnée dans un log immutable</li>
+        <li><strong>Cohérence éventuelle</strong> : projections pas toujours à jour</li>
+        <li><strong>Courbe d'apprentissage</strong> : paradigme très différent du CRUD</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="box warning">
+    <h4>⚠️ RGPD et Event Sourcing — le problème de l'immuabilité</h4>
+    <p>Si un utilisateur demande la suppression de ses données (droit à l'oubli), comment effacer des événements dans un log immuable ? Solutions architecturales : <strong>Crypto shredding</strong> (chiffrer les données personnelles avec une clé détruite lors de la suppression) ou <strong>référencer un store externe</strong> pour les PII (l'événement stocke un ID, pas la donnée).</p>
+  </div>
+
+  <h3 id="es-cqrs">4.3 Event Sourcing + CQRS — La combinaison canonique</h3>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 ES + CQRS — Architecture complète campus_library</p>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="background:#fff7ed;border:1.5px solid #fed7aa;border-radius:12px;padding:14px;">
+        <strong style="color:#c2410c;">① Command Side</strong>
+        <p style="margin:4px 0 0;font-size:.87rem;">CreateLoanCommand → LoanAggregate → LoanCreated event → <strong>Event Store</strong></p>
+      </div>
+      <div style="text-align:center;color:#94a3b8;font-size:.85rem;">↓ event publié sur le bus</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;">
+        <div style="background:#eff6ff;border:1.5px solid #93c5fd;border-radius:12px;padding:12px;">
+          <strong style="color:#1d4ed8;font-size:.88rem;">② Projection Prêts actifs</strong>
+          <p style="margin:4px 0 0;font-size:.82rem;">Vue dashboard → PostgreSQL</p>
+        </div>
+        <div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:12px;padding:12px;">
+          <strong style="color:#15803d;font-size:.88rem;">③ Projection Analytics</strong>
+          <p style="margin:4px 0 0;font-size:.82rem;">Stats campus → Elasticsearch</p>
+        </div>
+        <div style="background:#f5f3ff;border:1.5px solid #c4b5fd;border-radius:12px;padding:12px;">
+          <strong style="color:#7c3aed;font-size:.88rem;">④ Projection Audit</strong>
+          <p style="margin:4px 0 0;font-size:.82rem;">Historique immuable → Append-only store</p>
+        </div>
+      </div>
+      <div style="text-align:center;color:#94a3b8;font-size:.85rem;">↓ lues par</div>
+      <div style="background:#f8fbff;border:1.5px solid var(--border);border-radius:12px;padding:12px;text-align:center;">
+        <strong style="color:#334155;">⑤ Query Side</strong> — <span style="font-size:.88rem;color:#64748b;">GetActiveLoans, SearchByStudent, GetAuditTrail → lecture directe des Read Stores</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="box best-practice">
+    <h4>✅ Quand adopter Event Sourcing ?</h4>
+    <p>ES est justifié architecturalement quand <strong>au moins deux</strong> de ces besoins sont présents : auditabilité réglementaire complète, besoin de rejouer l'historique, débogage temporel en production, intégration de nouveaux systèmes rétroactivement. <strong>Ne pas l'adopter</strong> pour un CRUD standard — le coût de complexité est bien réel.</p>
+  </div>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Reconstruire l'état d'un prêt par rejeu</div>
+    <div class="mermaid">
+flowchart TD
+    Start(["🆕 Aggregate Loan vide<br>{}"])
+    E1["📜 seq:1 LoanCreated<br>{student: ahmed, book: clean-code}"]
+    E2["📜 seq:2 LoanExtended<br>{newDueDate: 2024-10-15}"]
+    E3["📜 seq:3 LoanOverdue<br>{daysLate: 3, penalty: 1.5€}"]
+    E4["📜 seq:4 LoanReturned<br>{returnDate: 2024-10-18}"]
+    S1["État après seq 1<br>📖 status: ACTIVE<br>dueDate: 2024-09-29"]
+    S2["État après seq 2<br>📖 status: ACTIVE<br>dueDate: 2024-10-15 (extended)"]
+    S3["État après seq 3<br>⚠️ status: OVERDUE<br>penalty: 1.5€"]
+    S4["✅ État final<br>status: RETURNED<br>penaltyPaid: true"]
+    Start --> E1 --> S1
+    S1 --> E2 --> S2
+    S2 --> E3 --> S3
+    S3 --> E4 --> S4
+    SNAP["📸 Snapshot tous les N events<br>évite de rejouer 10M d'events"]
+    S2 -.optimisation.-> SNAP
+    style E1 fill:#dcfce7,stroke:#16a34a
+    style E2 fill:#fef9c3,stroke:#ca8a04
+    style E3 fill:#fed7aa,stroke:#ea580c
+    style E4 fill:#dbeafe,stroke:#2563eb
+    style S4 fill:#d1fae5,stroke:#10b981,stroke-width:3px
+    style SNAP fill:#fce7f3,stroke:#db2777,stroke-dasharray: 5 5
+    </div>
+    <p class="mermaid-caption">L'état n'est jamais "stocké" — il est calculé. Pour optimiser, on prend des photos (snapshots) tous les N événements pour ne pas rejouer depuis le début.</p>
+  </div>
+
+  <div class="use-case-box">
+    <h4>🎯 Quand Event Sourcing est-il indispensable ?</h4>
+    <ul>
+      <li><strong>Audit réglementaire</strong> : banque, assurance, santé — la loi exige la traçabilité complète et immutable de chaque opération.</li>
+      <li><strong>Time-travel debugging</strong> : "comment était cet utilisateur le 14 mars à 18h ?" — impossible avec un CRUD classique, trivial avec ES.</li>
+      <li><strong>Reconstruction de projections</strong> : un bug a corrompu votre dashboard analytics ? Vous rebuildez à partir des events, sans perte.</li>
+      <li><strong>Intégration rétroactive</strong> : un nouveau service arrive et veut connaître toute l'histoire passée → il consomme les events depuis le début.</li>
+    </ul>
+  </div>
+
+  <div class="real-world-box">
+    <h4>🏢 Domaines où Event Sourcing est massivement utilisé</h4>
+    <ul>
+      <li><strong>Finance &amp; banking</strong> : un solde de compte n'est JAMAIS stocké tel quel. Il est dérivé de la liste des transactions. C'est Event Sourcing depuis 500 ans (livres de comptes).</li>
+      <li><strong>Versioning de code (Git)</strong> : Git EST un event store. Chaque commit est un événement immutable. <code>git log</code> = lire les events. <code>git checkout abc123</code> = reconstruire l'état à un instant T.</li>
+      <li><strong>Blockchain</strong> : pure Event Sourcing à l'échelle planétaire — chaque transaction est un event, l'état des wallets est calculé.</li>
+      <li><strong>Walmart, Tesla</strong> : suivi des stocks et de la maintenance véhicules — chaque modification est un fait historique.</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 5 — REACTIVE SYSTEMS
+═══════════════════════════════════════════════════════ -->
+<section id="reactive">
+  <span class="section-kicker">Systèmes réactifs</span>
+  <h2>5. Reactive Systems — Architecture de la fluidité</h2>
+  <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — L'eau vs les billes</h4>
+    <p>Des billes dans un tuyau : si le tuyau se bouche, les billes s'entassent et tout s'arrête. De l'eau : elle s'adapte à la pression, accélère dans les goulets, ralentit quand le débit diminue. Un Reactive System se comporte comme l'eau : il s'adapte à la charge plutôt que de bloquer.</p>
+  </div>
+
+  <h3 id="reactive-manifesto">5.1 Le Reactive Manifesto — 4 propriétés</h3>
+
+  <div class="retenir-grid">
+    <div class="retenir-card">
+      <h4>⚡ Responsive (Réactif)</h4>
+      <ul>
+        <li>Répond toujours dans un délai borné</li>
+        <li>Pas de timeout infini, pas de blocage</li>
+        <li>Latence prévisible même en charge</li>
+      </ul>
+    </div>
+    <div class="retenir-card green">
+      <h4>🛡️ Resilient (Résilient)</h4>
+      <ul>
+        <li>Continue à fonctionner en cas de panne partielle</li>
+        <li>Réplication, containment, isolation</li>
+        <li>Récupération déléguée à un superviseur</li>
+      </ul>
+    </div>
+    <div class="retenir-card orange">
+      <h4>📊 Elastic (Élastique)</h4>
+      <ul>
+        <li>Scale up/down selon la charge</li>
+        <li>Pas de goulot d'étranglement en contention</li>
+        <li>Algorithmes adaptatifs (sharding, load balancing)</li>
+      </ul>
+    </div>
+    <div class="retenir-card purple">
+      <h4>💬 Message-Driven</h4>
+      <ul>
+        <li>Asynchrone + non-bloquant</li>
+        <li>Backpressure explicite</li>
+        <li>Isolation par échanges de messages</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 id="backpressure">5.2 Backpressure — Le mécanisme central</h3>
+
+  <div class="box definition">
+    <h4>📖 Définition — Backpressure</h4>
+    <p>Mécanisme par lequel un consommateur <strong>signale au producteur</strong> de ralentir parce qu'il n'arrive plus à traiter les messages à la vitesse de production. Sans backpressure, les messages s'accumulent en mémoire jusqu'à OOM (Out of Memory). Avec backpressure, le producteur s'adapte.</p>
+  </div>
+
+  <div class="columns">
+    <div style="background:#fee2e2;border:1.5px solid #fca5a5;border-radius:12px;padding:14px;">
+      <strong style="color:#b91c1c;display:block;margin-bottom:8px;">❌ Sans backpressure</strong>
+      <div style="background:#1e293b;border-radius:8px;padding:10px;font-family:'Fira Code',monospace;font-size:.8rem;color:#94a3b8;line-height:1.8;">
+        Producer: 10 000 events/sec<br>
+        Consumer: 1 000 events/sec<br>
+        Buffer : s'accumule → <span style="color:#ef4444;">OOM en 10min</span><br>
+        Résultat : <span style="color:#f87171;">crash du service</span>
+      </div>
+    </div>
+    <div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:12px;padding:14px;">
+      <strong style="color:#15803d;display:block;margin-bottom:8px;">✅ Avec backpressure</strong>
+      <div style="background:#1e293b;border-radius:8px;padding:10px;font-family:'Fira Code',monospace;font-size:.8rem;color:#94a3b8;line-height:1.8;">
+        Consumer signale : "je peux traiter<br>&nbsp;&nbsp;1 000/sec max"<br>
+        Producer s'adapte → <span style="color:#4ade80;">1 000/sec</span><br>
+        Ou drop + alerte, ou buffer borné
+      </div>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Stratégie backpressure</th><th>Comportement</th><th>Quand l'utiliser</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Request (pull)</strong></td><td>Le consommateur demande N éléments quand il est prêt</td><td>Traitement contrôlé, latence tolérable</td></tr>
+      <tr><td><strong>Drop</strong></td><td>Ignorer les messages en excès</td><td>Données non critiques (métriques, analytics)</td></tr>
+      <tr><td><strong>Buffer borné</strong></td><td>File d'attente de taille fixe, reject si pleine</td><td>Pics courts, tolérance à la perte</td></tr>
+      <tr><td><strong>Throttling producteur</strong></td><td>Ralentir le producteur jusqu'à la capacité consommateur</td><td>Données critiques, pas de perte acceptable</td></tr>
+    </tbody>
+  </table>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Backpressure en action (pull-based)</div>
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant P as 🚿 Producer<br>(Kafka)
+    participant B as 📦 Buffer<br>(borné: 1000)
+    participant C as 🐢 Consumer<br>(traite 1000/s)
+    Note over P,C: ✅ Modèle réactif (pull-based, demand-driven)
+    C->>P: request(500)<br>"je peux prendre 500"
+    P->>B: pousse 500 messages
+    B->>C: livre 500 messages
+    C->>C: traite (500ms)
+    C->>P: request(500)<br>"prêt pour 500 de plus"
+    Note over P,C: 🚨 Si le consumer ralentit (DB lente, GC, etc.)
+    C->>C: traitement long (3s)
+    Note over P: Producer ATTEND la demande<br>aucun message poussé
+    Note over B: Buffer reste vide ou stable<br>0 OOM, 0 perte
+    C->>P: request(100)<br>"je suis en surcharge, juste 100"
+    P->>B: pousse 100
+    B->>C: livre 100
+    Note over P,C: ⚖️ Le système s'auto-régule<br>sans crash, sans perte
+    </div>
+    <p class="mermaid-caption">Le consumer "tire" la quantité qu'il peut traiter. Le producer s'adapte. Sans backpressure, le buffer grossit jusqu'au crash mémoire.</p>
+  </div>
+
+  <div class="use-case-box">
+    <h4>🎯 Où voit-on Reactive Systems en pratique ?</h4>
+    <ul>
+      <li><strong>Streaming vidéo (Netflix, YouTube)</strong> : votre lecteur ne télécharge que ce qu'il peut afficher (pull). Sinon, votre RAM exploserait sur un film 4K.</li>
+      <li><strong>API gateways en pic de charge</strong> : Spring WebFlux, Node.js — gérer 100k connexions concurrentes sans 100k threads.</li>
+      <li><strong>Pipelines IoT</strong> : un capteur émet 10k mesures/s, mais le serveur d'analyse traite 1k/s — sans backpressure, le serveur tombe en quelques minutes.</li>
+      <li><strong>Trading algorithmique</strong> : flux de cotations à très haut débit, où perdre des messages n'est pas une option.</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 6 — SERVICE MESH
+═══════════════════════════════════════════════════════ -->
+<section id="service-mesh">
+  <span class="section-kicker">Infrastructure de communication</span>
+  <h2>6. Service Mesh — Externaliser les préoccupations transverses</h2>
+  <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — Le réseau électrique vs l'électronique embarquée</h4>
+    <p>Avant le réseau électrique public, chaque usine gérait sa propre génération d'électricité. Chaque maison avait son générateur. Aujourd'hui, l'électricité est une infrastructure partagée. Un Service Mesh fait pareil avec le réseau entre services : TLS mutuel, retry, circuit breaker, métriques — externalisés dans l'infrastructure, retirés du code applicatif.</p>
+  </div>
+
+  <div class="box definition">
+    <h4>📖 Définition — Service Mesh</h4>
+    <p>Couche d'infrastructure dédiée à la communication inter-services. Implémentée via des <strong>sidecars proxies</strong> (ex: Envoy) injectés automatiquement dans chaque pod. Ces proxies interceptent tout le trafic réseau et appliquent les politiques transverses sans modifier le code applicatif.</p>
+  </div>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 Service Mesh — Sidecar pattern</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div style="background:#f8fbff;border:1.5px solid var(--border);border-radius:12px;padding:14px;">
+        <strong style="color:#1d4ed8;display:block;margin-bottom:6px;">Pod loan-service</strong>
+        <div style="display:flex;gap:8px;align-items:stretch;">
+          <div style="background:#dbeafe;border-radius:8px;padding:10px;flex:1;text-align:center;">
+            <div style="font-size:1.2rem;">📚</div>
+            <strong style="font-size:.8rem;color:#1d4ed8;">loan-service</strong>
+            <p style="font-size:.75rem;margin:4px 0 0;color:#374151;">Code métier pur<br>Ignore le réseau</p>
+          </div>
+          <div style="background:#f5f3ff;border-radius:8px;padding:10px;flex:1;text-align:center;">
+            <div style="font-size:1.2rem;">🔀</div>
+            <strong style="font-size:.8rem;color:#7c3aed;">Envoy Proxy</strong>
+            <p style="font-size:.75rem;margin:4px 0 0;color:#374151;">TLS mutuel<br>Retry + CB<br>Métriques<br>Tracing</p>
+          </div>
+        </div>
+      </div>
+      <div style="background:#f8fbff;border:1.5px solid var(--border);border-radius:12px;padding:14px;">
+        <strong style="color:#15803d;display:block;margin-bottom:6px;">Pod catalog-service</strong>
+        <div style="display:flex;gap:8px;align-items:stretch;">
+          <div style="background:#f5f3ff;border-radius:8px;padding:10px;flex:1;text-align:center;">
+            <div style="font-size:1.2rem;">🔀</div>
+            <strong style="font-size:.8rem;color:#7c3aed;">Envoy Proxy</strong>
+            <p style="font-size:.75rem;margin:4px 0 0;color:#374151;">TLS mutuel<br>Auth policy<br>Rate limit</p>
+          </div>
+          <div style="background:#dcfce7;border-radius:8px;padding:10px;flex:1;text-align:center;">
+            <div style="font-size:1.2rem;">📖</div>
+            <strong style="font-size:.8rem;color:#15803d;">catalog-service</strong>
+            <p style="font-size:.75rem;margin:4px 0 0;color:#374151;">Code métier pur<br>Ignore le réseau</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;padding:10px;margin-top:8px;background:#fff7ed;border-radius:8px;font-size:.85rem;color:#92400e;">
+      🎛️ <strong>Control Plane (Istio / Linkerd)</strong> — configure tous les proxies depuis un point central
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Fonctionnalité transverse</th><th>Sans Service Mesh</th><th>Avec Service Mesh</th></tr></thead>
+    <tbody>
+      <tr><td>mTLS inter-services</td><td>Géré dans chaque service (certificats, rotation)</td><td>Automatique, transparent, certificats gérés par le mesh</td></tr>
+      <tr><td>Circuit Breaker</td><td>Bibliothèque dans chaque service (Resilience4j)</td><td>Politique Istio — zéro code applicatif</td></tr>
+      <tr><td>Retry avec backoff</td><td>Configuré service par service</td><td>VirtualService Istio — politique uniforme</td></tr>
+      <tr><td>Métriques réseau</td><td>Instrumentation manuelle</td><td>Automatiques (latence, erreur, trafic par paire de services)</td></tr>
+      <tr><td>Traces distribuées</td><td>Propagation manuelle des headers</td><td>Automatique (Envoy injecte les spans)</td></tr>
+      <tr><td>Traffic splitting (canary)</td><td>Implémenté dans le code ou le LB</td><td>Politique VirtualService — 10% → v2</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box expert">
+    <h4>🏛️ Décision architecturale — Service Mesh : quand justifié ?</h4>
+    <p>Un Service Mesh comme Istio est complexe à opérer. Il est justifié architecturalement quand : 10+ services en production, équipe ops Kubernetes mature, besoin de mTLS systématique (réglementation), politique de retry/CB uniforme sans modification du code. <strong>En dessous de ces seuils, le coût opérationnel dépasse les bénéfices.</strong></p>
+  </div>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Architecture Service Mesh (sidecar pattern)</div>
+    <div class="mermaid">
+flowchart TB
+    subgraph CP["🎛️ Control Plane (Istio / Linkerd)"]
+        ISTIOD["istiod<br>config + certificats + policies"]
+    end
+    subgraph DP["🚦 Data Plane (sidecars dans chaque pod)"]
+        subgraph P1["Pod loan-service"]
+            APP1["📘 loan-service<br>code métier pur<br>HTTP localhost"]
+            ENV1["🔀 Envoy sidecar"]
+            APP1 <--> ENV1
+        end
+        subgraph P2["Pod catalog-service"]
+            ENV2["🔀 Envoy sidecar"]
+            APP2["📚 catalog-service<br>code métier pur"]
+            ENV2 <--> APP2
+        end
+        subgraph P3["Pod notification"]
+            ENV3["🔀 Envoy sidecar"]
+            APP3["📧 notification<br>code métier pur"]
+            ENV3 <--> APP3
+        end
+    end
+    ISTIOD -.config push.-> ENV1
+    ISTIOD -.config push.-> ENV2
+    ISTIOD -.config push.-> ENV3
+    ENV1 <-->|"mTLS<br>retry + CB<br>tracing<br>métriques"| ENV2
+    ENV1 <-->|"mTLS<br>idem"| ENV3
+    style APP1 fill:#dbeafe,stroke:#2563eb
+    style APP2 fill:#dcfce7,stroke:#16a34a
+    style APP3 fill:#fef3c7,stroke:#ca8a04
+    style ENV1 fill:#f5f3ff,stroke:#7c3aed
+    style ENV2 fill:#f5f3ff,stroke:#7c3aed
+    style ENV3 fill:#f5f3ff,stroke:#7c3aed
+    style ISTIOD fill:#fff7ed,stroke:#ea580c,stroke-width:2px
+    </div>
+    <p class="mermaid-caption">Le code métier ne sait même pas que le mesh existe. Il appelle <code>http://catalog</code> en local — c'est Envoy qui chiffre, retry, observe, ajoute les traces, et applique les politiques.</p>
+  </div>
+
+  <div class="use-case-box">
+    <h4>🎯 Quand Service Mesh devient nécessaire (et quand pas) ?</h4>
+    <ul>
+      <li><strong>✅ Justifié</strong> : 10+ services, ops K8s mature, mTLS imposé par réglementation (PCI-DSS, HIPAA), besoin de canary/A-B sans toucher au code.</li>
+      <li><strong>❌ Over-engineering</strong> : 3-5 services, équipe sans expertise K8s, pas de réglementation stricte → Resilience4j + Prometheus suffisent.</li>
+      <li><strong>⚠️ Coût caché</strong> : chaque pod a 1 sidecar = +50 à 100 Mo RAM par pod, +1 ms de latence par appel. Avec 200 pods, c'est 10-20 Go de RAM en plus juste pour le mesh.</li>
+    </ul>
+  </div>
+
+  <div class="real-world-box">
+    <h4>🏢 Qui utilise un Service Mesh en production ?</h4>
+    <ul>
+      <li><strong>Google</strong> : a inventé le pattern (BNS interne, puis Istio). Des dizaines de milliers de services derrière un mesh.</li>
+      <li><strong>Airbnb</strong> : SmartStack puis Envoy/Istio pour gérer la communication entre 1000+ services.</li>
+      <li><strong>Lyft</strong> : a créé Envoy pour son propre usage avant de l'open-sourcer (cœur de la plupart des meshes aujourd'hui).</li>
+      <li><strong>Banques européennes</strong> : adoption massive d'Istio pour le mTLS systématique exigé par les régulateurs.</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 7 — CHAOS ENGINEERING
+═══════════════════════════════════════════════════════ -->
+<section id="chaos">
+  <span class="section-kicker">Résilience proactive</span>
+  <h2>7. Chaos Engineering — Tester l'architecture par la destruction</h2>
+  <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <div class="box definition">
+    <h4>📖 Définition — Chaos Engineering (Netflix, 2011)</h4>
+    <p><em>"La discipline de mener des expériences contrôlées sur un système distribué pour construire la confiance dans la capacité du système à résister à des conditions turbulentes en production."</em> — Principles of Chaos Engineering</p>
+  </div>
+
+  <div class="key-rule">
+    <p>🏗️ Principe : <strong>Provoquer des pannes délibérément</strong>, dans un environnement contrôlé, <strong>avant que la production ne le fasse à votre place</strong>.</p>
+  </div>
+
+  <h3>7.1 Processus Chaos Engineering</h3>
+  <div class="mini-schema" style="grid-template-columns:repeat(5,1fr);">
+    <div class="schema-node">
+      <h4>① Définir l'état stable</h4>
+      <p>SLI mesurable : 99.5% requêtes OK, latence P99 &lt; 400ms</p>
+    </div>
+    <div class="schema-node">
+      <h4>② Formuler l'hypothèse</h4>
+      <p>"Si catalog-service tombe, loan-service retourne un fallback en &lt; 2s"</p>
+    </div>
+    <div class="schema-node">
+      <h4>③ Injecter la panne</h4>
+      <p>Tuer le pod catalog, augmenter la latence, saturer la DB</p>
+    </div>
+    <div class="schema-node">
+      <h4>④ Observer</h4>
+      <p>L'état stable est-il maintenu ? Qu'est-ce qui se comporte mal ?</p>
+    </div>
+    <div class="schema-node">
+      <h4>⑤ Corriger</h4>
+      <p>Améliorer l'architecture. Rédiger l'ADR de la décision.</p>
+    </div>
+  </div>
+
+  <table>
+    <thead><tr><th>Type d'injection</th><th>Description</th><th>Ce que ça teste</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Pod kill</strong></td><td>Tuer aléatoirement un pod en production</td><td>Health checks, auto-restart, retry clients</td></tr>
+      <tr><td><strong>Network latency</strong></td><td>Ajouter 2s de latence sur un service</td><td>Timeouts, circuit breakers</td></tr>
+      <tr><td><strong>CPU pressure</strong></td><td>Consommer 90% du CPU d'un nœud</td><td>Autoscaling, priorité des workloads</td></tr>
+      <tr><td><strong>Memory leak</strong></td><td>Simuler une fuite mémoire progressive</td><td>OOM killer, graceful restart, alerting</td></tr>
+      <tr><td><strong>DNS failure</strong></td><td>Bloquer la résolution DNS d'un service</td><td>Fallback, cache DNS, service discovery</td></tr>
+      <tr><td><strong>DB connection pool</strong></td><td>Saturer les connexions disponibles</td><td>Pool management, bulkhead, timeouts</td></tr>
+    </tbody>
+  </table>
+
+  <div class="box best-practice">
+    <h4>✅ Règles d'or du Chaos Engineering</h4>
+    <ol>
+      <li><strong>Commencer en staging</strong> — jamais en production avant d'avoir la confiance</li>
+      <li><strong>Avoir un kill switch</strong> — pouvoir arrêter l'expérience immédiatement</li>
+      <li><strong>Informer l'équipe</strong> — les expériences ne sont pas des surprises</li>
+      <li><strong>Minimiser le blast radius</strong> — cibler un service à la fois</li>
+      <li><strong>Documenter les résultats</strong> — chaque expérience produit un ADR si elle révèle une faiblesse</li>
+    </ol>
+  </div>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Cycle Chaos Engineering scientifique</div>
+    <div class="mermaid">
+flowchart LR
+    A["1️⃣ Définir<br>l'état stable<br><br>SLI : 99.5% OK<br>P99 &lt; 400ms"]
+    B["2️⃣ Hypothèse<br><br>'Si catalog tombe,<br>loan retourne un<br>fallback en &lt; 2s'"]
+    C["3️⃣ Plan d'attaque<br><br>blast radius limité<br>kill switch prêt<br>équipe prévenue"]
+    D["4️⃣ Injecter<br>la panne<br><br>Chaos Monkey<br>Litmus / Gremlin"]
+    E["5️⃣ Observer<br><br>SLI maintenu ?<br>quels services<br>ont mal réagi ?"]
+    F{"Hypothèse<br>validée ?"}
+    G["✅ Confiance<br>renforcée<br><br>doc + ADR"]
+    H["❌ Faille trouvée<br><br>corriger archi<br>(retry, CB, fallback)"]
+    A --> B --> C --> D --> E --> F
+    F -->|Oui| G
+    F -->|Non| H
+    H -.recommencer.-> A
+    style A fill:#dbeafe,stroke:#2563eb
+    style B fill:#fef3c7,stroke:#ca8a04
+    style D fill:#fed7aa,stroke:#ea580c
+    style G fill:#dcfce7,stroke:#16a34a
+    style H fill:#fee2e2,stroke:#dc2626
+    </div>
+    <p class="mermaid-caption">Le Chaos Engineering n'est PAS "casser au hasard". C'est une démarche scientifique : hypothèse → expérience → observation → correction.</p>
+  </div>
+
+  <div class="real-world-box">
+    <h4>🏢 Origine et exemples de Chaos Engineering</h4>
+    <ul>
+      <li><strong>Netflix</strong> : a inventé Chaos Monkey en 2011. Tue aléatoirement des instances en production, en plein jour. Pour FORCER les équipes à concevoir des services qui survivent à la panne.</li>
+      <li><strong>Amazon AWS</strong> : a vécu plusieurs incidents majeurs (2011, 2017) qui ont conduit à une discipline de "GameDay" — simulation de pannes contrôlées.</li>
+      <li><strong>Banques en ligne</strong> : utilisent Gremlin ou Chaos Mesh pour vérifier que la perte d'un datacenter ne perturbe pas les paiements.</li>
+      <li><strong>Capital One, Audi, LinkedIn</strong> : programmes Chaos Engineering matures avec des "Chaos Champions" dans chaque équipe.</li>
+    </ul>
+  </div>
+
+</section>
+
+<!-- ═══════════════════════════════════════════════════════
+     SECTION 8 — QUIZ
+═══════════════════════════════════════════════════════ -->
+<section id="quiz">
+  <span class="section-kicker">Évaluation</span>
+  <h2>8. Quiz de fin de journée</h2>
+
+  <div class="quiz-item">
+    <p>1. Quelle est la différence architecturale entre les trois patterns EDA (Event Notification, ECST, Event Streaming) ? Donnez un exemple de chacun dans campus_library.</p>
+    <details><summary>Voir la réponse</summary>
+      <p><strong>Event Notification</strong> : payload minimal — <code>{"loanId":"abc"}</code>. catalog-service reçoit l'event et rappelle loan-service pour avoir les détails si besoin. Léger, mais chattiness possible.<br>
+      <strong>ECST</strong> : <code>{"loanId":"abc","bookTitle":"Clean Code","student":"Ahmed","dueDate":"..."}</code>. notification-service n'a besoin de rien d'autre pour envoyer l'email — autonomie totale.<br>
+      <strong>Event Streaming</strong> : Kafka avec rétention 30 jours. analytics-service peut rejouer tous les events depuis 6 mois pour reconstruire ses statistiques après un bug.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p>2. Pourquoi CQRS introduit-il de la cohérence éventuelle ? Quels problèmes concrets cela cause-t-il pour l'UX ?</p>
+    <details><summary>Voir la réponse</summary>
+      <p>En CQRS avec stores séparés, après une command, un événement est publié et un projection builder met à jour le Read Store — avec un délai (quelques millisecondes à quelques secondes). Si l'utilisateur relit immédiatement après sa commande, il peut voir l'ancien état.<br>
+      Exemple : Ahmed crée un prêt (command), la page se recharge (query), mais le prêt n'apparaît pas encore dans sa liste — le projection builder n'a pas encore mis à jour. Solution UX : "read-your-writes" pattern (lire depuis le write store immédiatement après une commande), ou afficher un indicateur "traitement en cours".</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p>3. Comment résoudre le problème RGPD du "droit à l'oubli" dans un système Event Sourcing ?</p>
+    <details><summary>Voir la réponse</summary>
+      <p>L'Event Store étant immuable (on n'efface pas les événements), deux approches architecturales :<br>
+      <strong>Crypto Shredding</strong> : chiffrer toutes les données personnelles dans les événements avec une clé dédiée par utilisateur. Pour effacer un utilisateur, supprimer sa clé → les données deviennent illisibles (équivalent fonctionnel de la suppression).<br>
+      <strong>Référence externe</strong> : les événements ne stockent pas les PII directement mais un identifiant pointant vers un store externe (ex: PostgreSQL). La suppression RGPD cible le store externe. L'Event Store ne contient plus que des IDs, qui deviennent des références mortes.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p>4. Qu'est-ce que le backpressure et pourquoi est-il essentiel dans un Reactive System ?</p>
+    <details><summary>Voir la réponse</summary>
+      <p>Le backpressure est le mécanisme par lequel un consommateur signale au producteur qu'il est dépassé et doit ralentir. Sans backpressure, le producteur génère plus vite que le consommateur ne traite → buffer croissant → OutOfMemoryError → crash.<br>
+      Il est essentiel dans un Reactive System car l'élasticité (propriété 3 du Reactive Manifesto) ne peut fonctionner que si chaque maillon de la chaîne peut communiquer sa capacité réelle. Sans backpressure, l'élasticité devient de la sous-charge silencieuse jusqu'au crash brutal.</p>
+    </details>
+  </div>
+
+  <div class="quiz-item">
+    <p>5. Dans quelles conditions un Service Mesh (Istio) est-il architecturalement justifié ? Quand est-il de l'over-engineering ?</p>
+    <details><summary>Voir la réponse</summary>
+      <p><strong>Justifié</strong> : 10+ services, équipe ops Kubernetes mature, besoin de mTLS systématique (réglementation PCI-DSS, HIPAA), politique de trafic uniforme (canary, shadowing) sans modifier le code, métriques réseau automatiques entre toutes les paires de services.<br>
+      <strong>Over-engineering</strong> : équipe de 3-5 développeurs, moins de 6 services, pas de Kubernetes, ou équipe sans expertise ops avancée. Dans ce cas, Resilience4j dans le code + Prometheus/Grafana donnent 80% des bénéfices pour 20% de la complexité.</p>
+    </details>
+  </div>
+
+  <div class="footer-nav">
+    <a href="../pages/jour-6-cloud-deploiement-et-gouvernance.html">← Jour 6 — Cloud &amp; Gouvernance</a>
+    <a href="../pages/jour-8.html">Jour 8 — Architecture avancée →</a>
+  </div>
+</section>
+
+    </article>
+  </div>
+
+<!-- Mermaid zoom modal -->
+<div id="mermaid-modal" class="mermaid-modal" aria-hidden="true" role="dialog" aria-label="Diagramme agrandi">
+  <button class="mermaid-modal-close" aria-label="Fermer (Echap)">✕</button>
+  <div class="mermaid-modal-hint">🖱️ molette = zoom · 🤚 glisser = déplacer · ⎋ Echap = fermer</div>
+  <div class="mermaid-modal-stage">
+    <div class="mermaid-modal-content"></div>
+  </div>
+  <div class="mermaid-modal-toolbar" role="toolbar" aria-label="Contrôles de zoom">
+    <button type="button" data-zoom-action="out" aria-label="Dézoomer">−</button>
+    <span class="mermaid-modal-zoom-level">100%</span>
+    <button type="button" data-zoom-action="in" aria-label="Zoomer">+</button>
+    <button type="button" data-zoom-action="reset" aria-label="Réinitialiser" title="Réinitialiser">⟲</button>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function() {
+  const headerEl = document.querySelector('header.site-header');
+  const qtEl = document.querySelector('.quick-tools');
+  function getOffset() {
+    return (headerEl ? headerEl.offsetHeight : 64) + (qtEl ? qtEl.offsetHeight : 0) + 16;
+  }
+  const tocLinks = document.querySelectorAll('aside.toc a[href^="#"]');
+  const sections = Array.from(document.querySelectorAll('section[id]'));
+  function onScroll() {
+    requestAnimationFrame(function() {
+      const scrollY = window.scrollY;
+      const hh = getOffset();
+      let current = '';
+      sections.forEach(s => { if (scrollY >= s.offsetTop - hh - 40) current = s.id; });
+      tocLinks.forEach(a => {
+        a.style.fontWeight = a.getAttribute('href') === '#' + current ? '700' : '';
+        a.style.color = a.getAttribute('href') === '#' + current ? '#1d4ed8' : '';
+      });
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+  function setQtTop() {
+    if (qtEl && headerEl) qtEl.style.top = headerEl.offsetHeight + 'px';
+  }
+  setQtTop();
+  window.addEventListener('resize', setQtTop);
+})();
+</script>
+
+
+<script>
+(function() {
+  const modal = document.getElementById('mermaid-modal');
+  if (!modal) return;
+  const stage = modal.querySelector('.mermaid-modal-stage');
+  const content = modal.querySelector('.mermaid-modal-content');
+  const zoomLevel = modal.querySelector('.mermaid-modal-zoom-level');
+  const closeBtn = modal.querySelector('.mermaid-modal-close');
+  const toolbar = modal.querySelector('.mermaid-modal-toolbar');
+
+  let scale = 1, panX = 0, panY = 0;
+  let isDragging = false, didDrag = false, dragStartX = 0, dragStartY = 0;
+  let lastTouchDist = 0, touchPanStartX = 0, touchPanStartY = 0;
+
+  function applyTransform(animate) {
+    if (!animate) content.classList.add('no-transition');
+    content.style.transform = 'translate(' + panX + 'px,' + panY + 'px) scale(' + scale.toFixed(3) + ')';
+    zoomLevel.textContent = Math.round(scale * 100) + '%';
+    if (!animate) requestAnimationFrame(() => content.classList.remove('no-transition'));
+  }
+  function setScale(s, animate) {
+    scale = Math.max(0.3, Math.min(6, s));
+    applyTransform(animate);
+  }
+  function reset() { scale = 1; panX = 0; panY = 0; applyTransform(true); }
+
+  function open(wrapper) {
+    const svg = wrapper.querySelector('.mermaid svg');
+    if (!svg) return;
+    content.innerHTML = '';
+    const clone = svg.cloneNode(true);
+    clone.removeAttribute('width');
+    clone.removeAttribute('height');
+
+    // Calculer la taille d'affichage à partir du viewBox
+    // (le modal est display:none au moment du calcul → on utilise window)
+    const SVG_PAD = 56; // CSS padding 28px × 2 côtés sur le SVG
+    const avW = window.innerWidth  - 40 - SVG_PAD; // 40 = marges modal (20 × 2)
+    const avH = window.innerHeight - 40 - SVG_PAD;
+    const vb  = svg.viewBox && svg.viewBox.baseVal;
+    const srcW = (vb && vb.width  > 0) ? vb.width  : (svg.getBoundingClientRect().width  || 900);
+    const srcH = (vb && vb.height > 0) ? vb.height : (svg.getBoundingClientRect().height || 500);
+    const ratio  = Math.min(avW / srcW, avH / srcH);
+    clone.style.width  = Math.round(srcW * ratio) + 'px';
+    clone.style.height = Math.round(srcH * ratio) + 'px';
+
+    content.appendChild(clone);
+    reset();
+    modal.classList.add('active');
+    modal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+  function close() {
+    modal.classList.remove('active');
+    modal.setAttribute('aria-hidden', 'true');
+    document.body.style.overflow = '';
+    setTimeout(() => { content.innerHTML = ''; }, 200);
+  }
+
+  closeBtn.addEventListener('click', close);
+  modal.addEventListener('click', (e) => {
+    if (didDrag) { didDrag = false; return; }
+    if (e.target === modal || e.target === stage) close();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') close();
+    else if (e.key === '+' || e.key === '=') setScale(scale * 1.2, true);
+    else if (e.key === '-' || e.key === '_') setScale(scale / 1.2, true);
+    else if (e.key === '0') reset();
+  });
+
+  toolbar.addEventListener('click', (e) => {
+    const btn = e.target.closest('button');
+    if (!btn) return;
+    const a = btn.dataset.zoomAction;
+    if (a === 'in') setScale(scale * 1.25, true);
+    else if (a === 'out') setScale(scale / 1.25, true);
+    else if (a === 'reset') reset();
+  });
+
+  stage.addEventListener('wheel', (e) => {
+    if (!modal.classList.contains('active')) return;
+    e.preventDefault();
+    setScale(scale * (e.deltaY < 0 ? 1.12 : 0.89), false);
+  }, { passive: false });
+
+  stage.addEventListener('mousedown', (e) => {
+    if (e.button !== 0) return;
+    isDragging = true;
+    didDrag = false;
+    dragStartX = e.clientX - panX;
+    dragStartY = e.clientY - panY;
+    stage.classList.add('dragging');
+    e.preventDefault();
+  });
+  document.addEventListener('mousemove', (e) => {
+    if (!isDragging) return;
+    didDrag = true;
+    panX = e.clientX - dragStartX;
+    panY = e.clientY - dragStartY;
+    applyTransform(false);
+  });
+  document.addEventListener('mouseup', () => {
+    if (!isDragging) return;
+    isDragging = false;
+    stage.classList.remove('dragging');
+  });
+
+  // Touch support
+  stage.addEventListener('touchstart', (e) => {
+    if (e.touches.length === 1) {
+      touchPanStartX = e.touches[0].clientX - panX;
+      touchPanStartY = e.touches[0].clientY - panY;
+    } else if (e.touches.length === 2) {
+      lastTouchDist = Math.hypot(
+        e.touches[1].clientX - e.touches[0].clientX,
+        e.touches[1].clientY - e.touches[0].clientY
+      );
+    }
+  }, { passive: true });
+  stage.addEventListener('touchmove', (e) => {
+    if (e.touches.length === 1) {
+      panX = e.touches[0].clientX - touchPanStartX;
+      panY = e.touches[0].clientY - touchPanStartY;
+      applyTransform(false);
+      e.preventDefault();
+    } else if (e.touches.length === 2) {
+      const dist = Math.hypot(
+        e.touches[1].clientX - e.touches[0].clientX,
+        e.touches[1].clientY - e.touches[0].clientY
+      );
+      if (lastTouchDist > 0) setScale(scale * (dist / lastTouchDist), false);
+      lastTouchDist = dist;
+      e.preventDefault();
+    }
+  }, { passive: false });
+  stage.addEventListener('touchend', () => { lastTouchDist = 0; });
+
+  // Add the 🔍 button to every wrapper once Mermaid has rendered SVGs
+  function addButtons() {
+    const wrappers = document.querySelectorAll('.mermaid-wrapper');
+    let added = 0;
+    wrappers.forEach((w) => {
+      if (w.querySelector('.mermaid-zoom-btn')) return;
+      const svg = w.querySelector('.mermaid svg');
+      if (!svg) return;
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'mermaid-zoom-btn';
+      btn.innerHTML = '🔍 Agrandir';
+      btn.setAttribute('aria-label', 'Agrandir le diagramme');
+      btn.addEventListener('click', (e) => { e.stopPropagation(); open(w); });
+      w.appendChild(btn);
+      added++;
+    });
+    return added;
+  }
+
+  // Mermaid renders async; poll until all wrappers get their button (max ~6s)
+  let tries = 0;
+  const t = setInterval(() => {
+    tries++;
+    addButtons();
+    const total = document.querySelectorAll('.mermaid-wrapper').length;
+    const done = document.querySelectorAll('.mermaid-wrapper .mermaid-zoom-btn').length;
+    if (done >= total || tries > 24) clearInterval(t);
+  }, 250);
+
+  // Also click the diagram itself to open
+  document.addEventListener('click', (e) => {
+    const svg = e.target.closest('.mermaid-wrapper .mermaid svg');
+    if (svg && !modal.classList.contains('active')) {
+      open(svg.closest('.mermaid-wrapper'));
+    }
+  });
+})();
+</script>
+
+</body>
+</html>
