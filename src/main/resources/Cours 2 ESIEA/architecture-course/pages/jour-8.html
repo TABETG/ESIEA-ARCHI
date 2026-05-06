@@ -247,6 +247,36 @@
       .mermaid-modal-toolbar { bottom: 14px; }
     }
 
+  
+
+    /* Mode lecture rapide — améliorations visuelles */
+    .section-kicker {
+      letter-spacing: 0.08em;
+    }
+    details > summary {
+      user-select: none;
+    }
+    details[open] > summary .toggle-hint {
+      transform: rotate(180deg);
+      display: inline-block;
+    }
+    /* Reduce noise on page — dimmer borders */
+    .diagram-card {
+      border-color: #e2e8f0;
+    }
+    /* Highlight key rule boxes more */
+    .key-rule {
+      border-left-width: 5px;
+    }
+    /* Section separator */
+    section + section {
+      border-top: 2px solid #f1f5f9;
+      padding-top: 2rem;
+    }
+    /* Simplification : exemples réels pliables */
+    details summary::-webkit-details-marker { display: none; }
+    details[open] summary span { transform: rotate(180deg); display: inline-block; }
+    details[open] > div.real-world-box { border-radius: 0 0 10px 10px !important; margin-top: 0 !important; }
   </style>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -313,7 +343,7 @@
       <span class="badge">🧬 Fitness Functions</span>
       <span class="badge">💰 FinOps</span>
       <span class="badge">🎤 Soutenance archi</span>
-      <span class="badge">Master 2 · Jour 8</span>
+      <span class="badge">Master 2 · Jour 8</span><span class="badge" style="background:#dcfce7;color:#166534;border-color:#86efac;">⚡ Mode lecture rapide</span>
     </div>
     <h1>Jour 8 — Architecture avancée &amp; synthèse finale</h1>
     <p style="color:#334155;font-size:1.05rem;margin-bottom:1rem;">Architecture des données · Organisation · Évolutivité mesurable · Économie du cloud · <strong>Défendre ses choix</strong></p>
@@ -502,7 +532,7 @@ flowchart LR
 
   <div class="box definition">
     <h4>📖 Définition — Data Mesh (Zhamak Dehghani, 2019)</h4>
-    <p>Architecture de données décentralisée qui applique les principes DDD et microservices aux données analytiques. Chaque domaine <strong>possède et publie ses données</strong> comme des produits — plutôt que de les centraliser dans un data warehouse ou un data lake unique géré par une équipe centrale.</p>
+    <p>Appliquer les principes microservices aux données : chaque domaine <strong>possède et publie ses données analytiques</strong> comme un produit. Fini l'équipe data centrale = goulot d'étranglement.</p>
   </div>
 
   <div class="columns">
@@ -570,8 +600,8 @@ flowchart LR
   </div>
 
   <div class="box warning">
-    <h4>⚠️ Data Mesh : un investissement architectural majeur</h4>
-    <p>Data Mesh n'est pas une technologie — c'est un <strong>changement organisationnel et culturel</strong>. Il requiert des équipes matures, une plateforme data self-service construite, et une gouvernance de données existante. Pour une organisation de moins de 5 équipes data, un data warehouse bien maintenu est souvent plus efficace.</p>
+    <h4>⚠️ Data Mesh : pour qui ?</h4>
+    <p>C'est un <strong>changement organisationnel</strong>, pas une technologie. Requiert équipes matures + plateforme self-service + gouvernance existante. <strong>&lt; 5 équipes data</strong> → un bon data warehouse est plus efficace.</p>
   </div>
 
   <div class="mermaid-wrapper">
@@ -625,7 +655,7 @@ flowchart TB
     </ul>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Adoption Data Mesh en pratique<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Adoption Data Mesh en pratique</h4>
     <ul>
       <li><strong>Zalando</strong> : pionnier (où Zhamak Dehghani a formalisé le concept). 200+ Data Products publiés par les équipes domaines.</li>
@@ -633,7 +663,7 @@ flowchart TB
       <li><strong>JPMorgan, HSBC</strong> : adoption progressive pour casser les silos data historiques.</li>
       <li><strong>Intuit</strong> : a créé une plateforme data interne qui sert d'exemple de référence pour la self-service.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 
@@ -823,8 +853,8 @@ flowchart TB
   </div>
 
   <div class="box definition">
-    <h4>📖 Définition — Fitness Function (Building Evolutionary Architectures, 2017)</h4>
-    <p>Toute fonction qui donne un score objectif d'intégrité de l'architecture sur un axe de qualité donné. Elle peut être un test automatisé, une métrique collectée en production, ou une règle vérifiée en CI.</p>
+    <h4>📖 Définition — Fitness Function</h4>
+    <p>Test automatisé qui mesure objectivement si une qualité architecturale est respectée. Peut être un test unitaire, une règle ArchUnit en CI, ou un test de charge en staging. Si elle échoue → déploiement bloqué.</p>
   </div>
 
   <h3 id="atomic-holistic">4.1 Fitness Functions atomiques vs holistiques</h3>
@@ -965,7 +995,7 @@ flowchart LR
     <p class="mermaid-caption">Chaque Fitness Function est un "gate" automatisé. Si elle échoue, elle bloque la suite — exactement comme un test unitaire bloque une PR.</p>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Exemples de Fitness Functions en production<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Exemples de Fitness Functions en production</h4>
     <ul>
       <li><strong>ThoughtWorks</strong> (origine du concept) : leurs projets clients ont systématiquement un "fitness function dashboard" partagé.</li>
@@ -973,7 +1003,7 @@ flowchart LR
       <li><strong>Goldman Sachs</strong> : tests de chaos automatisés mensuels sur les plateformes de trading critiques.</li>
       <li><strong>Booking.com</strong> : tout déploiement passe par 50+ vérifications automatisées avant d'atteindre la production.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 
@@ -989,7 +1019,7 @@ flowchart LR
 
   <div class="box definition">
     <h4>📖 Définition — Strangler Fig Pattern (Martin Fowler)</h4>
-    <p>Pattern de migration d'un système legacy vers une nouvelle architecture, inspiré du figuier étrangleur qui pousse autour d'un arbre hôte jusqu'à le remplacer complètement. Le nouveau système <strong>coexiste avec l'ancien</strong>, en interceptant progressivement des fonctionnalités, jusqu'à ce que l'ancien puisse être éteint.</p>
+    <p>Migrer un système legacy sans Big Bang : le nouveau système <strong>coexiste avec l'ancien</strong> et intercepte progressivement des fonctionnalités via un proxy, jusqu'à ce que l'ancien puisse être éteint. Zéro coupure de service.</p>
   </div>
 
   <div class="diagram-card">
@@ -1073,7 +1103,7 @@ flowchart TB
     <p class="mermaid-caption">À aucun moment le système ne tombe. À aucun moment on n'a un "Big Bang". On peut s'arrêter à n'importe quelle phase si la valeur business est atteinte.</p>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Migrations Strangler Fig célèbres<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Migrations Strangler Fig célèbres</h4>
     <ul>
       <li><strong>Amazon</strong> : passage du monolithe Obidos vers les microservices via Strangler sur plusieurs années (2002-2006).</li>
@@ -1082,7 +1112,7 @@ flowchart TB
       <li><strong>The Guardian</strong> : migration du CMS legacy vers une architecture moderne avec un proxy en frontal pendant 18 mois.</li>
       <li><strong>⚠️ Contre-exemple</strong> : Netscape a tenté un Big Bang Rewrite en 1998 — projet 3 ans, perte de 50% des parts de marché. Devenu cas d'école dans <em>"Things You Should Never Do"</em> de Joel Spolsky.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 
@@ -1096,7 +1126,7 @@ flowchart TB
 
   <div class="box definition">
     <h4>📖 Définition — FinOps (Cloud Financial Operations)</h4>
-    <p>Pratique culturelle et opérationnelle qui réunit ingénierie, finance et business pour <strong>optimiser les coûts cloud</strong> tout en maximisant la valeur. L'objectif n'est pas de dépenser le moins possible, mais de dépenser de façon intentionnelle et mesurée.</p>
+    <p>Réunir ingénierie + finance + business pour <strong>dépenser intentionnellement</strong> sur le cloud. L'objectif n'est pas le moindre coût, mais le meilleur rapport valeur/coût.</p>
   </div>
 
   <div class="box child-mode">
@@ -1207,7 +1237,7 @@ flowchart TD
     </ul>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Cas FinOps emblématiques<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Cas FinOps emblématiques</h4>
     <ul>
       <li><strong>Pinterest</strong> : a divisé sa facture AWS par 2 (en valeur absolue, pas relative) en 18 mois grâce à un programme FinOps systématique.</li>
@@ -1215,7 +1245,7 @@ flowchart TD
       <li><strong>Atlassian</strong> : utilise Karpenter + Spot Instances sur EKS pour −70% sur les workers Bitbucket Pipelines.</li>
       <li><strong>FinOps Foundation (Linux Foundation)</strong> : framework de référence adopté par 10000+ entreprises.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 

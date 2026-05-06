@@ -247,6 +247,36 @@
       .mermaid-modal-toolbar { bottom: 14px; }
     }
 
+  
+
+    /* Mode lecture rapide — améliorations visuelles */
+    .section-kicker {
+      letter-spacing: 0.08em;
+    }
+    details > summary {
+      user-select: none;
+    }
+    details[open] > summary .toggle-hint {
+      transform: rotate(180deg);
+      display: inline-block;
+    }
+    /* Reduce noise on page — dimmer borders */
+    .diagram-card {
+      border-color: #e2e8f0;
+    }
+    /* Highlight key rule boxes more */
+    .key-rule {
+      border-left-width: 5px;
+    }
+    /* Section separator */
+    section + section {
+      border-top: 2px solid #f1f5f9;
+      padding-top: 2rem;
+    }
+    /* Simplification : exemples réels pliables */
+    details summary::-webkit-details-marker { display: none; }
+    details[open] summary span { transform: rotate(180deg); display: inline-block; }
+    details[open] > div.real-world-box { border-radius: 0 0 10px 10px !important; margin-top: 0 !important; }
   </style>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -313,7 +343,7 @@
       <span class="badge">📜 Event Sourcing</span>
       <span class="badge">🌊 Reactive Systems</span>
       <span class="badge">🕸️ Service Mesh</span>
-      <span class="badge">Master 2 · Jour 7</span>
+      <span class="badge">Master 2 · Jour 7</span><span class="badge" style="background:#dcfce7;color:#166534;border-color:#86efac;">⚡ Mode lecture rapide</span>
     </div>
     <h1>Jour 7 — Architecture événementielle avancée</h1>
     <p style="color:#334155;font-size:1.05rem;margin-bottom:1rem;">EDA · CQRS · Event Sourcing · Reactive Systems — les <strong>patterns architecturaux avancés</strong> du distribué moderne</p>
@@ -384,7 +414,7 @@
 
   <div class="box definition">
     <h4>📖 Définition — Event-Driven Architecture</h4>
-    <p>Style architectural dans lequel les composants communiquent via des <strong>événements</strong> plutôt que des appels directs. Un producteur émet un fait passé ("loan-created"), sans savoir qui l'écoutera ni combien de consommateurs réagiront. Le couplage est réduit au minimum : le producteur ne connaît que le canal, pas les abonnés.</p>
+    <p>Les composants communiquent via des <strong>événements</strong> (faits passés) plutôt que des appels directs. Le producteur émet <code>"loan-created"</code> sans savoir qui écoutera. Couplage minimal : il ne connaît que le canal.</p>
   </div>
 
   <h3 id="eda-vs-request">1.1 EDA vs Request/Response — Décision de couplage</h3>
@@ -478,14 +508,14 @@ sequenceDiagram
     </ul>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Exemples d'entreprises qui utilisent massivement EDA<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Exemples d'entreprises qui utilisent massivement EDA</h4>
     <ul>
       <li><strong>Uber</strong> : chaque course émet des dizaines d'événements (course créée, chauffeur attribué, position mise à jour, course terminée, paiement effectué). Le pricing, le routing, les statistiques et le support en consomment chacun ce qui les intéresse.</li>
       <li><strong>Netflix</strong> : chaque "play", "pause", "seek" devient un événement, alimentant la recommandation, le billing, la détection d'incidents et le contrôle qualité — sans coupler les services entre eux.</li>
       <li><strong>LinkedIn</strong> : Kafka a été créé chez eux pour gérer leurs événements (profile updated, connection accepted, message sent) à grande échelle.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 
   <h3 id="types-evenements">1.2 Taxonomie des événements — 3 types fondamentaux</h3>
@@ -795,14 +825,14 @@ sequenceDiagram
     </ul>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Exemples concrets de CQRS en production<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Exemples concrets de CQRS en production</h4>
     <ul>
       <li><strong>Amazon</strong> : la fiche produit que vous voyez n'est PAS lue depuis le catalogue principal. Elle est projetée dans une vue dénormalisée (titre, prix, photos, stock, avis agrégés, recommandations) optimisée pour le rendu.</li>
       <li><strong>StackOverflow</strong> : quand vous postez une réponse (command), votre profil, le tag, la home page et la liste des "active questions" sont mis à jour via projections — vous voyez parfois quelques secondes de décalage.</li>
       <li><strong>Twitter/X</strong> : poster un tweet = command. Votre timeline = projection précalculée et fan-outée vers tous vos abonnés. Sans CQRS, lire votre timeline coûterait une jointure géante à chaque visite.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 
@@ -869,8 +899,8 @@ sequenceDiagram
   </div>
 
   <div class="box warning">
-    <h4>⚠️ RGPD et Event Sourcing — le problème de l'immuabilité</h4>
-    <p>Si un utilisateur demande la suppression de ses données (droit à l'oubli), comment effacer des événements dans un log immuable ? Solutions architecturales : <strong>Crypto shredding</strong> (chiffrer les données personnelles avec une clé détruite lors de la suppression) ou <strong>référencer un store externe</strong> pour les PII (l'événement stocke un ID, pas la donnée).</p>
+    <h4>⚠️ RGPD et Event Sourcing</h4>
+    <p>L'Event Store est immuable — on ne peut pas effacer un événement. Deux solutions : <strong>Crypto shredding</strong> (chiffrer les PII avec une clé détruite à la suppression) ou <strong>référence externe</strong> (l'event stocke un ID, pas la donnée — on supprime dans le store externe).</p>
   </div>
 
   <h3 id="es-cqrs">4.3 Event Sourcing + CQRS — La combinaison canonique</h3>
@@ -906,7 +936,7 @@ sequenceDiagram
 
   <div class="box best-practice">
     <h4>✅ Quand adopter Event Sourcing ?</h4>
-    <p>ES est justifié architecturalement quand <strong>au moins deux</strong> de ces besoins sont présents : auditabilité réglementaire complète, besoin de rejouer l'historique, débogage temporel en production, intégration de nouveaux systèmes rétroactivement. <strong>Ne pas l'adopter</strong> pour un CRUD standard — le coût de complexité est bien réel.</p>
+    <p>Justifié si <strong>au moins 2</strong> de ces besoins : audit réglementaire complet, replay d'historique, débogage temporel, intégration rétroactive. Pour un CRUD standard → <strong>ne pas l'adopter</strong>, la complexité est réelle.</p>
   </div>
 
   <div class="mermaid-wrapper">
@@ -948,7 +978,7 @@ flowchart TD
     </ul>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Domaines où Event Sourcing est massivement utilisé<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Domaines où Event Sourcing est massivement utilisé</h4>
     <ul>
       <li><strong>Finance &amp; banking</strong> : un solde de compte n'est JAMAIS stocké tel quel. Il est dérivé de la liste des transactions. C'est Event Sourcing depuis 500 ans (livres de comptes).</li>
@@ -956,7 +986,7 @@ flowchart TD
       <li><strong>Blockchain</strong> : pure Event Sourcing à l'échelle planétaire — chaque transaction est un event, l'état des wallets est calculé.</li>
       <li><strong>Walmart, Tesla</strong> : suivi des stocks et de la maintenance véhicules — chaque modification est un fait historique.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 
@@ -1014,7 +1044,7 @@ flowchart TD
 
   <div class="box definition">
     <h4>📖 Définition — Backpressure</h4>
-    <p>Mécanisme par lequel un consommateur <strong>signale au producteur</strong> de ralentir parce qu'il n'arrive plus à traiter les messages à la vitesse de production. Sans backpressure, les messages s'accumulent en mémoire jusqu'à OOM (Out of Memory). Avec backpressure, le producteur s'adapte.</p>
+    <p>Le consommateur <strong>signale au producteur de ralentir</strong> quand il est dépassé. Sans cela : buffer croissant → <code>OutOfMemoryError</code>. Avec backpressure : le producteur s'adapte automatiquement.</p>
   </div>
 
   <div class="columns">
@@ -1208,7 +1238,7 @@ flowchart TB
     </ul>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Qui utilise un Service Mesh en production ?<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Qui utilise un Service Mesh en production ?</h4>
     <ul>
       <li><strong>Google</strong> : a inventé le pattern (BNS interne, puis Istio). Des dizaines de milliers de services derrière un mesh.</li>
@@ -1216,7 +1246,7 @@ flowchart TB
       <li><strong>Lyft</strong> : a créé Envoy pour son propre usage avant de l'open-sourcer (cœur de la plupart des meshes aujourd'hui).</li>
       <li><strong>Banques européennes</strong> : adoption massive d'Istio pour le mTLS systématique exigé par les régulateurs.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 
@@ -1309,7 +1339,7 @@ flowchart LR
     <p class="mermaid-caption">Le Chaos Engineering n'est PAS "casser au hasard". C'est une démarche scientifique : hypothèse → expérience → observation → correction.</p>
   </div>
 
-  <div class="real-world-box">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Origine et exemples de Chaos Engineering<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Origine et exemples de Chaos Engineering</h4>
     <ul>
       <li><strong>Netflix</strong> : a inventé Chaos Monkey en 2011. Tue aléatoirement des instances en production, en plein jour. Pour FORCER les équipes à concevoir des services qui survivent à la panne.</li>
@@ -1317,7 +1347,7 @@ flowchart LR
       <li><strong>Banques en ligne</strong> : utilisent Gremlin ou Chaos Mesh pour vérifier que la perte d'un datacenter ne perturbe pas les paiements.</li>
       <li><strong>Capital One, Audi, LinkedIn</strong> : programmes Chaos Engineering matures avec des "Chaos Champions" dans chaque équipe.</li>
     </ul>
-  </div>
+  </div></div></details>
 
 </section>
 
