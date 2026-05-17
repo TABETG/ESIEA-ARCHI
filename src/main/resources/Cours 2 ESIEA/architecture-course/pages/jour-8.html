@@ -277,6 +277,262 @@
     details summary::-webkit-details-marker { display: none; }
     details[open] summary span { transform: rotate(180deg); display: inline-block; }
     details[open] > div.real-world-box { border-radius: 0 0 10px 10px !important; margin-top: 0 !important; }
+
+    /* ───────────────────────────────────────────────────────────
+       NAVIGATION & WAYFINDING — Day panorama, section opener/closer
+       ─────────────────────────────────────────────────────────── */
+
+    /* — Carte de la journée (panorama) en haut de page — */
+    .day-panorama {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+      border: 2px solid #93c5fd;
+      border-radius: 18px;
+      padding: 22px 24px;
+      margin: 0 0 22px;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.08);
+    }
+    .day-panorama > h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panorama-thread {
+      background: rgba(255,255,255,0.85);
+      border-left: 3px solid #2563eb;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 10px 0 16px;
+      font-size: 0.95rem;
+      color: #334155;
+    }
+    .panorama-thread strong { color: #1d4ed8; }
+    .panorama-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 4px;
+      margin: 14px 0;
+      align-items: stretch;
+      justify-content: center;
+      padding: 12px 8px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+    }
+    .panorama-step {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: .76rem;
+      color: #475569;
+      min-width: 78px;
+      flex: 1 1 78px;
+      text-align: center;
+      line-height: 1.25;
+    }
+    .panorama-step .dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2.5px solid #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #1d4ed8;
+      margin-bottom: 5px;
+      font-size: .82rem;
+    }
+    .panorama-summary {
+      background: rgba(255,255,255,0.9);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 8px;
+      border-left: 3px solid #16a34a;
+    }
+    .panorama-summary h4 {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+      color: #166534;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .panorama-summary ol {
+      margin: 0;
+      padding-left: 22px;
+    }
+    .panorama-summary li {
+      margin: 3px 0;
+      font-size: .92rem;
+      color: #334155;
+    }
+
+    /* — Carte d'ouverture de section : "Vous êtes ici, voici ce qui arrive" — */
+    .section-opener {
+      background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+      border-left: 5px solid #6366f1;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin: 0 0 22px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .opener-badge {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.74rem;
+      text-align: center;
+      min-width: 86px;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: 0.04em;
+      box-shadow: 0 4px 10px rgba(99,102,241,0.25);
+    }
+    .opener-badge .step-num {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      margin: 2px 0;
+    }
+    .opener-content > h4 {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      color: #4338ca;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .opener-pitch {
+      background: rgba(255,255,255,0.85);
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #334155;
+      margin: 0 0 10px;
+      border-left: 3px solid #a78bfa;
+    }
+    .opener-pitch strong { color: #5b21b6; }
+    .opener-meta {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin: 0 0 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .opener-meta span { white-space: nowrap; }
+    .opener-goals-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #4338ca;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 4px;
+    }
+    .opener-goals {
+      margin: 0;
+      padding-left: 22px;
+    }
+    .opener-goals li {
+      margin: 4px 0;
+      font-size: 0.93rem;
+      color: #334155;
+    }
+    @media (max-width: 600px) {
+      .section-opener {
+        grid-template-columns: 1fr;
+      }
+      .opener-badge {
+        justify-self: start;
+        min-width: 0;
+        padding: 6px 12px;
+      }
+      .opener-badge .step-num {
+        display: inline;
+        font-size: 1rem;
+      }
+    }
+
+    /* — Carte de clôture de section : "À retenir absolument" — */
+    .section-closer {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%);
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 22px 18px 16px;
+      margin: 22px 0 0;
+      position: relative;
+    }
+    .section-closer::before {
+      content: "✅ À RETENIR";
+      position: absolute;
+      top: -11px;
+      left: 16px;
+      background: #16a34a;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      box-shadow: 0 3px 8px rgba(22,163,74,0.3);
+    }
+    .section-closer > h4 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      color: #065f46;
+    }
+    .closer-takeaways {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 14px;
+      counter-reset: takeaway;
+    }
+    .closer-takeaways li {
+      position: relative;
+      padding: 6px 0 6px 40px;
+      margin-bottom: 6px;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: #1f2937;
+      counter-increment: takeaway;
+    }
+    .closer-takeaways li::before {
+      content: counter(takeaway);
+      position: absolute;
+      left: 0;
+      top: 4px;
+      background: #16a34a;
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .closer-takeaways li strong { color: #065f46; }
+    .closer-next {
+      background: rgba(255,255,255,0.85);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: #334155;
+      border-left: 3px solid #14b8a6;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .closer-next strong { color: #0f766e; }
+
   </style>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -357,6 +613,32 @@
     </div>
   </div>
 
+  <section class="day-panorama" aria-label="Carte de la journée 8">
+    <h2>🗺️ La carte de votre Jour 8 — Synthèse finale</h2>
+    <p class="panorama-thread"><strong>Le fil rouge :</strong> ce qui transforme un bon design en une <em>vraie architecture qui tient dans la durée</em> — données, organisation, mesure automatique, économie et défense argumentée des choix.</p>
+
+    <div class="panorama-steps" role="list">
+      <div class="panorama-step" role="listitem"><span class="dot">1</span>Data archi</div>
+      <div class="panorama-step" role="listitem"><span class="dot">2</span>Data Mesh</div>
+      <div class="panorama-step" role="listitem"><span class="dot">3</span>Team Topologies</div>
+      <div class="panorama-step" role="listitem"><span class="dot">4</span>Fitness Funct.</div>
+      <div class="panorama-step" role="listitem"><span class="dot">5</span>Évolutive</div>
+      <div class="panorama-step" role="listitem"><span class="dot">6</span>FinOps</div>
+      <div class="panorama-step" role="listitem"><span class="dot">7</span>Soutenance</div>
+      <div class="panorama-step" role="listitem"><span class="dot">8</span>Synthèse</div>
+      <div class="panorama-step" role="listitem"><span class="dot">9</span>Quiz final</div>
+    </div>
+
+    <div class="panorama-summary">
+      <h4>💡 Si vous ne deviez retenir que 3 idées de la journée</h4>
+      <ol>
+        <li>L'architecture des données et l'organisation des équipes sont des <strong>décisions architecturales</strong> au même titre que les patterns techniques (sections 1–3).</li>
+        <li>Une qualité architecturale qui n'est pas <strong>mesurée automatiquement</strong> se dégrade : Fitness Functions + ADR + revues régulières (sections 4–5).</li>
+        <li>Chaque décision est aussi un <strong>arbitrage économique</strong>, et un architecte doit savoir <strong>défendre ses choix</strong> face à un jury (sections 6–7).</li>
+      </ol>
+    </div>
+  </section>
+
   <div class="quick-tools">
     <a href="#data-archi">1. Architecture données</a>
     <a href="#data-mesh">2. Data Mesh</a>
@@ -368,6 +650,43 @@
     <a href="#synthese-finale">8. Synthèse 8 jours</a>
     <a href="#quiz">9. Quiz final</a>
   </div>
+
+  <!-- ═══ FIL ROUGE PÉDAGOGIQUE ═══ -->
+  <section style="background:linear-gradient(135deg,#fdf4ff,#fae8ff);border:2px solid #c084fc;border-radius:18px;padding:22px 26px;margin:18px 0 24px;box-shadow:var(--shadow);">
+    <h2 style="margin:0 0 8px;color:#6b21a8;font-size:1.2rem;">🗺️ Le fil rouge de cette journée — pour ne pas se perdre</h2>
+    <p style="margin:0 0 14px;color:#581c87;font-size:.95rem;">Aujourd'hui, on prend du recul. On a vu les patterns techniques pendant 7 jours. Cette journée traite de ce qui les <strong>entoure</strong> : les données, les équipes, la mesure, l'évolution, l'argent. Toutes les sections répondent à une question : <em>« Comment garder une architecture vivante et défendable dans la durée ? »</em></p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+      <div style="background:#fff;border-left:4px solid #1d4ed8;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#1d4ed8;">1–2. Données</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Où vont les données ?</strong> Lambda/Kappa, Data Mesh — la donnée comme produit.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #15803d;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#15803d;">3. Team Topologies</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Qui les fabrique ?</strong> Structurer les équipes pour obtenir l'architecture voulue.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #c2410c;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#c2410c;">4. Fitness Functions</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Comment vérifier que ça reste sain ?</strong> Mesurer en continu, pas juger.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #7c3aed;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#7c3aed;">5. Évolution</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Comment migrer sans casser ?</strong> Strangler Fig — étouffer le legacy, pas le tuer.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #be185d;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#be185d;">6. FinOps</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Combien ça coûte ?</strong> Chaque décision technique a un prix mensuel.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #475569;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#475569;">7. Soutenance</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Comment défendre ses choix ?</strong> Devant un jury, une équipe, une direction.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #0891b2;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#0891b2;">8. Synthèse</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Quels enseignements emporter ?</strong> Les 10 principes qui traversent les 8 jours.</p>
+      </div>
+    </div>
+    <p style="margin:14px 0 0;color:#581c87;font-size:.9rem;font-style:italic;">💡 <strong>Conseil de lecture</strong> : aujourd'hui, plus que la technique, on apprend à <em>défendre</em>, <em>mesurer</em> et <em>faire vivre</em> une architecture. Ce sont les compétences d'un architecte mature.</p>
+  </section>
 
   <div class="layout">
     <aside class="toc">
@@ -384,6 +703,7 @@
           <li><a href="#inverse-conway">— Inverse Conway</a></li>
           <li><a href="#fitness-functions">4. Fitness Functions</a></li>
           <li><a href="#atomic-holistic">— Atomiques vs Holistiques</a></li>
+          <li><a href="#archunit-code">— ArchUnit en pratique</a></li>
           <li><a href="#evolutionary-archi">5. Architecture évolutive</a></li>
           <li><a href="#strangler-fig">— Strangler Fig</a></li>
           <li><a href="#finops">6. FinOps</a></li>
@@ -404,6 +724,29 @@
   <span class="section-kicker">Architecture des données</span>
   <h2>1. Architecture des données — Au-delà de la base de données</h2>
   <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 1">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">1</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Architecture des données</h4>
+      <p class="opener-pitch">Les données ne sont pas qu'une base — c'est <strong>un fleuve avec ses bras et ses canaux</strong>. Lambda, Kappa, polyglot persistence : autant de façons de dessiner ce réseau.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~15 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Mid · Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Distinguer Architecture Lambda et Architecture Kappa et choisir</li>
+      <li>Connaître les patterns de stockage (PostgreSQL, ES, Redis, Cassandra…) selon le cas d'usage</li>
+      <li>Comprendre pourquoi le « store universel » n'existe pas (polyglot persistence)</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — Le fleuve et ses bras</h4>
@@ -462,15 +805,32 @@ flowchart LR
     SV[("⚡ Real-time Views<br>RAPIDE mais approché")]
     QUERY["🔍 Serving Layer<br>merge batch + speed"]
     CLIENT["👤 Application"]
-    SRC --> BATCH --> BV --> QUERY
-    SRC --> SPEED --> SV --> QUERY
-    QUERY --> CLIENT
+    SRC -->|"1️⃣ historique complet"| BATCH -->|"2️⃣ produit"| BV -->|"3️⃣ fournit"| QUERY
+    SRC -->|"1️⃣ flux temps réel"| SPEED -->|"2️⃣ produit"| SV -->|"3️⃣ fournit"| QUERY
+    QUERY -->|"4️⃣ fusionne + sert"| CLIENT
     style BATCH fill:#fef3c7,stroke:#ca8a04
     style SPEED fill:#dcfce7,stroke:#16a34a
     style BV fill:#fef3c7
     style SV fill:#dcfce7
     </div>
     <p class="mermaid-caption">2 codebases à maintenir, 2 moteurs, 2 logiques de traitement. Robuste mais coûteux.</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Une même source de données nourrit <strong>deux pipelines</strong> en parallèle. Ils se rejoignent à la fin pour servir le client :</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>1️⃣ Les sources</strong> (logs, transactions, capteurs IoT) alimentent les deux chemins simultanément.</li>
+      <li><strong>2️⃣ Chemin du haut (Batch Layer)</strong> — Spark ou Hadoop traite <em>tout l'historique</em>. Le résultat est exact mais demande des heures.</li>
+      <li><strong>2️⃣ Chemin du bas (Speed Layer)</strong> — Flink ou Storm traite uniquement les <em>données récentes</em>. Le résultat est approché mais arrive en quelques secondes.</li>
+      <li><strong>3️⃣ Les deux produisent leurs vues</strong> — Batch Views (exactes) et Real-time Views (rapides).</li>
+      <li><strong>4️⃣ Le Serving Layer</strong> mélange les deux : la base précise du batch + les corrections temps réel du speed → le client a le meilleur des deux mondes.</li>
+    </ol>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que Maman et Papa cuisinent pour ton anniversaire. Maman prépare un <strong>énorme gâteau parfait</strong> qui prend 3 heures (c'est le batch). Pendant ce temps, Papa fait des <strong>petits canapés rapides</strong> en 5 minutes pour que tu manges tout de suite (c'est le speed). À la fin, on met tout sur la même table : tu commences par les canapés de Papa, puis tu manges le gâteau de Maman. Le repas est bon parce qu'il y a <em>les deux</em>. Mais Maman ET Papa ont travaillé. C'est plus de boulot que si on avait juste une seule personne aux fourneaux.</p>
   </div>
 
   <div class="mermaid-wrapper">
@@ -484,13 +844,30 @@ flowchart LR
     QUERY["🔍 Serving Layer"]
     CLIENT["👤 Application"]
     REPLAY["🔁 Rejeu si correction<br>(reset offset Kafka)"]
-    SRC --> KAFKA --> STREAM --> VIEWS --> QUERY --> CLIENT
-    REPLAY -.-> KAFKA
+    SRC -->|"1️⃣ ingestion"| KAFKA -->|"2️⃣ traitement stream"| STREAM -->|"3️⃣ projections"| VIEWS -->|"4️⃣ lecture"| QUERY -->|"5️⃣ sert"| CLIENT
+    REPLAY -.->|"♻️ reset offset"| KAFKA
     style STREAM fill:#dcfce7,stroke:#16a34a,stroke-width:2px
     style KAFKA fill:#fef3c7,stroke:#ca8a04
     style REPLAY fill:#fce7f3,stroke:#db2777,stroke-dasharray: 5 5
     </div>
     <p class="mermaid-caption">Une seule codebase. Pour rejouer l'historique, on reset l'offset Kafka et on rejoue. Plus simple — mais exige une rétention Kafka longue (donc du stockage).</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Une <strong>seule ligne</strong>, un seul code à maintenir. La magie : tout est un stream :</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>1️⃣ Ingestion</strong> — les sources écrivent dans Kafka, qui conserve les données longtemps (mois ou années).</li>
+      <li><strong>2️⃣ Traitement stream</strong> — Flink lit le flux et calcule en continu.</li>
+      <li><strong>3️⃣ Projections</strong> — les résultats sont enregistrés dans des vues matérialisées.</li>
+      <li><strong>4️⃣ et 5️⃣</strong> — le Serving Layer expose les vues au client.</li>
+      <li><strong>♻️ Rejeu</strong> (flèche pointillée) — si on découvre un bug ou si on veut recalculer un indicateur différemment, on remet le curseur Kafka au début et tout est reprocessé. <strong>Pas besoin d'un second pipeline batch.</strong></li>
+    </ol>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que cette fois, Maman cuisine <strong>toute seule</strong> pour ton anniversaire. Elle a un <em>seul four magique</em> qui sait tout faire : les canapés rapides ET les gros gâteaux. Si elle se trompe dans la recette, elle peut ré-ouvrir son grand cahier (Kafka) où elle a noté <strong>tous les ingrédients utilisés depuis le début</strong>, et tout recommencer. C'est plus simple : une seule cuisinière, une seule recette. Mais il faut un cahier <em>très très long</em> qui prend de la place dans la cuisine.</p>
   </div>
 
   <div class="use-case-box">
@@ -520,6 +897,30 @@ flowchart LR
     <h4>🏛️ Règle — Polyglot Persistence</h4>
     <p>Ne pas choisir un seul store "qui fait tout". Chaque service choisit le store adapté à ses patterns d'accès. Le coût de cohérence entre les stores est payé par des événements et des projections — c'est acceptable et préférable à un store universel qui excelle dans rien.</p>
   </div>
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Architecture des données</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>L'architecture des données</strong> est distincte de l'architecture applicative mais liée : le découpage en services impacte directement le reporting et l'analytics.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Lambda</strong> (batch + stream) est robuste mais coûteux (2 codebases). <strong>Kappa</strong> (stream uniquement) est le choix par défaut moderne dans 90 % des cas.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Polyglot Persistence</strong> : chaque service choisit la base adaptée à ses patterns d'accès (PostgreSQL, Redis, Elasticsearch, S3...). Pas de base universelle qui « fait tout ».</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Avant de tout streamer</strong> : pour beaucoup de PME, un PostgreSQL + un cron nocturne fait largement le travail. Ne jamais sur-architecturer.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>Lambda = batch + streaming</strong>, robuste mais 2 codebases. <strong>Kappa = streaming pur</strong>, plus simple, choix par défaut moderne.</li>
+      <li><strong>Polyglot persistence</strong> : pas de store universel — chaque service choisit la base adaptée à ses patterns d'accès.</li>
+      <li>Le coût de cohérence entre stores se paie en <strong>événements et projections</strong> — c'est acceptable et préférable.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 2 — appliquer cette logique de décentralisation au niveau organisationnel avec le Data Mesh.</span>
+    </div>
+  </aside>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -529,6 +930,29 @@ flowchart LR
   <span class="section-kicker">Architecture décentralisée des données</span>
   <h2>2. Data Mesh — Appliquer les microservices aux données</h2>
   <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 2">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">2</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Data Mesh</h4>
+      <p class="opener-pitch"><strong>Appliquer les principes microservices aux données</strong> : chaque domaine devient propriétaire de ses données analytiques, comme d'un produit.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~12 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Identifier les limites du Data Warehouse centralisé comme goulot d'étranglement</li>
+      <li>Énoncer les 4 principes Data Mesh (ownership, data as a product, self-service, gouvernance fédérée)</li>
+      <li>Reconnaître quand Data Mesh est prématuré (sous 5 équipes data)</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box definition">
     <h4>📖 Définition — Data Mesh (Zhamak Dehghani, 2019)</h4>
@@ -617,12 +1041,12 @@ flowchart TB
         DW[("🏛️ Data Warehouse<br>monolithe")]
         BI1["📊 Dashboard A"]
         BI2["📊 Dashboard B"]
-        D1 -->|export brut| ETL
-        D2 -->|export brut| ETL
-        D3 -->|export brut| ETL
-        ETL --> DW
-        DW --> BI1
-        DW --> BI2
+        D1 -->|"1️⃣ export brut"| ETL
+        D2 -->|"1️⃣ export brut"| ETL
+        D3 -->|"1️⃣ export brut"| ETL
+        ETL -->|"2️⃣ transforme"| DW
+        DW -->|"3️⃣ requêtes"| BI1
+        DW -->|"3️⃣ requêtes"| BI2
     end
     subgraph DM["✅ Data Mesh (décentralisé par domaine)"]
         direction TB
@@ -632,17 +1056,45 @@ flowchart TB
         PLAT["🛠️ Platform Team<br>self-service<br>(infra, catalogue,<br>gouvernance)"]
         CON1["📊 Marketing<br>découvre + consomme"]
         CON2["📊 Finance<br>découvre + consomme"]
-        DP1 -.publié sur.-> PLAT
-        DP2 -.publié sur.-> PLAT
-        DP3 -.publié sur.-> PLAT
-        PLAT --> CON1
-        PLAT --> CON2
+        DP1 -.->|"1️⃣ publié"| PLAT
+        DP2 -.->|"1️⃣ publié"| PLAT
+        DP3 -.->|"1️⃣ publié"| PLAT
+        PLAT -->|"2️⃣ découverte<br>self-service"| CON1
+        PLAT -->|"2️⃣ découverte<br>self-service"| CON2
     end
     style WH fill:#fee2e2
     style DM fill:#dcfce7
     style ETL fill:#fca5a5,stroke:#dc2626,stroke-width:2px
     </div>
     <p class="mermaid-caption">En haut : tout passe par une équipe centrale qui devient le bottleneck. En bas : chaque domaine est responsable de la qualité de SES données, comme un produit publié.</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <strong style="color:#b91c1c;display:block;margin-bottom:6px;font-size:.9rem;">❌ En haut — Data Warehouse classique</strong>
+        <ol style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Chaque équipe métier (catalog, loan, student) <strong>exporte ses données brutes</strong> sans contrôle de qualité.</li>
+          <li>Une <strong>équipe data centrale</strong> écrit des ETL fragiles pour tout transformer et charger dans le warehouse.</li>
+          <li>Les dashboards (BI A, BI B) requêtent le warehouse.</li>
+          <li><strong>⚠️ Le problème</strong> : tout doit passer par l'équipe centrale → goulot d'étranglement, ETL qui cassent à chaque évolution d'un service.</li>
+        </ol>
+      </div>
+      <div>
+        <strong style="color:#15803d;display:block;margin-bottom:6px;font-size:.9rem;">✅ En bas — Data Mesh</strong>
+        <ol style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Chaque équipe métier <strong>publie ses données comme un produit</strong> (SLA, doc, qualité mesurée) sur la plateforme self-service.</li>
+          <li>Les consommateurs (Marketing, Finance) <strong>découvrent et utilisent</strong> les produits qui les intéressent, sans passer par une équipe intermédiaire.</li>
+          <li><strong>✅ Le bénéfice</strong> : chaque équipe est responsable de la qualité de ses données. La plateforme automatise tout ce qui est commun (catalogue, accès, gouvernance).</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine deux façons d'acheter à manger. <strong>❌ Au supermarché</strong> : tous les producteurs envoient leurs trucs en vrac à un seul gros entrepôt. Une seule équipe range tout, étiquette tout, et tu vas chercher. Si l'équipe est en vacances ou se trompe, tu n'as plus rien. <strong>✅ Au marché du dimanche</strong> : chaque maraîcher tient son <em>propre stand</em>, avec ses tomates étiquetées, son prix, sa qualité. Tu vas voir directement celui qui a les meilleurs fruits. S'il y a un problème avec ses tomates, c'est lui qui répond — pas une équipe centrale. Le marché propose juste l'<em>emplacement</em> et la <em>balance commune</em>. <strong>Chacun est responsable de SON stand.</strong></p>
   </div>
 
   <div class="use-case-box">
@@ -655,7 +1107,7 @@ flowchart TB
     </ul>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Adoption Data Mesh en pratique<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Adoption Data Mesh en pratique<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Adoption Data Mesh en pratique</h4>
     <ul>
       <li><strong>Zalando</strong> : pionnier (où Zhamak Dehghani a formalisé le concept). 200+ Data Products publiés par les équipes domaines.</li>
@@ -664,6 +1116,30 @@ flowchart TB
       <li><strong>Intuit</strong> : a créé une plateforme data interne qui sert d'exemple de référence pour la self-service.</li>
     </ul>
   </div></div></details>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Data Mesh</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Data Mesh = microservices appliqués aux données</strong>. Chaque équipe métier publie ses données analytiques comme un produit (avec SLA, doc, qualité mesurée).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>4 principes</strong> : ownership décentralisé · data as a product · plateforme self-service · gouvernance fédérée.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Ce n'est pas une techno</strong>, c'est un changement organisationnel majeur. Requiert une maturité data élevée.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Quand l'éviter</strong> : moins de 5 équipes data → un bon data warehouse est plus simple et plus efficace.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li>Le Data Mesh applique les <strong>4 principes microservices</strong> aux données : ownership décentralisé, data as a product, plateforme self-service, gouvernance fédérée.</li>
+      <li>Ce n'est <strong>pas une technologie</strong>, c'est un changement organisationnel — il faut une maturité data élevée.</li>
+      <li>Sous 5 équipes data, <strong>un bon Data Warehouse reste plus efficace</strong>. Ne pas suivre la mode.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 3 — Team Topologies : comment structurer les équipes pour obtenir l'architecture voulue.</span>
+    </div>
+  </aside>
 
 </section>
 
@@ -674,6 +1150,29 @@ flowchart TB
   <span class="section-kicker">Organisation &amp; Architecture</span>
   <h2>3. Team Topologies — L'organisation comme décision architecturale</h2>
   <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 3">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">3</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Team Topologies</h4>
+      <p class="opener-pitch"><strong>L'organisation est une décision architecturale</strong>. La loi de Conway dit que l'architecture suit la structure des équipes — alors structurons les équipes pour obtenir l'architecture qu'on veut.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~14 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Décrire les 4 types d'équipes (Stream-Aligned, Platform, Enabling, Complicated Subsystem)</li>
+      <li>Distinguer les 3 modes d'interaction (Collaboration, X-as-a-Service, Facilitating)</li>
+      <li>Appliquer l'Inverse Conway Maneuver à un cas concret</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — La cuisine d'un restaurant étoilé</h4>
@@ -813,18 +1312,41 @@ flowchart TB
     PLAT["🔧 Platform Team<br>fournit : K8s, CI/CD, observabilité<br>en self-service<br>(traite SA comme clients)"]
     ENA["🔬 Enabling Team<br>(coach DDD, sécurité, perf)<br>aide temporairement<br>puis se retire"]
     COMP["💎 Complicated Subsystem<br>équipe ML recommandation<br>expertise pointue rare"]
-    SA1 -.X-as-a-Service.-> PLAT
-    SA2 -.X-as-a-Service.-> PLAT
-    SA3 -.X-as-a-Service.-> PLAT
-    SA1 <-.Facilitating<br>1-4 sem.-> ENA
-    SA2 -.X-as-a-Service.-> COMP
-    SA3 <-.Collaboration<br>(sprints).-> SA2
+    SA1 -.->|"① X-as-a-Service"| PLAT
+    SA2 -.->|"① X-as-a-Service"| PLAT
+    SA3 -.->|"① X-as-a-Service"| PLAT
+    SA1 <-.->|"② Facilitating<br>1-4 sem"| ENA
+    SA2 -.->|"③ X-as-a-Service"| COMP
+    SA3 <-.->|"④ Collaboration<br>(sprints)"| SA2
     style CORE fill:#dbeafe
     style PLAT fill:#f5f3ff,stroke:#7c3aed,stroke-width:2px
     style ENA fill:#dcfce7,stroke:#16a34a
     style COMP fill:#fff7ed,stroke:#ea580c
     </div>
     <p class="mermaid-caption">3 modes d'interaction : <b>Collaboration</b> (sprints, frontières floues), <b>X-as-a-Service</b> (consommation low-touch), <b>Facilitating</b> (coaching court).</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Au centre, les <strong>Stream-Aligned Teams</strong> (cœur de la livraison). Autour, 3 types d'équipes qui leur rendent service via 4 interactions :</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>① X-as-a-Service vers Platform</strong> — les Stream-Aligned consomment la plateforme (K8s, CI/CD, observabilité) <em>comme un service self-service</em>. Peu d'interactions, juste de l'usage.</li>
+      <li><strong>② Facilitating avec Enabling</strong> — pendant 1 à 4 semaines, l'Enabling team coache (DDD, sécurité, perf) puis se retire. Relation <em>bidirectionnelle</em> mais courte.</li>
+      <li><strong>③ X-as-a-Service vers Complicated Subsystem</strong> — l'équipe ML de recommandation fournit une API. Les Stream-Aligned l'utilisent sans avoir à connaître les détails.</li>
+      <li><strong>④ Collaboration entre deux Stream-Aligned</strong> — quand catalog et loan doivent évoluer ensemble sur une feature commune, ils travaillent côte à côte le temps des sprints. <strong>Cette relation doit rester temporaire</strong>, sinon les équipes se mélangent.</li>
+    </ol>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine la cour de récré. Au milieu, des groupes d'enfants qui jouent à différents jeux (les Stream-Aligned). Autour :</p>
+    <ul style="margin:6px 0 0;">
+      <li><strong>① La maîtresse</strong> qui surveille et donne les ballons quand on lui demande (Platform).</li>
+      <li><strong>② Le grand frère</strong> qui passe pour t'apprendre une nouvelle règle, puis qui repart (Enabling).</li>
+      <li><strong>③ Le copain pro de la marelle</strong> à qui tu demandes son aide quand tu n'y arrives pas (Complicated Subsystem).</li>
+      <li><strong>④ Ton meilleur ami</strong> avec qui tu décides parfois de faire <em>un même jeu</em> (Collaboration entre Stream-Aligned).</li>
+    </ul>
+    <p style="margin-top:6px;">Chacun a un rôle clair. Personne n'essaie de tout faire en même temps.</p>
   </div>
 
   <div class="use-case-box">
@@ -837,6 +1359,30 @@ flowchart TB
     </ul>
   </div>
 
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Team Topologies</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>La structure d'équipe est une décision architecturale</strong>. Conway's Law est réel : votre système ressemblera à votre organisation.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>4 types d'équipes</strong> : <em>Stream-Aligned</em> (livre la valeur) · <em>Platform</em> (sert les autres en self-service) · <em>Enabling</em> (coache et se retire) · <em>Complicated Subsystem</em> (expertise rare).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>3 modes d'interaction</strong> : <em>Collaboration</em> (court, frontières floues) · <em>X-as-a-Service</em> (durable, low-touch) · <em>Facilitating</em> (très court, coaching).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Inverse Conway</strong> : définir l'architecture cible <em>puis</em> structurer les équipes en conséquence — pas l'inverse.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>4 types d'équipes</strong> : Stream-Aligned (cœur), Platform (self-service), Enabling (coach temporaire), Complicated Subsystem (expertise rare).</li>
+      <li><strong>3 modes d'interaction</strong> : Collaboration (frontières floues), X-as-a-Service (consommation), Facilitating (coaching court).</li>
+      <li>L'<strong>Inverse Conway Maneuver</strong> : définir l'archi cible, puis structurer les équipes pour qu'elles reflètent cette architecture.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 4 — Fitness Functions : mesurer automatiquement que les décisions d'architecture sont respectées.</span>
+    </div>
+  </aside>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -846,6 +1392,29 @@ flowchart TB
   <span class="section-kicker">Mesurer l'architecture</span>
   <h2>4. Architecture Fitness Functions — Mesurer ce qui importe</h2>
   <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 4">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">4</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Architecture Fitness Functions</h4>
+      <p class="opener-pitch">Une qualité architecturale qui n'est pas mesurée se dégrade silencieusement. Les Fitness Functions sont <strong>des tests automatisés pour l'architecture elle-même</strong>.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~14 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Distinguer Fitness Functions atomiques (unitaires) et holistiques (système)</li>
+      <li>Comprendre comment ArchUnit (et équivalents) vérifient l'architecture en CI</li>
+      <li>Concevoir une Fitness Function pour une décision ADR donnée</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — L'indicateur de santé</h4>
@@ -940,6 +1509,111 @@ flowchart TB
     </div>
   </div>
 
+
+  <h3 id="archunit-code">4.2 ArchUnit en pratique — Le code derrière la règle</h3>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — Le contrôle technique automobile</h4>
+    <p>Votre voiture passe un contrôle technique : on vérifie les freins, les phares, l'usure des pneus. Pas besoin d'attendre l'accident pour découvrir que les freins ne fonctionnent plus. ArchUnit fait pareil pour votre architecture : à chaque commit, des règles vérifient automatiquement que les dépendances respectent la structure choisie. Si une règle casse, la PR est bloquée — avant que la dette technique ne s'installe.</p>
+  </div>
+
+  <div class="box definition">
+    <h4>📖 Définition — ArchUnit</h4>
+    <p>Bibliothèque Java/Kotlin (équivalents : NetArchTest .NET, dependency-cruiser JS) qui permet d'écrire des <strong>tests unitaires d'architecture</strong> : ils inspectent le bytecode compilé et vérifient des règles de structure, de nommage, de dépendances. Exécutés comme des tests JUnit, en CI à chaque PR.</p>
+  </div>
+
+  <p class="section-intro">Reprenons le contexte campus_library : <strong>loan-service</strong> respecte une Clean Architecture en 3 couches (<code>domain</code>, <code>application</code>, <code>infrastructure</code>). On veut interdire automatiquement les violations.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:14%;">Règle</th>
+        <th>Ce que la règle interdit</th>
+        <th>Ce que ça vous protège (cas réel)</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>① Couches respectées</strong></td>
+        <td>Une classe du <em>domaine métier</em> ne peut pas dépendre d'une classe de la couche <em>web</em> ou <em>infrastructure</em>.</td>
+        <td>Un développeur pressé importe <code>HttpServletRequest</code> dans une règle métier pour aller plus vite. La règle bloque la PR : la métier reste portable et testable.</td>
+      </tr>
+      <tr>
+        <td><strong>② Domaine pur</strong></td>
+        <td>Aucune annotation Spring (<code>@Service</code>), JPA (<code>@Entity</code>) ou Jackson dans le package <code>domain</code>.</td>
+        <td>Un nouveau collègue ajoute <code>@Entity</code> sur l'<em>Aggregate</em> Loan pour gagner du temps. La règle bloque : le domaine reste indépendant du framework, on peut migrer Hibernate→jOOQ sans réécrire.</td>
+      </tr>
+      <tr>
+        <td><strong>③ Pas de cycles</strong></td>
+        <td>Le package <code>application</code> ne peut pas appeler <code>infrastructure</code> qui rappelle <code>application</code>.</td>
+        <td>Les cycles transforment un projet maintenable en spaghetti. La règle les détecte à chaque commit, avant qu'ils s'enracinent.</td>
+      </tr>
+      <tr>
+        <td><strong>④ Nommage cohérent</strong></td>
+        <td>Toute classe annotée <code>@RestController</code> doit terminer par "Controller". Tout <code>@Service</code> doit vivre dans le package <code>application</code>.</td>
+        <td>Plus de "LoanHandler" caché dans <code>web</code>, plus de service métier qui squatte la couche infra. L'équipe trouve immédiatement où vit chaque type de classe.</td>
+      </tr>
+      <tr>
+        <td><strong>⑤ Pas de DB voisine</strong></td>
+        <td>Aucune classe de <code>loan</code> ne peut accéder à la base de données de <code>catalog</code> ou <code>student</code>.</td>
+        <td>Database per Service garanti par la machine. Impossible de "court-circuiter" l'API d'un service voisin — ce qui détruirait l'autonomie microservices à terme.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 Le cycle de vie d'une règle qui se déclenche</p>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;">
+      <div style="background:#dbeafe;border:1.5px solid #93c5fd;border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:1.5rem;">👨‍💻</div>
+        <strong style="color:#1d4ed8;display:block;margin:6px 0;font-size:.9rem;">① Le dev pousse</strong>
+        <p style="font-size:.82rem;margin:0;color:#374151;">Sans le faire exprès, il importe <code>@Entity</code> dans une règle métier.</p>
+      </div>
+      <div style="background:#fef9c3;border:1.5px solid #fde68a;border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:1.5rem;">🔄</div>
+        <strong style="color:#854d0e;display:block;margin:6px 0;font-size:.9rem;">② La CI tourne</strong>
+        <p style="font-size:.82rem;margin:0;color:#374151;">Les tests d'architecture s'exécutent comme n'importe quel test unitaire.</p>
+      </div>
+      <div style="background:#fee2e2;border:1.5px solid #fca5a5;border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:1.5rem;">🛑</div>
+        <strong style="color:#b91c1c;display:block;margin:6px 0;font-size:.9rem;">③ La règle ② échoue</strong>
+        <p style="font-size:.82rem;margin:0;color:#374151;">Le rapport indique : "Loan.java importe jakarta.persistence — interdit par règle Domain pur".</p>
+      </div>
+      <div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:12px;padding:12px;text-align:center;">
+        <div style="font-size:1.5rem;">✅</div>
+        <strong style="color:#15803d;display:block;margin:6px 0;font-size:.9rem;">④ La PR est bloquée</strong>
+        <p style="font-size:.82rem;margin:0;color:#374151;">Le dev corrige avant de fusionner. La dette architecturale ne s'installe pas.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="box best-practice">
+    <h4>✅ Ce que ces 5 règles garantissent à perpétuité</h4>
+    <ul>
+      <li><strong>Règle 1</strong> : la pyramide Clean Arch ne s'inverse jamais — le domaine reste isolé du web et de l'infra</li>
+      <li><strong>Règle 2</strong> : aucun nouveau collègue ne pourra accidentellement annoter un Aggregate avec <code>@Entity</code> JPA</li>
+      <li><strong>Règle 3</strong> : un <code>application</code> qui appellerait <code>infrastructure</code> qui rappelle <code>application</code> est détecté immédiatement</li>
+      <li><strong>Règle 4</strong> : convention de nommage forcée, plus de "LoanService" qui se cache dans le package <code>web</code></li>
+      <li><strong>Règle 5</strong> : impossible qu'un dev cherche à "court-circuiter l'API" en accédant à la DB voisine — la PR ne compile pas</li>
+    </ul>
+  </div>
+
+  <div class="box frequent-error">
+    <h4>❌ Erreur classique — ArchUnit qu'on désactive « temporairement »</h4>
+    <p>Sous la pression d'une release, on est tenté d'ajouter <code>@Disabled("temporaire — TODO retirer")</code> sur une règle ArchUnit qui casse. <strong>C'est exactement le moment où la dette technique s'installe.</strong> Mieux : créer un <strong>backlog d'exceptions explicites</strong> via <code>.allowEmptyShould(true)</code> ou via une liste de violations connues, avec un ticket associé. Une exception nommée est mieux qu'une règle désactivée.</p>
+  </div>
+
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Équivalents ArchUnit dans d'autres écosystèmes<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir équivalents</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+    <h4>🏢 Équivalents ArchUnit dans d'autres écosystèmes</h4>
+    <ul>
+      <li><strong>.NET / C#</strong> : <strong>NetArchTest</strong>, <strong>ArchUnitNET</strong> — même philosophie, même API fluent</li>
+      <li><strong>JavaScript / TypeScript</strong> : <strong>dependency-cruiser</strong> — règles via fichier de config, vérifications en CI</li>
+      <li><strong>Python</strong> : <strong>pytestarch</strong>, <strong>import-linter</strong> — règles sur la structure des modules</li>
+      <li><strong>Go</strong> : <strong>go-arch-lint</strong> — vérifications en CI sur les imports cross-package</li>
+      <li><strong>Toute techno</strong> : <strong>Sonar Quality Gate</strong> avec des règles custom architecture (couverture, complexité cyclomatique, duplication)</li>
+    </ul>
+  </div></div></details>
+
   <div class="box best-practice">
     <h4>✅ Règles d'or des Fitness Functions</h4>
     <ol>
@@ -966,20 +1640,20 @@ flowchart LR
     G6{"🔍 OWASP ZAP<br>0 critical"}
     DEPLOY_P["✅ Deploy<br>production"]
     BLOCK["❌ Bloque le merge"]
-    DEV --> PR
-    PR --> G1
-    PR --> G2
-    PR --> G3
+    DEV -->|"1️⃣"| PR
+    PR -->|"2️⃣"| G1
+    PR -->|"2️⃣"| G2
+    PR -->|"2️⃣"| G3
     G1 -->|✅| BUILD
     G2 -->|✅| BUILD
     G3 -->|✅| BUILD
     G1 -->|❌| BLOCK
     G2 -->|❌| BLOCK
     G3 -->|❌| BLOCK
-    BUILD --> DEPLOY_S
-    DEPLOY_S --> G4
-    DEPLOY_S --> G5
-    DEPLOY_S --> G6
+    BUILD -->|"3️⃣"| DEPLOY_S
+    DEPLOY_S -->|"4️⃣"| G4
+    DEPLOY_S -->|"4️⃣"| G5
+    DEPLOY_S -->|"4️⃣"| G6
     G4 -->|✅| DEPLOY_P
     G5 -->|✅| DEPLOY_P
     G6 -->|✅| DEPLOY_P
@@ -995,7 +1669,37 @@ flowchart LR
     <p class="mermaid-caption">Chaque Fitness Function est un "gate" automatisé. Si elle échoue, elle bloque la suite — exactement comme un test unitaire bloque une PR.</p>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Exemples de Fitness Functions en production<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Pour qu'un code arrive en production, il doit franchir <strong>6 portes (gates)</strong>. Une seule porte fermée → la PR est bloquée (✅ = passe / ❌ = bloque) :</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>Push + PR</strong> — Le dev pousse son code, une Pull Request s'ouvre.</li>
+      <li><strong>3 portes en parallèle au niveau PR</strong> :
+        <ul style="margin:4px 0;">
+          <li>🧱 <strong>Architecture</strong> (ArchUnit) — pas de violation de couches</li>
+          <li>🧪 <strong>Tests</strong> — couverture ≥ 80 %</li>
+          <li>🔐 <strong>SAST + SCA</strong> (Trivy, Snyk) — 0 vulnérabilité critique</li>
+        </ul>
+      </li>
+      <li><strong>Si les 3 passent ✅</strong> → on construit l'image Docker, puis on déploie en staging.</li>
+      <li><strong>Si une seule échoue ❌</strong> → bloque le merge. Le dev corrige et repousse.</li>
+      <li><strong>3 portes en parallèle après staging</strong> :
+        <ul style="margin:4px 0;">
+          <li>⚡ <strong>Perf test</strong> — P99 &lt; 500 ms à 1000 users</li>
+          <li>🛡️ <strong>Chaos test</strong> — couper catalog, vérifier que le fallback marche</li>
+          <li>🔍 <strong>OWASP ZAP</strong> — 0 vulnérabilité critique exposée</li>
+        </ul>
+      </li>
+      <li><strong>Si toutes passent ✅</strong> → déploiement production automatique.</li>
+    </ol>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que pour aller jouer dans le grand jardin (la production), tu dois passer par <strong>6 portes</strong>. Avant la première porte, tu dois mettre tes chaussures (PR). Ensuite : ① <em>Tes chaussures sont propres ?</em> ② <em>Tu as bien mis ton manteau ?</em> ③ <em>Tu as ta bouteille d'eau ?</em>. Si une seule de ces choses manque, Maman te dit « ❌ retourne te préparer ». Si tu passes les 3, tu peux aller dans la cour. Puis encore 3 portes : ④ <em>Tu sais où sont les toilettes ?</em> ⑤ <em>Tu connais les règles du jeu ?</em> ⑥ <em>Tu sais comment revenir ?</em>. Si tu réussis TOUTES les portes, tu joues dans le grand jardin. <strong>Aucune porte ne peut être sautée.</strong></p>
+  </div>
+
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Exemples de Fitness Functions en production<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Exemples de Fitness Functions en production</h4>
     <ul>
       <li><strong>ThoughtWorks</strong> (origine du concept) : leurs projets clients ont systématiquement un "fitness function dashboard" partagé.</li>
@@ -1004,6 +1708,30 @@ flowchart LR
       <li><strong>Booking.com</strong> : tout déploiement passe par 50+ vérifications automatisées avant d'atteindre la production.</li>
     </ul>
   </div></div></details>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Fitness Functions</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Une qualité architecturale non mesurée se dégrade silencieusement</strong>. Une Fitness Function la mesure automatiquement, à chaque PR ou release.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Atomiques</strong> (un aspect : pas de cycle, pas de violation de couche) vs <strong>Holistiques</strong> (test de chaos, scan sécu, charge globale).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>ArchUnit, NetArchTest, dependency-cruiser</strong> permettent d'écrire des règles d'architecture comme des tests unitaires : si une règle casse, la PR est bloquée.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>La règle d'or</strong> : chaque ADR (décision d'architecture) doit avoir sa Fitness Function. Sinon la décision ne sera pas tenue dans le temps.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li>Une Fitness Function est <strong>un test automatisé</strong> qui mesure une qualité architecturale. Si elle échoue, le déploiement est bloqué.</li>
+      <li><strong>Atomique</strong> (un aspect : couplage, latence) vs <strong>holistique</strong> (système entier : chaos, sécurité, compliance).</li>
+      <li><strong>Chaque ADR doit avoir sa Fitness Function</strong> — sinon la décision se dégradera silencieusement avec le temps.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 5 — architecture évolutive : migrer sans Big Bang grâce au Strangler Fig.</span>
+    </div>
+  </aside>
 
 </section>
 
@@ -1014,6 +1742,29 @@ flowchart LR
   <span class="section-kicker">Migration progressive</span>
   <h2>5. Architecture évolutive — Migrer sans Big Bang</h2>
   <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 5">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">5</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Architecture évolutive</h4>
+      <p class="opener-pitch">Migrer un système legacy sans Big Bang : on <strong>étrangle progressivement</strong> le monolithe via une façade, jusqu'à pouvoir l'éteindre — sans jamais couper le service.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~10 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Mid · Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Décrire le Strangler Fig Pattern et son fonctionnement</li>
+      <li>Comparer Strangler Fig, Branch by Abstraction, Feature Toggle Migration</li>
+      <li>Comprendre pourquoi le Big Bang Rewrite échoue presque toujours</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <h3 id="strangler-fig">5.1 Strangler Fig Pattern — La migration incrémentale</h3>
 
@@ -1090,7 +1841,7 @@ flowchart TB
         FACADE4 --> NEW5["📘 loan"]
         FACADE4 --> NEW6["👨‍🎓 student<br>(nouveau)"]
     end
-    M0 --> M1 --> M2 --> M3 --> M4
+    M0 -->|"1️⃣ pose façade"| M1 -->|"2️⃣ extrait catalog"| M2 -->|"3️⃣ extrait loan"| M3 -->|"4️⃣ extrait student"| M4
     style MONO0 fill:#fee2e2,stroke:#dc2626
     style MONO1 fill:#fee2e2
     style MONO2 fill:#fef3c7
@@ -1103,7 +1854,25 @@ flowchart TB
     <p class="mermaid-caption">À aucun moment le système ne tombe. À aucun moment on n'a un "Big Bang". On peut s'arrêter à n'importe quelle phase si la valeur business est atteinte.</p>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Migrations Strangler Fig célèbres<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">5 mini-schémas qui montrent l'évolution mois par mois. À <strong>chaque étape, le système fonctionne toujours</strong> :</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>📅 Mois 0</strong> — État de départ. Le monolithe legacy fait tout (catalog + loan + student). Les clients s'y connectent directement.</li>
+      <li><strong>1️⃣ Mois 1 — On pose la façade</strong> (API Gateway) devant le monolithe. 100 % du trafic y passe encore, mais on a maintenant un <em>chef d'orchestre</em>.</li>
+      <li><strong>2️⃣ Mois 2-3 — Catalog extrait</strong>. La façade route <code>/catalog/*</code> vers le nouveau service. Le reste continue vers le monolithe. <strong>Aucune interruption.</strong></li>
+      <li><strong>3️⃣ Mois 4-5 — Loan extrait</strong>. La façade route <code>/loans/*</code> vers son service. Le monolithe ne gère plus que les étudiants.</li>
+      <li><strong>4️⃣ Mois 6 — Student extrait à son tour</strong>. Le monolithe ne reçoit plus aucun trafic → on l'éteint. <strong>✅ Migration terminée, zéro Big Bang.</strong></li>
+    </ol>
+    <p style="margin:10px 0 0;color:#15803d;font-size:.85rem;font-style:italic;">💡 <strong>Point essentiel</strong> : on peut s'arrêter à n'importe quelle phase. Si après le mois 3, la valeur business est suffisante, on peut décider de garder le monolithe pour les fonctions restantes.</p>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que tu as une vieille trousse trop pleine, avec des crayons cassés. Tu veux la remplacer par une trousse neuve, mais tu ne peux pas vivre une journée d'école <strong>sans aucun crayon</strong>. Alors : ① tu mets <em>les deux trousses côte à côte</em> sur ton bureau. ② Tu prends ton premier crayon neuf et tu enlèves le vieux. ③ Puis le crayon suivant. ④ Et ainsi de suite. À <em>chaque seconde</em>, tu as toujours des crayons pour dessiner. À la fin, l'ancienne trousse est vide → tu la jettes. <strong>Tu n'as jamais été sans crayons</strong>, et c'est ça la magie du Strangler Fig.</p>
+  </div>
+
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Migrations Strangler Fig célèbres<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Migrations Strangler Fig célèbres</h4>
     <ul>
       <li><strong>Amazon</strong> : passage du monolithe Obidos vers les microservices via Strangler sur plusieurs années (2002-2006).</li>
@@ -1114,6 +1883,30 @@ flowchart TB
     </ul>
   </div></div></details>
 
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Architecture évolutive — Strangler Fig</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Migrer un legacy = ne JAMAIS faire un Big Bang Rewrite</strong>. Les statistiques sont sans appel : presque tous échouent.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Strangler Fig</strong> : on pose une façade (API Gateway) devant le legacy, on extrait progressivement des fonctionnalités vers de nouveaux services. La façade route le trafic.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>À aucun moment le système ne tombe</strong>. On peut s'arrêter à n'importe quelle phase si la valeur business est atteinte.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Pourquoi ça marche</strong> : on apprend en marchant, on teste sur du vrai trafic, on rollbacke immédiatement si une étape pose problème.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li>Le <strong>Strangler Fig Pattern</strong> remplace un legacy progressivement via une façade : zéro downtime, rollback possible à chaque étape.</li>
+      <li><strong>Big Bang Rewrite ≠ stratégie</strong>. C'est presque toujours un échec — Netscape, Joel Spolsky, à connaître comme contre-exemple.</li>
+      <li>On peut aussi arrêter la migration à mi-parcours si la valeur business est atteinte — flexibilité maximale.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 6 — FinOps : l'architecture comme décision économique.</span>
+    </div>
+  </aside>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -1123,6 +1916,29 @@ flowchart TB
   <span class="section-kicker">Économie du cloud</span>
   <h2>6. FinOps — L'architecture comme décision économique</h2>
   <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 6">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">6</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 FinOps</h4>
+      <p class="opener-pitch"><strong>Une décision d'architecture est aussi une décision économique</strong>. FinOps rapproche ingénierie et finance pour dépenser <em>intentionnellement</em> sur le cloud — pas le moins cher, mais le plus rentable.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~10 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Mid · Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Identifier les décisions architecturales à fort impact coût cloud</li>
+      <li>Connaître les patterns d'économie : Scale to Zero, Spot, Reserved, Data Tiering</li>
+      <li>Lire un arbre de décision FinOps pour choisir le bon modèle</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box definition">
     <h4>📖 Définition — FinOps (Cloud Financial Operations)</h4>
@@ -1207,18 +2023,18 @@ flowchart TD
     ONDEMAND["💰 On-demand<br>+ autoscaling"]
     HOT["🔥 S3 Standard / SSD"]
     COLD["❄️ S3 Glacier / HDD<br>−90% de coût"]
-    START --> Q1
-    Q1 -->|Oui| Q5
-    Q5 -->|Oui| RESERVED
-    Q5 -->|Non| ONDEMAND
-    Q1 -->|Non| Q3
-    Q3 -->|Oui| SCALE0
-    Q3 -->|Non| Q2
-    Q2 -->|Oui| ONDEMAND
-    Q2 -->|Non| SPOT
-    START -.données stockées.-> Q4
-    Q4 -->|Oui| HOT
-    Q4 -->|Non| COLD
+    START -->|"1️⃣"| Q1
+    Q1 -->|"2️⃣ Oui"| Q5
+    Q5 -->|"3️⃣ Oui"| RESERVED
+    Q5 -->|"3️⃣ Non"| ONDEMAND
+    Q1 -->|"2️⃣ Non"| Q3
+    Q3 -->|"3️⃣ Oui"| SCALE0
+    Q3 -->|"3️⃣ Non"| Q2
+    Q2 -->|"4️⃣ Oui"| ONDEMAND
+    Q2 -->|"4️⃣ Non"| SPOT
+    START -.->|"💾 données stockées"| Q4
+    Q4 -->|"Oui"| HOT
+    Q4 -->|"Non"| COLD
     style START fill:#dbeafe,stroke:#2563eb
     style SCALE0 fill:#dcfce7,stroke:#16a34a
     style RESERVED fill:#fef3c7,stroke:#ca8a04
@@ -1226,6 +2042,36 @@ flowchart TD
     style COLD fill:#e0f2fe,stroke:#0284c7
     </div>
     <p class="mermaid-caption">Aucune réponse universelle. Ce sont les patterns d'usage qui dictent le modèle économique optimal.</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">C'est un <strong>arbre de questions</strong>. À chaque question, on prend la branche <em>Oui</em> ou <em>Non</em> jusqu'à atteindre une recommandation :</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <strong style="color:#1d4ed8;display:block;margin-bottom:6px;font-size:.9rem;">💻 Pour le calcul (compute)</strong>
+        <ul style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li><strong>Trafic stable 24/7 + prévu sur 6+ mois</strong> → 📦 Reserved Instances (−30 à −60 %)</li>
+          <li><strong>Trafic stable mais court terme</strong> → 💰 On-demand + autoscaling</li>
+          <li><strong>Trafic sporadique ou rare</strong> → ⚡ Scale to Zero (0 € si inactif)</li>
+          <li><strong>Trafic variable mais downtime accepté</strong> → 🏷️ Spot Instances (−70 à −90 %, mais stateless requis)</li>
+          <li><strong>Trafic variable + 0 % downtime</strong> → 💰 On-demand classique</li>
+        </ul>
+      </div>
+      <div>
+        <strong style="color:#1d4ed8;display:block;margin-bottom:6px;font-size:.9rem;">💾 Pour le stockage</strong>
+        <ul style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li><strong>Données accédées souvent</strong> → 🔥 Stockage chaud (S3 Standard, SSD)</li>
+          <li><strong>Données accédées rarement</strong> → ❄️ Stockage froid (S3 Glacier, HDD) → <strong>×10 moins cher</strong></li>
+        </ul>
+      </div>
+    </div>
+    <p style="margin:10px 0 0;color:#854d0e;font-size:.85rem;font-style:italic;">💡 <strong>Aucune réponse universelle.</strong> Le bon modèle dépend de votre profil d'usage. Et il peut changer dans 6 mois — d'où la nécessité de mesurer en continu.</p>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que dans ta chambre, il y a plusieurs lumières. Tu apprends à les utiliser malin : la <strong>grande lumière du plafond</strong> (on-demand), tu l'allumes seulement quand tu joues — quand tu pars, tu l'éteins (scale to zero). Ta <strong>veilleuse</strong> reste allumée toute la nuit, elle est petite, ça coûte presque rien (reserved instance pour le baseline). Tes <strong>jouets</strong> préférés (le doudou, la peluche) sont à portée de main sur ton lit (stockage chaud) ; les jouets de bébé que tu utilises plus, ils sont rangés au grenier (stockage froid) — c'est moins cher en place mais c'est long d'aller les chercher. <strong>L'idée :</strong> ne pas allumer ce qui ne sert pas. Ne pas garder en avant ce qu'on n'utilise plus.</p>
   </div>
 
   <div class="use-case-box">
@@ -1237,7 +2083,7 @@ flowchart TD
     </ul>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Cas FinOps emblématiques<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Cas FinOps emblématiques<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Cas FinOps emblématiques</h4>
     <ul>
       <li><strong>Pinterest</strong> : a divisé sa facture AWS par 2 (en valeur absolue, pas relative) en 18 mois grâce à un programme FinOps systématique.</li>
@@ -1246,6 +2092,30 @@ flowchart TD
       <li><strong>FinOps Foundation (Linux Foundation)</strong> : framework de référence adopté par 10000+ entreprises.</li>
     </ul>
   </div></div></details>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — FinOps</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>L'architecture est une décision économique</strong>. Multi-région, replicas, logs, instances toujours actives — chaque choix a un coût mensuel mesurable.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Visibilité = responsabilité</strong>. Chaque équipe doit voir son coût cloud quotidien. Sans tag de coût par service, personne n'optimise.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>3 leviers majeurs</strong> : <em>scale to zero</em> sur dev/staging (−60 %) · <em>lifecycle policies S3</em> (×10 moins cher) · <em>right-sizing</em> (la plupart des instances sont sur-provisionnées de 50 %).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>FinOps ne dit pas « le moins cher »</strong>, FinOps dit « le meilleur rapport valeur/coût ». La haute dispo a un prix qu'il faut justifier.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>Chaque décision d'architecture est aussi une décision économique</strong> — visibilité par équipe (FinOps culture).</li>
+      <li><strong>4 patterns d'économie</strong> à connaître : Scale to Zero, Spot Instances, Reserved Instances, Data Tiering.</li>
+      <li>L'objectif n'est pas le <em>moindre</em> coût, mais le <strong>meilleur rapport valeur / coût</strong> — arbitrer SLA contre budget.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 7 — défendre son architecture en revue : structure, questions difficiles, template de réponse.</span>
+    </div>
+  </aside>
 
 </section>
 
@@ -1256,6 +2126,29 @@ flowchart TD
   <span class="section-kicker">Revue &amp; soutenance</span>
   <h2>7. Défendre son architecture — La revue comme dialogue</h2>
   <div class="level-bar"><span class="level-pill junior">Junior</span><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 7">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">7</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Défendre son architecture</h4>
+      <p class="opener-pitch">Un architecte ne dit pas « faites-moi confiance ». Il <strong>expose le raisonnement, les alternatives rejetées, les trade-offs acceptés et les risques surveillés</strong>. La revue est un dialogue, pas une défense.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~10 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Tous niveaux</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Connaître la structure d'une revue d'architecture en 5 étapes</li>
+      <li>Anticiper les questions difficiles et leur structure de réponse</li>
+      <li>Utiliser un template de réponse robuste sous la pression</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — Défendre un permis de construire</h4>
@@ -1323,6 +2216,30 @@ flowchart TD
     <p>"Nous avons choisi <strong>[décision]</strong> parce que notre contexte était <strong>[contraintes]</strong>. Les alternatives que nous avons considérées étaient <strong>[alternatives]</strong>, mais elles posaient le problème de <strong>[raison du rejet]</strong>.</p>
     <p>Cette décision nous apporte <strong>[bénéfices concrets]</strong> mais nous oblige à accepter <strong>[trade-offs explicites]</strong>. Nous surveillons ces risques via <strong>[métriques / Fitness Functions]</strong>. Si nos hypothèses changent, nous serions prêts à reconsidérer parce que <strong>[condition de révision]</strong>."</p>
   </div>
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Défendre son architecture</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Une revue n'est pas un test</strong>. C'est un dialogue où on explique le <em>raisonnement</em>, pas juste le résultat.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>5 étapes</strong> de la structure de revue : contexte → qualités prioritaires → décisions (avec ADR) → trade-offs assumés → risques résiduels.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>La phrase magique</strong> : « Nous avons choisi X parce que notre contexte était Y. Cela nous oblige à accepter Z, que nous surveillons via W. »</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Question piège la plus utile</strong> : « Si vous deviez tout refaire, que changeriez-vous ? » — la réponse révèle votre maturité d'apprentissage.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li>Une revue suit <strong>5 étapes</strong> : contexte → qualités prioritaires → décisions → trade-offs → risques résiduels.</li>
+      <li>Anticiper les questions difficiles (« pourquoi microservices ? », « si Kafka tombe ? », « quel coût ? ») et préparer leur structure de réponse.</li>
+      <li><strong>Template universel</strong> : « décision parce que contexte, alternatives rejetées parce que…, bénéfices oui mais trade-offs surveillés via… ».</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 8 — la synthèse des 8 jours et la carte mentale du module entier.</span>
+    </div>
+  </aside>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════

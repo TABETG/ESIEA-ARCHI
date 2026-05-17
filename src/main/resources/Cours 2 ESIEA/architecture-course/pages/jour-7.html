@@ -277,6 +277,262 @@
     details summary::-webkit-details-marker { display: none; }
     details[open] summary span { transform: rotate(180deg); display: inline-block; }
     details[open] > div.real-world-box { border-radius: 0 0 10px 10px !important; margin-top: 0 !important; }
+
+    /* ───────────────────────────────────────────────────────────
+       NAVIGATION & WAYFINDING — Day panorama, section opener/closer
+       ─────────────────────────────────────────────────────────── */
+
+    /* — Carte de la journée (panorama) en haut de page — */
+    .day-panorama {
+      background: linear-gradient(135deg, #eff6ff 0%, #f0fdf4 100%);
+      border: 2px solid #93c5fd;
+      border-radius: 18px;
+      padding: 22px 24px;
+      margin: 0 0 22px;
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.08);
+    }
+    .day-panorama > h2 {
+      margin: 0 0 12px;
+      font-size: 1.1rem;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .panorama-thread {
+      background: rgba(255,255,255,0.85);
+      border-left: 3px solid #2563eb;
+      padding: 10px 14px;
+      border-radius: 8px;
+      margin: 10px 0 16px;
+      font-size: 0.95rem;
+      color: #334155;
+    }
+    .panorama-thread strong { color: #1d4ed8; }
+    .panorama-steps {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px 4px;
+      margin: 14px 0;
+      align-items: stretch;
+      justify-content: center;
+      padding: 12px 8px;
+      background: rgba(255,255,255,0.6);
+      border-radius: 12px;
+    }
+    .panorama-step {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      font-size: .76rem;
+      color: #475569;
+      min-width: 78px;
+      flex: 1 1 78px;
+      text-align: center;
+      line-height: 1.25;
+    }
+    .panorama-step .dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #fff;
+      border: 2.5px solid #60a5fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: #1d4ed8;
+      margin-bottom: 5px;
+      font-size: .82rem;
+    }
+    .panorama-summary {
+      background: rgba(255,255,255,0.9);
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-top: 8px;
+      border-left: 3px solid #16a34a;
+    }
+    .panorama-summary h4 {
+      margin: 0 0 8px;
+      font-size: 0.92rem;
+      color: #166534;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .panorama-summary ol {
+      margin: 0;
+      padding-left: 22px;
+    }
+    .panorama-summary li {
+      margin: 3px 0;
+      font-size: .92rem;
+      color: #334155;
+    }
+
+    /* — Carte d'ouverture de section : "Vous êtes ici, voici ce qui arrive" — */
+    .section-opener {
+      background: linear-gradient(135deg, #eff6ff 0%, #f5f3ff 100%);
+      border-left: 5px solid #6366f1;
+      border-radius: 14px;
+      padding: 16px 18px;
+      margin: 0 0 22px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 14px;
+      align-items: start;
+    }
+    .opener-badge {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.74rem;
+      text-align: center;
+      min-width: 86px;
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: 0.04em;
+      box-shadow: 0 4px 10px rgba(99,102,241,0.25);
+    }
+    .opener-badge .step-num {
+      display: block;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: 0;
+      margin: 2px 0;
+    }
+    .opener-content > h4 {
+      margin: 0 0 8px;
+      font-size: 0.78rem;
+      color: #4338ca;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+    .opener-pitch {
+      background: rgba(255,255,255,0.85);
+      padding: 9px 13px;
+      border-radius: 8px;
+      font-size: 0.95rem;
+      color: #334155;
+      margin: 0 0 10px;
+      border-left: 3px solid #a78bfa;
+    }
+    .opener-pitch strong { color: #5b21b6; }
+    .opener-meta {
+      font-size: 0.82rem;
+      color: #64748b;
+      margin: 0 0 10px;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .opener-meta span { white-space: nowrap; }
+    .opener-goals-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: #4338ca;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin: 0 0 4px;
+    }
+    .opener-goals {
+      margin: 0;
+      padding-left: 22px;
+    }
+    .opener-goals li {
+      margin: 4px 0;
+      font-size: 0.93rem;
+      color: #334155;
+    }
+    @media (max-width: 600px) {
+      .section-opener {
+        grid-template-columns: 1fr;
+      }
+      .opener-badge {
+        justify-self: start;
+        min-width: 0;
+        padding: 6px 12px;
+      }
+      .opener-badge .step-num {
+        display: inline;
+        font-size: 1rem;
+      }
+    }
+
+    /* — Carte de clôture de section : "À retenir absolument" — */
+    .section-closer {
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfeff 100%);
+      border: 1.5px solid #86efac;
+      border-radius: 14px;
+      padding: 22px 18px 16px;
+      margin: 22px 0 0;
+      position: relative;
+    }
+    .section-closer::before {
+      content: "✅ À RETENIR";
+      position: absolute;
+      top: -11px;
+      left: 16px;
+      background: #16a34a;
+      color: #fff;
+      padding: 4px 12px;
+      border-radius: 8px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      box-shadow: 0 3px 8px rgba(22,163,74,0.3);
+    }
+    .section-closer > h4 {
+      margin: 0 0 12px;
+      font-size: 1rem;
+      color: #065f46;
+    }
+    .closer-takeaways {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 14px;
+      counter-reset: takeaway;
+    }
+    .closer-takeaways li {
+      position: relative;
+      padding: 6px 0 6px 40px;
+      margin-bottom: 6px;
+      font-size: 0.94rem;
+      line-height: 1.55;
+      color: #1f2937;
+      counter-increment: takeaway;
+    }
+    .closer-takeaways li::before {
+      content: counter(takeaway);
+      position: absolute;
+      left: 0;
+      top: 4px;
+      background: #16a34a;
+      color: #fff;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 0.85rem;
+    }
+    .closer-takeaways li strong { color: #065f46; }
+    .closer-next {
+      background: rgba(255,255,255,0.85);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 0.9rem;
+      color: #334155;
+      border-left: 3px solid #14b8a6;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .closer-next strong { color: #0f766e; }
+
   </style>
   <script type="module">
     import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.esm.min.mjs';
@@ -357,6 +613,31 @@
     </div>
   </div>
 
+  <section class="day-panorama" aria-label="Carte de la journée 7">
+    <h2>🗺️ La carte de votre Jour 7</h2>
+    <p class="panorama-thread"><strong>Le fil rouge :</strong> comment <em>l'événement comme primitive</em> transforme l'équation du couplage et impose une nouvelle discipline de cohérence dans le distribué moderne.</p>
+
+    <div class="panorama-steps" role="list">
+      <div class="panorama-step" role="listitem"><span class="dot">1</span>EDA</div>
+      <div class="panorama-step" role="listitem"><span class="dot">2</span>Patterns &amp; cohérence</div>
+      <div class="panorama-step" role="listitem"><span class="dot">3</span>CQRS</div>
+      <div class="panorama-step" role="listitem"><span class="dot">4</span>Event Sourcing</div>
+      <div class="panorama-step" role="listitem"><span class="dot">5</span>Reactive</div>
+      <div class="panorama-step" role="listitem"><span class="dot">6</span>Service Mesh</div>
+      <div class="panorama-step" role="listitem"><span class="dot">7</span>Chaos Eng.</div>
+      <div class="panorama-step" role="listitem"><span class="dot">8</span>Quiz</div>
+    </div>
+
+    <div class="panorama-summary">
+      <h4>💡 Si vous ne deviez retenir que 3 idées de la journée</h4>
+      <ol>
+        <li>L'événement change <strong>l'équation du couplage</strong> — découplage temporel et spatial contre cohérence éventuelle (sections 1–2).</li>
+        <li><strong>CQRS et Event Sourcing</strong> sont des choix de spécialisation et d'auditabilité — pas des silver bullets (sections 3–4).</li>
+        <li><strong>Reactive, Service Mesh et Chaos</strong> formalisent ce que veut dire « design for failure » à grande échelle (sections 5–7).</li>
+      </ol>
+    </div>
+  </section>
+
   <div class="quick-tools">
     <a href="#eda">1. Event-Driven Architecture</a>
     <a href="#patterns-eda">2. Patterns EDA</a>
@@ -367,6 +648,39 @@
     <a href="#chaos">7. Chaos Engineering</a>
     <a href="#quiz">8. Quiz</a>
   </div>
+
+  <!-- ═══ FIL ROUGE PÉDAGOGIQUE ═══ -->
+  <section style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:18px;padding:22px 26px;margin:18px 0 24px;box-shadow:var(--shadow);">
+    <h2 style="margin:0 0 8px;color:#92400e;font-size:1.2rem;">🗺️ Le fil rouge de cette journée — pour ne pas se perdre</h2>
+    <p style="margin:0 0 14px;color:#78350f;font-size:.95rem;">Toutes les sections d'aujourd'hui répondent à <strong>une seule grande question</strong> : <em>« Comment fait-on tenir un système quand il devient gros, distribué, et que tout peut tomber ? »</em>. Chaque section apporte une pièce du puzzle :</p>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px;">
+      <div style="background:#fff;border-left:4px solid #1d4ed8;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#1d4ed8;">1–2. EDA + patterns</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Réduire le couplage</strong> entre services pour qu'ils puissent évoluer indépendamment.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #7c3aed;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#7c3aed;">3. CQRS</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Séparer écriture et lecture</strong> pour que chacune scale à son rythme.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #15803d;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#15803d;">4. Event Sourcing</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Garder l'historique complet</strong> au lieu de l'état courant, pour pouvoir tout rejouer.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #c2410c;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#c2410c;">5. Reactive</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Ne jamais bloquer</strong>, s'adapter à la charge plutôt que de la subir.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #be185d;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#be185d;">6. Service Mesh</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Sortir la plomberie réseau du code</strong> métier pour qu'il reste lisible.</p>
+      </div>
+      <div style="background:#fff;border-left:4px solid #475569;border-radius:8px;padding:10px 12px;">
+        <strong style="font-size:.85rem;color:#475569;">7. Chaos Engineering</strong>
+        <p style="font-size:.83rem;margin:4px 0 0;color:#374151;"><strong>Tester sa résilience</strong> en provoquant des pannes avant que la prod ne le fasse.</p>
+      </div>
+    </div>
+    <p style="margin:14px 0 0;color:#78350f;font-size:.9rem;font-style:italic;">💡 <strong>Conseil de lecture</strong> : si vous vous perdez, revenez à ce schéma. Chaque section est une réponse à un problème concret, pas une accumulation de buzzwords.</p>
+  </section>
 
   <div class="layout">
     <aside class="toc">
@@ -380,6 +694,8 @@
           <li><a href="#event-notification">— Event Notification</a></li>
           <li><a href="#event-carried-state">— Event-Carried State Transfer</a></li>
           <li><a href="#event-stream">— Event Streaming</a></li>
+          <li><a href="#outbox">— Outbox Pattern</a></li>
+          <li><a href="#saga">— Saga Pattern</a></li>
           <li><a href="#cqrs">3. CQRS</a></li>
           <li><a href="#cqrs-simple">— CQRS simple</a></li>
           <li><a href="#cqrs-avance">— CQRS avec projections</a></li>
@@ -406,6 +722,29 @@
   <span class="section-kicker">Architecture événementielle</span>
   <h2>1. Event-Driven Architecture — Une décision de couplage</h2>
   <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 1">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">1</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Architecture événementielle</h4>
+      <p class="opener-pitch">Un événement, c'est dire <strong>« ceci s'est passé »</strong> sans dire à qui. C'est cette absence de destinataire qui change tout.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~15 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Mid · Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Reconnaître où EDA résout — et où elle ne résout pas — le problème de couplage</li>
+      <li>Choisir entre trois patterns (Notification, ECST, Streaming)</li>
+      <li>Nommer correctement un événement (au passé, en langage métier)</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — Le tableau d'affichage de la bibliothèque</h4>
@@ -498,6 +837,41 @@ sequenceDiagram
     <p class="mermaid-caption">En synchrone, l'étudiant attend la somme des latences. En événementiel, il reçoit la confirmation dès la persistance — les autres services réagissent en parallèle, sans bloquer la réponse.</p>
   </div>
 
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <strong style="color:#b91c1c;display:block;margin-bottom:6px;font-size:.9rem;">🔴 Bloc rouge — En synchrone (le mauvais cas)</strong>
+        <ol style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Ahmed envoie sa demande de prêt.</li>
+          <li>loan-service appelle catalog-service et <strong>attend</strong>.</li>
+          <li>catalog répond OK.</li>
+          <li>loan-service appelle notification et <strong>attend encore</strong>.</li>
+          <li>notification répond OK.</li>
+          <li>loan-service appelle audit et <strong>attend toujours</strong>.</li>
+          <li>audit répond OK.</li>
+          <li>Seulement maintenant, Ahmed reçoit la réponse — après avoir attendu pour <em>tout le monde</em>.</li>
+        </ol>
+      </div>
+      <div>
+        <strong style="color:#15803d;display:block;margin-bottom:6px;font-size:.9rem;">🟢 Bloc vert — En événementiel (le bon cas)</strong>
+        <ol style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Ahmed envoie sa demande de prêt.</li>
+          <li>loan-service persiste et émet l'événement <em>LoanCreated</em>.</li>
+          <li>Ahmed reçoit sa réponse <strong>immédiatement</strong>.</li>
+          <li>En parallèle, et sans bloquer personne : catalog réagit.</li>
+          <li>notification réagit aussi, de son côté.</li>
+          <li>audit réagit également, à son rythme.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que tu vas chercher le pain avec Maman. En <strong>synchrone</strong>, c'est comme si Maman, avant de te donner le pain, devait : appeler la boulangère, attendre, appeler le pâtissier, attendre, appeler le caissier, attendre. Tu mourrais de faim ! En <strong>événementiel</strong>, Maman te donne le pain tout de suite, et après, elle pense « ah, il faut aussi prévenir le pâtissier et le caissier que j'ai pris du pain » — mais toi, tu manges déjà !</p>
+  </div>
+
   <div class="use-case-box">
     <h4>🎯 Quand utiliser EDA en vrai ?</h4>
     <ul>
@@ -508,7 +882,7 @@ sequenceDiagram
     </ul>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Exemples d'entreprises qui utilisent massivement EDA<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Exemples d'entreprises qui utilisent massivement EDA<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Exemples d'entreprises qui utilisent massivement EDA</h4>
     <ul>
       <li><strong>Uber</strong> : chaque course émet des dizaines d'événements (course créée, chauffeur attribué, position mise à jour, course terminée, paiement effectué). Le pricing, le routing, les statistiques et le support en consomment chacun ce qui les intéresse.</li>
@@ -556,6 +930,30 @@ sequenceDiagram
     <h4>🏛️ Règle d'or — Nommer les événements</h4>
     <p>Un événement est un <strong>fait passé et immutable</strong>. Il se nomme toujours au passé composé et en langage métier, jamais technique : <strong>"LoanCreated"</strong> (pas "SaveLoanEvent"), <strong>"BookReturned"</strong> (pas "UpdateBookStatusEvent"). Si vous hésitez sur le nom, c'est que la frontière de votre bounded context n'est pas claire.</p>
   </div>
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Event-Driven Architecture</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>EDA n'est pas une techno, c'est un choix de couplage</strong> : on dit « il s'est passé X » au lieu de « fais Y ». Le producteur ne connaît pas le consommateur.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Le prix à payer</strong> : cohérence éventuelle, débogage asynchrone plus complexe, observabilité indispensable.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Quand l'adopter</strong> : workflows multi-services, intégrations qui peuvent attendre, besoin d'ajouter des consommateurs sans toucher au producteur.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Quand l'éviter</strong> : quand l'utilisateur a besoin d'une réponse immédiate avec confirmation forte (« mon paiement est-il accepté ? »).</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>EDA = découplage temporel et spatial</strong> — au prix d'une cohérence éventuelle plutôt que forte.</li>
+      <li>Trois patterns à connaître : <strong>Notification</strong> (signal léger), <strong>ECST</strong> (autonomie), <strong>Streaming</strong> (rejouable).</li>
+      <li>Un événement est <strong>un fait passé immutable</strong>, nommé au passé en langage métier (jamais technique).</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 2 — entrer dans le détail des trois patterns et résoudre le piège du Dual-Write avec Outbox + Saga.</span>
+    </div>
+  </aside>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -565,6 +963,29 @@ sequenceDiagram
   <span class="section-kicker">Patterns EDA</span>
   <h2>2. Patterns EDA — Trois approches architecturales</h2>
   <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 2">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">2</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Patterns EDA & cohérence</h4>
+      <p class="opener-pitch">EDA n'est pas qu'un style d'API — c'est une <strong>discipline de cohérence</strong>. Outbox et Saga sont les outils qui rendent l'asynchrone fiable.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~20 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Mid · Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Distinguer Event Notification, ECST et Event Streaming en pratique</li>
+      <li>Comprendre le piège du Dual-Write et la solution Outbox</li>
+      <li>Concevoir une Saga simple avec compensations (chorégraphie ou orchestration)</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <p class="section-intro">Référence : Martin Fowler — <em>"What do you mean by 'Event-Driven'?"</em> (2017). Ces trois patterns se combinent mais répondent à des problèmes différents.</p>
 
@@ -638,26 +1059,46 @@ sequenceDiagram
 flowchart LR
     subgraph s1["📢 1. Event Notification (signal léger)"]
         direction LR
-        P1["loan-service<br>📤 émet :<br>{loanId: 'abc'}"] -->|event mince| Q1[(Bus)]
-        Q1 --> N1["notification<br>📥 reçoit l'ID"]
-        N1 -.rappel HTTP.-> P1
+        P1["loan-service<br>📤 émet :<br>{loanId: 'abc'}"] -->|"1️⃣ event mince"| Q1[(Bus)]
+        Q1 -->|"2️⃣ livraison"| N1["notification<br>📥 reçoit l'ID"]
+        N1 -.->|"3️⃣ rappel HTTP<br>pour les détails"| P1
     end
     subgraph s2["📦 2. Event-Carried State Transfer (autonomie)"]
         direction LR
-        P2["loan-service<br>📤 émet :<br>{loanId, livre, étudiant,<br>date, durée...}"] -->|event riche| Q2[(Bus)]
-        Q2 --> N2["notification<br>✅ tout est dans l'event<br>aucun rappel"]
+        P2["loan-service<br>📤 émet :<br>{loanId, livre, étudiant,<br>date, durée...}"] -->|"1️⃣ event riche"| Q2[(Bus)]
+        Q2 -->|"2️⃣ livraison"| N2["notification<br>✅ tout est dans l'event<br>aucun rappel"]
     end
     subgraph s3["📜 3. Event Streaming (log historisé)"]
         direction LR
-        P3["loan-service<br>📤 émet"] -->|append| K3[("Kafka log<br>rétention 30j")]
-        K3 --> N3["analytics<br>peut REJOUER<br>tout l'historique"]
-        K3 --> N4["nouveau service<br>arrive aujourd'hui<br>et lit depuis J0"]
+        P3["loan-service<br>📤 émet"] -->|"1️⃣ append"| K3[("Kafka log<br>rétention 30j")]
+        K3 -->|"2️⃣ lecture live"| N3["analytics<br>peut REJOUER<br>tout l'historique"]
+        K3 -->|"3️⃣ lecture depuis J0"| N4["nouveau service<br>arrive aujourd'hui<br>et lit depuis J0"]
     end
     style s1 fill:#fff7ed,stroke:#fb923c
     style s2 fill:#dbeafe,stroke:#3b82f6
     style s3 fill:#f5f3ff,stroke:#a78bfa
     </div>
     <p class="mermaid-caption">Chaque pattern résout un problème différent. Notification = simplicité. ECST = autonomie. Streaming = mémoire et rejeu.</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Chaque bande horizontale montre la <strong>même action</strong> (créer un prêt) avec un style différent. Suivez les numéros 1️⃣ 2️⃣ 3️⃣ sur les flèches :</p>
+    <ul style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>📢 Notification</strong> — 1️⃣ on envoie juste l'identifiant. 2️⃣ le destinataire le reçoit. 3️⃣ s'il veut les détails, il les redemande. <em>(Simple mais bavard.)</em></li>
+      <li><strong>📦 ECST</strong> — 1️⃣ on envoie l'événement avec <em>toutes les informations dedans</em>. 2️⃣ le destinataire a tout, pas besoin de re-demander. <em>(Autonome mais plus gros.)</em></li>
+      <li><strong>📜 Streaming</strong> — 1️⃣ on ajoute l'événement dans un journal qui garde tout. 2️⃣ un service le lit en direct. 3️⃣ un service qui arrive plus tard peut tout relire depuis le début. <em>(Mémoire à long terme.)</em></li>
+    </ul>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que tu as un nouveau jouet et que tu veux le dire à tes copains :</p>
+    <ul style="margin:6px 0 0;">
+      <li><strong>📢 Notification</strong> : tu cries « j'ai un nouveau jouet ! » — les copains doivent venir te voir pour savoir lequel.</li>
+      <li><strong>📦 ECST</strong> : tu cries « j'ai un nouveau jouet rouge avec quatre roues qui fait pin-pon ! » — les copains savent tout sans bouger.</li>
+      <li><strong>📜 Streaming</strong> : tu fais un grand album avec toutes les photos de tes jouets. N'importe quel copain, même un nouveau qui arrive demain, peut regarder tout l'album depuis le début.</li>
+    </ul>
   </div>
 
   <div class="use-case-box">
@@ -674,6 +1115,236 @@ flowchart LR
     <h4>✅ Règle de sélection des patterns EDA</h4>
     <p>Commencer par <strong>Event Notification</strong> (simple). Passer à <strong>ECST</strong> quand les consommateurs rappellent trop souvent. Adopter <strong>Event Streaming</strong> seulement quand l'historique, le rejeu ou la traçabilité complète sont des besoins métier explicites — le coût opérationnel (Kafka) est significatif.</p>
   </div>
+
+  <h3 id="outbox">2.4 Outbox Pattern — Garantir la cohérence DB + Event</h3>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — Le bon de commande au restaurant</h4>
+    <p>Quand un serveur prend votre commande, il l'écrit sur un carnet à souche (l'original pour vous, le double pour la cuisine). Il ne court PAS en cuisine pour la transmettre avant d'avoir écrit le ticket — sinon, si on l'arrête en route, la commande est perdue. L'Outbox Pattern, c'est ça : on écrit l'événement dans la même table que la donnée métier, puis un autre composant le récupère et le publie tranquillement.</p>
+  </div>
+
+  <div class="box warning">
+    <h4>⚠️ Le problème du Dual-Write — Pourquoi l'EDA naïve est cassée</h4>
+    <p>Imaginez le code naïf : <code>db.save(loan); kafka.publish(loanCreated);</code>. Deux écritures distinctes, dans deux systèmes différents. Que se passe-t-il si Kafka tombe entre les deux ? <strong>La DB a le prêt, mais aucun service n'est notifié</strong> — incohérence permanente. Et l'inverse est pire : event publié mais rollback DB → consommateurs croient que le prêt existe alors qu'il n'a jamais été créé.</p>
+  </div>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 Outbox Pattern — campus_library</p>
+    <div style="background:#1e293b;border-radius:10px;padding:16px;font-family:'Fira Code',monospace;font-size:.82rem;color:#94a3b8;line-height:1.9;overflow-x:auto;">
+      <span style="color:#7dd3fc;"># Transaction unique (atomique)</span><br>
+      <span style="color:#a78bfa;">BEGIN TX</span><br>
+      &nbsp;&nbsp;<span style="color:#4ade80;">INSERT INTO loan</span> (id, student, book, status) VALUES (...)<br>
+      &nbsp;&nbsp;<span style="color:#4ade80;">INSERT INTO outbox_events</span> (event_type, payload, status) VALUES (...)<br>
+      <span style="color:#a78bfa;">COMMIT TX</span><br>
+      <br>
+      <span style="color:#7dd3fc;"># Plus tard, en asynchrone, un poller (ou CDC Debezium) :</span><br>
+      <span style="color:#fbbf24;">Outbox Relay</span> → lit <span style="color:#4ade80;">outbox_events WHERE status='PENDING'</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span style="color:#60a5fa;">publish to Kafka</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;→ <span style="color:#4ade80;">UPDATE status='SENT'</span><br>
+      <br>
+      <span style="color:#4ade80;">✅ Si Kafka tombe</span> : l'event reste en PENDING, sera renvoyé plus tard<br>
+      <span style="color:#4ade80;">✅ Si l'app crash entre les 2</span> : le poller le récupère au redémarrage<br>
+      <span style="color:#4ade80;">✅ Cohérence garantie</span> par l'atomicité de la transaction DB
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 14px;">📐 Le mécanisme Outbox en 3 acteurs</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;align-items:stretch;">
+      <div style="background:#dbeafe;border:1.5px solid #93c5fd;border-radius:12px;padding:14px;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">①</div>
+        <strong style="color:#1d4ed8;display:block;margin-bottom:6px;">L'application métier</strong>
+        <p style="font-size:.85rem;margin:0;color:#374151;">Quand Ahmed crée un prêt, le service écrit <strong>en une seule transaction DB</strong> deux choses : la ligne du prêt + une ligne dans la table <code>outbox</code> qui décrit l'événement à publier. Si l'une échoue, l'autre est annulée.</p>
+      </div>
+      <div style="background:#fef9c3;border:1.5px solid #fde68a;border-radius:12px;padding:14px;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">②</div>
+        <strong style="color:#854d0e;display:block;margin-bottom:6px;">La table outbox</strong>
+        <p style="font-size:.85rem;margin:0;color:#374151;">C'est une simple table dans la même base que les prêts. Chaque ligne dit : « il faut publier l'événement <em>LoanCreated</em>, statut = en attente ». Elle joue le rôle d'une <strong>boîte aux lettres interne</strong> fiable.</p>
+      </div>
+      <div style="background:#dcfce7;border:1.5px solid #86efac;border-radius:12px;padding:14px;">
+        <div style="font-size:1.4rem;margin-bottom:6px;">③</div>
+        <strong style="color:#15803d;display:block;margin-bottom:6px;">Le relai (poller ou CDC)</strong>
+        <p style="font-size:.85rem;margin:0;color:#374151;">Un composant séparé lit régulièrement les lignes en attente, les publie sur Kafka, puis les marque <em>envoyé</em>. Si Kafka est tombé ou si l'application crash, le relai reprendra où il s'est arrêté. <strong>Aucune perte d'événement n'est possible.</strong></p>
+      </div>
+    </div>
+    <p class="mermaid-caption" style="text-align:center;">L'application ne parle <strong>jamais directement à Kafka</strong>. Elle écrit dans sa propre base. C'est ce découplage qui rend la cohérence garantie.</p>
+  </div>
+
+  <div class="box expert">
+    <h4>🏛️ Variante production — CDC avec Debezium</h4>
+    <p>Plutôt qu'un poller SQL (qui charge la DB), on utilise <strong>Debezium</strong> : il lit le WAL/binlog de PostgreSQL/MySQL et publie les changements de la table <code>outbox_events</code> directement vers Kafka. Zéro polling, latence sub-seconde, et aucun impact sur la charge DB. C'est l'approche standard chez Red Hat, Confluent, et la plupart des plateformes EDA matures.</p>
+  </div>
+
+  <h3 id="saga">2.5 Saga Pattern — Transactions distribuées sans 2PC</h3>
+
+  <div class="box child-mode">
+    <h4>🧸 Analogie — Le voyage en train avec correspondance</h4>
+    <p>Vous prenez un train Paris→Lyon puis Lyon→Marseille. Si Lyon→Marseille est annulé, vous ne pouvez pas « rembobiner » votre voyage Paris→Lyon — vous devez prendre un train Lyon→Paris pour compenser. Une Saga, c'est ça : une suite de petites transactions locales, et si une étape échoue, on déclenche des <strong>compensations</strong> pour annuler les étapes précédentes.</p>
+  </div>
+
+  <div class="box definition">
+    <h4>📖 Définition — Saga (Garcia-Molina &amp; Salem, 1987)</h4>
+    <p>Une transaction métier qui traverse plusieurs services est décomposée en une <strong>séquence de transactions locales</strong>. Chaque étape publie un événement qui déclenche la suivante. Si une étape échoue, des <strong>actions de compensation</strong> annulent sémantiquement les étapes déjà exécutées.</p>
+  </div>
+
+  <h4>2.5.1 Choreography vs Orchestration — Deux styles</h4>
+
+  <div class="columns">
+    <div class="compare-card">
+      <h4>💃 Choreography (chorégraphie)</h4>
+      <ul>
+        <li><strong>Décentralisé</strong> : chaque service écoute les events et décide quoi faire</li>
+        <li>Pas de coordinateur central</li>
+        <li>Couplage faible mais flux distribué dans le code</li>
+        <li>Difficile à visualiser globalement</li>
+        <li>✅ Bon pour 2-3 étapes simples</li>
+      </ul>
+    </div>
+    <div class="compare-card">
+      <h4>🎼 Orchestration (orchestré)</h4>
+      <ul>
+        <li><strong>Centralisé</strong> : un orchestrateur (saga manager) dirige</li>
+        <li>Flux explicite, traçable, testable</li>
+        <li>Logique métier de la saga concentrée à un endroit</li>
+        <li>Couplage plus fort mais visibilité maximale</li>
+        <li>✅ Bon pour workflows complexes (5+ étapes)</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="diagram-card">
+    <p style="font-weight:700;color:#123f73;margin:0 0 12px;">📐 Saga campus_library — Créer un prêt (3 services)</p>
+    <div style="background:#1e293b;border-radius:10px;padding:16px;font-family:'Fira Code',monospace;font-size:.82rem;color:#94a3b8;line-height:1.9;overflow-x:auto;">
+      <span style="color:#7dd3fc;"># Étapes nominales :</span><br>
+      ① <span style="color:#4ade80;">loan-service</span>      → crée le prêt (PENDING)         → émet <span style="color:#fbbf24;">LoanRequested</span><br>
+      ② <span style="color:#4ade80;">catalog-service</span>   → décrémente le stock du livre   → émet <span style="color:#fbbf24;">BookReserved</span><br>
+      ③ <span style="color:#4ade80;">student-service</span>   → vérifie le quota d'Ahmed       → émet <span style="color:#fbbf24;">QuotaApproved</span><br>
+      ④ <span style="color:#4ade80;">loan-service</span>      → finalise le prêt (CONFIRMED)   → émet <span style="color:#60a5fa;">LoanConfirmed</span> ✅<br>
+      <br>
+      <span style="color:#7dd3fc;"># Si l'étape ③ échoue (quota dépassé) :</span><br>
+      <span style="color:#f87171;">QuotaRejected</span> déclenche les compensations en ordre inverse :<br>
+      &nbsp;&nbsp;⑤ <span style="color:#fb923c;">catalog-service</span>   → ré-incrémente le stock         → émet <span style="color:#fb923c;">BookReleased</span><br>
+      &nbsp;&nbsp;⑥ <span style="color:#fb923c;">loan-service</span>      → annule le prêt (CANCELLED)     → émet <span style="color:#fb923c;">LoanCancelled</span> ❌<br>
+      <br>
+      <span style="color:#fbbf24;">⚠️ Cohérence éventuelle</span> : pendant la saga, le système est dans un état intermédiaire visible
+    </div>
+  </div>
+
+  <div class="mermaid-wrapper">
+    <div class="mermaid-title">📊 Diagramme — Saga avec orchestrateur (échec à l'étape 3)</div>
+    <div class="mermaid">
+sequenceDiagram
+    autonumber
+    participant ORCH as 🎼 Saga Orchestrator
+    participant L as 📘 loan-service
+    participant C as 📚 catalog-service
+    participant S as 👨‍🎓 student-service
+    Note over ORCH,S: ✅ Étapes nominales
+    ORCH->>L: CreateLoan(pending)
+    L-->>ORCH: LoanRequested
+    ORCH->>C: ReserveBook
+    C-->>ORCH: BookReserved
+    ORCH->>S: CheckQuota(ahmed)
+    Note over S: 🚨 Quota dépassé !
+    S-->>ORCH: QuotaRejected
+    Note over ORCH,S: 🔁 Compensations en ordre inverse
+    ORCH->>C: ReleaseBook (compensation)
+    C-->>ORCH: BookReleased
+    ORCH->>L: CancelLoan (compensation)
+    L-->>ORCH: LoanCancelled
+    Note over ORCH: ❌ Saga terminée<br>État cohérent restauré
+    </div>
+    <p class="mermaid-caption">L'orchestrateur connaît le « plan de vol ». Sur échec, il rejoue les compensations en ordre inverse pour ramener le système dans un état cohérent — sans 2-Phase Commit.</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 8px;color:#374151;font-size:.88rem;">Mermaid numérote automatiquement chaque flèche. Voici ce qui se passe :</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <strong style="color:#15803d;display:block;margin-bottom:6px;font-size:.9rem;">✅ Étapes nominales (1 à 5)</strong>
+        <ol style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>L'orchestrateur demande à loan-service de créer le prêt (pending).</li>
+          <li>loan-service confirme : LoanRequested.</li>
+          <li>L'orchestrateur demande à catalog-service de réserver le livre.</li>
+          <li>catalog confirme : BookReserved.</li>
+          <li>L'orchestrateur demande à student-service de vérifier le quota d'Ahmed.</li>
+        </ol>
+      </div>
+      <div>
+        <strong style="color:#b91c1c;display:block;margin-bottom:6px;font-size:.9rem;">❌ Compensation (6 à 9)</strong>
+        <ol start="6" style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>student rejette : QuotaRejected.</li>
+          <li>L'orchestrateur déclenche les compensations <strong>en ordre inverse</strong> : il dit à catalog de libérer le livre.</li>
+          <li>catalog confirme : BookReleased.</li>
+          <li>L'orchestrateur dit à loan-service d'annuler le prêt.</li>
+          <li>loan confirme : LoanCancelled. Le système est de nouveau cohérent.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que tu prépares un goûter en 3 étapes : ① <strong>sortir le pain</strong>, ② <strong>mettre le beurre dessus</strong>, ③ <strong>mettre le chocolat dessus</strong>. Si à l'étape ③ tu te rends compte qu'il n'y a plus de chocolat, tu ne peux pas faire ton goûter. Mais tu ne peux pas non plus laisser le pain et le beurre tout seuls — sinon Maman va trouver le bazar ! Tu fais donc <strong>l'inverse</strong> : tu enlèves le beurre du pain (compensation de ②), puis tu ranges le pain (compensation de ①). À la fin, c'est comme si tu n'avais rien commencé. C'est ça, une Saga.</p>
+  </div>
+
+  <div class="box frequent-error">
+    <h4>❌ Erreur fréquente — Confondre rollback et compensation</h4>
+    <p>Une <strong>compensation</strong> n'est PAS un rollback DB. C'est une nouvelle transaction métier qui <strong>annule sémantiquement</strong> la précédente. Exemples : un email "votre commande est annulée" plutôt qu'un UNSEND, un remboursement plutôt qu'un retrait de paiement. La compensation laisse des traces (audit) — c'est volontaire.</p>
+  </div>
+
+  <table>
+    <thead><tr><th>Critère</th><th>Choreography</th><th>Orchestration</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Couplage</strong></td><td>Très faible (events pub/sub)</td><td>Moyen (orchestrator → services)</td></tr>
+      <tr><td><strong>Visibilité du workflow</strong></td><td>Distribuée, dur à tracer</td><td>Centralisée, traçable</td></tr>
+      <tr><td><strong>Ajout d'une étape</strong></td><td>Modifier plusieurs services</td><td>Modifier l'orchestrateur seul</td></tr>
+      <tr><td><strong>Risque cycle/deadlock</strong></td><td>Réel sur workflows complexes</td><td>Faible (orchestrateur = arbitre)</td></tr>
+      <tr><td><strong>Outils</strong></td><td>Kafka + listeners</td><td>Camunda, Temporal, AWS Step Functions</td></tr>
+      <tr><td><strong>Quand l'utiliser</strong></td><td>2-3 étapes simples, équipes autonomes</td><td>Workflows complexes, audit/SLA stricts</td></tr>
+    </tbody>
+  </table>
+
+  <div class="use-case-box">
+    <h4>🎯 Sagas en production — Cas réels</h4>
+    <ul>
+      <li><strong>Uber</strong> : créer une course = saga (paiement → géoloc chauffeur → notification). Si paiement échoue, libérer le chauffeur. Orchestré via Cadence/Temporal.</li>
+      <li><strong>Booking.com</strong> : réserver un hôtel = saga (vérifier dispo → bloquer chambre → débiter carte → confirmer). Compensations si l'une échoue.</li>
+      <li><strong>Amazon</strong> : commande = saga géante (stock → paiement → préparation → livraison). Chaque étape peut compenser indépendamment.</li>
+      <li><strong>Netflix Conductor</strong> : moteur de saga open-source utilisé en interne, désormais sponsor de la communauté.</li>
+    </ul>
+  </div>
+
+  <div class="box best-practice">
+    <h4>✅ Règle d'or — Outbox + Saga vont ensemble</h4>
+    <p>En production EDA, <strong>chaque étape d'une Saga utilise le pattern Outbox</strong>. Pourquoi ? Parce que sans Outbox, une étape de la saga peut persister sa donnée mais ne jamais publier son événement → la saga reste bloquée pour toujours. Outbox garantit que <em>chaque transition</em> est fiable. C'est la combinaison canonique en EDA mature.</p>
+  </div>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Patterns EDA + Outbox + Saga</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>3 styles d'événements</strong> : <em>Notification</em> (juste l'ID), <em>ECST</em> (tout l'état dans l'event), <em>Streaming</em> (log historisé rejouable).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Outbox</strong> garantit qu'<em>aucun événement ne se perd</em> : on écrit la donnée et l'événement dans la même transaction DB, un relai publie ensuite.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Saga</strong> gère les <em>transactions distribuées</em> : si une étape échoue, on déclenche des <em>compensations</em> qui annulent sémantiquement les étapes précédentes.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>En production mature</strong>, Outbox et Saga vont ensemble : sans Outbox, une saga peut rester bloquée à mi-chemin.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>Notification</strong> = signal simple, <strong>ECST</strong> = autonomie maximale, <strong>Streaming</strong> = mémoire et rejeu — chacun résout un problème différent.</li>
+      <li><strong>Outbox</strong> est la seule façon fiable de combiner persistance DB et publication d'événement (atomicité).</li>
+      <li><strong>Saga</strong> orchestre une transaction métier en plusieurs étapes locales, avec compensations en cas d'échec.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 3 — CQRS : pourquoi séparer écriture et lecture en deux chemins distincts.</span>
+    </div>
+  </aside>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -683,6 +1354,29 @@ flowchart LR
   <span class="section-kicker">CQRS</span>
   <h2>3. CQRS — Command Query Responsibility Segregation</h2>
   <div class="level-bar"><span class="level-pill mid">Mid</span><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 3">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">3</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 CQRS</h4>
+      <p class="opener-pitch">Écrire et lire sont deux problèmes différents. CQRS les <strong>sépare explicitement</strong> au lieu de chercher un modèle qui fait les deux moyennement.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~12 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Mid · Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Distinguer Command (write) et Query (read) comme deux chemins distincts</li>
+      <li>Reconnaître les 4 niveaux progressifs de CQRS et leurs coûts</li>
+      <li>Identifier les contextes où CQRS est sur-engineering</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — La bibliothécaire et le catalogue</h4>
@@ -815,6 +1509,43 @@ sequenceDiagram
     <p class="mermaid-caption">Deux chemins complètement séparés. Le write se concentre sur la cohérence métier ; le read sur la performance et la dénormalisation. Le projection builder fait le pont, en asynchrone.</p>
   </div>
 
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 8px;color:#374151;font-size:.88rem;">Le schéma raconte <strong>deux histoires</strong> qui se suivent. Suivez les numéros automatiques de Mermaid :</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <strong style="color:#7c3aed;display:block;margin-bottom:6px;font-size:.9rem;">✏️ Histoire 1 — L'écriture (1 à 9)</strong>
+        <ol style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Ahmed envoie sa demande (POST /loans).</li>
+          <li>L'API Gateway transforme en CreateLoanCommand.</li>
+          <li>Le Command Handler valide les règles métier.</li>
+          <li>Il insère dans la Write DB (PostgreSQL).</li>
+          <li>La Write DB confirme.</li>
+          <li>Le Command Handler publie l'événement LoanCreated sur le bus.</li>
+          <li>Ahmed reçoit sa confirmation 201.</li>
+          <li>Le Projection Builder reçoit l'événement (asynchrone, quelques ms).</li>
+          <li>Il met à jour la Read DB (Elasticsearch) avec un format optimisé pour la recherche.</li>
+        </ol>
+      </div>
+      <div>
+        <strong style="color:#15803d;display:block;margin-bottom:6px;font-size:.9rem;">🔍 Histoire 2 — La lecture (10 à 14)</strong>
+        <ol start="10" style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Ahmed veut consulter ses prêts (GET /loans).</li>
+          <li>L'API Gateway envoie une GetStudentLoansQuery.</li>
+          <li>Le Query Handler interroge la Read DB.</li>
+          <li>La Read DB retourne la liste optimisée.</li>
+          <li>Ahmed reçoit un DTO plat, prêt à afficher.</li>
+        </ol>
+      </div>
+    </div>
+    <p style="margin:10px 0 0;color:#854d0e;font-size:.85rem;font-style:italic;">⚠️ <strong>Point clé</strong> : entre les étapes 7 et 9, il y a un délai. Si Ahmed recharge tout de suite sa page (étape 10), il peut ne pas encore voir son nouveau prêt — c'est la <em>cohérence éventuelle</em>.</p>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine deux étagères dans ta chambre. La <strong>grande boîte du bas</strong> (Write DB), c'est là où tu ranges TOUS tes jouets bien organisés. La <strong>petite étagère du haut</strong> (Read DB), c'est juste tes 5 jouets préférés que tu utilises tout le temps. Quand tu reçois un nouveau jouet : ① tu le ranges d'abord dans la grande boîte. ② Plus tard, quand tu as le temps, tu déposes ses copies préférées sur la petite étagère. Comme ça, quand tu veux jouer vite (lire), tu n'as qu'à tendre la main vers l'étagère du haut. Et quand tu veux tout réorganiser (écrire), tu vas dans la grande boîte.</p>
+  </div>
+
   <div class="use-case-box">
     <h4>🎯 Quand CQRS est-il vraiment justifié ?</h4>
     <ul>
@@ -825,7 +1556,7 @@ sequenceDiagram
     </ul>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Exemples concrets de CQRS en production<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Exemples concrets de CQRS en production<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Exemples concrets de CQRS en production</h4>
     <ul>
       <li><strong>Amazon</strong> : la fiche produit que vous voyez n'est PAS lue depuis le catalogue principal. Elle est projetée dans une vue dénormalisée (titre, prix, photos, stock, avis agrégés, recommandations) optimisée pour le rendu.</li>
@@ -833,6 +1564,30 @@ sequenceDiagram
       <li><strong>Twitter/X</strong> : poster un tweet = command. Votre timeline = projection précalculée et fan-outée vers tous vos abonnés. Sans CQRS, lire votre timeline coûterait une jointure géante à chaque visite.</li>
     </ul>
   </div></div></details>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — CQRS</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>CQRS sépare les chemins</strong> : la commande (qui modifie) et la requête (qui lit) ne sont plus le même code, pas le même modèle, parfois pas la même base.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Pourquoi</strong> : la lecture optimise différemment de l'écriture (10× ou 100× plus de lectures que d'écritures dans la plupart des systèmes).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Le piège</strong> : la cohérence éventuelle. Entre une commande et la mise à jour de la projection, il y a un délai → l'utilisateur peut voir l'ancien état.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Ne pas appliquer par défaut</strong> : justifié seulement quand l'asymétrie lecture/écriture, l'auditabilité ou les modèles d'affichage très différents le commandent.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>CQRS sépare</strong> Command (write) et Query (read) — ce n'est pas une silver bullet, c'est un outil de spécialisation.</li>
+      <li>Il y a <strong>4 niveaux progressifs</strong> : modèles séparés, stores séparés, projections, ES + CQRS combinés.</li>
+      <li>Le prix payé : <strong>cohérence éventuelle</strong>. L'UX doit anticiper le décalage entre commande et lecture.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 4 — Event Sourcing : remplacer l'état par un journal d'événements immuable.</span>
+    </div>
+  </aside>
 
 </section>
 
@@ -843,6 +1598,29 @@ sequenceDiagram
   <span class="section-kicker">Event Sourcing</span>
   <h2>4. Event Sourcing — Le journal comme source de vérité</h2>
   <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 4">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">4</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Event Sourcing</h4>
+      <p class="opener-pitch">Ne pas stocker <strong>« où on est »</strong>, mais <strong>« tout ce qui est arrivé »</strong>. L'état devient calculé, pas persisté.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~14 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Comprendre pourquoi on remplace l'état par un journal d'événements</li>
+      <li>Évaluer honnêtement si ES est justifié pour un domaine donné</li>
+      <li>Anticiper les défis : snapshots, schema evolution, RGPD</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — Le livre de comptes d'une banque</h4>
@@ -952,12 +1730,12 @@ flowchart TD
     S2["État après seq 2<br>📖 status: ACTIVE<br>dueDate: 2024-10-15 (extended)"]
     S3["État après seq 3<br>⚠️ status: OVERDUE<br>penalty: 1.5€"]
     S4["✅ État final<br>status: RETURNED<br>penaltyPaid: true"]
-    Start --> E1 --> S1
-    S1 --> E2 --> S2
-    S2 --> E3 --> S3
-    S3 --> E4 --> S4
+    Start -->|"1️⃣"| E1 -->|"applique"| S1
+    S1 -->|"2️⃣"| E2 -->|"applique"| S2
+    S2 -->|"3️⃣"| E3 -->|"applique"| S3
+    S3 -->|"4️⃣"| E4 -->|"applique"| S4
     SNAP["📸 Snapshot tous les N events<br>évite de rejouer 10M d'events"]
-    S2 -.optimisation.-> SNAP
+    S2 -.->|"optimisation"| SNAP
     style E1 fill:#dcfce7,stroke:#16a34a
     style E2 fill:#fef9c3,stroke:#ca8a04
     style E3 fill:#fed7aa,stroke:#ea580c
@@ -966,6 +1744,24 @@ flowchart TD
     style SNAP fill:#fce7f3,stroke:#db2777,stroke-dasharray: 5 5
     </div>
     <p class="mermaid-caption">L'état n'est jamais "stocké" — il est calculé. Pour optimiser, on prend des photos (snapshots) tous les N événements pour ne pas rejouer depuis le début.</p>
+  </div>
+
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Au lieu de stocker l'<em>état</em> du prêt, on stocke chaque <em>changement</em>. Pour connaître l'état actuel, on rejoue tous les changements dans l'ordre :</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>État de départ</strong> : un Aggregate Loan vide <code>{}</code>.</li>
+      <li><strong>1️⃣ LoanCreated</strong> — Ahmed emprunte Clean Code → état devient « ACTIVE, à rendre le 29 sept ».</li>
+      <li><strong>2️⃣ LoanExtended</strong> — Ahmed prolonge → état devient « ACTIVE, à rendre le 15 oct ».</li>
+      <li><strong>3️⃣ LoanOverdue</strong> — il a 3 jours de retard → état devient « OVERDUE, pénalité 1,50 € ».</li>
+      <li><strong>4️⃣ LoanReturned</strong> — Ahmed rend le livre → état final « RETURNED, pénalité payée ».</li>
+      <li><strong>📸 Snapshot</strong> (flèche en pointillés) — pour ne pas rejouer 10 millions d'événements à chaque fois, on prend des photos régulièrement.</li>
+    </ol>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que tu collectionnes des autocollants. Au lieu de juste compter combien tu en as <em>en ce moment</em>, tu gardes un grand cahier où tu écris <strong>chaque fois</strong> ce qui s'est passé : « ① 1er janvier, j'ai reçu 3 cœurs de Mamie ». « ② 5 janvier, j'en ai donné 2 à Léa ». « ③ 10 janvier, j'ai gagné 5 étoiles à l'école »... Quand quelqu'un te demande combien tu as d'autocollants, tu peux <strong>relire ton cahier depuis le début</strong> et tout recalculer. C'est plus long, mais tu peux aussi répondre à des questions comme : « Combien j'en avais le 6 janvier ? » — chose qu'une boîte d'autocollants normale ne peut pas faire.</p>
   </div>
 
   <div class="use-case-box">
@@ -978,7 +1774,7 @@ flowchart TD
     </ul>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Domaines où Event Sourcing est massivement utilisé<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Domaines où Event Sourcing est massivement utilisé<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Domaines où Event Sourcing est massivement utilisé</h4>
     <ul>
       <li><strong>Finance &amp; banking</strong> : un solde de compte n'est JAMAIS stocké tel quel. Il est dérivé de la liste des transactions. C'est Event Sourcing depuis 500 ans (livres de comptes).</li>
@@ -987,6 +1783,30 @@ flowchart TD
       <li><strong>Walmart, Tesla</strong> : suivi des stocks et de la maintenance véhicules — chaque modification est un fait historique.</li>
     </ul>
   </div></div></details>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Event Sourcing</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>On ne stocke plus l'état, on stocke les changements</strong>. L'état courant = somme de tous les événements depuis le début.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Bénéfice unique</strong> : audit total, time-travel debugging, capacité de rejouer pour reconstruire n'importe quelle projection.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Coûts réels</strong> : complexité (snapshots, évolution de schéma), RGPD piégeux (immuable), paradigme très différent du CRUD.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Adopter seulement si</strong> au moins 2 de ces besoins sont réels : audit réglementaire, replay, time-travel, intégration rétroactive.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>ES = ne jamais update, toujours append</strong>. L'état n'est plus stocké, il est calculé en rejouant les événements.</li>
+      <li>Avantages réels (audit gratuit, time-travel) mais <strong>complexité réelle</strong> : snapshots, schema evolution, suppression RGPD.</li>
+      <li><strong>ES + CQRS = combinaison canonique</strong> pour les domaines audit-sensibles (finance, santé, conformité).</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 5 — les systèmes réactifs, qui formalisent l'adaptation à la charge.</span>
+    </div>
+  </aside>
 
 </section>
 
@@ -997,6 +1817,29 @@ flowchart TD
   <span class="section-kicker">Systèmes réactifs</span>
   <h2>5. Reactive Systems — Architecture de la fluidité</h2>
   <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 5">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">5</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Systèmes réactifs</h4>
+      <p class="opener-pitch">Un système qui se comporte <strong>comme l'eau plutôt que comme des billes</strong> — il s'adapte au débit au lieu de bloquer ou casser.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~10 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Énoncer les 4 propriétés du Reactive Manifesto (Responsive, Resilient, Elastic, Message-Driven)</li>
+      <li>Expliquer le mécanisme central : backpressure</li>
+      <li>Reconnaître où Reactive est essentiel — et où c'est du buzzword</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — L'eau vs les billes</h4>
@@ -1103,6 +1946,37 @@ sequenceDiagram
     <p class="mermaid-caption">Le consumer "tire" la quantité qu'il peut traiter. Le producer s'adapte. Sans backpressure, le buffer grossit jusqu'au crash mémoire.</p>
   </div>
 
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 8px;color:#374151;font-size:.88rem;">Le secret du backpressure : <strong>le consommateur dit au producteur ce qu'il peut prendre</strong>. Mermaid numérote chaque flèche :</p>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <strong style="color:#15803d;display:block;margin-bottom:6px;font-size:.9rem;">✅ Régime normal (1 à 5)</strong>
+        <ol style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Le Consumer demande explicitement 500 messages : <em>request(500)</em>.</li>
+          <li>Le Producer pousse 500 messages dans le buffer.</li>
+          <li>Le buffer livre les 500 au Consumer.</li>
+          <li>Le Consumer traite (500 ms).</li>
+          <li>Une fois libre, il demande 500 de plus.</li>
+        </ol>
+      </div>
+      <div>
+        <strong style="color:#c2410c;display:block;margin-bottom:6px;font-size:.9rem;">⚖️ Sous pression (6 à 9)</strong>
+        <ol start="6" style="margin:0;padding-left:22px;font-size:.86rem;color:#374151;line-height:1.6;">
+          <li>Le Consumer a une lenteur (3 s pour traiter).</li>
+          <li>Pendant ce temps, le Producer <strong>attend</strong> — il ne pousse rien sans demande.</li>
+          <li>Le Consumer dit : « Je suis fatigué, juste 100 cette fois ».</li>
+          <li>Le Producer pousse 100, le Buffer livre 100. Pas de crash, pas de perte.</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que Papa te donne des bonbons un par un. Si Papa te jette des bonbons sans s'arrêter, tu vas en faire tomber par terre et tu vas avoir mal au ventre (c'est le <strong>crash</strong>). Avec le backpressure, c'est <strong>toi qui demandes</strong> : « Papa, donne-m'en 5 » — tu les manges tranquillement. Quand tu as fini, tu dis : « Encore 5 ». Si tu commences à avoir mal au ventre, tu dis : « Juste 1, doucement ». Papa s'adapte toujours à ce que <strong>tu</strong> peux manger.</p>
+  </div>
+
   <div class="use-case-box">
     <h4>🎯 Où voit-on Reactive Systems en pratique ?</h4>
     <ul>
@@ -1113,6 +1987,30 @@ sequenceDiagram
     </ul>
   </div>
 
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Reactive Systems</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>4 propriétés indissociables</strong> : <em>Responsive</em>, <em>Resilient</em>, <em>Elastic</em>, <em>Message-Driven</em>. Manquer une seule fait que l'ensemble ne tient plus.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Le mécanisme central est le backpressure</strong> : le consommateur signale sa capacité au producteur, qui s'adapte. Sans cela, le buffer grossit jusqu'au crash.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>L'eau, pas les billes</strong> : un système réactif s'adapte à la pression au lieu de la subir.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Où on le voit</strong> : Spring WebFlux, streaming vidéo, pipelines IoT, tout système à très haute concurrence.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>4 propriétés</strong> à respecter ensemble : Responsive, Resilient, Elastic, Message-Driven.</li>
+      <li><strong>Backpressure</strong> est le mécanisme central : sans lui, l'élasticité devient un crash garanti.</li>
+      <li>Reactive est un <strong>état d'esprit architectural</strong>, pas une dépendance qu'on ajoute à pom.xml.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 6 — Service Mesh : externaliser tout ce qui est transverse au réseau.</span>
+    </div>
+  </aside>
+
 </section>
 
 <!-- ═══════════════════════════════════════════════════════
@@ -1122,6 +2020,29 @@ sequenceDiagram
   <span class="section-kicker">Infrastructure de communication</span>
   <h2>6. Service Mesh — Externaliser les préoccupations transverses</h2>
   <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 6">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">6</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Service Mesh</h4>
+      <p class="opener-pitch">Tout ce qui est <strong>transverse au réseau</strong> (mTLS, retry, métriques) sort du code applicatif et entre dans l'infrastructure, via un sidecar par pod.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~10 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Expliquer le sidecar pattern et le rôle d'Envoy</li>
+      <li>Lister les capacités externalisées par un mesh (Istio, Linkerd)</li>
+      <li>Décider quand un mesh est justifié — et quand c'est du sur-équipement</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box child-mode">
     <h4>🧸 Analogie — Le réseau électrique vs l'électronique embarquée</h4>
@@ -1213,11 +2134,11 @@ flowchart TB
             ENV3 <--> APP3
         end
     end
-    ISTIOD -.config push.-> ENV1
-    ISTIOD -.config push.-> ENV2
-    ISTIOD -.config push.-> ENV3
-    ENV1 <-->|"mTLS<br>retry + CB<br>tracing<br>métriques"| ENV2
-    ENV1 <-->|"mTLS<br>idem"| ENV3
+    ISTIOD -.->|"1️⃣ config push"| ENV1
+    ISTIOD -.->|"1️⃣ config push"| ENV2
+    ISTIOD -.->|"1️⃣ config push"| ENV3
+    ENV1 <-->|"2️⃣ mTLS<br>retry + CB<br>tracing<br>métriques"| ENV2
+    ENV1 <-->|"2️⃣ mTLS<br>idem"| ENV3
     style APP1 fill:#dbeafe,stroke:#2563eb
     style APP2 fill:#dcfce7,stroke:#16a34a
     style APP3 fill:#fef3c7,stroke:#ca8a04
@@ -1229,6 +2150,21 @@ flowchart TB
     <p class="mermaid-caption">Le code métier ne sait même pas que le mesh existe. Il appelle <code>http://catalog</code> en local — c'est Envoy qui chiffre, retry, observe, ajoute les traces, et applique les politiques.</p>
   </div>
 
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Il y a <strong>deux étages</strong> : en haut le « cerveau » qui décide (Control Plane), en bas les « ouvriers » qui exécutent (Data Plane). Chaque service applicatif a un petit assistant à côté de lui (le sidecar Envoy).</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>1️⃣ Config push</strong> — istiod (le cerveau) envoie les règles à tous les Envoy : <em>« voici les certificats, les politiques de retry, qui peut parler à qui »</em>.</li>
+      <li><strong>Le code applicatif</strong> (loan-service, catalog-service…) ne parle qu'à son propre Envoy via HTTP local, comme si tout était sur la même machine. Aucun code réseau à écrire.</li>
+      <li><strong>2️⃣ Communication entre Envoy</strong> — quand loan veut parler à catalog, ce sont en réalité les <em>Envoy</em> qui dialoguent. Ils s'occupent du chiffrement (mTLS), des retries, des circuit breakers, des métriques, du tracing. <strong>Tout cela sans que le code applicatif le sache.</strong></li>
+    </ol>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que tu veux dire un secret à ton copain Léo dans la cour de récré, mais que c'est interdit de parler aux autres copains entre vous. Chacun de vous a un <strong>doudou-magique</strong> à côté. ① La maîtresse explique aux doudous comment se parler en secret (la config). Ensuite, ② quand tu chuchotes à <em>ton</em> doudou « va dire à Léo… », c'est ton doudou qui parle à <strong>celui de Léo</strong>, en mode codé. Personne d'autre ne comprend. Toi, tu n'as rien à faire de spécial — c'est ton doudou qui s'occupe de tout : la sécurité, la politesse, le chemin. <strong>Tu fais ton métier d'enfant, le doudou fait le métier de réseau.</strong></p>
+  </div>
+
   <div class="use-case-box">
     <h4>🎯 Quand Service Mesh devient nécessaire (et quand pas) ?</h4>
     <ul>
@@ -1238,7 +2174,7 @@ flowchart TB
     </ul>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Qui utilise un Service Mesh en production ?<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Qui utilise un Service Mesh en production ?<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Qui utilise un Service Mesh en production ?</h4>
     <ul>
       <li><strong>Google</strong> : a inventé le pattern (BNS interne, puis Istio). Des dizaines de milliers de services derrière un mesh.</li>
@@ -1247,6 +2183,30 @@ flowchart TB
       <li><strong>Banques européennes</strong> : adoption massive d'Istio pour le mTLS systématique exigé par les régulateurs.</li>
     </ul>
   </div></div></details>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Service Mesh</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Idée centrale</strong> : sortir la plomberie réseau (TLS, retry, circuit breaker, métriques) du code applicatif pour la mettre dans une couche d'infrastructure.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Comment</strong> : un petit proxy (sidecar Envoy) à côté de chaque service intercepte tout le trafic. Le code métier ne sait même pas qu'il existe.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Le coût caché</strong> : +50 à 100 Mo de RAM par pod, +1 ms par appel, plus une équipe ops à former. Avec 200 pods, c'est significatif.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Justifié quand</strong> : 10+ services, ops K8s mature, mTLS imposé par la réglementation. En dessous, Resilience4j + Prometheus suffisent largement.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li>Un mesh <strong>externalise les préoccupations réseau</strong> (mTLS, retry, métriques) via des sidecars proxies.</li>
+      <li>Justifié quand : <strong>10+ services, ops K8s mature, mTLS imposé</strong> par la réglementation.</li>
+      <li>En-dessous de ces seuils : <strong>Resilience4j + Prometheus</strong> donnent 80 % du bénéfice pour 20 % de la complexité.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Section 7 — Chaos Engineering : la résilience par la méthode scientifique.</span>
+    </div>
+  </aside>
 
 </section>
 
@@ -1257,6 +2217,29 @@ flowchart TB
   <span class="section-kicker">Résilience proactive</span>
   <h2>7. Chaos Engineering — Tester l'architecture par la destruction</h2>
   <div class="level-bar"><span class="level-pill senior">Senior</span></div>
+
+  <aside class="section-opener" aria-label="Présentation de la section 7">
+    <div class="opener-badge">
+      Section
+      <span class="step-num">7</span>
+      sur 7
+    </div>
+    <div class="opener-content">
+      <h4>📍 Chaos Engineering</h4>
+      <p class="opener-pitch"><strong>Provoquer délibérément des pannes</strong> dans un cadre contrôlé — pour les corriger avant que la production ne s'en charge à votre place.</p>
+      <div class="opener-meta">
+        <span>⏱ <strong>~8 min</strong> de lecture</span>
+        <span>🎓 Niveau : <strong>Senior</strong></span>
+      </div>
+      <p class="opener-goals-label">🎯 À la fin, vous saurez :</p>
+      <ul class="opener-goals">
+      <li>Décrire le cycle scientifique du Chaos Engineering (hypothèse → expérience → observation)</li>
+      <li>Distinguer « casser au hasard » d'une vraie expérience contrôlée</li>
+      <li>Lister les règles d'or (kill switch, blast radius limité, équipe prévenue)</li>
+      </ul>
+    </div>
+  </aside>
+
 
   <div class="box definition">
     <h4>📖 Définition — Chaos Engineering (Netflix, 2011)</h4>
@@ -1326,10 +2309,10 @@ flowchart LR
     F{"Hypothèse<br>validée ?"}
     G["✅ Confiance<br>renforcée<br><br>doc + ADR"]
     H["❌ Faille trouvée<br><br>corriger archi<br>(retry, CB, fallback)"]
-    A --> B --> C --> D --> E --> F
-    F -->|Oui| G
-    F -->|Non| H
-    H -.recommencer.-> A
+    A -->|"➊"| B -->|"➋"| C -->|"➌"| D -->|"➍"| E -->|"➎"| F
+    F -->|"✅ Oui"| G
+    F -->|"❌ Non"| H
+    H -.->|"♻️ recommencer"| A
     style A fill:#dbeafe,stroke:#2563eb
     style B fill:#fef3c7,stroke:#ca8a04
     style D fill:#fed7aa,stroke:#ea580c
@@ -1339,7 +2322,26 @@ flowchart LR
     <p class="mermaid-caption">Le Chaos Engineering n'est PAS "casser au hasard". C'est une démarche scientifique : hypothèse → expérience → observation → correction.</p>
   </div>
 
-  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 🏢 Origine et exemples de Chaos Engineering<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
+  <div style="background:#f8fbff;border:1px solid #c7d6ed;border-radius:14px;padding:16px 18px;margin:6px 0 14px;">
+    <h4 style="margin:0 0 10px;color:#1d4ed8;font-size:.98rem;">🔎 Comment lire ce schéma, étape par étape</h4>
+    <p style="margin:0 0 10px;color:#374151;font-size:.88rem;">Le Chaos Engineering est un <strong>cycle scientifique</strong> en 5 étapes. À la fin, on apprend toujours quelque chose :</p>
+    <ol style="margin:0;padding-left:22px;color:#374151;font-size:.86rem;line-height:1.7;">
+      <li><strong>➊ Définir l'état stable</strong> — on mesure le système en bonne santé (ex. 99,5 % de succès, P99 &lt; 400 ms). Sans ça, impossible de dire si on l'a cassé.</li>
+      <li><strong>➋ Formuler une hypothèse</strong> — « <em>Si catalog tombe, loan-service doit servir un fallback en moins de 2 s</em> ». C'est une prédiction qu'on va tester.</li>
+      <li><strong>➌ Plan d'attaque</strong> — on définit le <em>blast radius</em> (rayon d'impact limité), on prépare le kill switch (l'arrêt d'urgence), on prévient l'équipe.</li>
+      <li><strong>➍ Injecter la panne</strong> — Chaos Monkey, Litmus ou Gremlin coupe le service ciblé.</li>
+      <li><strong>➎ Observer</strong> — l'état stable est-il maintenu ? Quels services ont mal réagi ?</li>
+      <li><strong>✅ Si oui</strong> → on a renforcé notre confiance. On documente (ADR).</li>
+      <li><strong>❌ Si non</strong> → on a trouvé une faille. On corrige l'architecture (retry, circuit breaker, fallback), puis on recommence depuis ➊.</li>
+    </ol>
+  </div>
+
+  <div class="box child-mode">
+    <h4>👶 Pour un enfant de 5 ans</h4>
+    <p>Imagine que tu construis un château avec des cubes. Tu veux savoir s'il est solide. Plutôt que d'attendre qu'un copain le bouscule sans prévenir, tu décides : ➊ <em>« mon château doit rester debout »</em>. ➋ Tu fais une devinette : <em>« si j'enlève UN cube au milieu, je pense qu'il tient quand même »</em>. ➌ Tu préviens Maman et tu prépares à reconstruire si jamais. ➍ Tu retires le cube exprès. ➎ Tu regardes : ✅ s'il tient, super, tu as appris que ton château est costaud ; ❌ s'il s'effondre, ce n'est pas grave — tu reconstruis en mettant un cube plus solide à cet endroit, et tu réessaies. <strong>Casser exprès pour apprendre, c'est mieux qu'attendre une vraie catastrophe.</strong></p>
+  </div>
+
+  <details style="margin:1rem 0;"><summary style="background:linear-gradient(135deg,#eff6ff,#dbeafe);border-left:4px solid #1d4ed8;border-radius:10px;padding:10px 14px;cursor:pointer;font-weight:600;color:#1e3a8a;font-size:.9rem;list-style:none;display:flex;align-items:center;gap:6px;">🏢 Origine et exemples de Chaos Engineering<span style="margin-left:auto;font-size:.78rem;font-weight:400;color:#64748b;">▼ voir exemples réels</span></summary><div class="real-world-box" style="margin-top:0;border-radius:0 0 10px 10px;">
     <h4>🏢 Origine et exemples de Chaos Engineering</h4>
     <ul>
       <li><strong>Netflix</strong> : a inventé Chaos Monkey en 2011. Tue aléatoirement des instances en production, en plein jour. Pour FORCER les équipes à concevoir des services qui survivent à la panne.</li>
@@ -1348,6 +2350,30 @@ flowchart LR
       <li><strong>Capital One, Audi, LinkedIn</strong> : programmes Chaos Engineering matures avec des "Chaos Champions" dans chaque équipe.</li>
     </ul>
   </div></div></details>
+
+
+  <div style="background:linear-gradient(135deg,#fffbeb,#fef3c7);border:2px solid #fbbf24;border-radius:16px;padding:18px 22px;margin:20px 0 4px;">
+    <h3 style="margin:0 0 12px;color:#92400e;font-size:1.05rem;">💡 L'essentiel à retenir — Chaos Engineering</h3>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">1</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Ce n'est pas casser au hasard</strong>. C'est une discipline scientifique : hypothèse → expérience contrôlée → observation → correction.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">2</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>5 étapes</strong> : état stable mesurable → hypothèse → injection de panne → observation → correction (et ADR si faille trouvée).</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">3</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Les 5 règles d'or</strong> : commencer en staging, kill switch, équipe prévenue, blast radius minimal, documenter.</div></div>
+      <div style="display:flex;gap:10px;align-items:flex-start;"><div style="flex:0 0 24px;height:24px;border-radius:50%;background:#fef3c7;color:#854d0e;font-weight:800;font-size:.78rem;display:flex;align-items:center;justify-content:center;border:1.5px solid #fbbf24;">4</div><div style="flex:1;font-size:.91rem;color:#1f2937;line-height:1.5;"><strong>Inventé par Netflix</strong>. Aujourd'hui : Chaos Monkey, Gremlin, Litmus, Chaos Mesh. Adopté en banque, e-commerce, plateformes critiques.</div></div>
+    </div>
+  </div>
+
+  <aside class="section-closer" aria-label="Synthèse de la section">
+    <h4>Les 3 idées à garder en tête</h4>
+    <ol class="closer-takeaways">
+      <li><strong>Démarche scientifique</strong> obligatoire : hypothèse → expérience → observation → correction. Pas du « casser au hasard ».</li>
+      <li>Trois règles non négociables : <strong>kill switch prêt</strong>, <strong>blast radius limité</strong>, <strong>équipe prévenue</strong>.</li>
+      <li>Chaque expérience qui révèle une faiblesse produit un <strong>ADR</strong> documentant la décision corrective.</li>
+    </ol>
+    <div class="closer-next">
+      <span>→</span>
+      <span><strong>Prochaine étape :</strong> Place au quiz pour vérifier vos acquis sur les 7 sections de la journée.</span>
+    </div>
+  </aside>
 
 </section>
 
